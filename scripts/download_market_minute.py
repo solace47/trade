@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 import json
 import os
 from pathlib import Path
@@ -43,12 +43,24 @@ def download(selection: Path, output: Path, workers: int) -> dict:
         raise AssertionError("unreachable")
 
     total_bytes = 0
+    remaining = iter(paths)
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(one, relative): relative for relative in paths}
-        for count, future in enumerate(as_completed(futures), start=1):
-            total_bytes += future.result()
-            if count % 100 == 0 or count == len(paths):
-                print(f"verified {count}/{len(paths)} files", flush=True)
+        pending = {}
+        for relative in [next(remaining, None) for _ in range(min(workers * 2, len(paths)))]:
+            if relative is not None:
+                pending[pool.submit(one, relative)] = relative
+        count = 0
+        while pending:
+            completed, _ = wait(pending, return_when=FIRST_COMPLETED)
+            for future in completed:
+                pending.pop(future)
+                total_bytes += future.result()
+                count += 1
+                if count % 100 == 0 or count == len(paths):
+                    print(f"verified {count}/{len(paths)} files", flush=True)
+                relative = next(remaining, None)
+                if relative is not None:
+                    pending[pool.submit(one, relative)] = relative
     result = {
         "selected_symbols": len(requested),
         "verified_minute_files": len(paths),
