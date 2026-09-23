@@ -35,6 +35,7 @@ PYTHONPATH=src .venv/bin/python scripts/download_market_minute.py --workers 4
 ```bash
 PYTHONPATH=src .venv/bin/python scripts/orchestrate_market.py --initial-run-id RUN_ID
 PYTHONPATH=src .venv/bin/python -m trade_research.market_quality
+PYTHONPATH=src .venv/bin/python -m trade_research.market_integrity
 PYTHONPATH=src .venv/bin/python -m trade_research.strategy_scan
 PYTHONPATH=src .venv/bin/python -m trade_research.strategy_select
 ```
