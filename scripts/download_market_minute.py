@@ -28,7 +28,13 @@ def download(selection: Path, output: Path, workers: int) -> dict:
 
     def one(relative: str) -> int:
         local = output / relative
-        if local.is_file():
+        metadata = output / ".cache/huggingface/download" / f"{relative}.metadata"
+        metadata_lines = (
+            metadata.read_text(encoding="utf-8").splitlines()
+            if metadata.is_file() else []
+        )
+        cached_revision = metadata_lines[0] if metadata_lines else None
+        if local.is_file() and cached_revision == revision:
             try:
                 if pq.ParquetFile(local).metadata.num_rows > 0:
                     return local.stat().st_size
