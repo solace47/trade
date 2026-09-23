@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 from pathlib import Path
 import shutil
@@ -42,6 +43,49 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+def _byte_ranges(size: int, workers: int) -> list[tuple[int, int]]:
+    if size <= 0 or workers <= 0:
+        raise ValueError("Artifact size and worker count must be positive")
+    width = (size + workers - 1) // workers
+    return [(start, min(start + width, size) - 1)
+            for start in range(0, size, width)]
+
+
+def _download_ranges(location: str, target: Path, size: int) -> None:
+    ranges = _byte_ranges(size, 4)
+    parts = [target.with_name(f"{target.name}.part{index}")
+             for index in range(len(ranges))]
+
+    def one(index: int, start: int, end: int) -> None:
+        request = urllib.request.Request(
+            location, headers={"Range": f"bytes={start}-{end}"}
+        )
+        with urllib.request.urlopen(request, timeout=120) as source:
+            if source.status != 206 or source.headers.get("Content-Range") != \
+                    f"bytes {start}-{end}/{size}":
+                raise OSError("Artifact server did not honor a byte range")
+            with parts[index].open("wb") as dest:
+                shutil.copyfileobj(source, dest)
+        if parts[index].stat().st_size != end - start + 1:
+            raise OSError("Downloaded artifact part has an unexpected size")
+
+    try:
+        with ThreadPoolExecutor(max_workers=len(ranges)) as pool:
+            futures = [pool.submit(one, index, start, end)
+                       for index, (start, end) in enumerate(ranges)]
+            for future in as_completed(futures):
+                future.result()
+        with target.open("wb") as dest:
+            for part in parts:
+                with part.open("rb") as source:
+                    shutil.copyfileobj(source, dest)
+        if target.stat().st_size != size:
+            raise OSError("Combined artifact has an unexpected size")
+    finally:
+        for part in parts:
+            part.unlink(missing_ok=True)
+
+
 def _download(artifact_id: int, headers: dict[str, str], target: Path) -> None:
     temporary = target.with_suffix(".zip.tmp")
     for attempt in range(3):
@@ -57,11 +101,23 @@ def _download(artifact_id: int, headers: dict[str, str], target: Path) -> None:
                 if error.code not in (301, 302, 303, 307, 308):
                     raise
                 location = error.headers["Location"]
-            with urllib.request.urlopen(location, timeout=120) as source, temporary.open("wb") as dest:
-                shutil.copyfileobj(source, dest)
+            try:
+                with urllib.request.urlopen(
+                    urllib.request.Request(location, method="HEAD"), timeout=30
+                ) as response:
+                    size = int(response.headers.get("Content-Length", 0))
+                    range_supported = response.headers.get("Accept-Ranges") == "bytes"
+            except urllib.error.HTTPError:
+                size, range_supported = 0, False
+            if range_supported and size >= 8_000_000:
+                _download_ranges(location, temporary, size)
+            else:
+                with urllib.request.urlopen(location, timeout=120) as source, \
+                        temporary.open("wb") as dest:
+                    shutil.copyfileobj(source, dest)
             temporary.replace(target)
             return
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError, OSError):
             temporary.unlink(missing_ok=True)
             if attempt == 2:
                 raise
