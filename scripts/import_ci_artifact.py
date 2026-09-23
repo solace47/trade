@@ -124,6 +124,20 @@ def import_shard(run_id: int, shard: int, delete_remote: bool = False) -> dict:
                 link.unlink()
             link.symlink_to(item.resolve())
             copied[kind] += 1
+    for source, destination in (
+        (stage / "data/research/market_audit/issues.csv",
+         Path("data/research/market_issues_ci") / f"shard_{shard:02d}.csv"),
+        (stage / "data/research/market_audit/summary.json",
+         Path("data/research/market_audit_ci") / f"shard_{shard:02d}.json"),
+        (stage / "data/baostock/market_2020_2026/metadata/symbols.parquet",
+         Path("data/research/market_symbols_ci") / f"shard_{shard:02d}.parquet"),
+    ):
+        if not source.exists():
+            raise ValueError(f"Missing shard sidecar: {source.name}")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if destination.is_symlink() or destination.exists():
+            destination.unlink()
+        destination.symlink_to(source.resolve())
     if delete_remote:
         with _api(f"/artifacts/{artifact['id']}", headers, method="DELETE") as response:
             if response.status != 204:
