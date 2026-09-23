@@ -17,6 +17,12 @@ from .market_study import _quality_keys, _week_bootstrap
 
 
 FACTORS = {
+    "market_board": """
+        CASE WHEN code LIKE 'sh.60%' OR code LIKE 'sz.00%' THEN 'mainboard'
+             WHEN code LIKE 'sh.68%' THEN 'star'
+             WHEN code LIKE 'sz.30%' THEN 'chinext'
+             ELSE 'other' END
+    """,
     "intraday_return": """
         CASE WHEN return_1450 < 0 THEN 'loss'
              WHEN return_1450 < .015 THEN '0_to_1_5pct'
@@ -81,6 +87,45 @@ FACTORS = {
              WHEN (high_1450 - low_1450) / preclose < .08 THEN '5_to_8pct'
              ELSE 'at_least_8pct' END
     """,
+    "candidate_trend_mainboard": """
+        CASE WHEN (code LIKE 'sh.60%' OR code LIKE 'sz.00%')
+             AND return_1450 BETWEEN .015 AND .05
+             AND position_1450 >= .7 AND volume_ratio_est >= 1.2
+             AND price_1450 > ma20_prior_adjusted
+             AND ma5_prior_adjusted > ma20_prior_adjusted
+             AND amount_1450 >= 50000000 THEN 'selected' ELSE 'other' END
+    """,
+    "candidate_breakout_momentum": """
+        CASE WHEN return_1450 BETWEEN .03 AND .07
+             AND position_1450 >= .85 AND volume_ratio_est >= 1.5
+             AND return20_prior_adjusted > 0
+             AND return5_prior_adjusted BETWEEN 0 AND .10
+             AND price_1450 > ma20_prior_adjusted
+             AND amount_1450 >= 100000000 THEN 'selected' ELSE 'other' END
+    """,
+    "candidate_trend_pullback": """
+        CASE WHEN return20_prior_adjusted >= .05
+             AND return5_prior_adjusted BETWEEN -.05 AND 0
+             AND return_1450 BETWEEN .01 AND .04
+             AND position_1450 >= .7 AND volume_ratio_est >= 1.2
+             AND price_1450 > ma20_prior_adjusted
+             AND amount_1450 >= 50000000 THEN 'selected' ELSE 'other' END
+    """,
+    "candidate_oversold_rebound": """
+        CASE WHEN return20_prior_adjusted <= -.10
+             AND return5_prior_adjusted <= -.05
+             AND return_1450 BETWEEN .02 AND .07
+             AND position_1450 >= .8 AND volume_ratio_est >= 1.5
+             AND amount_1450 >= 50000000 THEN 'selected' ELSE 'other' END
+    """,
+    "candidate_quiet_trend": """
+        CASE WHEN return20_prior_adjusted > 0
+             AND return_1450 BETWEEN 0 AND .02
+             AND position_1450 >= .8
+             AND volume_ratio_est BETWEEN .8 AND 1.5
+             AND price_1450 > ma20_prior_adjusted
+             AND amount_1450 >= 100000000 THEN 'selected' ELSE 'other' END
+    """,
 }
 
 
@@ -128,7 +173,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection.register("bad_quality", bad)
     connection.execute("""
         CREATE TEMP TABLE base AS
-        SELECT s.date, s.return_1450, s.position_1450, s.volume_ratio_est,
+        SELECT s.date, s.code, s.price_1450, s.return_1450,
+               s.position_1450, s.volume_ratio_est,
                s.distance_ma20_adjusted, s.return5_prior_adjusted,
                s.return20_prior_adjusted, s.amount_1450,
                s.ma5_prior_adjusted, s.ma20_prior_adjusted,
