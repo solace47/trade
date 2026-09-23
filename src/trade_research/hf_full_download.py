@@ -12,7 +12,7 @@ import time
 
 import pyarrow.parquet as pq
 
-from .hf_download import REPO, REVISION
+from .hf_download import REPO, locked_revision
 from .network import effective_environment
 
 
@@ -25,8 +25,9 @@ def _valid_parquet(path: Path) -> bool:
 
 def download(inventory_file: Path, output: Path, workers: int,
              chunk_size: int, limit_batches: int | None = None) -> dict:
+    revision = locked_revision()
     frozen = json.loads(inventory_file.read_text(encoding="utf-8"))
-    if frozen["repository"] != REPO or frozen["revision"] != REVISION:
+    if frozen["repository"] != REPO or frozen["revision"] != revision:
         raise ValueError("Inventory points to a different dataset version")
     paths = frozen["stock_files"]
     cli = Path(sys.executable).with_name("hf")
@@ -48,7 +49,7 @@ def download(inventory_file: Path, output: Path, workers: int,
             for attempt in range(3):
                 result = subprocess.run([
                     command, "download", REPO, *missing,
-                    "--type", "dataset", "--revision", REVISION,
+                    "--type", "dataset", "--revision", revision,
                     "--local-dir", str(output), "--max-workers", str(workers),
                     "--format", "quiet",
                 ], capture_output=True, text=True, env=effective_environment())
@@ -73,7 +74,7 @@ def download(inventory_file: Path, output: Path, workers: int,
             break
     available = sum(_valid_parquet(output / path) for path in paths)
     summary = {
-        "repository": REPO, "revision": REVISION,
+        "repository": REPO, "version_locked": True,
         "stock_files_in_inventory": len(paths),
         "available_stock_files": available,
         "failed_files": failures,

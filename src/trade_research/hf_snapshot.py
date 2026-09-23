@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from .hf_audit import EXPECTED_LABELS, FIRST_DATE, LAST_DATE, read_window
-from .hf_download import REVISION, selected_paths
+from .hf_download import selected_paths
 from .snapshot import prior_daily_features
 
 
@@ -113,7 +113,6 @@ def build(hf_root: Path, bao_root: Path, first_date: str = FIRST_DATE,
     result.to_parquet(output, index=False, compression="zstd")
     summary = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "source_revision": REVISION,
         "cutoff": "14:50 Asia/Shanghai; 231 source bars including 09:30 auction",
         "first_date": first_date, "last_date": last_date,
         "snapshots": len(result), "symbols": int(result["code"].nunique()),

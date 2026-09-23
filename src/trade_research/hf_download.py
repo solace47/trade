@@ -5,17 +5,38 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
 
 import pandas as pd
+from huggingface_hub import HfApi
 
 from .network import effective_environment
 
 
 REPO = "neigezhu/china-a-share-1min-ohlcv"
-REVISION = "ba589a11534825044fe5a6b84838f50ba8d8d188"
+REVISION_LOCK = Path("data/hf/revision.lock")
+
+
+def locked_revision() -> str:
+    """Use one archive revision for all downloads in this local workspace."""
+    override = os.environ.get("TRADE_HF_REVISION", "").strip()
+    if override:
+        return override
+    if REVISION_LOCK.exists():
+        revision = REVISION_LOCK.read_text(encoding="utf-8").strip()
+        if revision:
+            return revision
+        raise ValueError(f"Empty archive revision lock: {REVISION_LOCK}")
+    os.environ.update(effective_environment())
+    revision = HfApi().repo_info(REPO, repo_type="dataset").sha
+    if not revision:
+        raise RuntimeError("Unable to resolve an archive revision")
+    REVISION_LOCK.parent.mkdir(parents=True, exist_ok=True)
+    REVISION_LOCK.write_text(revision + "\n", encoding="utf-8")
+    return revision
 
 
 def selected_paths(selection_file: Path) -> list[str]:
@@ -28,12 +49,13 @@ def selected_paths(selection_file: Path) -> list[str]:
 
 
 def download(selection_file: Path, output: Path, dry_run: bool, workers: int) -> None:
+    revision = locked_revision()
     files = selected_paths(selection_file)
     files.extend(("metadata/source_provenance.json", "metadata/summary.json"))
     local_cli = Path(sys.executable).with_name("hf")
     command = [
         str(local_cli) if local_cli.exists() else "hf", "download", REPO, *files,
-        "--type", "dataset", "--revision", REVISION,
+        "--type", "dataset", "--revision", revision,
         "--local-dir", str(output), "--max-workers", str(workers),
         "--format", "json",
     ]
@@ -54,7 +76,7 @@ def download(selection_file: Path, output: Path, dry_run: bool, workers: int) ->
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 digest.update(chunk)
         checksums[file] = {"bytes": path.stat().st_size, "sha256": digest.hexdigest()}
-    manifest = {"repository": REPO, "revision": REVISION, "files": checksums}
+    manifest = {"repository": REPO, "revision": revision, "files": checksums}
     (output / "download_manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )

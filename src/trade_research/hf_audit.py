@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from .hf_download import REVISION, selected_paths
+from .hf_download import selected_paths
 
 
 FIRST_DATE = "2025-08-07"
@@ -53,15 +53,24 @@ def audit_symbol(code: str, minute_path: Path, daily_path: Path,
     wrong_identity = int(((minute["exchange"].str.upper() != exchange.upper()) |
                           (minute["symbol"].str.zfill(6) != symbol)).sum())
     active_dates = set(daily.loc[daily["tradestatus"] == 1, "date"])
-    day_groups = minute.groupby("date", sort=True)
-    observed_dates = set(day_groups.groups)
-    partial = {date for date, group in day_groups
-               if group["label"].tolist() != list(EXPECTED_LABELS)}
+    minute = minute.assign(on_grid=minute["label"].isin(EXPECTED_LABELS))
+    pattern = minute.groupby("date", sort=True).agg(
+        bar_count=("label", "size"), unique_labels=("label", "nunique"),
+        first_label=("label", "first"), last_label=("label", "last"),
+        all_on_grid=("on_grid", "all"), total_volume=("volume", "sum"),
+    )
+    observed_dates = set(pattern.index)
+    good_pattern = (
+        pattern["bar_count"].eq(241)
+        & pattern["unique_labels"].eq(241)
+        & pattern["first_label"].eq("0930")
+        & pattern["last_label"].eq("1500")
+        & pattern["all_on_grid"]
+    )
+    partial = set(pattern.index[~good_pattern])
     missing = active_dates - observed_dates
     nontrading = observed_dates - active_dates
-    suspension_placeholders = {
-        date for date in nontrading if day_groups.get_group(date)["volume"].sum() == 0
-    }
+    suspension_placeholders = set(pattern.index[pattern["total_volume"] == 0]) & nontrading
     unexpected_nontrading = nontrading - suspension_placeholders
     complete_dates = (active_dates & observed_dates) - partial
     invalid_rows = int((
@@ -90,13 +99,20 @@ def audit_symbol(code: str, minute_path: Path, daily_path: Path,
     }
     mismatch_days = pd.DataFrame(mismatch_by_field).any(axis=1)
     opening_volume = complete.groupby("date")["volume"].first()
-    auction_placeholder_mismatch = (
+    opening_only_mismatch = (
         mismatch_by_field["open"]
         & ~pd.DataFrame({field: mismatch_by_field[field]
                          for field in ("high", "low", "close")}).any(axis=1)
+    )
+    auction_placeholder_mismatch = (
+        opening_only_mismatch
         & opening_volume.reindex(comparison.index).eq(0)
     )
-    unexplained_mismatch = mismatch_days & ~auction_placeholder_mismatch
+    traded_auction_open_mismatch = (
+        opening_only_mismatch
+        & opening_volume.reindex(comparison.index).gt(0)
+    )
+    unexplained_mismatch = mismatch_days & ~opening_only_mismatch
     volume_delta = (comparison["volume"] - comparison["minute_volume"]).abs()
     amount_delta = (comparison["amount"] - comparison["minute_amount"]).abs()
     issues = [
@@ -124,7 +140,9 @@ def audit_symbol(code: str, minute_path: Path, daily_path: Path,
         "active_no_trade_days": len(active_no_trade),
         "zero_volume_auction_days": int((complete.loc[complete["label"] == "0930", "volume"] == 0).sum()),
         "ohlc_mismatch_days": int(mismatch_days.sum()),
+        "opening_only_mismatch_days": int(opening_only_mismatch.sum()),
         "auction_placeholder_open_mismatch_days": int(auction_placeholder_mismatch.sum()),
+        "traded_auction_open_mismatch_days": int(traded_auction_open_mismatch.sum()),
         "unexplained_ohlc_mismatch_days": int(unexplained_mismatch.sum()),
         **{f"mismatch_{field}": int(mask.sum()) for field, mask in mismatch_by_field.items()},
         "volume_over_100_shares_days": int((volume_delta > 100).sum()),
@@ -162,7 +180,6 @@ def audit(hf_root: Path, bao_root: Path, first_date: str = FIRST_DATE,
         return int(valid[column].sum()) if len(valid) else 0
     summary = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "source_revision": REVISION,
         "first_date": first_date, "last_date": last_date,
         "selected_symbols": len(pilot), "downloaded_symbols": len(valid),
         "minute_rows": total("minute_rows"),
@@ -180,7 +197,9 @@ def audit(hf_root: Path, bao_root: Path, first_date: str = FIRST_DATE,
         "active_no_trade_days": total("active_no_trade_days"),
         "zero_volume_auction_days": total("zero_volume_auction_days"),
         "ohlc_mismatch_days": total("ohlc_mismatch_days"),
+        "opening_only_mismatch_days": total("opening_only_mismatch_days"),
         "auction_placeholder_open_mismatch_days": total("auction_placeholder_open_mismatch_days"),
+        "traded_auction_open_mismatch_days": total("traded_auction_open_mismatch_days"),
         "unexplained_ohlc_mismatch_days": total("unexplained_ohlc_mismatch_days"),
         "volume_over_100_shares_days": total("volume_over_100_shares_days"),
         "amount_over_0_01pct_days": total("amount_over_0_01pct_days"),

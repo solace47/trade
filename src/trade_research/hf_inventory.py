@@ -10,19 +10,20 @@ from pathlib import Path
 
 from huggingface_hub import HfApi
 
-from .hf_download import REPO, REVISION, selected_paths
+from .hf_download import REPO, locked_revision, selected_paths
 from .network import effective_environment
 
 
 def inventory(output: Path, bao_symbols: Path) -> dict:
     os.environ.update(effective_environment())
-    files = HfApi().list_repo_files(REPO, repo_type="dataset", revision=REVISION)
+    revision = locked_revision()
+    files = HfApi().list_repo_files(REPO, repo_type="dataset", revision=revision)
     stocks = sorted(path for path in files
                     if path.startswith("data/stock_1m/") and path.endswith(".parquet"))
     selected = set(selected_paths(bao_symbols))
     archived = set(stocks)
     result = {
-        "repository": REPO, "revision": REVISION,
+        "repository": REPO, "revision": revision,
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "stock_files": stocks,
         "counts_by_exchange": {
@@ -34,7 +35,7 @@ def inventory(output: Path, bao_symbols: Path) -> dict:
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {key: value for key, value in result.items() if key != "stock_files"} | {
+    return {key: value for key, value in result.items() if key not in ("stock_files", "revision")} | {
         "stock_files": len(stocks)
     }
 
