@@ -30,6 +30,8 @@ PYTHONPATH=src .venv/bin/python -c 'from trade_research.hf_download import locke
 PYTHONPATH=src .venv/bin/python scripts/download_market_minute.py --workers 4
 ```
 
+完成后，本地 `data/hf/pilot/market_download_manifest.json` 记录核验文件数、总字节数和源文件缺失路径。
+
 然后在 GitHub Actions 的“历史行情分片验证”中，以 `first_shard=0`、`max_shards=4`、`limit_symbols=0` 启动首批。获得运行编号后执行：
 
 ```bash
