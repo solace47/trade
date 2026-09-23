@@ -2,7 +2,9 @@
 
 import pandas as pd
 
-from trade_research.hf_outcomes import _board_limit_rate, _order_shares, outcomes_for_symbol
+from trade_research.hf_outcomes import (
+    Assumptions, _board_limit_rate, _fees, _order_shares, outcomes_for_symbol,
+)
 
 
 DATES = ["2025-09-01", "2025-09-02", "2025-09-03"]
@@ -71,3 +73,10 @@ def test_new_listing_window_is_excluded_from_estimated_fills():
     signals["listing_age_sessions"] = 2
     outcomes = outcomes_for_symbol(signals, minute, daily, DATES)
     assert set(outcomes["entry_status"]) == {"new_listing_window"}
+
+
+def test_stamp_tax_uses_the_actual_sale_date():
+    assumptions = Assumptions()
+    before = _fees(100_000, "sell", assumptions, "2023-08-25")
+    after = _fees(100_000, "sell", assumptions, "2023-08-28")
+    assert round(before - after, 2) == 50.00
