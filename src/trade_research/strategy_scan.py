@@ -23,6 +23,19 @@ CANDIDATES = tuple(name for name in FACTORS if name.startswith("candidate_"))
 HORIZONS = (1, 2, 3, 5)
 
 
+def _last_safe_entry(connection: duckdb.DuckDBPyConnection,
+                     first_date: str, last_date: str,
+                     reserve_sessions: int = 10) -> str:
+    """Leave enough market sessions for T+5 and a five-session exit delay."""
+    dates = [row[0] for row in connection.execute("""
+        SELECT DISTINCT date FROM snapshots
+        WHERE date >= ? AND date < ? ORDER BY date
+    """, [first_date, last_date]).fetchall()]
+    if len(dates) <= reserve_sessions:
+        raise ValueError("Too few trading dates to reserve an exit window")
+    return dates[-(reserve_sessions + 1)]
+
+
 def _stressed_returns(frame: pd.DataFrame, slippage_bps_each_side: float) -> np.ndarray:
     """Reprice completed trades at wider slip; keep original fill decisions."""
     terms = Assumptions()
@@ -131,11 +144,13 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
+    last_2022 = _last_safe_entry(connection, "2022-01-01", "2023-01-01")
+    last_2023 = _last_safe_entry(connection, "2023-01-01", "2024-01-01")
     bad_days = _quality_keys(issues_dir)
     bad_symbols = _quality_symbols(issues_dir)
     connection.register("bad_days", bad_days)
     connection.register("bad_symbols", bad_symbols)
-    connection.execute("""
+    connection.execute(f"""
         CREATE TEMP VIEW base AS
         SELECT s.date, s.code, s.return_1450, s.position_1450,
                s.volume_ratio_est, s.price_1450, s.amount_1450,
@@ -153,7 +168,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_days AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
-        WHERE s.date >= '2022-01-01' AND s.date < '2024-01-01'
+        WHERE ((s.date >= '2022-01-01' AND s.date <= '{last_2022}')
+           OR (s.date >= '2023-01-01' AND s.date <= '{last_2023}'))
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -202,6 +218,7 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     result = {
         "scope": "Shanghai/Shenzhen development 2022 and validation 2023 only",
         "shards": len(shards),
+        "last_entry_dates": {"2022": last_2022, "2023": last_2023},
         "capacity": "at most five ranked signals per trading day",
         "ranking": "14:50 return descending, code ascending tie break",
         "candidate_screens": list(CANDIDATES),

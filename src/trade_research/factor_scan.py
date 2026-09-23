@@ -171,9 +171,18 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
+    last_entry = {}
+    for year in (2022, 2023):
+        dates = [row[0] for row in connection.execute("""
+            SELECT DISTINCT date FROM snapshots
+            WHERE date >= ? AND date < ? ORDER BY date
+        """, [f"{year}-01-01", f"{year + 1}-01-01"]).fetchall()]
+        if len(dates) <= 10:
+            raise ValueError(f"Too few trading days in {year}")
+        last_entry[year] = dates[-11]
     connection.register("bad_quality", bad)
     connection.register("bad_symbols", bad_symbols)
-    connection.execute("""
+    connection.execute(f"""
         CREATE TEMP TABLE base AS
         SELECT s.date, s.code, s.price_1450, s.return_1450,
                s.position_1450, s.volume_ratio_est,
@@ -193,7 +202,9 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
-        WHERE o.horizon = 1 AND s.date >= '2022-01-01' AND s.date < '2024-01-01'
+        WHERE o.horizon = 1
+          AND ((s.date >= '2022-01-01' AND s.date <= '{last_entry[2022]}')
+            OR (s.date >= '2023-01-01' AND s.date <= '{last_entry[2023]}'))
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -241,6 +252,7 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     result = {
         "scope": "Shanghai/Shenzhen 2022 development and 2023 validation, T+1",
         "shards": len(shards), "quality_bad_stock_days": len(bad),
+        "last_entry_dates": {str(year): date for year, date in last_entry.items()},
         "quality_excluded_symbols": len(bad_symbols),
         "base": "non-ST, listed >=20 sessions, no reference gap, clean minute audit, "
                 "14:50 turnover >=CNY30m",

@@ -11,7 +11,7 @@ import pandas as pd
 
 from .factor_scan import FACTORS
 from .market_study import _quality_keys, _quality_symbols
-from .strategy_scan import CANDIDATES, HORIZONS, _summarize
+from .strategy_scan import CANDIDATES, HORIZONS, _last_safe_entry, _summarize
 
 
 def _freeze(path: Path) -> dict:
@@ -66,9 +66,11 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
+    last_2024 = _last_safe_entry(connection, "2024-01-01", "2025-01-01")
+    last_later = _last_safe_entry(connection, "2025-01-01", "2027-01-01")
     connection.register("bad_days", _quality_keys(issues_dir))
     connection.register("bad_symbols", _quality_symbols(issues_dir))
-    connection.execute("""
+    connection.execute(f"""
         CREATE TEMP VIEW base AS
         SELECT s.date, s.code, s.return_1450, s.position_1450,
                s.volume_ratio_est, s.price_1450, s.amount_1450,
@@ -86,7 +88,8 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_days AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
-        WHERE s.date >= '2024-01-01'
+        WHERE ((s.date >= '2024-01-01' AND s.date <= '{last_2024}')
+           OR (s.date >= '2025-01-01' AND s.date <= '{last_later}'))
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -128,6 +131,7 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     result = {
         "scope": "Shanghai/Shenzhen 2024 holdout and 2025-2026 later test",
         "shards": len(shards), "frozen_strategy": frozen,
+        "last_entry_dates": {"2024": last_2024, "2025_2026": last_later},
         "periods": periods, "publication_thresholds": _thresholds(periods),
     }
     output.parent.mkdir(parents=True, exist_ok=True)
