@@ -1,0 +1,18 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# 行情原始数据、派生数据库与本地研究产物
+data/
+artifacts/
+*.parquet
+*.duckdb
+*.sqlite
+*.db
