@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from trade_research.market_study import _week_bootstrap, study
+from trade_research.market_study import _quality_symbols, _week_bootstrap, study
 
 
 def test_week_resampling_preserves_within_week_dependence():
@@ -10,6 +10,23 @@ def test_week_resampling_preserves_within_week_dependence():
                       + pd.date_range("2024-01-08", periods=5).tolist())
     values = pd.Series([1.0] * 5 + [-1.0] * 5)
     assert _week_bootstrap(values, dates, 7) == [-1.0, 1.0]
+
+
+def test_source_anomalies_exclude_entire_stock_history(tmp_path):
+    pd.DataFrame(columns=["code", "date", "kind"]).to_csv(
+        tmp_path / "shard_00.csv", index=False,
+    )
+    pd.DataFrame([
+        {"code": "sh.600001", "invalid_rows": 3,
+         "amount_over_0_01pct_days": 0},
+        {"code": "sh.600002", "invalid_rows": 0,
+         "amount_over_0_01pct_days": 2},
+        {"code": "sh.600003", "invalid_rows": 0,
+         "amount_over_0_01pct_days": 0},
+    ]).to_csv(tmp_path / "stocks.csv", index=False)
+    assert _quality_symbols(tmp_path)["code"].tolist() == [
+        "sh.600001", "sh.600002",
+    ]
 
 
 def test_quality_censoring_and_top_five_are_applied_before_metrics(tmp_path):

@@ -19,7 +19,9 @@ TOTAL_FIELDS = (
     "unexplained_ohlc_mismatch_days",
 )
 STOCK_RISK_FIELDS = (
-    "invalid_rows", "duplicate_rows", "wrong_identity_rows", "active_no_trade_days",
+    "invalid_rows", "duplicate_rows", "wrong_identity_rows",
+    "volume_over_100_shares_days", "amount_over_0_01pct_days",
+    "active_no_trade_days",
 )
 
 

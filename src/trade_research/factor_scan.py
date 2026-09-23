@@ -13,7 +13,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from .market_study import _quality_keys, _week_bootstrap
+from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
 
 
 FACTORS = {
@@ -167,10 +167,12 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     if not snapshots or len(snapshots) != len(outcomes):
         raise ValueError("Snapshot and outcome partitions are incomplete")
     bad = _quality_keys(issues_dir)
+    bad_symbols = _quality_symbols(issues_dir)
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
     connection.register("bad_quality", bad)
+    connection.register("bad_symbols", bad_symbols)
     connection.execute("""
         CREATE TEMP TABLE base AS
         SELECT s.date, s.code, s.price_1450, s.return_1450,
@@ -190,8 +192,10 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         FROM snapshots AS s
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
+        LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
         WHERE o.horizon = 1 AND s.date >= '2022-01-01' AND s.date < '2024-01-01'
-          AND b.code IS NULL AND s.isST = 0 AND s.listing_age_sessions >= 20
+          AND b.code IS NULL AND excluded.code IS NULL
+          AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
           AND s.amount_1450 >= 30000000
     """)
@@ -237,6 +241,7 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     result = {
         "scope": "Shanghai/Shenzhen 2022 development and 2023 validation, T+1",
         "shards": len(shards), "quality_bad_stock_days": len(bad),
+        "quality_excluded_symbols": len(bad_symbols),
         "base": "non-ST, listed >=20 sessions, no reference gap, clean minute audit, "
                 "14:50 turnover >=CNY30m",
         "universe": universe,

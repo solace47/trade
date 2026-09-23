@@ -22,6 +22,10 @@ SCREEN = """
     AND s.price_1450 > s.ma20_prior_adjusted
     AND s.amount_1450 >= 30000000
 """
+BAD_STOCK_FIELDS = (
+    "invalid_rows", "duplicate_rows", "wrong_identity_rows",
+    "volume_over_100_shares_days", "amount_over_0_01pct_days",
+)
 
 
 def _week_bootstrap(values: pd.Series, dates: pd.Series, seed: int) -> list[float]:
@@ -48,6 +52,21 @@ def _quality_keys(issues_dir: Path) -> pd.DataFrame:
         "active_no_trade", "missing_active_minute",
     )), ["date", "code"]].drop_duplicates()
     return bad.reset_index(drop=True)
+
+
+def _quality_symbols(issues_dir: Path) -> pd.DataFrame:
+    codes = set()
+    for issue_path in issues_dir.glob("shard_*.csv"):
+        stock_path = issue_path.resolve().with_name("stocks.csv")
+        if not stock_path.exists():
+            continue
+        stocks = pd.read_csv(stock_path, dtype={"code": str})
+        bad = pd.Series(False, index=stocks.index)
+        for field in BAD_STOCK_FIELDS:
+            if field in stocks:
+                bad |= stocks[field].fillna(0).gt(0)
+        codes.update(stocks.loc[bad, "code"])
+    return pd.DataFrame({"code": sorted(codes)})
 
 
 def _summarize(days: pd.DataFrame) -> dict:
@@ -89,10 +108,18 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     if not snapshot_files or len(snapshot_files) != len(outcome_files):
         raise ValueError("Snapshot and outcome partitions are incomplete")
     bad = _quality_keys(issues_dir)
+    bad_symbols = _quality_symbols(issues_dir)
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots_raw")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes_raw")
     connection.register("bad_quality", bad)
+    connection.register("bad_symbols", bad_symbols)
+    connection.execute("""
+        CREATE TEMP VIEW clean_snapshots AS
+        SELECT s.* FROM snapshots_raw AS s
+        LEFT JOIN bad_symbols AS b ON b.code = s.code
+        WHERE b.code IS NULL
+    """)
     connection.execute("""
         CREATE TEMP VIEW market_environment AS
         SELECT s.date,
@@ -101,7 +128,7 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                     WHEN AVG(CASE WHEN s.return_1450 > 0 THEN 1.0 ELSE 0.0 END) <= .4
                          THEN 'broad_decline'
                     ELSE 'mixed' END AS regime
-        FROM snapshots_raw AS s
+        FROM clean_snapshots AS s
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
         WHERE b.code IS NULL AND s.isST = 0 AND s.listing_age_sessions >= 20
         GROUP BY s.date
@@ -110,7 +137,7 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         CREATE TEMP VIEW screened AS
         SELECT s.*, CASE WHEN b.code IS NULL AND {SCREEN}
                          THEN TRUE ELSE FALSE END AS candidate
-        FROM snapshots_raw AS s
+        FROM clean_snapshots AS s
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
     """)
     connection.execute("""
@@ -179,6 +206,7 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     result = {
         "scope": "historical Shanghai/Shenzhen, quality-screened 2022-2026",
         "shards": len(shard_ids), "quality_bad_stock_days": len(bad),
+        "quality_excluded_symbols": len(bad_symbols),
         "execution_model": "14:52-14:55 VWAP, costs, volume cap, limits, T+1, delayed exit",
         "rule": "non-ST; seasoned >=20 sessions; 14:50 gain 1.5%-5%; position >=0.7; "
                 "estimated volume ratio >=1.2; above adjusted prior MA20; turnover >=CNY30m",
