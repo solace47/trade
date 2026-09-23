@@ -139,11 +139,14 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                o.entry_status, o.exit_status, o.net_return,
                CASE WHEN s.date < '2023-01-01' THEN '2022_development'
                     ELSE '2023_validation' END AS period,
-               x.code IS NULL AS quality_clean_exit
+               NOT EXISTS (
+                   SELECT 1 FROM bad_quality AS x
+                   WHERE x.code = s.code AND x.date >= s.date
+                     AND x.date <= o.exit_date
+               ) AS quality_clean_exit
         FROM snapshots AS s
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
-        LEFT JOIN bad_quality AS x ON x.date = o.exit_date AND x.code = o.code
         WHERE o.horizon = 1 AND s.date >= '2022-01-01' AND s.date < '2024-01-01'
           AND b.code IS NULL AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range

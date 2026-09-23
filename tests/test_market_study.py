@@ -25,15 +25,17 @@ def test_quality_censoring_and_top_five_are_applied_before_metrics(tmp_path):
     fills = pd.DataFrame([{
         "date": "2024-01-02", "code": code, "horizon": 1,
         "entry_status": "filled", "exit_status": "filled",
-        "exit_date": "2024-01-03", "net_return": 0.01,
+        "exit_date": "2024-01-04" if code == codes[0] else "2024-01-03",
+        "net_return": 0.01,
     } for code in codes])
     fills.to_parquet(outcomes / "shard_00_part_0000.parquet", index=False)
-    pd.DataFrame([{
-        "code": codes[-1], "date": "2024-01-03", "kind": "ohlc_disagreement"
-    }]).to_csv(issues / "shard_00.csv", index=False)
+    pd.DataFrame([
+        {"code": codes[-1], "date": "2024-01-03", "kind": "ohlc_disagreement"},
+        {"code": codes[0], "date": "2024-01-03", "kind": "missing_active_minute"},
+    ]).to_csv(issues / "shard_00.csv", index=False)
     report = study(snapshots, outcomes, issues, tmp_path / "report.json", allow_partial=True)
     period = report["policies"]
     assert period["frozen_rule"]["2024_holdout"]["1"]["signals"] == 6
-    assert period["frozen_rule"]["2024_holdout"]["1"]["quality_clean_completed_exits"] == 5
+    assert period["frozen_rule"]["2024_holdout"]["1"]["quality_clean_completed_exits"] == 4
     assert period["frozen_rule_top5"]["2024_holdout"]["1"]["signals"] == 5
     assert period["frozen_rule_top5"]["2024_holdout"]["1"]["quality_clean_completed_exits"] == 4

@@ -32,7 +32,7 @@ def _quality_keys(issues_dir: Path) -> pd.DataFrame:
     issues = pd.concat(frames, ignore_index=True)
     bad = issues.loc[issues["kind"].isin((
         "ohlc_disagreement", "partial_minute_day", "unexpected_minute_on_suspended_day",
-        "active_no_trade",
+        "active_no_trade", "missing_active_minute",
     )), ["date", "code"]].drop_duplicates()
     return bad.reset_index(drop=True)
 
@@ -80,8 +80,10 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection.register("bad_quality", bad)
     connection.execute(f"""
         CREATE TEMP VIEW screened AS
-        SELECT s.*, CASE WHEN {SCREEN} THEN TRUE ELSE FALSE END AS candidate
+        SELECT s.*, CASE WHEN b.code IS NULL AND {SCREEN}
+                         THEN TRUE ELSE FALSE END AS candidate
         FROM snapshots_raw AS s
+        LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
     """)
     connection.execute("""
         CREATE TEMP VIEW ranked AS
@@ -99,11 +101,13 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                     WHEN s.date < '2024-01-01' THEN '2023_validation'
                     WHEN s.date < '2025-01-01' THEN '2024_holdout'
                     ELSE '2025_2026_later' END AS period,
-               b.code IS NULL AND x.code IS NULL AS quality_clean
+               NOT EXISTS (
+                   SELECT 1 FROM bad_quality AS x
+                   WHERE x.code = s.code AND x.date >= s.date
+                     AND x.date <= o.exit_date
+               ) AS quality_clean
         FROM ranked AS s
         JOIN outcomes_raw AS o USING (date, code)
-        LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
-        LEFT JOIN bad_quality AS x ON x.date = o.exit_date AND x.code = o.code
     """)
     policies = {
         "all_signals": "TRUE",
