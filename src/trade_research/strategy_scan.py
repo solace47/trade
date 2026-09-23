@@ -15,11 +15,46 @@ import numpy as np
 import pandas as pd
 
 from .factor_scan import FACTORS
+from .hf_outcomes import Assumptions
 from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
 
 
 CANDIDATES = tuple(name for name in FACTORS if name.startswith("candidate_"))
 HORIZONS = (1, 2, 3, 5)
+
+
+def _stressed_returns(frame: pd.DataFrame, slippage_bps_each_side: float) -> np.ndarray:
+    """Reprice completed trades at wider slip; keep original fill decisions."""
+    terms = Assumptions()
+    original_slip = terms.slippage_bps_each_side / 10_000
+    stressed_slip = slippage_bps_each_side / 10_000
+    shares = frame["shares"].to_numpy(dtype=float)
+    buy_value = shares * frame["entry_price"].to_numpy(dtype=float) / \
+        (1 + original_slip) * (1 + stressed_slip)
+    sell_value = shares * frame["exit_price"].to_numpy(dtype=float) / \
+        (1 - original_slip) * (1 - stressed_slip)
+    transfer_buy = np.where(
+        frame["date"].to_numpy() < terms.transfer_cutover_date,
+        terms.transfer_bps_each_side_before_cutover, terms.transfer_bps_each_side,
+    ) / 10_000
+    transfer_sell = np.where(
+        frame["exit_date"].to_numpy() < terms.transfer_cutover_date,
+        terms.transfer_bps_each_side_before_cutover, terms.transfer_bps_each_side,
+    ) / 10_000
+    stamp_sell = np.where(
+        frame["exit_date"].to_numpy() < terms.stamp_tax_cutover_date,
+        terms.stamp_tax_bps_on_sale_before_cutover, terms.stamp_tax_bps_on_sale,
+    ) / 10_000
+    commission_buy = np.maximum(
+        terms.commission_minimum_each_side,
+        buy_value * terms.commission_bps_each_side / 10_000,
+    )
+    commission_sell = np.maximum(
+        terms.commission_minimum_each_side,
+        sell_value * terms.commission_bps_each_side / 10_000,
+    )
+    return (sell_value * (1 - transfer_sell - stamp_sell) - commission_sell) / \
+        (buy_value * (1 + transfer_buy) + commission_buy) - 1
 
 
 def _summarize(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
@@ -41,7 +76,15 @@ def _summarize(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
     if valid.empty:
         return result
     returns = valid["net_return"].to_numpy(dtype=float)
-    daily = valid.groupby("date", as_index=False)["net_return"].mean()
+    if not np.allclose(_stressed_returns(valid, 5), returns, atol=1e-12):
+        raise ValueError("Stored net returns disagree with the execution cost model")
+    stress_10 = _stressed_returns(valid, 10)
+    stress_20 = _stressed_returns(valid, 20)
+    valid["stress_10"] = stress_10
+    valid["stress_20"] = stress_20
+    daily = valid.groupby("date", as_index=False)[
+        ["net_return", "stress_10", "stress_20"]
+    ].mean()
     daily = daily.merge(baseline, on="date", how="left", validate="one_to_one")
     if daily["baseline_net_return"].isna().any():
         raise ValueError("Missing same-day baseline for a completed candidate")
@@ -54,8 +97,16 @@ def _summarize(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
         "mean_net_return_per_trade": float(returns.mean()),
         "median_net_return_per_trade": float(np.median(returns)),
         "trimmed_10pct_mean_net_return": float(middle.mean()),
+        "mean_net_return_with_10bps_slippage_each_side": float(stress_10.mean()),
+        "mean_net_return_with_20bps_slippage_each_side": float(stress_20.mean()),
         "loss_decile_return": float(np.quantile(returns, .1)),
         "date_weighted_mean_net_return": float(daily["net_return"].mean()),
+        "date_weighted_mean_with_10bps_slippage_each_side": float(
+            daily["stress_10"].mean()
+        ),
+        "date_weighted_mean_with_20bps_slippage_each_side": float(
+            daily["stress_20"].mean()
+        ),
         "date_weighted_week_bootstrap_95pct_interval": _week_bootstrap(
             daily["net_return"], daily["date"], 20260924
         ),
@@ -91,8 +142,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                s.ma5_prior_adjusted, s.ma20_prior_adjusted,
                s.return5_prior_adjusted,
                s.return20_prior_adjusted, s.preclose,
-               o.horizon, o.entry_status, o.exit_status, o.exit_date,
-               o.net_return,
+               o.horizon, o.entry_status, o.entry_price, o.shares,
+               o.exit_status, o.exit_date, o.exit_price, o.net_return,
                NOT EXISTS (
                    SELECT 1 FROM bad_days AS x
                    WHERE x.code = s.code AND x.date >= s.date
@@ -121,8 +172,9 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         expression = FACTORS[name]
         frame = connection.execute(f"""
             SELECT * FROM (
-                SELECT date, code, horizon, entry_status, exit_status,
-                       exit_date, net_return, quality_clean_exit,
+                SELECT date, code, horizon, entry_status, entry_price, shares,
+                       exit_status, exit_date, exit_price, net_return,
+                       quality_clean_exit,
                        return_1450, amount_1450,
                        ROW_NUMBER() OVER (
                            PARTITION BY date, horizon
