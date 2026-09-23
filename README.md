@@ -18,4 +18,4 @@ export PYTHONPATH=src
 .venv/bin/python -m trade_research.pilot_study
 ```
 
-数据来源、验收结果和当前限制见[研究状态](docs/research-status.md)。
+数据来源与当前限制见[研究状态](docs/research-status.md)，复算命令见[数据复算](docs/data-reproduction.md)。
