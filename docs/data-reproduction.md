@@ -1,6 +1,13 @@
 # 数据复算
 
-运行环境和先导样本命令见仓库首页。原始行情、版本锁、审计表和研究输出统一放在被 Git 忽略的 `data/`。
+使用 Python 3.12。原始行情、版本锁、审计表和研究输出统一放在被 Git 忽略的 `data/`。
+
+```bash
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+```
+
+先导样本的复算顺序为 `trade_research.ingest`、`hf_download`、`hf_audit`、`hf_snapshot`、`hf_outcomes`、`pilot_study`；均使用 `PYTHONPATH=src .venv/bin/python -m` 运行。
 
 ## 沪深历史日线
 
