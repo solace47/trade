@@ -1,0 +1,239 @@
+"""Generate auditable future trade outcomes, separate from 14:50 signals.
+
+These are per-stock hypothetical orders, not a portfolio backtest. The model
+uses the 14:52--14:55 VWAP after a completed 14:50 signal, observes T+1, and
+refuses fills at estimated price limits or above a window-volume cap. It has
+no order book, so even accepted fills are estimates.
+"""
+
+from __future__ import annotations
+
+import argparse
+from dataclasses import asdict, dataclass
+from decimal import Decimal, ROUND_HALF_UP
+import json
+from pathlib import Path
+
+import pandas as pd
+
+from .hf_audit import FIRST_DATE, LAST_DATE, read_window
+from .hf_download import selected_paths
+
+
+HORIZONS = (1, 2, 3, 5)
+EXECUTION_LABELS = ("1452", "1453", "1454", "1455")
+EXECUTION_LABEL = "1452-1455"
+
+
+@dataclass(frozen=True)
+class Assumptions:
+    target_notional: float = 100_000.0
+    maximum_minute_volume_fraction: float = 0.1
+    slippage_bps_each_side: float = 5.0
+    commission_bps_each_side: float = 3.0
+    commission_minimum_each_side: float = 5.0
+    transfer_bps_each_side: float = 0.1
+    stamp_tax_bps_on_sale: float = 5.0
+    maximum_exit_delay_sessions: int = 5
+
+
+def _board_limit_rate(code: str, is_st: int) -> float:
+    if code.startswith(("sz.30", "sh.68")):
+        return 0.2
+    return 0.05 if is_st else 0.1
+
+
+def _limit_price(preclose: float, rate: float, upper: bool) -> float:
+    multiplier = 1 + rate if upper else 1 - rate
+    return float((Decimal(str(preclose)) * Decimal(str(multiplier))).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    ))
+
+
+def _lot_size(code: str) -> int:
+    return 200 if code.startswith("sh.68") else 100
+
+
+def _fill(quote: pd.Series | None, daily_row: pd.Series | None, code: str,
+          side: str, shares: int, assumptions: Assumptions) -> tuple[float | None, str]:
+    if quote is None or daily_row is None or daily_row["tradestatus"] != 1:
+        return None, "no_trading_bar"
+    price = float(quote["vwap"])
+    volume = float(quote["volume"])
+    preclose = float(daily_row["preclose"])
+    if price <= 0 or volume <= 0 or preclose <= 0:
+        return None, "no_liquidity"
+    if shares > volume * assumptions.maximum_minute_volume_fraction:
+        return None, "volume_cap"
+    rate = _board_limit_rate(code, int(daily_row["isST"]))
+    if side == "buy":
+        fill_price = price * (1 + assumptions.slippage_bps_each_side / 10_000)
+        upper = _limit_price(preclose, rate, upper=True)
+        if fill_price >= upper - 0.005:
+            return None, "estimated_upper_limit"
+    else:
+        fill_price = price * (1 - assumptions.slippage_bps_each_side / 10_000)
+        lower = _limit_price(preclose, rate, upper=False)
+        if fill_price <= lower + 0.005:
+            return None, "estimated_lower_limit"
+    return fill_price, "filled"
+
+
+def _fees(value: float, side: str, assumptions: Assumptions) -> float:
+    commission = max(assumptions.commission_minimum_each_side,
+                     value * assumptions.commission_bps_each_side / 10_000)
+    transfer = value * assumptions.transfer_bps_each_side / 10_000
+    stamp = value * assumptions.stamp_tax_bps_on_sale / 10_000 if side == "sell" else 0
+    return commission + transfer + stamp
+
+
+def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
+                        daily: pd.DataFrame, calendar: list[str],
+                        assumptions: Assumptions = Assumptions()) -> pd.DataFrame:
+    if signals.empty:
+        return pd.DataFrame()
+    code = str(signals["code"].iloc[0])
+    daily = daily.sort_values("date").copy()
+    active = daily.loc[daily["tradestatus"] == 1].copy()
+    active["reference_gap"] = (
+        active["preclose"] - active["close"].shift(1)
+    ).abs() > 0.005
+    reference_gap_dates = set(active.loc[active["reference_gap"], "date"])
+    daily_by_date = {row["date"]: row for _, row in daily.iterrows()}
+    execution_bars = minute.loc[minute["label"].isin(EXECUTION_LABELS)]
+    quotes = {}
+    for date, bars in execution_bars.groupby("date", sort=False):
+        if bars["label"].tolist() != list(EXECUTION_LABELS):
+            continue
+        volume = int(bars["volume"].sum())
+        turnover = float(bars["turnover"].sum())
+        quotes[date] = pd.Series({
+            "volume": volume,
+            "vwap": turnover / volume if volume > 0 else 0.0,
+        })
+    calendar_index = {date: n for n, date in enumerate(calendar)}
+    rows = []
+    for signal in signals.itertuples(index=False):
+        if signal.date not in calendar_index:
+            continue
+        entry_date = signal.date
+        entry_quote = quotes.get(entry_date)
+        estimated_price = float(entry_quote["vwap"]) if entry_quote is not None else 0.0
+        lot = _lot_size(code)
+        shares = int(assumptions.target_notional // max(estimated_price * lot, 1)) * lot
+        if shares < lot:
+            entry_price, entry_status = None, "below_minimum_lot"
+        elif bool(signal.isST):
+            entry_price, entry_status = None, "st_excluded"
+        elif bool(signal.reference_gap):
+            entry_price, entry_status = None, "entry_corporate_action"
+        elif bool(getattr(signal, "quote_outside_traded_range", False)):
+            entry_price, entry_status = None, "source_quote_anomaly"
+        else:
+            entry_price, entry_status = _fill(
+                entry_quote, daily_by_date.get(entry_date), code, "buy", shares, assumptions
+            )
+        for horizon in HORIZONS:
+            result = {
+                "date": entry_date, "code": code, "horizon": horizon,
+                "entry_label": EXECUTION_LABEL, "exit_label": EXECUTION_LABEL,
+                "entry_status": entry_status, "entry_price": entry_price,
+                "shares": shares if entry_price is not None else 0,
+                "target_exit_date": None, "exit_date": None,
+                "exit_delay_sessions": None, "exit_status": None,
+                "exit_price": None, "gross_return": None,
+                "net_return": None, "corporate_action_crossed": None,
+            }
+            start = calendar_index[entry_date] + horizon
+            if start >= len(calendar):
+                result["exit_status"] = "right_censored"
+                rows.append(result)
+                continue
+            result["target_exit_date"] = calendar[start]
+            if entry_price is None:
+                result["exit_status"] = "entry_not_filled"
+                rows.append(result)
+                continue
+            stop = min(start + assumptions.maximum_exit_delay_sessions, len(calendar) - 1)
+            exit_status = "right_censored" if stop == len(calendar) - 1 else "unfilled_within_delay"
+            for index in range(start, stop + 1):
+                date = calendar[index]
+                exit_price, reason = _fill(
+                    quotes.get(date), daily_by_date.get(date), code, "sell", shares, assumptions
+                )
+                if exit_price is None:
+                    exit_status = reason
+                    continue
+                result["exit_date"] = date
+                result["exit_delay_sessions"] = index - start
+                result["exit_price"] = exit_price
+                crossed = any(start_date in reference_gap_dates for start_date in
+                              calendar[calendar_index[entry_date] + 1:index + 1])
+                result["corporate_action_crossed"] = crossed
+                if crossed:
+                    exit_status = "corporate_action_unadjusted"
+                else:
+                    buy_value = shares * entry_price
+                    sell_value = shares * exit_price
+                    result["gross_return"] = sell_value / buy_value - 1
+                    result["net_return"] = (
+                        (sell_value - _fees(sell_value, "sell", assumptions)) /
+                        (buy_value + _fees(buy_value, "buy", assumptions)) - 1
+                    )
+                    exit_status = "filled"
+                break
+            result["exit_status"] = exit_status
+            rows.append(result)
+    return pd.DataFrame(rows)
+
+
+def build(hf_root: Path, bao_root: Path,
+          assumptions: Assumptions = Assumptions()) -> dict:
+    snapshot_file = bao_root / "hf_snapshots_1450.parquet"
+    signals = pd.read_parquet(snapshot_file)
+    pilot_file = bao_root / "metadata" / "pilot_symbols.parquet"
+    pilot = pd.read_parquet(pilot_file)
+    trading = pd.read_parquet(bao_root / "metadata" / "calendar.parquet")
+    calendar = sorted(trading.loc[
+        (trading["is_trading_day"] == "1") &
+        trading["calendar_date"].between(FIRST_DATE, LAST_DATE), "calendar_date"
+    ].tolist())
+    frames = []
+    for code, relative in zip(pilot["code"], selected_paths(pilot_file), strict=True):
+        stock_signals = signals.loc[signals["code"] == code]
+        if stock_signals.empty:
+            continue
+        minute = read_window(hf_root / relative)
+        daily = pd.read_parquet(bao_root / "daily" / f"{code.replace('.', '_')}.parquet")
+        frame = outcomes_for_symbol(stock_signals, minute, daily, calendar, assumptions)
+        if not frame.empty:
+            frames.append(frame)
+    if not frames:
+        raise RuntimeError("No future outcomes were computed")
+    result = pd.concat(frames, ignore_index=True).sort_values(["date", "code", "horizon"])
+    output = bao_root / "hf_outcomes.parquet"
+    result.to_parquet(output, index=False, compression="zstd")
+    summary = {
+        "assumptions": asdict(assumptions),
+        "signal_rows": len(signals), "outcome_rows": len(result),
+        "filled_outcomes": int((result["exit_status"] == "filled").sum()),
+        "entry_status_counts": result.drop_duplicates(["date", "code"])["entry_status"].value_counts().to_dict(),
+        "exit_status_counts": result["exit_status"].value_counts().to_dict(),
+        "output": str(output),
+    }
+    (bao_root / "metadata" / "hf_outcome_summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    return summary
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--hf-root", type=Path, default=Path("data/hf/pilot"))
+    parser.add_argument("--bao-root", type=Path, default=Path("data/baostock/pilot_2025_2026"))
+    args = parser.parse_args()
+    print(json.dumps(build(args.hf_root, args.bao_root), ensure_ascii=False, indent=2))
+
+
+if __name__ == "__main__":
+    main()
