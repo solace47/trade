@@ -24,6 +24,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.market_daily_audit
 PYTHONPATH=src .venv/bin/python -c 'from trade_research.hf_download import locked_revision; locked_revision()'
 ```
 
+如需在本地保留全市场分钟原始文件，可续传下载（约 43 GB）：
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/download_market_minute.py --workers 4
+```
+
 然后在 GitHub Actions 的“历史行情分片验证”中，以 `first_shard=0`、`max_shards=4`、`limit_symbols=0` 启动首批。获得运行编号后执行：
 
 ```bash
