@@ -116,6 +116,7 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
             WHERE horizon = ? AND {expression} = 'selected'
         ) AS ranked WHERE daily_rank <= 5
     """, [horizon]).df()
+    frame["candidate"] = frozen["candidate"]
     periods = {}
     for name, mask in (
         ("2024", frame["date"].str.startswith("2024")),
