@@ -26,6 +26,7 @@ def test_quality_censoring_and_top_five_are_applied_before_metrics(tmp_path):
         "date": "2024-01-02", "code": code, "horizon": 1,
         "entry_status": "filled", "exit_status": "filled",
         "exit_date": "2024-01-04" if code == codes[0] else "2024-01-03",
+        "exit_delay_sessions": 1 if code == codes[0] else 0,
         "net_return": 0.01,
     } for code in codes])
     fills.to_parquet(outcomes / "shard_00_part_0000.parquet", index=False)

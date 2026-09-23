@@ -45,6 +45,10 @@ def _summarize(days: pd.DataFrame) -> dict:
         "signals": signals, "entry_fills": entries,
         "quality_clean_completed_exits": completed,
         "quality_excluded_or_unfilled": signals - completed,
+        "entry_not_filled": signals - entries,
+        "corporate_action_exits": int(days["corporate_actions"].sum()),
+        "source_quality_excluded_exits": int(days["bad_exits"].sum()),
+        "delayed_completed_exits": int(days["delayed_exits"].sum()),
         "trading_dates_with_signals": int(len(days)),
     }
     if not completed:
@@ -96,7 +100,8 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection.execute("""
         CREATE TEMP VIEW joined AS
         SELECT s.date, s.code, s.candidate, s.tail_rank,
-               o.horizon, o.entry_status, o.exit_status, o.net_return,
+               o.horizon, o.entry_status, o.exit_status, o.exit_delay_sessions,
+               o.net_return,
                CASE WHEN s.date < '2023-01-01' THEN '2022_development'
                     WHEN s.date < '2024-01-01' THEN '2023_validation'
                     WHEN s.date < '2025-01-01' THEN '2024_holdout'
@@ -125,7 +130,13 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                    SUM(CASE WHEN exit_status = 'filled' AND quality_clean
                             THEN net_return ELSE 0 END) AS net_sum,
                    SUM(CASE WHEN exit_status = 'filled' AND quality_clean
-                                 AND net_return > 0 THEN 1 ELSE 0 END) AS wins
+                                 AND net_return > 0 THEN 1 ELSE 0 END) AS wins,
+                   SUM(CASE WHEN exit_status = 'corporate_action_unadjusted'
+                            THEN 1 ELSE 0 END) AS corporate_actions,
+                   SUM(CASE WHEN exit_status = 'filled' AND NOT quality_clean
+                            THEN 1 ELSE 0 END) AS bad_exits,
+                   SUM(CASE WHEN exit_status = 'filled' AND quality_clean
+                                 AND exit_delay_sessions > 0 THEN 1 ELSE 0 END) AS delayed_exits
             FROM joined WHERE {condition}
             GROUP BY period, horizon, date
         """).df()
