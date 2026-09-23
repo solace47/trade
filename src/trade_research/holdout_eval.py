@@ -36,8 +36,8 @@ def _thresholds(report: dict) -> dict:
             reasons.append("fewer than 100 quality-clean exits")
         if metrics["entry_fills"] / metrics["signals"] < .8:
             reasons.append("entry fill rate below 80%")
-        if metrics["clean_completed_exits"] / metrics["signals"] < .7:
-            reasons.append("clean completion rate below 70%")
+        if metrics["clean_completed_exits"] / max(metrics["entry_fills"], 1) < .95:
+            reasons.append("clean exits below 95% of filled entries")
         if metrics["date_weighted_mean_net_return"] <= 0:
             reasons.append("date-weighted net return is not positive")
         if metrics["date_weighted_week_bootstrap_95pct_interval"][0] <= 0:
