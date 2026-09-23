@@ -21,11 +21,12 @@ LAST_DATE = "2026-08-06"
 
 def build(hf_root: Path, bao_root: Path, snapshots: Path, output: Path,
           limit_batches: int | None = None,
-          assumptions: Assumptions = Assumptions()) -> dict:
+          assumptions: Assumptions = Assumptions(),
+          first_date: str = FIRST_DATE, last_date: str = LAST_DATE) -> dict:
     trading = pd.read_parquet(bao_root / "metadata" / "calendar.parquet")
     calendar = sorted(trading.loc[
         (trading["is_trading_day"] == "1")
-        & trading["calendar_date"].between(FIRST_DATE, LAST_DATE), "calendar_date"
+        & trading["calendar_date"].between(first_date, last_date), "calendar_date"
     ].tolist())
     partitions = sorted(snapshots.glob("part_*.parquet"))
     if limit_batches is not None:
@@ -42,7 +43,7 @@ def build(hf_root: Path, bao_root: Path, snapshots: Path, output: Path,
             exchange, symbol = code.split(".")
             minute_file = hf_root / "data" / "stock_1m" / exchange.upper() / f"{symbol}.parquet"
             daily_file = bao_root / "daily" / f"{exchange}_{symbol}.parquet"
-            minute = read_window(minute_file, FIRST_DATE, LAST_DATE)
+            minute = read_window(minute_file, first_date, last_date)
             daily = pd.read_parquet(daily_file)
             frames.append(outcomes_for_symbol(
                 stock_signals, minute, daily, calendar, assumptions
@@ -55,7 +56,7 @@ def build(hf_root: Path, bao_root: Path, snapshots: Path, output: Path,
     available = sorted(output.glob("part_*.parquet"))
     summary = {
         "assumptions": asdict(assumptions),
-        "first_date": FIRST_DATE, "last_date": LAST_DATE,
+        "first_date": first_date, "last_date": last_date,
         "snapshot_partitions": len(sorted(snapshots.glob("part_*.parquet"))),
         "outcome_partitions": len(available),
         "outcome_rows": sum(pq.ParquetFile(path).metadata.num_rows for path in available),
@@ -76,9 +77,13 @@ def main() -> None:
     parser.add_argument("--snapshots", type=Path, default=Path("data/research/market_snapshots"))
     parser.add_argument("--output", type=Path, default=Path("data/research/market_outcomes"))
     parser.add_argument("--limit-batches", type=int)
+    parser.add_argument("--first-date", default=FIRST_DATE)
+    parser.add_argument("--last-date", default=LAST_DATE)
     args = parser.parse_args()
     print(json.dumps(build(args.hf_root, args.bao_root, args.snapshots,
-                           args.output, args.limit_batches), ensure_ascii=False, indent=2))
+                           args.output, args.limit_batches,
+                           first_date=args.first_date, last_date=args.last_date),
+                     ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

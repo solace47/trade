@@ -22,11 +22,14 @@ from trade_research.market_daily_audit import audit as audit_daily
 from trade_research.market_daily_ingest import Config, download as download_daily, prepare
 
 
+RESEARCH_START = "2022-01-01"
+
+
 def run(shard: int, shards: int, limit_symbols: int) -> dict:
     if not 0 <= shard < shards or limit_symbols < 0:
         raise ValueError("Invalid shard configuration")
     started = time.monotonic()
-    cfg = Config()
+    cfg = Config(first_date="2021-01-01", research_start=RESEARCH_START)
     bao_root = Path(cfg.root)
     all_symbols = prepare(cfg)
     symbols = all_symbols.iloc[shard::shards].copy()
@@ -44,11 +47,15 @@ def run(shard: int, shards: int, limit_symbols: int) -> dict:
     if not daily["accepted"]:
         raise RuntimeError("Daily history failed its completeness audit")
 
-    revision = HfApi().repo_info(REPO, repo_type="dataset").sha
+    api = HfApi()
+    revision = api.repo_info(REPO, repo_type="dataset").sha
     if not revision:
         raise RuntimeError("Unable to resolve minute archive version")
     hf_root = Path("data/hf/ci")
-    paths = selected_paths(symbols_file)
+    available = set(api.list_repo_files(REPO, repo_type="dataset", revision=revision))
+    requested = selected_paths(symbols_file)
+    paths = [path for path in requested if path in available]
+    missing_paths = [path for path in requested if path not in available]
     def download_one(relative: str) -> tuple[str, int]:
         local = Path(hf_hub_download(
             repo_id=REPO, filename=relative, repo_type="dataset",
@@ -65,18 +72,22 @@ def run(shard: int, shards: int, limit_symbols: int) -> dict:
     print("minute_download_complete", len(paths), downloaded_bytes,
           "seconds", round(time.monotonic() - started, 1), flush=True)
 
-    minute = audit_minute(hf_root, bao_root, Path("data/research/market_audit"))
+    minute = audit_minute(hf_root, bao_root, Path("data/research/market_audit"),
+                          first_date=RESEARCH_START)
     snapshots = build_snapshots(
-        hf_root, bao_root, Path("data/research/market_snapshots")
+        hf_root, bao_root, Path("data/research/market_snapshots"),
+        first_date=RESEARCH_START,
     )
     outcomes = build_outcomes(
         hf_root, bao_root, Path("data/research/market_snapshots"),
-        Path("data/research/market_outcomes"),
+        Path("data/research/market_outcomes"), first_date=RESEARCH_START,
     )
     result = {
-        "shard": shard, "shards": shards, "selected_symbols": len(symbols),
+        "shard": shard, "shards": shards, "research_start": RESEARCH_START,
+        "selected_symbols": len(symbols),
         "daily_rows": daily["daily_rows"],
-        "minute_files": len(paths), "minute_bytes": downloaded_bytes,
+        "minute_files": len(paths), "missing_minute_files": len(missing_paths),
+        "minute_bytes": downloaded_bytes,
         "minute_complete_days": minute["complete_minute_days"],
         "minute_active_days": minute["active_daily_days"],
         "minute_nonopen_mismatch_days": minute["unexplained_ohlc_mismatch_days"],
