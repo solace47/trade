@@ -27,6 +27,13 @@ def download(selection: Path, output: Path, workers: int) -> dict:
     missing = [path for path in requested if path not in available]
 
     def one(relative: str) -> int:
+        local = output / relative
+        if local.is_file():
+            try:
+                if pq.ParquetFile(local).metadata.num_rows > 0:
+                    return local.stat().st_size
+            except (OSError, ValueError):
+                local.unlink()
         for attempt in range(3):
             try:
                 path = Path(hf_hub_download(
