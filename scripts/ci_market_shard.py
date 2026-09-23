@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import redirect_stdout
 import json
 from pathlib import Path
+import tarfile
 import time
 
 from huggingface_hub import HfApi, hf_hub_download
@@ -83,6 +84,25 @@ def run(shard: int, shards: int, limit_symbols: int) -> dict:
         "outcomes": outcomes["outcome_rows"],
         "seconds": round(time.monotonic() - started, 1),
     }
+    provenance = Path(f"data/research/shard_{shard}_source.lock")
+    provenance.write_text(revision + "\n", encoding="utf-8")
+    report = Path(f"data/research/shard_{shard}_result.json")
+    report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    archive = Path(f"data/research/shard_{shard}.tar")
+    files = [
+        bao_root / "metadata" / name for name in (
+            "selection.json", "symbols.parquet", "calendar.parquet", "audit_summary.json"
+        )
+    ]
+    files.extend(sorted((bao_root / "daily").glob("*.parquet")))
+    files.extend(sorted(Path("data/research/market_audit").glob("*")))
+    files.extend(sorted(Path("data/research/market_snapshots").glob("*.parquet")))
+    files.extend(sorted(Path("data/research/market_outcomes").glob("*.parquet")))
+    files.extend((provenance, report))
+    with tarfile.open(archive, "w") as stream:
+        for path in files:
+            stream.add(path, arcname=path.as_posix())
+    print("archive_bytes", archive.stat().st_size, flush=True)
     print("CI_SHARD_SUMMARY=" + json.dumps(result, ensure_ascii=False), flush=True)
     return result
 

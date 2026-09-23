@@ -3,6 +3,11 @@ name: 历史行情分片验证
 on:
   workflow_dispatch:
     inputs:
+      first_shard:
+        description: 本批次第一个分片序号，范围 0 至 19
+        required: true
+        default: '0'
+        type: number
       limit_symbols:
         description: 每个分片最多处理的股票数，0 表示全部
         required: true
@@ -25,14 +30,16 @@ jobs:
     steps:
       - id: matrix
         env:
+          FIRST_SHARD: ${{ inputs.first_shard }}
           SHARD_COUNT: ${{ inputs.max_shards }}
         run: |
           python - <<'PY' >> "$GITHUB_OUTPUT"
           import json, os
+          first = int(os.environ['FIRST_SHARD'])
           count = int(os.environ['SHARD_COUNT'])
-          if not 1 <= count <= 20:
-              raise ValueError('max_shards must be between 1 and 20')
-          print('shards=' + json.dumps(list(range(count))))
+          if not 0 <= first < 20 or not 1 <= count <= 20 - first:
+              raise ValueError('Requested shard range is outside 0..19')
+          print('shards=' + json.dumps(list(range(first, first + count))))
           PY
   research:
     needs: prepare
@@ -40,7 +47,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 4
       matrix:
         shard: ${{ fromJSON(needs.prepare.outputs.shards) }}
     steps:
@@ -53,3 +60,10 @@ jobs:
         env:
           PYTHONPATH: src
           PYTHONUNBUFFERED: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: market-shard-${{ matrix.shard }}
+          path: data/research/shard_${{ matrix.shard }}.tar
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
