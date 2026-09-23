@@ -12,6 +12,8 @@ import pandas as pd
 TOTAL_FIELDS = (
     "selected_symbols", "audited_symbols", "active_daily_days", "complete_minute_days",
     "missing_active_days", "partial_days", "invalid_rows", "duplicate_rows",
+    "wrong_identity_rows", "volume_over_100_shares_days",
+    "amount_over_0_01pct_days",
     "unexpected_nontrading_minute_days", "active_no_trade_days",
     "ohlc_mismatch_days", "opening_only_mismatch_days",
     "unexplained_ohlc_mismatch_days",
