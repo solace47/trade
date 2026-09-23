@@ -37,8 +37,11 @@ class Assumptions:
     maximum_exit_delay_sessions: int = 5
 
 
-def _board_limit_rate(code: str, is_st: int) -> float:
-    if code.startswith(("sz.30", "sh.68")):
+def _board_limit_rate(code: str, is_st: int, date: str) -> float:
+    if code.startswith("sh.68"):
+        return 0.2
+    # The ChiNext reform took effect on 2020-08-24 for existing shares too.
+    if code.startswith("sz.30") and date >= "2020-08-24":
         return 0.2
     return 0.05 if is_st else 0.1
 
@@ -50,8 +53,14 @@ def _limit_price(preclose: float, rate: float, upper: bool) -> float:
     ))
 
 
-def _lot_size(code: str) -> int:
-    return 200 if code.startswith("sh.68") else 100
+def _order_shares(code: str, price: float, target_notional: float) -> int:
+    if price <= 0:
+        return 0
+    affordable = int(target_notional // price)
+    # STAR Market orders start at 200 shares and may increase one share at a time.
+    if code.startswith("sh.68"):
+        return affordable if affordable >= 200 else 0
+    return affordable // 100 * 100
 
 
 def _fill(quote: pd.Series | None, daily_row: pd.Series | None, code: str,
@@ -65,7 +74,7 @@ def _fill(quote: pd.Series | None, daily_row: pd.Series | None, code: str,
         return None, "no_liquidity"
     if shares > volume * assumptions.maximum_minute_volume_fraction:
         return None, "volume_cap"
-    rate = _board_limit_rate(code, int(daily_row["isST"]))
+    rate = _board_limit_rate(code, int(daily_row["isST"]), str(daily_row["date"]))
     if side == "buy":
         fill_price = price * (1 + assumptions.slippage_bps_each_side / 10_000)
         upper = _limit_price(preclose, rate, upper=True)
@@ -119,10 +128,12 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         entry_date = signal.date
         entry_quote = quotes.get(entry_date)
         estimated_price = float(entry_quote["vwap"]) if entry_quote is not None else 0.0
-        lot = _lot_size(code)
-        shares = int(assumptions.target_notional // max(estimated_price * lot, 1)) * lot
-        if shares < lot:
+        shares = _order_shares(code, estimated_price, assumptions.target_notional)
+        if shares == 0:
             entry_price, entry_status = None, "below_minimum_lot"
+        elif getattr(signal, "listing_age_sessions", 5) < 5:
+            # New listings have special price-limit rules that vary by era.
+            entry_price, entry_status = None, "new_listing_window"
         elif bool(signal.isST):
             entry_price, entry_status = None, "st_excluded"
         elif bool(signal.reference_gap):

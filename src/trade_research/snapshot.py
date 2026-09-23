@@ -19,6 +19,7 @@ assert CUTOFF_LABELS[-1] == "1450"
 def prior_daily_features(daily: pd.DataFrame) -> pd.DataFrame:
     """Use only completed trading days before each row's date."""
     traded = daily.loc[daily["tradestatus"] == 1].sort_values("date").copy()
+    traded["listing_age_sessions"] = range(len(traded))
     previous = traded["close"].shift(1)
     traded["prev_traded_close"] = previous
     traded["ma5_prior"] = previous.rolling(5, min_periods=5).mean()
@@ -41,7 +42,8 @@ def prior_daily_features(daily: pd.DataFrame) -> pd.DataFrame:
     traded["return5_prior_adjusted"] = adjusted_close.shift(1) / adjusted_close.shift(6) - 1
     traded["return20_prior_adjusted"] = adjusted_close.shift(1) / adjusted_close.shift(21) - 1
     return traded[[
-        "date", "code", "preclose", "isST", "tradestatus", "prev_traded_close",
+        "date", "code", "preclose", "isST", "tradestatus", "listing_age_sessions",
+        "prev_traded_close",
         "ma5_prior", "ma20_prior", "ma60_prior", "volume5_prior",
         "return5_prior", "return20_prior",
         "ma5_prior_adjusted", "ma20_prior_adjusted", "ma60_prior_adjusted",

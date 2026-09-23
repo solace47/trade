@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from trade_research.hf_outcomes import outcomes_for_symbol
+from trade_research.hf_outcomes import _board_limit_rate, _order_shares, outcomes_for_symbol
 
 
 DATES = ["2025-09-01", "2025-09-02", "2025-09-03"]
@@ -58,3 +58,16 @@ def test_corporate_action_crossing_invalidates_raw_return():
     one = outcomes.loc[outcomes["horizon"] == 1].iloc[0]
     assert one["exit_status"] == "corporate_action_unadjusted"
     assert pd.isna(one["net_return"])
+
+
+def test_historical_chinext_rule_and_star_order_quantity():
+    assert _board_limit_rate("sz.300001", 0, "2020-08-21") == 0.1
+    assert _board_limit_rate("sz.300001", 0, "2020-08-24") == 0.2
+    assert _order_shares("sh.688001", 10.0, 20_050) == 2005
+
+
+def test_new_listing_window_is_excluded_from_estimated_fills():
+    signals, minute, daily = _inputs()
+    signals["listing_age_sessions"] = 2
+    outcomes = outcomes_for_symbol(signals, minute, daily, DATES)
+    assert set(outcomes["entry_status"]) == {"new_listing_window"}

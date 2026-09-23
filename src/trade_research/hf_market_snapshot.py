@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+import pyarrow.parquet as pq
 
 from .hf_audit import read_window
 from .hf_download import selected_paths
@@ -75,8 +76,7 @@ def build(hf_root: Path, bao_root: Path, output: Path,
         "first_date": first_date, "last_date": last_date,
         "selected_symbols": len(symbols),
         "partition_files": len(partitions),
-        "snapshot_rows": sum(pd.read_parquet(path, columns=["date"]).shape[0]
-                             for path in partitions),
+        "snapshot_rows": sum(pq.ParquetFile(path).metadata.num_rows for path in partitions),
         "missing_source_symbols": sorted({
             code for path in output.glob("part_*_missing.json")
             for code in json.loads(path.read_text(encoding="utf-8"))
