@@ -34,6 +34,8 @@ def summarize(audit_dir: Path, symbols_dir: Path, output: Path,
     if not audit_paths:
         raise FileNotFoundError("No imported audit summaries")
     all_symbols = []
+    missing_symbols = []
+    missing_source_active_days = 0
     stocks = []
     totals = {field: 0 for field in TOTAL_FIELDS}
     shard_reports = []
@@ -45,6 +47,17 @@ def summarize(audit_dir: Path, symbols_dir: Path, output: Path,
         codes = pd.read_parquet(symbol_path, columns=["code"])["code"].tolist()
         all_symbols.extend(codes)
         audit = json.loads(path.read_text(encoding="utf-8"))
+        for code in audit["missing_symbols"]:
+            daily_path = symbol_path.resolve().parent.parent / "daily" / \
+                f"{code.replace('.', '_')}.parquet"
+            if not daily_path.exists():
+                raise FileNotFoundError(daily_path)
+            daily = pd.read_parquet(daily_path, columns=["date", "tradestatus"])
+            missing_source_active_days += int((
+                daily["date"].between(audit["first_date"], audit["last_date"])
+                & daily["tradestatus"].eq(1)
+            ).sum())
+            missing_symbols.append(code)
         stock_path = path.resolve().parent / "stocks.csv"
         frame = pd.read_csv(stock_path, dtype={"code": str})
         if set(frame["code"]) != set(codes):
@@ -71,9 +84,17 @@ def summarize(audit_dir: Path, symbols_dir: Path, output: Path,
     result = {
         "shards": len(shards), "selected_unique_symbols": len(set(all_symbols)),
         "duplicate_symbols": duplicate_symbols, "totals": totals,
+        "missing_source_symbols": sorted(missing_symbols),
+        "missing_source_active_days": missing_source_active_days,
+        "selected_active_daily_days": totals["active_daily_days"] + missing_source_active_days,
         "complete_ratio_among_audited": (
             totals["complete_minute_days"] / totals["active_daily_days"]
             if totals["active_daily_days"] else 0
+        ),
+        "complete_ratio_selected_codes": (
+            totals["complete_minute_days"] /
+            (totals["active_daily_days"] + missing_source_active_days)
+            if totals["active_daily_days"] + missing_source_active_days else 0
         ),
         "stock_quality_problems": stocks,
         "shard_reports": shard_reports,
@@ -97,7 +118,9 @@ def main() -> None:
     result = summarize(args.audits, args.symbols, args.output, args.allow_partial)
     print(json.dumps({key: result[key] for key in (
         "shards", "selected_unique_symbols", "duplicate_symbols", "totals",
-        "complete_ratio_among_audited",
+        "missing_source_symbols", "missing_source_active_days",
+        "selected_active_daily_days", "complete_ratio_among_audited",
+        "complete_ratio_selected_codes",
     )}, ensure_ascii=False, indent=2))
 
 
