@@ -24,12 +24,15 @@ def audit(root: Path) -> dict:
             rows.append({"code": stock.code, "status": "missing_file"})
             continue
         daily = pd.read_parquet(path)
+        # BaoStock inconsistently includes a suspended placeholder on outDate.
+        # Require every preceding trading day and allow this one boundary row.
         expected = {
             date for date in all_trading
-            if max(first_date, stock.ipoDate) <= date <=
-            min(last_date, stock.outDate or last_date)
+            if max(first_date, stock.ipoDate) <= date <= last_date
+            and (not stock.outDate or date < stock.outDate)
         }
         observed = set(daily["date"])
+        optional_boundary = {stock.outDate} if stock.outDate else set()
         active = daily.loc[daily["tradestatus"] == 1]
         suspended = daily.loc[daily["tradestatus"] == 0]
         invalid_prices = (
@@ -42,7 +45,7 @@ def audit(root: Path) -> dict:
             "code": stock.code, "status": "ok", "daily_rows": len(daily),
             "expected_days": len(expected), "observed_days": len(observed),
             "missing_days": len(expected - observed),
-            "extra_days": len(observed - expected),
+            "extra_days": len(observed - expected - optional_boundary),
             "active_days": len(active), "suspended_days": len(suspended),
             "st_active_days": int(active["isST"].eq(1).sum()),
             "invalid_active_rows": int(invalid_prices.sum()),
