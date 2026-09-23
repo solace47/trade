@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tarfile
+import time
 import urllib.error
 import urllib.request
 import zipfile
@@ -42,21 +43,29 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def _download(artifact_id: int, headers: dict[str, str], target: Path) -> None:
-    request = urllib.request.Request(
-        API + f"/artifacts/{artifact_id}/zip", headers=headers
-    )
-    opener = urllib.request.build_opener(_NoRedirect())
-    try:
-        opener.open(request, timeout=30)
-        raise RuntimeError("Artifact API did not return a download location")
-    except urllib.error.HTTPError as error:
-        if error.code not in (301, 302, 303, 307, 308):
-            raise
-        location = error.headers["Location"]
     temporary = target.with_suffix(".zip.tmp")
-    with urllib.request.urlopen(location, timeout=120) as source, temporary.open("wb") as dest:
-        shutil.copyfileobj(source, dest)
-    temporary.replace(target)
+    for attempt in range(3):
+        try:
+            request = urllib.request.Request(
+                API + f"/artifacts/{artifact_id}/zip", headers=headers
+            )
+            opener = urllib.request.build_opener(_NoRedirect())
+            try:
+                opener.open(request, timeout=30)
+                raise RuntimeError("Artifact API did not return a download location")
+            except urllib.error.HTTPError as error:
+                if error.code not in (301, 302, 303, 307, 308):
+                    raise
+                location = error.headers["Location"]
+            with urllib.request.urlopen(location, timeout=120) as source, temporary.open("wb") as dest:
+                shutil.copyfileobj(source, dest)
+            temporary.replace(target)
+            return
+        except (urllib.error.URLError, TimeoutError):
+            temporary.unlink(missing_ok=True)
+            if attempt == 2:
+                raise
+            time.sleep(2 * (attempt + 1))
 
 
 def _extract(archive: Path, stage: Path) -> None:
@@ -87,7 +96,7 @@ def import_shard(run_id: int, shard: int, delete_remote: bool = False) -> dict:
     if len(matches) != 1:
         raise ValueError(f"Expected one artifact for shard {shard}; found {len(matches)}")
     artifact = matches[0]
-    stage = Path("data/ci_shards") / f"shard_{shard:02d}"
+    stage = Path("data/ci_shards") / f"run_{run_id}" / f"shard_{shard:02d}"
     stage.mkdir(parents=True, exist_ok=True)
     archive = stage / "artifact.zip"
     _download(artifact["id"], headers, archive)
@@ -96,7 +105,7 @@ def import_shard(run_id: int, shard: int, delete_remote: bool = False) -> dict:
     lock = stage / f"data/research/shard_{shard}_source.lock"
     result = json.loads(report.read_text(encoding="utf-8"))
     revision = lock.read_text(encoding="utf-8").strip()
-    for prior in Path("data/ci_shards").glob("shard_*/data/research/shard_*_source.lock"):
+    for prior in Path("data/ci_shards").glob("run_*/shard_*/data/research/shard_*_source.lock"):
         if prior != lock and prior.read_text(encoding="utf-8").strip() != revision:
             raise ValueError("Market shards use different archive versions")
     copied = {}
