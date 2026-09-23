@@ -68,6 +68,12 @@ def test_historical_chinext_rule_and_star_order_quantity():
     assert _order_shares("sh.688001", 10.0, 20_050) == 2005
 
 
+def test_mainboard_risk_warning_limit_changes_in_july_2026():
+    for code in ("sh.600000", "sz.000001"):
+        assert _board_limit_rate(code, 1, "2026-07-03") == 0.05
+        assert _board_limit_rate(code, 1, "2026-07-06") == 0.1
+
+
 def test_new_listing_window_is_excluded_from_estimated_fills():
     signals, minute, daily = _inputs()
     signals["listing_age_sessions"] = 2

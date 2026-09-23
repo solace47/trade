@@ -47,7 +47,10 @@ def _board_limit_rate(code: str, is_st: int, date: str) -> float:
     # The ChiNext reform took effect on 2020-08-24 for existing shares too.
     if code.startswith("sz.30") and date >= "2020-08-24":
         return 0.2
-    return 0.05 if is_st else 0.1
+    # Both mainland mainboards aligned risk-warning shares with the ordinary
+    # 10% band on 2026-07-06. Entry screens already exclude ST shares, but a
+    # position can become risk-warning before its modeled exit.
+    return 0.05 if is_st and date < "2026-07-06" else 0.1
 
 
 def _limit_price(preclose: float, rate: float, upper: bool) -> float:
