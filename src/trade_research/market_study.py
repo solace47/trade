@@ -24,6 +24,19 @@ SCREEN = """
 """
 
 
+def _week_bootstrap(values: pd.Series, dates: pd.Series, seed: int) -> list[float]:
+    """Resample weeks so nearby signal days remain together."""
+    weekly = pd.DataFrame({
+        "value": values.to_numpy(),
+        "week": pd.to_datetime(dates).dt.to_period("W-SUN").astype(str).to_numpy(),
+    }).groupby("week")["value"].agg(["sum", "count"])
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, len(weekly), size=(2000, len(weekly)))
+    means = weekly["sum"].to_numpy()[draws].sum(axis=1) / \
+        weekly["count"].to_numpy()[draws].sum(axis=1)
+    return [float(x) for x in np.quantile(means, [.025, .975])]
+
+
 def _quality_keys(issues_dir: Path) -> pd.DataFrame:
     files = sorted(issues_dir.glob("shard_*.csv"))
     if not files:
@@ -55,14 +68,12 @@ def _summarize(days: pd.DataFrame) -> dict:
         return result
     active = days.loc[days["clean_outcomes"] > 0].copy()
     daily_mean = active["net_sum"] / active["clean_outcomes"]
-    rng = np.random.default_rng(20260924)
-    draw = rng.choice(daily_mean.to_numpy(), size=(2000, len(daily_mean)), replace=True)
-    interval = np.quantile(draw.mean(axis=1), [0.025, 0.975])
+    interval = _week_bootstrap(daily_mean, active["date"], 20260924)
     result.update({
         "trading_dates_with_completed_exits": int(len(active)),
         "mean_net_return_per_trade": float(days["net_sum"].sum() / completed),
         "date_weighted_mean_net_return": float(daily_mean.mean()),
-        "date_bootstrap_95pct_interval": [float(interval[0]), float(interval[1])],
+        "week_bootstrap_95pct_interval": interval,
         "win_rate_per_trade": float(days["wins"].sum() / completed),
     })
     return result

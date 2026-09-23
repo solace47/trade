@@ -2,7 +2,14 @@
 
 import pandas as pd
 
-from trade_research.market_study import study
+from trade_research.market_study import _week_bootstrap, study
+
+
+def test_week_resampling_preserves_within_week_dependence():
+    dates = pd.Series(pd.date_range("2024-01-01", periods=5).tolist()
+                      + pd.date_range("2024-01-08", periods=5).tolist())
+    values = pd.Series([1.0] * 5 + [-1.0] * 5)
+    assert _week_bootstrap(values, dates, 7) == [-1.0, 1.0]
 
 
 def test_quality_censoring_and_top_five_are_applied_before_metrics(tmp_path):

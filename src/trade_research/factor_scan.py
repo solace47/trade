@@ -11,10 +11,9 @@ import json
 from pathlib import Path
 
 import duckdb
-import numpy as np
 import pandas as pd
 
-from .market_study import _quality_keys
+from .market_study import _quality_keys, _week_bootstrap
 
 
 FACTORS = {
@@ -100,17 +99,15 @@ def _metrics(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
     active["daily_mean"] = active["net_sum"] / active["clean_outcomes"]
     matched = active.merge(baseline[["date", "baseline_daily_mean"]],
                            on="date", validate="one_to_one")
-    edge = (matched["daily_mean"] - matched["baseline_daily_mean"]).to_numpy()
-    rng = np.random.default_rng(20260924)
-    sampled = rng.choice(edge, size=(2000, len(edge)), replace=True).mean(axis=1)
-    lo, hi = np.quantile(sampled, [.025, .975])
+    edge = matched["daily_mean"] - matched["baseline_daily_mean"]
+    interval = _week_bootstrap(edge, matched["date"], 20260924)
     result.update({
         "completed_days": int(len(active)),
         "mean_net_return_per_trade": float(active["net_sum"].sum() / completed),
         "date_weighted_mean_net_return": float(active["daily_mean"].mean()),
         "win_rate": float(active["wins"].sum() / completed),
         "date_weighted_edge_vs_same_day_universe": float(edge.mean()),
-        "edge_date_bootstrap_95pct_interval": [float(lo), float(hi)],
+        "edge_week_bootstrap_95pct_interval": interval,
     })
     return result
 
