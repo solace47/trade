@@ -93,6 +93,19 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots_raw")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes_raw")
     connection.register("bad_quality", bad)
+    connection.execute("""
+        CREATE TEMP VIEW market_environment AS
+        SELECT s.date,
+               CASE WHEN AVG(CASE WHEN s.return_1450 > 0 THEN 1.0 ELSE 0.0 END) >= .6
+                         THEN 'broad_advance'
+                    WHEN AVG(CASE WHEN s.return_1450 > 0 THEN 1.0 ELSE 0.0 END) <= .4
+                         THEN 'broad_decline'
+                    ELSE 'mixed' END AS regime
+        FROM snapshots_raw AS s
+        LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
+        WHERE b.code IS NULL AND s.isST = 0 AND s.listing_age_sessions >= 20
+        GROUP BY s.date
+    """)
     connection.execute(f"""
         CREATE TEMP VIEW screened AS
         SELECT s.*, CASE WHEN b.code IS NULL AND {SCREEN}
@@ -110,7 +123,7 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     """)
     connection.execute("""
         CREATE TEMP VIEW joined AS
-        SELECT s.date, s.code, s.candidate, s.tail_rank,
+        SELECT s.date, s.code, s.candidate, s.tail_rank, m.regime,
                o.horizon, o.entry_status, o.exit_status, o.exit_delay_sessions,
                o.net_return,
                CASE WHEN s.date < '2023-01-01' THEN '2022_development'
@@ -124,6 +137,7 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                ) AS quality_clean
         FROM ranked AS s
         JOIN outcomes_raw AS o USING (date, code)
+        JOIN market_environment AS m USING (date)
     """)
     policies = {
         "all_signals": "TRUE",
@@ -131,9 +145,10 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         "frozen_rule_top5": "candidate AND tail_rank <= 5",
     }
     report = {}
+    by_regime = {}
     for name, condition in policies.items():
         days = connection.execute(f"""
-            SELECT period, horizon, date,
+            SELECT period, horizon, date, regime,
                    COUNT(*) AS signals,
                    SUM(CASE WHEN entry_status = 'filled' THEN 1 ELSE 0 END) AS entry_fills,
                    SUM(CASE WHEN exit_status = 'filled' AND quality_clean
@@ -149,19 +164,27 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                    SUM(CASE WHEN exit_status = 'filled' AND quality_clean
                                  AND exit_delay_sessions > 0 THEN 1 ELSE 0 END) AS delayed_exits
             FROM joined WHERE {condition}
-            GROUP BY period, horizon, date
+            GROUP BY period, horizon, date, regime
         """).df()
         policy = {}
         for (period, horizon), frame in days.groupby(["period", "horizon"]):
             policy.setdefault(period, {})[str(horizon)] = _summarize(frame)
         report[name] = policy
+        if name == "frozen_rule_top5":
+            for (period, horizon, regime), frame in days.groupby(
+                ["period", "horizon", "regime"]
+            ):
+                by_regime.setdefault(period, {}).setdefault(str(horizon), {})[regime] = \
+                    _summarize(frame)
     result = {
         "scope": "historical Shanghai/Shenzhen, quality-screened 2022-2026",
         "shards": len(shard_ids), "quality_bad_stock_days": len(bad),
         "execution_model": "14:52-14:55 VWAP, costs, volume cap, limits, T+1, delayed exit",
         "rule": "non-ST; seasoned >=20 sessions; 14:50 gain 1.5%-5%; position >=0.7; "
                 "estimated volume ratio >=1.2; above adjusted prior MA20; turnover >=CNY30m",
-        "policies": report,
+        "market_environment": "14:50 fraction of seasoned non-ST stocks advancing: "
+                              "<=40% decline, >=60% advance, otherwise mixed",
+        "policies": report, "frozen_rule_top5_by_regime": by_regime,
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
