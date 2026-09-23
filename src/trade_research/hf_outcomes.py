@@ -33,6 +33,8 @@ class Assumptions:
     commission_bps_each_side: float = 3.0
     commission_minimum_each_side: float = 5.0
     transfer_bps_each_side: float = 0.1
+    transfer_bps_each_side_before_cutover: float = 0.2
+    transfer_cutover_date: str = "2022-04-29"
     stamp_tax_bps_on_sale: float = 5.0
     stamp_tax_bps_on_sale_before_cutover: float = 10.0
     stamp_tax_cutover_date: str = "2023-08-28"
@@ -94,7 +96,10 @@ def _fees(value: float, side: str, assumptions: Assumptions,
           date: str | None = None) -> float:
     commission = max(assumptions.commission_minimum_each_side,
                      value * assumptions.commission_bps_each_side / 10_000)
-    transfer = value * assumptions.transfer_bps_each_side / 10_000
+    transfer_rate = assumptions.transfer_bps_each_side
+    if date is not None and date < assumptions.transfer_cutover_date:
+        transfer_rate = assumptions.transfer_bps_each_side_before_cutover
+    transfer = value * transfer_rate / 10_000
     stamp_rate = assumptions.stamp_tax_bps_on_sale
     if date is not None and date < assumptions.stamp_tax_cutover_date:
         stamp_rate = assumptions.stamp_tax_bps_on_sale_before_cutover
@@ -195,7 +200,7 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
                     result["gross_return"] = sell_value / buy_value - 1
                     result["net_return"] = (
                         (sell_value - _fees(sell_value, "sell", assumptions, date)) /
-                        (buy_value + _fees(buy_value, "buy", assumptions)) - 1
+                        (buy_value + _fees(buy_value, "buy", assumptions, entry_date)) - 1
                     )
                     exit_status = "filled"
                 break

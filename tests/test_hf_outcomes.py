@@ -80,3 +80,11 @@ def test_stamp_tax_uses_the_actual_sale_date():
     before = _fees(100_000, "sell", assumptions, "2023-08-25")
     after = _fees(100_000, "sell", assumptions, "2023-08-28")
     assert round(before - after, 2) == 50.00
+
+
+def test_transfer_fee_uses_each_execution_date():
+    assumptions = Assumptions()
+    for side in ("buy", "sell"):
+        before = _fees(100_000, side, assumptions, "2022-04-28")
+        after = _fees(100_000, side, assumptions, "2022-04-29")
+        assert round(before - after, 2) == 1.00
