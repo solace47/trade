@@ -103,6 +103,21 @@ def run(initial_run_id: int, batch_size: int = 4, total_shards: int = 20) -> Non
             time.sleep(30)
             continue
         available = {item["name"] for item in artifacts["artifacts"]}
+        # Start the next bounded batch while completed artifacts are imported.
+        # This overlaps hosted computation with local downloads without keeping
+        # more than two batches of artifacts in flight.
+        if (run_info["status"] == "completed"
+                and run_info["conclusion"] == "success"
+                and state["next_shard"] < total_shards
+                and state.get("prefetched_run_id") is None):
+            first = state["next_shard"]
+            count = min(batch_size, total_shards - first)
+            next_id = _dispatch(headers, first, count)
+            state["prefetched_run_id"] = next_id
+            state["prefetched_shards"] = list(range(first, first + count))
+            state["next_shard"] = first + count
+            _save(state)
+            _log(f"Started next run {next_id} for shards {first}-{first + count - 1}")
         for shard in state["active_shards"]:
             if shard in state["imported"] or f"market-shard-{shard}" not in available:
                 continue
@@ -129,8 +144,8 @@ def run(initial_run_id: int, batch_size: int = 4, total_shards: int = 20) -> Non
                 raise RuntimeError(f"Run {active_id} ended {run_info['conclusion']}; "
                                    f"imported {sum(s in state['imported'] for s in state['active_shards'])} "
                                    f"of {len(state['active_shards'])} shards")
-            state["active_run_id"] = None
-            state["active_shards"] = []
+            state["active_run_id"] = state.pop("prefetched_run_id", None)
+            state["active_shards"] = state.pop("prefetched_shards", [])
             _save(state)
             continue
         time.sleep(30)
