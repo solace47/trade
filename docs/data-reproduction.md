@@ -76,4 +76,6 @@ PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
 
 市场相对下跌信号的次日上午退出重算运行 `PYTHONPATH=src .venv/bin/python scripts/residual_exit_probe.py`，以原始分钟文件重新估算每笔 2 万和 5 万元的成交。
 
+固定风险排除规则运行 `PYTHONPATH=src .venv/bin/python -m trade_research.risk_filter`，同一确定性随机顺序对照过滤前后的选股。
+
 随机对照和卖出时段的信号清单先分别运行 `trade_research.exploratory_signals` 的 `random_low_amount`、`random_liquid`、`low_amount_neutral`、`mid_amount_prior_loser`，输出到 `data/research/` 下的 `random_low_all.parquet`、`random_liquid_all.parquet`、`size_signal_neutral.parquet`、`mid_loser_all.parquet`；再用 `scripts/assemble_research_lists.py --kind random|exit --year 2024` 汇总。2025 年随机对照同样运行 `--year 2025`。卖出时段汇总见 `scripts/exit_window_report.py`。以上选股清单先排名，盘后质量审计只标记结果。
