@@ -29,7 +29,8 @@ RULES = {
 
 
 def study(daily_dir: Path, snapshot_dir: Path, outcome_dir: Path,
-          issues_dir: Path, report_path: Path, trades_path: Path) -> dict:
+          issues_dir: Path, report_path: Path, trades_path: Path,
+          features_path: Path | None = None) -> dict:
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
     connection.read_parquet(str(daily_dir / "*.parquet")).create_view("d")
@@ -117,6 +118,12 @@ def study(daily_dir: Path, snapshot_dir: Path, outcome_dir: Path,
         FROM shocks h JOIN slopes m USING (date)
         WHERE m.beta_absolute IS NOT NULL AND m.beta_relative IS NOT NULL
     """)
+    if features_path is not None:
+        features_path.parent.mkdir(parents=True, exist_ok=True)
+        destination = str(features_path).replace("'", "''")
+        connection.execute(f"""
+            COPY eligible TO '{destination}' (FORMAT PARQUET, COMPRESSION ZSTD)
+        """)
     selections = []
     for name, order in RULES.items():
         picked = connection.execute(f"""
@@ -209,9 +216,11 @@ def main() -> None:
                         default=Path("data/research/liquidity_shock_report.json"))
     parser.add_argument("--trades", type=Path,
                         default=Path("data/research/liquidity_shock_trades.parquet"))
+    parser.add_argument("--features", type=Path,
+                        default=Path("data/research/liquidity_shock_features.parquet"))
     args = parser.parse_args()
     report = study(args.daily, args.snapshots, args.outcomes, args.issues,
-                   args.report, args.trades)
+                   args.report, args.trades, args.features)
     print({"hypotheses": list(report["results"]), "report": str(args.report)})
 
 

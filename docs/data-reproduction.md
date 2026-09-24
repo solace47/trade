@@ -70,4 +70,6 @@ PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
 
 日内流动性冲击改写运行 `PYTHONPATH=src .venv/bin/python -m trade_research.liquidity_shock`；它使用 2023 年日线仅预热此前 60 个交易日的非流动性均值，策略收益仍从 2024 年开始。
 
+前述试验生成本地特征表后，运行 `PYTHONPATH=src .venv/bin/python -m trade_research.liquidity_conditioned` 可复核动量与板块控制。
+
 随机对照和卖出时段的信号清单先分别运行 `trade_research.exploratory_signals` 的 `random_low_amount`、`random_liquid`、`low_amount_neutral`、`mid_amount_prior_loser`，输出到 `data/research/` 下的 `random_low_all.parquet`、`random_liquid_all.parquet`、`size_signal_neutral.parquet`、`mid_loser_all.parquet`；再用 `scripts/assemble_research_lists.py --kind random|exit --year 2024` 汇总。2025 年随机对照同样运行 `--year 2025`。卖出时段汇总见 `scripts/exit_window_report.py`。以上选股清单先排名，盘后质量审计只标记结果。
