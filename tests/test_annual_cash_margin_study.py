@@ -37,6 +37,13 @@ def test_original_cash_inputs_require_complete_matching_source(tmp_path) -> None
     assert audit["indexed_margin_stock_years"] == 2
     assert audit["extracted_stock_years"] == 2
 
+    # The archive can grow to include A shares outside this margin universe.
+    extra = {"report_year": 2023, "code": "sh.600005", "status": "ok"}
+    extracted[0].write_text(extracted[0].read_text() + json.dumps(extra) + "\n")
+    reports, audit = _original_reports(tuple(indices), tuple(extracted), codes)
+    assert len(reports) == 1
+    assert audit["indexed_margin_stock_years"] == 2
+
     extracted[1].write_text(json.dumps({"report_year": 2024,
                                         "code": "sz.300999",
                                         "status": "failed"}) + "\n")

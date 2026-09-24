@@ -106,6 +106,18 @@ def _summarize(scored: pd.DataFrame) -> dict:
     return result
 
 
+def _execution_placebo(scored: pd.DataFrame) -> pd.DataFrame:
+    """Keep actual fills but give each clean exit its stratum's common return."""
+    common = scored.loc[scored.clean_exit].groupby(STRATUM)[
+        "raw_net_return"].mean().rename("common_return")
+    placebo = scored.join(common, on=STRATUM).copy()
+    placebo["cash_return"] = np.where(
+        placebo.clean_exit, placebo.common_return, 0.0)
+    if not np.isfinite(placebo.cash_return.to_numpy()).all():
+        raise ValueError("Execution placebo lacks a common clean return")
+    return placebo
+
+
 def evaluate(inputs_path: Path, visibility_audit_path: Path,
              stake_audit_path: Path, outcome_dir: Path, issues_dir: Path,
              report_path: Path) -> dict:
@@ -143,6 +155,7 @@ def evaluate(inputs_path: Path, visibility_audit_path: Path,
                                    AND b.date >= r.date
                                    AND b.date <= o.exit_date)
                  AS clean_exit,
+               o.net_return AS raw_net_return,
                CASE WHEN o.exit_status = 'filled'
                  AND NOT EXISTS (SELECT 1 FROM bad_symbols b
                                  WHERE b.code = r.code)
@@ -160,6 +173,11 @@ def evaluate(inputs_path: Path, visibility_audit_path: Path,
             or not np.isfinite(scored.cash_return.to_numpy()).all()):
         raise ValueError("A fund stake stock-day lacks a clean minute outcome")
     report = _summarize(scored)
+    placebo = _summarize(_execution_placebo(scored))
+    report["execution_placebo_interaction"] = {
+        year: placebo["groups"]["low_cash_conversion"][year]["full"]
+        ["interaction"] for year in ("2024", "2025")
+    }
     report["note"] = ("100k stored-minute exploratory association; "
                       "2025 is not blind; 2026 not read")
     report_path.parent.mkdir(parents=True, exist_ok=True)

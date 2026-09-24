@@ -44,6 +44,9 @@ def _original_reports(index_paths: tuple[Path, Path],
         raise ValueError("Original annual summary index has duplicate stock-years")
     records = pd.concat([pd.read_json(path, lines=True)
                          for path in extracted_paths], ignore_index=True)
+    # The original-PDF archive may also contain non-margin A shares for
+    # separate full-market studies; validate this strategy's indexed subset.
+    records = records.loc[records.code.isin(margin_codes)]
     records = records.drop_duplicates(["report_year", "code"], keep="last")
     expected = set(zip(indices.report_year, indices.code))
     completed = set(zip(records.report_year, records.code))
