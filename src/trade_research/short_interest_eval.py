@@ -28,10 +28,12 @@ PERIODS = {
 
 
 def evaluate(selected_path: Path, quintiles_path: Path, outcome_dir: Path,
-             issues_dir: Path, report_path: Path, trades_path: Path) -> dict:
+             issues_dir: Path, report_path: Path, trades_path: Path,
+             treated: str = TREATED, control: str = CONTROL,
+             periods: dict[str, tuple[str, ...]] = PERIODS) -> dict:
     selected = pd.read_parquet(selected_path)
     quintiles = pd.read_parquet(quintiles_path)
-    if set(selected.candidate) != {TREATED, CONTROL}:
+    if set(selected.candidate) != {treated, control}:
         raise ValueError("Missing frozen high or low short-interest group")
     if (not selected.date.gt(selected.trade_date).all()
             or not quintiles.date.gt(quintiles.trade_date).all()
@@ -66,13 +68,13 @@ def evaluate(selected_path: Path, quintiles_path: Path, outcome_dir: Path,
         raise ValueError("Frozen short-interest pair lacks minute outcomes")
     report = {"primary_horizon": 5, "matched": {}, "full_market": {},
               "note": "2025 is exploratory, not blind; 2026 outcomes untouched"}
-    for period, windows in PERIODS.items():
+    for period, windows in periods.items():
         report["matched"][period] = {}
         for horizon in HORIZONS:
             sample = trades.loc[trades.window.isin(windows)
                                 & trades.horizon.eq(horizon)]
-            high = sample.loc[sample.candidate.eq(TREATED)]
-            low = sample.loc[sample.candidate.eq(CONTROL)]
+            high = sample.loc[sample.candidate.eq(treated)]
+            low = sample.loc[sample.candidate.eq(control)]
             if high.empty or len(high) != len(low):
                 raise ValueError(f"Missing matched short-interest {period} outcomes")
             summary = _period(high, low)
@@ -102,7 +104,7 @@ def evaluate(selected_path: Path, quintiles_path: Path, outcome_dir: Path,
         raise ValueError("A short-interest stratum has no high or low group")
     means = means.rename(columns={1: "low", 5: "high"}).reset_index()
     means["edge"] = means.high - means.low
-    for period, windows in PERIODS.items():
+    for period, windows in periods.items():
         report["full_market"][period] = {}
         section = means.loc[means.window.isin(windows)]
         for board in ("all", "sh_main", "sh_star", "sz_main", "sz_gem"):
@@ -141,7 +143,9 @@ def evaluate(selected_path: Path, quintiles_path: Path, outcome_dir: Path,
 
 
 def summarize_repriced(selected_path: Path, repriced_path: Path,
-                       trades_path: Path, output_path: Path) -> dict:
+                       trades_path: Path, output_path: Path,
+                       treated: str = TREATED, control: str = CONTROL,
+                       periods: dict[str, tuple[str, ...]] = PERIODS) -> dict:
     membership = pd.read_parquet(selected_path)[
         ["date", "code", "candidate", "pair_code", "window"]]
     raw = pd.read_parquet(repriced_path)
@@ -174,14 +178,14 @@ def summarize_repriced(selected_path: Path, repriced_path: Path,
     report = {"exact_100k_rows": len(comparison), "results": {}}
     for size in (20_000, 100_000):
         report["results"][str(size)] = {}
-        for period, windows in PERIODS.items():
+        for period, windows in periods.items():
             report["results"][str(size)][period] = {}
             for horizon in HORIZONS:
                 sample = rows.loc[rows.target_notional.eq(size)
                                   & rows.window.isin(windows)
                                   & rows.horizon.eq(horizon)]
-                high = sample.loc[sample.candidate.eq(TREATED)]
-                low = sample.loc[sample.candidate.eq(CONTROL)]
+                high = sample.loc[sample.candidate.eq(treated)]
+                low = sample.loc[sample.candidate.eq(control)]
                 summary = _period(high, low)
                 summary["same_day_matched_mean"] = summary.pop(
                     "same_day_random_mean")
