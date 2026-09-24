@@ -1,0 +1,34 @@
+import pandas as pd
+
+from trade_research.fund_attention_eval import _summarize
+
+
+def _stock(day: str, code: str, visible: bool, quintile: int,
+           cash_return: float) -> dict:
+    return {"date": day, "code": code, "board": "sh_main",
+            "size_bucket": 1, "cash_group": "low_cash_conversion",
+            "fund_visible": visible, "quintile": quintile,
+            "cash_return": cash_return, "entry_filled": True,
+            "clean_exit": True}
+
+
+def test_four_cell_interaction_excludes_incomplete_stratum() -> None:
+    scored = pd.DataFrame([
+        _stock("2024-05-20", "a", False, 1, 0.01),
+        _stock("2024-05-20", "b", False, 5, 0.04),
+        _stock("2024-05-20", "c", True, 1, 0.02),
+        _stock("2024-05-20", "d", True, 5, 0.03),
+        _stock("2024-05-21", "e", False, 1, 0.90),
+        _stock("2024-05-21", "f", False, 5, 0.90),
+        _stock("2024-05-21", "g", True, 1, 0.90),
+    ])
+    report = _summarize(scored)
+    assert report["total_strata"] == 2
+    assert report["four_cell_strata"] == 1
+    assert report["four_cell_stock_days"] == 4
+    sample = report["groups"]["low_cash_conversion"]["2024"]["full"]
+    assert sample["source_strata"] == 2
+    assert sample["days"] == 1
+    assert round(sample["absent_edge"], 8) == 0.03
+    assert round(sample["visible_edge"], 8) == 0.01
+    assert round(sample["interaction"], 8) == 0.02
