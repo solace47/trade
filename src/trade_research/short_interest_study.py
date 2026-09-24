@@ -85,16 +85,19 @@ def _prepare_inputs(universe_path: Path, margin_path: Path,
     return frame
 
 
-def _quintiles(frame: pd.DataFrame) -> pd.DataFrame:
+def _quintiles(frame: pd.DataFrame,
+               score_field: str = "short_ratio") -> pd.DataFrame:
     if "quintile" in frame.columns:
         raise ValueError("A prior study's quintile cannot define short-interest groups")
+    if score_field not in {"short_ratio", "net_short_flow"}:
+        raise ValueError("Unknown short-interest ranking field")
     connection = duckdb.connect()
     connection.register("inputs", frame)
     result = connection.execute(f"""
         SELECT * EXCLUDE (stratum_n),
                NTILE(5) OVER (
                    PARTITION BY date, board, size_bucket
-                   ORDER BY short_ratio, code
+                   ORDER BY {score_field}, code
                ) AS quintile
         FROM (
             SELECT *, COUNT(*) OVER (
@@ -111,8 +114,14 @@ def _quintiles(frame: pd.DataFrame) -> pd.DataFrame:
     return result
 
 
-def select_pairs(universe: pd.DataFrame,
-                 session_index: dict[str, int]) -> tuple[pd.DataFrame, dict]:
+def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
+                 score_field: str = "short_ratio",
+                 treated: str = TREATED, control: str = CONTROL,
+                 signed_flows: bool = False,
+                 prior_level_caliper: tuple[float, float] | None = None
+                 ) -> tuple[pd.DataFrame, dict]:
+    if score_field not in {"short_ratio", "net_short_flow"}:
+        raise ValueError("Unknown short-interest selection field")
     high_rows = []
     low_rows = []
     last_kept: dict[str, int] = {}
@@ -121,18 +130,30 @@ def select_pairs(universe: pd.DataFrame,
     for day, daily in universe.groupby("date", sort=True):
         index = session_index[day]
         high = daily.loc[daily.quintile.eq(5)].sort_values(
-            ["short_ratio", "code"], ascending=[False, True]
+            [score_field, "code"], ascending=[False, True]
         )
+        if signed_flows:
+            high = high.loc[high[score_field].gt(0)]
         high = high.loc[high.code.map(
             lambda code: index - last_kept.get(code, -1000) > COOLDOWN_SESSIONS
         )].head(CAPACITY)
         capacity_selected += len(high)
         controls = daily.loc[daily.quintile.eq(1)].copy()
+        if signed_flows:
+            controls = controls.loc[controls[score_field].lt(0)]
         for _, signal in high.iterrows():
             choices = controls.loc[
                 controls.board.eq(signal.board)
                 & controls.size_bucket.eq(signal.size_bucket)
             ]
+            if prior_level_caliper is not None:
+                if signal.prior_short_interest <= 0:
+                    unmatched += 1
+                    continue
+                choices = choices.loc[
+                    (choices.prior_short_interest / signal.prior_short_interest)
+                    .between(*prior_level_caliper)
+                ]
             match = _match_one(signal, choices)
             if match is None:
                 unmatched += 1
@@ -141,12 +162,12 @@ def select_pairs(universe: pd.DataFrame,
             item = signal.copy()
             item["pair_code"] = signal.code
             item["match_distance"] = distance
-            item["candidate"] = TREATED
+            item["candidate"] = treated
             high_rows.append(item)
             other = reference.copy()
             other["pair_code"] = signal.code
             other["match_distance"] = distance
-            other["candidate"] = CONTROL
+            other["candidate"] = control
             low_rows.append(other)
             controls = controls.loc[controls.code.ne(reference.code)]
             last_kept[signal.code] = index

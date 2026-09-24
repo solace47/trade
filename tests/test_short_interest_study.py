@@ -55,3 +55,36 @@ def test_short_interest_quintiles_rank_short_ratio_within_stratum() -> None:
     ]).drop(columns="quintile")
     ranked = _quintiles(frame).sort_values("short_ratio")
     assert ranked.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
+
+
+def test_net_flow_pair_requires_positive_high_and_negative_low() -> None:
+    high = _row("2025-03-04", "sz.000001", 5, .002)
+    high["net_short_flow"] = .003
+    low = _row("2025-03-04", "sz.000002", 1, .0001)
+    low["net_short_flow"] = -.002
+    neutral = _row("2025-03-04", "sz.000003", 1, .0001)
+    neutral["net_short_flow"] = 0.0
+    selected, report = select_pairs(
+        pd.DataFrame([high, neutral, low]), {"2025-03-04": 10},
+        score_field="net_short_flow", treated="positive", control="negative",
+        signed_flows=True)
+    assert report["matched_pairs"] == 1
+    assert selected.loc[selected.candidate.eq("positive"),
+                        "net_short_flow"].gt(0).all()
+    assert selected.loc[selected.candidate.eq("negative"),
+                        "net_short_flow"].lt(0).all()
+
+
+def test_net_flow_pair_matches_starting_short_position() -> None:
+    high = _row("2025-03-04", "sz.000001", 5, .002)
+    high.update(net_short_flow=.003, prior_short_interest=.001)
+    far = _row("2025-03-04", "sz.000002", 1, .0001)
+    far.update(net_short_flow=-.002, prior_short_interest=.004)
+    near = _row("2025-03-04", "sz.000003", 1, .0001)
+    near.update(net_short_flow=-.001, prior_short_interest=.0012)
+    selected, _ = select_pairs(
+        pd.DataFrame([high, far, near]), {"2025-03-04": 10},
+        score_field="net_short_flow", signed_flows=True,
+        prior_level_caliper=(.5, 2))
+    assert selected.loc[selected.candidate.eq(CONTROL),
+                        "code"].tolist() == ["sz.000003"]
