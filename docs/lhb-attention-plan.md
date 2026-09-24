@@ -39,3 +39,5 @@ PYTHONPATH=src .venv/bin/python -m trade_research.lhb_attention --repriced data/
 ```
 
 机器可读的主结果、原始分钟和事后敏感性报告保存在被 Git 忽略的 `data/research/`。
+
+连续三日负向异常波动的独立输入可行性检验见[专项记录](lhb-three-day-negative-plan.md)；严格同日对照不足，未读取该事件收益。
