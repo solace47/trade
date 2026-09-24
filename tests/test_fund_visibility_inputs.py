@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from trade_research.fund_visibility_inputs import (
-    _holding_intervals, _load_sources, _visibility,
+    _four_cell_coverage, _holding_intervals, _load_sources, _visibility,
 )
 
 
@@ -67,3 +67,22 @@ def test_late_old_quarter_does_not_replace_newer_disclosed_quarter() -> None:
 def test_partial_quarter_archive_cannot_build_visibility(tmp_path) -> None:
     with pytest.raises(FileNotFoundError, match="2023q4"):
         _load_sources(tmp_path / "index", tmp_path / "holdings")
+
+
+def test_four_cell_input_audit_counts_missing_strata() -> None:
+    rows = []
+    for date, combinations in (
+            ("2024-05-15", [(False, 1), (False, 5), (True, 1), (True, 5)]),
+            ("2024-05-16", [(False, 1), (False, 5), (True, 1)])):
+        for number, (visible, quintile) in enumerate(combinations):
+            rows.append({"date": date, "board": "sh_main", "size_bucket": 1,
+                         "cash_group": "low_cash_conversion",
+                         "fund_visible": visible, "quintile": quintile,
+                         "code": f"sh.{number:06d}"})
+    coverage = _four_cell_coverage(pd.DataFrame(rows))[
+        "low_cash_conversion"]["2024"]
+    assert coverage == {
+        "source_strata": 2, "four_cell_strata": 1,
+        "source_signal_days": 2, "four_cell_signal_days": 1,
+        "source_extreme_stock_days": 7, "four_cell_stock_days": 4,
+    }

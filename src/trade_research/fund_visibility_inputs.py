@@ -112,6 +112,37 @@ def _visibility(universe: pd.DataFrame, intervals: pd.DataFrame) -> pd.DataFrame
     return result
 
 
+def _four_cell_coverage(inputs: pd.DataFrame) -> dict:
+    """Count feasible financing-by-visibility strata before opening outcomes."""
+    extremes = inputs.loc[inputs.quintile.isin((1, 5))]
+    keys = ["date", "board", "size_bucket", "cash_group"]
+    cells = extremes.groupby(keys + ["fund_visible", "quintile"],
+                             observed=True).size().reset_index(name="stock_days")
+    complete = cells.groupby(keys, observed=True).size().eq(4).rename(
+        "four_cell").reset_index()
+    included = extremes.merge(complete.loc[complete.four_cell, keys],
+                              on=keys, how="inner", validate="many_to_one")
+    report = {}
+    for cash_group in ("low_cash_conversion", "cash_supported"):
+        report[cash_group] = {}
+        for year in ("2024", "2025"):
+            strata = complete.loc[complete.cash_group.eq(cash_group)
+                                  & complete.date.str.startswith(year)]
+            source = extremes.loc[extremes.cash_group.eq(cash_group)
+                                  & extremes.date.str.startswith(year)]
+            matched = included.loc[included.cash_group.eq(cash_group)
+                                    & included.date.str.startswith(year)]
+            report[cash_group][year] = {
+                "source_strata": len(strata),
+                "four_cell_strata": int(strata.four_cell.sum()),
+                "source_signal_days": int(source.date.nunique()),
+                "four_cell_signal_days": int(matched.date.nunique()),
+                "source_extreme_stock_days": len(source),
+                "four_cell_stock_days": len(matched),
+            }
+    return report
+
+
 def build(index_dir: Path, holdings_dir: Path, universe_path: Path,
           output: Path, report_path: Path) -> dict:
     metadata, positions, audit = _load_sources(index_dir, holdings_dir)
@@ -127,6 +158,7 @@ def build(index_dir: Path, holdings_dir: Path, universe_path: Path,
         "source_a_share_rows": len(positions),
         "visible_stock_days": int(result.fund_visible.sum()),
         "eligible_stock_days": len(result),
+        "four_cell_coverage": _four_cell_coverage(result),
         "by_year": {},
         "note": "Inputs only; no future outcome was opened by this module",
     }
