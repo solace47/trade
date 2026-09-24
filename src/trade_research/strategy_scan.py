@@ -166,20 +166,19 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                o.horizon, o.entry_status, o.entry_price, o.shares,
                o.exit_status, o.exit_date, o.exit_delay_sessions,
                o.exit_price, o.net_return,
-               NOT EXISTS (
+               NOT EXISTS (SELECT 1 FROM bad_symbols AS b
+                           WHERE b.code = s.code)
+               AND NOT EXISTS (
                    SELECT 1 FROM bad_days AS x
                    WHERE x.code = s.code AND x.date >= s.date
                      AND x.date <= o.exit_date
                ) AS quality_clean_exit
         FROM snapshots AS s
         JOIN outcomes AS o USING (date, code)
-        LEFT JOIN bad_days AS b ON b.date = s.date AND b.code = s.code
-        LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
         WHERE ((s.date >= '{DEVELOPMENT_YEAR}-01-01'
                 AND s.date <= '{last_development}')
            OR (s.date >= '{VALIDATION_YEAR}-01-01'
                 AND s.date <= '{last_validation}'))
-          AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
           AND s.amount_1450 >= 30000000

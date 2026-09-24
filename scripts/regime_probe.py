@@ -26,11 +26,8 @@ c.register("bad_symbols", _quality_symbols(root / "market_issues_ci"))
 c.execute(f"""
 CREATE TEMP TABLE eligible AS
 SELECT s.* FROM snapshots s
-LEFT JOIN bad_days d ON d.date=s.date AND d.code=s.code
-LEFT JOIN bad_symbols x ON x.code=s.code
 WHERE ((s.date BETWEEN '2024-01-01' AND '{end24}')
     OR (s.date BETWEEN '2025-01-01' AND '{end25}'))
-  AND d.code IS NULL AND x.code IS NULL
   AND s.isST=0 AND s.listing_age_sessions>=20
   AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
 """)
@@ -44,6 +41,8 @@ SELECT date,
 FROM eligible GROUP BY date
 """)
 neutral = pd.read_parquet(root / "size_sensitivity_neutral.parquet")
+if "exit_window" in neutral:
+    neutral = neutral.loc[neutral.exit_window.eq("close")].copy()
 if "quality_clean_exit" not in neutral:
     neutral = _attach_quality(neutral, root / "market_issues_ci")
 neutral = neutral.loc[neutral.target_notional == 20000].copy()
@@ -56,8 +55,9 @@ WITH ranked AS (
 )
 SELECT s.date,s.code,o.horizon,o.entry_status,o.exit_status,o.exit_date,
        o.entry_price,o.exit_price,o.shares,o.net_return,
-       NOT EXISTS (SELECT 1 FROM bad_days q WHERE q.code=s.code
-                   AND q.date>=s.date AND q.date<=o.exit_date)
+       NOT EXISTS (SELECT 1 FROM bad_symbols b WHERE b.code=s.code)
+       AND NOT EXISTS (SELECT 1 FROM bad_days q WHERE q.code=s.code
+                       AND q.date>=s.date AND q.date<=o.exit_date)
          AS quality_clean_exit
 FROM ranked s JOIN outcomes o USING(date,code)
 WHERE s.rank<=5
@@ -67,6 +67,7 @@ baseline = c.execute("""
 SELECT o.date, o.horizon, AVG(o.net_return) AS baseline_net_return
 FROM outcomes o JOIN eligible s USING(date, code)
 WHERE s.amount_1450>=30000000 AND o.exit_status='filled'
+  AND NOT EXISTS (SELECT 1 FROM bad_symbols b WHERE b.code=o.code)
   AND NOT EXISTS (SELECT 1 FROM bad_days q WHERE q.code=o.code
                   AND q.date>=o.date AND q.date<=o.exit_date)
 GROUP BY o.date, o.horizon

@@ -3,7 +3,8 @@
 import pandas as pd
 
 from trade_research.hf_outcomes import (
-    Assumptions, _board_limit_rate, _fees, _order_shares, outcomes_for_symbol,
+    Assumptions, EXIT_WINDOWS, _board_limit_rate, _fees, _order_shares,
+    outcomes_for_symbol,
 )
 
 
@@ -38,6 +39,29 @@ def test_t_plus_one_exit_and_costs():
     assert one["exit_date"] == DATES[1]
     assert one["gross_return"] < 0  # Slippage on both sides.
     assert one["net_return"] < one["gross_return"]
+
+
+def test_next_morning_exit_keeps_same_tail_entry() -> None:
+    signals, minute, daily = _inputs()
+    morning = pd.DataFrame([{
+        "date": DATES[1], "label": label,
+        "volume": 250_000, "turnover": 10.2 * 250_000,
+    } for label in EXIT_WINDOWS["morning"]])
+    minute = pd.concat([minute, morning], ignore_index=True)
+
+    next_morning = outcomes_for_symbol(
+        signals, minute, daily, DATES,
+        exit_labels=EXIT_WINDOWS["morning"],
+    ).loc[lambda frame: frame.horizon.eq(1)].iloc[0]
+    next_close = outcomes_for_symbol(signals, minute, daily, DATES).loc[
+        lambda frame: frame.horizon.eq(1)
+    ].iloc[0]
+
+    assert next_morning["entry_price"] == next_close["entry_price"]
+    assert next_morning["exit_date"] == DATES[1]
+    assert next_morning["exit_delay_sessions"] == 0
+    assert next_morning["exit_label"] == "0935-0938"
+    assert next_morning["net_return"] > next_close["net_return"]
 
 
 def test_limit_up_entry_and_limit_down_exit_are_not_filled():

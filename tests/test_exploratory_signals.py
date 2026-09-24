@@ -5,7 +5,7 @@ import pandas as pd
 from trade_research.exploratory_signals import select
 
 
-def test_low_amount_neutral_excludes_old_and_bad_stock_days(tmp_path) -> None:
+def test_low_amount_neutral_does_not_rank_using_later_quality_audit(tmp_path) -> None:
     snapshots = tmp_path / "snapshots"
     issues = tmp_path / "issues"
     snapshots.mkdir()
@@ -30,15 +30,15 @@ def test_low_amount_neutral_excludes_old_and_bad_stock_days(tmp_path) -> None:
     add(dates25[0], 1, 40_000_000)
     add("2023-12-29", 1, 31_000_000)
     pd.DataFrame(rows).to_parquet(snapshots / "shard_00_part_0000.parquet")
-    pd.DataFrame([{"date": dates24[0], "code": "sh.600007",
+    pd.DataFrame([{"date": dates24[0], "code": "sh.600001",
                    "kind": "ohlc_disagreement"}]).to_csv(
         issues / "shard_00.csv", index=False
     )
-    pd.DataFrame([{"code": "sh.600008", "invalid_rows": 1}]).to_csv(
+    pd.DataFrame([{"code": "sh.600002", "invalid_rows": 1}]).to_csv(
         issues / "stocks.csv", index=False
     )
 
-    result = select(snapshots, issues, "low_amount_neutral",
+    result = select(snapshots, "low_amount_neutral",
                     tmp_path / "signals.parquet", allow_partial=True)
 
     assert result["date"].unique().tolist() == [dates24[0], dates25[0]]

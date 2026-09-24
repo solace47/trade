@@ -137,10 +137,9 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         for year, last_date in last_entry.items()
     )
     connection.execute(f"""
-        CREATE TEMP VIEW clean_snapshots AS
+        CREATE TEMP VIEW signal_snapshots AS
         SELECT s.* FROM snapshots_raw AS s
-        LEFT JOIN bad_symbols AS b ON b.code = s.code
-        WHERE b.code IS NULL AND ({date_ranges})
+        WHERE ({date_ranges})
     """)
     connection.execute("""
         CREATE TEMP VIEW market_environment AS
@@ -150,17 +149,15 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                     WHEN AVG(CASE WHEN s.return_1450 > 0 THEN 1.0 ELSE 0.0 END) <= .4
                          THEN 'broad_decline'
                     ELSE 'mixed' END AS regime
-        FROM clean_snapshots AS s
-        LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
-        WHERE b.code IS NULL AND s.isST = 0 AND s.listing_age_sessions >= 20
+        FROM signal_snapshots AS s
+        WHERE s.isST = 0 AND s.listing_age_sessions >= 20
         GROUP BY s.date
     """)
     connection.execute(f"""
         CREATE TEMP VIEW screened AS
-        SELECT s.*, CASE WHEN b.code IS NULL AND {SCREEN}
+        SELECT s.*, CASE WHEN {SCREEN}
                          THEN TRUE ELSE FALSE END AS candidate
-        FROM clean_snapshots AS s
-        LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
+        FROM signal_snapshots AS s
     """)
     connection.execute("""
         CREATE TEMP VIEW ranked AS
@@ -178,7 +175,9 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                CASE WHEN s.date < '{VALIDATION_YEAR}-01-01'
                          THEN '{DEVELOPMENT_YEAR}_development'
                     ELSE '{VALIDATION_YEAR}_validation' END AS period,
-               NOT EXISTS (
+               NOT EXISTS (SELECT 1 FROM bad_symbols b
+                           WHERE b.code = s.code)
+               AND NOT EXISTS (
                    SELECT 1 FROM bad_quality AS x
                    WHERE x.code = s.code AND x.date >= s.date
                      AND x.date <= o.exit_date

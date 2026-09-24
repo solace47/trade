@@ -8,7 +8,6 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from .market_study import _quality_keys, _quality_symbols
 from .strategy_scan import _last_safe_entry
 from .study_periods import DEVELOPMENT_YEAR, VALIDATION_YEAR
 
@@ -24,10 +23,18 @@ SCREENS = {
         "AND s.return20_prior_adjusted IS NOT NULL",
         "s.return20_prior_adjusted ASC, s.code ASC",
     ),
+    "random_low_amount": (
+        "s.amount_1450 < 100000000",
+        "md5(s.date || s.code || 'trade-control-20260924'), s.code ASC",
+    ),
+    "random_liquid": (
+        "s.amount_1450 >= 100000000 AND s.amount_1450 < 1000000000",
+        "md5(s.date || s.code || 'trade-control-20260924'), s.code ASC",
+    ),
 }
 
 
-def select(snapshot_dir: Path, issues_dir: Path, candidate: str,
+def select(snapshot_dir: Path, candidate: str,
            output: Path, allow_partial: bool = False) -> pd.DataFrame:
     if candidate not in SCREENS:
         raise ValueError(f"Unknown exploratory candidate: {candidate}")
@@ -43,8 +50,6 @@ def select(snapshot_dir: Path, issues_dir: Path, candidate: str,
     last_validation = _last_safe_entry(
         connection, f"{VALIDATION_YEAR}-01-01", f"{VALIDATION_YEAR + 1}-01-01"
     )
-    connection.register("bad_days", _quality_keys(issues_dir))
-    connection.register("bad_symbols", _quality_symbols(issues_dir))
     condition, ranking = SCREENS[candidate]
     frame = connection.execute(f"""
         WITH ranked AS (
@@ -52,13 +57,10 @@ def select(snapshot_dir: Path, issues_dir: Path, candidate: str,
                    ROW_NUMBER() OVER (PARTITION BY s.date
                        ORDER BY {ranking}) AS daily_rank
             FROM snapshots AS s
-            LEFT JOIN bad_days AS d ON d.date = s.date AND d.code = s.code
-            LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
             WHERE ((s.date >= '{DEVELOPMENT_YEAR}-01-01'
                     AND s.date <= '{last_development}')
                 OR (s.date >= '{VALIDATION_YEAR}-01-01'
                     AND s.date <= '{last_validation}'))
-              AND d.code IS NULL AND excluded.code IS NULL
               AND s.isST = 0 AND s.listing_age_sessions >= 20
               AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
               AND s.amount_1450 >= 30000000 AND {condition}
@@ -78,12 +80,10 @@ def main() -> None:
     parser.add_argument("--candidate", choices=SCREENS, required=True)
     parser.add_argument("--snapshots", type=Path,
                         default=Path("data/research/market_snapshots_ci"))
-    parser.add_argument("--issues", type=Path,
-                        default=Path("data/research/market_issues_ci"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--allow-partial", action="store_true")
     args = parser.parse_args()
-    frame = select(args.snapshots, args.issues, args.candidate,
+    frame = select(args.snapshots, args.candidate,
                    args.output, args.allow_partial)
     print({"candidate": args.candidate, "signals": len(frame),
            "first": frame["date"].min(), "last": frame["date"].max()})

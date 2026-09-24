@@ -23,6 +23,11 @@ from .hf_download import selected_paths
 HORIZONS = (1, 2, 3, 5)
 EXECUTION_LABELS = ("1452", "1453", "1454", "1455")
 EXECUTION_LABEL = "1452-1455"
+EXIT_WINDOWS = {
+    "close": EXECUTION_LABELS,
+    "morning": ("0935", "0936", "0937", "0938"),
+    "late_morning": ("1000", "1001", "1002", "1003"),
+}
 
 
 @dataclass(frozen=True)
@@ -110,11 +115,33 @@ def _fees(value: float, side: str, assumptions: Assumptions,
     return commission + transfer + stamp
 
 
+def _window_quotes(minute: pd.DataFrame,
+                   labels: tuple[str, ...]) -> dict[str, pd.Series]:
+    execution_bars = minute.loc[minute["label"].isin(labels)]
+    quotes = {}
+    for date, bars in execution_bars.groupby("date", sort=False):
+        if bars["label"].tolist() != list(labels):
+            continue
+        volume = int(bars["volume"].sum())
+        turnover = float(bars["turnover"].sum())
+        quotes[date] = pd.Series({
+            "volume": volume,
+            "vwap": turnover / volume if volume > 0 else 0.0,
+        })
+    return quotes
+
+
 def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
                         daily: pd.DataFrame, calendar: list[str],
-                        assumptions: Assumptions = Assumptions()) -> pd.DataFrame:
+                        assumptions: Assumptions = Assumptions(),
+                        exit_labels: tuple[str, ...] = EXECUTION_LABELS,
+                        horizons: tuple[int, ...] = HORIZONS) -> pd.DataFrame:
     if signals.empty:
         return pd.DataFrame()
+    if not exit_labels or len(set(exit_labels)) != len(exit_labels):
+        raise ValueError("Exit labels must be nonempty and unique")
+    if not horizons or any(horizon not in HORIZONS for horizon in horizons):
+        raise ValueError("Unsupported holding period")
     code = str(signals["code"].iloc[0])
     daily = daily.sort_values("date").copy()
     active = daily.loc[daily["tradestatus"] == 1].copy()
@@ -123,24 +150,17 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
     ).abs() > 0.005
     reference_gap_dates = set(active.loc[active["reference_gap"], "date"])
     daily_by_date = {row["date"]: row for _, row in daily.iterrows()}
-    execution_bars = minute.loc[minute["label"].isin(EXECUTION_LABELS)]
-    quotes = {}
-    for date, bars in execution_bars.groupby("date", sort=False):
-        if bars["label"].tolist() != list(EXECUTION_LABELS):
-            continue
-        volume = int(bars["volume"].sum())
-        turnover = float(bars["turnover"].sum())
-        quotes[date] = pd.Series({
-            "volume": volume,
-            "vwap": turnover / volume if volume > 0 else 0.0,
-        })
+    entry_quotes = _window_quotes(minute, EXECUTION_LABELS)
+    exit_quotes = (entry_quotes if exit_labels == EXECUTION_LABELS
+                   else _window_quotes(minute, exit_labels))
+    exit_label = f"{exit_labels[0]}-{exit_labels[-1]}"
     calendar_index = {date: n for n, date in enumerate(calendar)}
     rows = []
     for signal in signals.itertuples(index=False):
         if signal.date not in calendar_index:
             continue
         entry_date = signal.date
-        entry_quote = quotes.get(entry_date)
+        entry_quote = entry_quotes.get(entry_date)
         estimated_price = float(entry_quote["vwap"]) if entry_quote is not None else 0.0
         shares = _order_shares(code, estimated_price, assumptions.target_notional)
         if shares == 0:
@@ -158,10 +178,10 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
             entry_price, entry_status = _fill(
                 entry_quote, daily_by_date.get(entry_date), code, "buy", shares, assumptions
             )
-        for horizon in HORIZONS:
+        for horizon in horizons:
             result = {
                 "date": entry_date, "code": code, "horizon": horizon,
-                "entry_label": EXECUTION_LABEL, "exit_label": EXECUTION_LABEL,
+                "entry_label": EXECUTION_LABEL, "exit_label": exit_label,
                 "entry_status": entry_status, "entry_price": entry_price,
                 "shares": shares if entry_price is not None else 0,
                 "target_exit_date": None, "exit_date": None,
@@ -184,7 +204,7 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
             for index in range(start, stop + 1):
                 date = calendar[index]
                 exit_price, reason = _fill(
-                    quotes.get(date), daily_by_date.get(date), code, "sell", shares, assumptions
+                    exit_quotes.get(date), daily_by_date.get(date), code, "sell", shares, assumptions
                 )
                 if exit_price is None:
                     exit_status = reason

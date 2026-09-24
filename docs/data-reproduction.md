@@ -54,3 +54,16 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 
 第二步默认从本地公开分钟档案按需读取 14:52–14:55 分钟条，并分别以 2 万、5 万、10 万元单笔资金重新估算四个持有期。
 按 14:50 市场广度复核这两组探索信号时运行 `PYTHONPATH=src .venv/bin/python scripts/regime_probe.py > data/research/regime_probe.jsonl`。
+
+近期尾盘研究从原始分钟文件重建特征，再执行 2024 年开发扫描：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m trade_research.intraday_features --threads 8
+PYTHONPATH=src .venv/bin/python -m trade_research.intraday_scan --year 2024
+PYTHONPATH=src .venv/bin/python scripts/intraday_factor_bins.py
+PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
+```
+
+低成交额分层由 `trade_research.stratified_low_sample` 固定抽样，并用 `trade_research.size_sensitivity` 以每笔 2 万元重算；`trade_research.paired_controls` 按信号日同随机组配对。退出时点试验调用 `size_sensitivity --exit-windows close morning late_morning`；提前卖出试验见 `scripts/adaptive_exit_probe.py`。本地结果都写入 `data/research/`，不加入 README 或 Git。
+
+随机对照和卖出时段的信号清单先分别运行 `trade_research.exploratory_signals` 的 `random_low_amount`、`random_liquid`、`low_amount_neutral`、`mid_amount_prior_loser`，输出到 `data/research/` 下的 `random_low_all.parquet`、`random_liquid_all.parquet`、`size_signal_neutral.parquet`、`mid_loser_all.parquet`；再用 `scripts/assemble_research_lists.py --kind random|exit --year 2024` 汇总。2025 年随机对照同样运行 `--year 2025`。卖出时段汇总见 `scripts/exit_window_report.py`。以上选股清单先排名，盘后质量审计只标记结果。

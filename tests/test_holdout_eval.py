@@ -87,3 +87,18 @@ def test_frozen_holdout_query_reads_only_recent_holdout(tmp_path) -> None:
     assert set(report["periods"]) == {str(HOLDOUT_YEAR)}
     assert report["periods"][str(HOLDOUT_YEAR)]["clean_completed_exits"] == 1
     assert report["last_entry_dates"][str(HOLDOUT_YEAR)] == dates[1][0]
+
+    # A later audit may invalidate the outcome, but cannot retroactively
+    # remove the stock from the frozen 14:50 selection.
+    pd.DataFrame([{"date": dates[1][0], "code": code,
+                   "kind": "ohlc_disagreement"}]).to_csv(
+        issues_dir / "shard_00.csv", index=False
+    )
+    audited = evaluate(snapshot_dir, outcome_dir, issues_dir, freeze,
+                       tmp_path / "audited.json", tmp_path / "audited.parquet",
+                       allow_partial=True)
+    assert audited["periods"][str(HOLDOUT_YEAR)]["signals"] == 1
+    assert audited["periods"][str(HOLDOUT_YEAR)]["clean_completed_exits"] == 0
+    assert not pd.read_parquet(tmp_path / "audited.parquet")[
+        "quality_clean_exit"
+    ].iloc[0]
