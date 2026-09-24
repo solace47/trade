@@ -1,4 +1,8 @@
-from scripts.audit_buyback_pdfs import _first_trade_confirmed
+from types import SimpleNamespace
+
+import pytest
+
+from scripts.audit_buyback_pdfs import _download, _first_trade_confirmed
 
 
 def test_first_trade_needs_positive_executed_money() -> None:
@@ -24,3 +28,16 @@ def test_first_trade_needs_positive_executed_money() -> None:
         "首次回购公司股份。拟回购总金额为2,000万元，尚未实施。")
     assert not _first_trade_confirmed(
         "首次回购公司B股股份。成交总金额为3,000,000元。")
+
+
+def test_pdf_cache_rejects_html_even_when_large(tmp_path, monkeypatch) -> None:
+    target = tmp_path / "notice.PDF"
+    target.write_bytes(b"<html>" + b"x" * 2000)
+
+    def fake_curl(command, **kwargs):
+        (tmp_path / "notice.tmp").write_bytes(b"<html>" + b"x" * 2000)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr("scripts.audit_buyback_pdfs.subprocess.run", fake_curl)
+    with pytest.raises(RuntimeError, match="download failed"):
+        _download("https://static.cninfo.com.cn/notice.PDF", target)

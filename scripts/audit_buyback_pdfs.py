@@ -52,13 +52,16 @@ def _first_trade_confirmed(text: str) -> bool:
 
 
 def _download(url: str, path: Path) -> None:
-    if path.exists() and path.stat().st_size > 1000:
+    if (path.exists() and path.stat().st_size > 1000
+            and b"%PDF-" in path.read_bytes()[:1024]):
         return
     temporary = path.with_suffix(".tmp")
     result = subprocess.run(
         ["curl", "-fLsS", "--max-time", "30", url, "-o", str(temporary)],
         capture_output=True, text=True, check=False)
-    if result.returncode != 0 or not temporary.exists() or temporary.stat().st_size <= 1000:
+    if (result.returncode != 0 or not temporary.exists()
+            or temporary.stat().st_size <= 1000
+            or b"%PDF-" not in temporary.read_bytes()[:1024]):
         temporary.unlink(missing_ok=True)
         raise RuntimeError(f"Original repurchase PDF download failed: {url}")
     temporary.replace(path)
