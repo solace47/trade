@@ -40,6 +40,13 @@ def _load_sources(index_dir: Path, holdings_dir: Path
                 or not frame.report_quarter.astype(int).eq(number).all()
                 for frame in (index, holding, audit))):
             raise ValueError(f"Fund {quarter} source rows name another quarter")
+        expected_available = pd.concat([
+            pd.to_datetime(index.uploadDate, format="%Y-%m-%d", errors="raise"),
+            pd.to_datetime(index.reportSendDate, format="%Y-%m-%d",
+                           errors="raise"),
+        ], axis=1).max(axis=1).dt.strftime("%Y-%m-%d")
+        if not index.available_after.eq(expected_available).all():
+            raise ValueError(f"Fund {quarter} public availability date differs")
         if (len(index) != len(audit)
                 or index.uploadInfoId.duplicated().any()
                 or audit.uploadInfoId.duplicated().any()

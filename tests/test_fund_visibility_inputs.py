@@ -108,7 +108,9 @@ def test_complete_eight_quarter_sources_build_audited_inputs(tmp_path) -> None:
                      3: f"{year}-10-20", 4: f"{year + 1}-01-20"}[number]
         base = {"uploadInfoId": report_id, "fundId": 10,
                 "reportYear": str(year), "report_quarter": number}
-        pd.DataFrame([{**base, "available_after": available}]).to_parquet(
+        pd.DataFrame([{**base, "available_after": available,
+                       "uploadDate": available,
+                       "reportSendDate": available}]).to_parquet(
             index_dir / f"{quarter}.parquet", index=False)
         pd.DataFrame([{**base, "code": "sh.600000"}]).to_parquet(
             holdings_dir / f"{quarter}.parquet", index=False)
@@ -131,3 +133,8 @@ def test_complete_eight_quarter_sources_build_audited_inputs(tmp_path) -> None:
     assert report["visible_stock_days"] == 2
     assert pd.read_parquet(output).visible_funds.tolist() == [1, 1]
     assert report_path.exists()
+    corrupt = pd.read_parquet(index_dir / "2023q4.parquet")
+    corrupt["available_after"] = "2024-01-19"
+    corrupt.to_parquet(index_dir / "2023q4.parquet", index=False)
+    with pytest.raises(ValueError, match="public availability"):
+        build(index_dir, holdings_dir, universe_path, output, report_path)
