@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import numpy as np
 
 from trade_research.short_interest_study import (
     CONTROL, TREATED, _quintiles, select_pairs,
@@ -141,5 +142,21 @@ def test_margin_interest_pair_matches_historical_nonsynchronicity() -> None:
         pd.DataFrame([high, wrong, comparable]),
         {"2025-03-04": 10}, score_field="margin_interest",
         treated="high", control="low", feature_caliper=("nonsynch", .1))
+    assert selected.loc[selected.candidate.eq("low"),
+                        "code"].tolist() == ["sz.000003"]
+
+
+def test_margin_interest_pair_matches_open_close_amihud_ratio() -> None:
+    high = _row("2025-03-04", "sz.000001", 5, .1)
+    high.update(margin_interest=.1, log_oc_amihud=np.log(.03))
+    wrong = _row("2025-03-04", "sz.000002", 1, .01)
+    wrong.update(margin_interest=.01, log_oc_amihud=np.log(.008))
+    comparable = _row("2025-03-04", "sz.000003", 1, .02)
+    comparable.update(margin_interest=.02, log_oc_amihud=np.log(.025))
+    selected, _ = select_pairs(
+        pd.DataFrame([high, wrong, comparable]),
+        {"2025-03-04": 10}, score_field="margin_interest",
+        treated="high", control="low",
+        feature_caliper=("log_oc_amihud", np.log(2)))
     assert selected.loc[selected.candidate.eq("low"),
                         "code"].tolist() == ["sz.000003"]

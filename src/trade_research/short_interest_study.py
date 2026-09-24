@@ -130,8 +130,8 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
     if prior_level_caliper is not None and prior_level_field not in {
             "prior_short_interest", "prior_financing_interest"}:
         raise ValueError("Unknown starting-position field")
-    if feature_caliper is not None and (feature_caliper[0] != "nonsynch"
-                                       or feature_caliper[1] < 0):
+    if feature_caliper is not None and (feature_caliper[0] not in {
+            "nonsynch", "log_oc_amihud"} or feature_caliper[1] < 0):
         raise ValueError("Unknown or negative matching feature caliper")
     high_rows = []
     low_rows = []
