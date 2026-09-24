@@ -11,15 +11,59 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
 import re
+import unicodedata
 from urllib.parse import urlparse
 
 import pandas as pd
 import pdfplumber
 
-from audit_buyback_pdfs import _download
+from scripts.audit_buyback_pdfs import _download
 
 
-ACTOR = re.compile(r"控股股东|实际控制人|董事长|持股\s*5\s*%\s*以上|大股东")
+ACTOR = re.compile(r"控股股东|实际控制人|(?<!副)董事长|5\s*%\s*以上|大股东")
+COMPLETION = re.compile(r"完成|完毕")
+STOCK_CODE = re.compile(
+    r"(?:证券代码|股票代码|票代码|公司代码|A股代码)[:：]?([036]\d{5})"
+)
+# The issuer's 2025-09-18 completion PDF misprints its header as 002268.
+# Its body, CNINFO metadata, and the issuer's 2025-05-30 plan PDF all identify
+# 保龄宝 as 002286. This exception was checked before reading any outcomes.
+# Prior plan: https://static.cninfo.com.cn/finalpage/2025-05-30/1223721665.PDF
+VERIFIED_HEADER_TYPOS = {
+    "https://static.cninfo.com.cn/finalpage/2025-09-18/1224667235.PDF":
+        ("sz.002286", "002268", "保龄宝生物股份有限公司")
+}
+
+
+def candidate_title(title: str) -> bool:
+    """Limit full-text search hits to explicit actor/completion titles."""
+    title = unicodedata.normalize("NFKC", title)
+    return (bool(ACTOR.search(title)) and "减持" in title
+            and bool(COMPLETION.search(title)))
+
+
+def pdf_code_matches(text: str, code: str) -> bool:
+    """Check the PDF's header code, not a code repeated elsewhere in its body."""
+    header = re.sub(r"\s+", "", text)[:600]
+    match = STOCK_CODE.search(header)
+    return bool(match and match.group(1) == code.split(".")[1])
+
+
+def identity_status(text: str, row: dict) -> str:
+    if "减持" not in text:
+        return "identity_unconfirmed"
+    if pdf_code_matches(text, row["code"]):
+        return "ok"
+    exception = VERIFIED_HEADER_TYPOS.get(row["pdf_url"])
+    if exception is None:
+        return "identity_unconfirmed"
+    code, misprint, issuer = exception
+    header = re.sub(r"\s+", "", text)[:600]
+    match = STOCK_CODE.search(header)
+    if (row["code"] == code and match and match.group(1) == misprint
+            and issuer in header):
+        return "verified_header_typo"
+    return "identity_unconfirmed"
 
 
 def _record(row: dict, pdf_dir: Path) -> dict:
@@ -32,8 +76,7 @@ def _record(row: dict, pdf_dir: Path) -> dict:
         with pdfplumber.open(path) as pdf:
             text = "\n".join(page.extract_text() or "" for page in pdf.pages)
             pages = len(pdf.pages)
-        code = row["code"].split(".")[1]
-        status = "ok" if code in text and "减持" in text else "identity_unconfirmed"
+        status = identity_status(text, row)
         return {**row, "status": status, "pages": pages, "text_full": text}
     except Exception as error:
         return {**row, "status": type(error).__name__, "pages": None,
@@ -48,7 +91,7 @@ def audit(year: int, source_dir: Path, output_dir: Path,
     if (source.empty or source.pdf_url.duplicated().any()
             or not source.notice_date.str.startswith(str(year)).all()):
         raise ValueError("Malformed complete sell-completion index")
-    source = source.loc[source.title.map(lambda title: bool(ACTOR.search(title)))]
+    source = source.loc[source.title.map(candidate_title)]
     if source.empty:
         raise ValueError("No actor-title completion candidates")
     names = source.pdf_url.map(lambda url: Path(urlparse(url).path).name)

@@ -18,7 +18,10 @@ import pandas as pd
 from scripts.collect_buyback_index import PAGE_SIZE, _candidates, _fetch, _range_rows
 
 
-TERMS = ("减持计划实施完毕", "减持计划实施完成")
+# A broad full-text query covers both implementation wordings and notices
+# titled simply “减持计划完成”. The original two queries were verified to be
+# subsets of this query in both study years before replacing the index.
+TERMS = ("减持计划",)
 MAX_SAFE_PAGES = 6
 
 

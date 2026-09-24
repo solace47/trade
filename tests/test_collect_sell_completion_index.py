@@ -3,6 +3,9 @@ from datetime import date
 import pytest
 
 from scripts import collect_sell_completion_index as collector
+from scripts.audit_sell_completion_pdfs import (
+    candidate_title, identity_status, pdf_code_matches,
+)
 
 
 def test_large_cninfo_query_is_split_before_later_pages(monkeypatch, tmp_path) -> None:
@@ -32,3 +35,35 @@ def test_single_day_above_safe_page_limit_is_rejected(monkeypatch, tmp_path) -> 
     with pytest.raises(ValueError, match="exceeds"):
         collector._bounded_rows(date(2025, 1, 1), date(2025, 1, 1),
                                 tmp_path, "减持计划实施完成")
+
+
+def test_broad_query_keeps_only_explicit_actor_completion_titles() -> None:
+    assert collector.TERMS == ("减持计划",)
+    assert candidate_title("关于持股5%以上股东减持计划完成的公告")
+    assert candidate_title("关于控股股东减持计划实施完毕的公告")
+    assert not candidate_title("关于持股5%以上股东减持计划期限届满的公告")
+    assert not candidate_title("关于董事减持计划实施完成的公告")
+    assert not candidate_title("关于副董事长减持计划完成的公告")
+    assert candidate_title("关于5%以上非第一大股东减持计划完成的公告")
+    assert candidate_title("关于持股５％以上股东减持计划实施完毕的公告")
+
+
+def test_pdf_identity_uses_header_code_not_later_body_mentions() -> None:
+    text = "证券代码：002268 关于减持计划完成。其他公告股票代码002286。"
+    assert pdf_code_matches(text, "sz.002268")
+    assert not pdf_code_matches(text, "sz.002286")
+    assert identity_status(text, {
+        "code": "sz.002286",
+        "pdf_url": "https://static.cninfo.com.cn/finalpage/2025-09-18/random.PDF",
+    }) == "identity_unconfirmed"
+
+
+def test_verified_issuer_header_typo_needs_exact_original_and_issuer() -> None:
+    row = {
+        "code": "sz.002286",
+        "pdf_url": "https://static.cninfo.com.cn/finalpage/2025-09-18/1224667235.PDF",
+    }
+    body = "证券代码：002268 保龄宝生物股份有限公司关于减持计划实施完成"
+    assert identity_status(body, row) == "verified_header_typo"
+    assert identity_status(body.replace("保龄宝", "另一家"), row) == "identity_unconfirmed"
+    assert not candidate_title("关于持股5%以上股东增持计划完成的公告")
