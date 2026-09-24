@@ -26,7 +26,9 @@ import duckdb
 import numpy as np
 import pandas as pd
 
-from .earnings_events import BATCH_SIZE, _validate, stock_codes
+from .earnings_events import (
+    BATCH_SIZE, FIRST_PUBLICATION, LAST_PUBLICATION, _validate, stock_codes,
+)
 from .market_study import _quality_keys, _quality_symbols
 from .residual_liquidity import _period
 from .strategy_scan import _last_safe_entry
@@ -51,6 +53,9 @@ def load_complete_events(event_dir: Path, stock_basic: Path) -> tuple[pd.DataFra
         saved = json.loads(manifest.read_text(encoding="utf-8"))
         if saved.get("codes") != batch:
             raise ValueError(f"Earnings batch {index} has a different universe")
+        if (saved.get("first_publication") != FIRST_PUBLICATION or
+                saved.get("last_publication") != LAST_PUBLICATION):
+            raise ValueError(f"Earnings batch {index} has a different date window")
         for kind in frames:
             path = event_dir / f"{kind}_{index:03d}.parquet"
             frame = _validate(pd.read_parquet(path), kind, set(batch))
@@ -146,6 +151,9 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
     c.register("positive_events", positive)
     c.register("all_events", all_events)
     c.register("event_days", positive[["date"]].drop_duplicates())
+    event_snapshot_pairs = c.execute("""
+        SELECT COUNT(*) FROM positive_events p JOIN snapshots s USING (date, code)
+    """).fetchone()[0]
     pool = c.execute("""
         SELECT s.date, s.code, s.price_1450, s.open_1450, s.preclose,
                s.return_1450, s.amount_1450, s.return20_prior_adjusted,
@@ -193,6 +201,8 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
                    "|log(amount ratio)|/.7 + |prior20 return|/.10",
         "primary_horizon": 5, "diagnostic_horizons": [1, 2],
         "last_entry": last_entry, "eligible_event_pairs": len(positive),
+        "event_snapshot_pairs": int(event_snapshot_pairs),
+        "liquid_reaction_pairs": int(pool.event_pub_date.notna().sum()),
         "selected_stock_days": len(candidates),
         "selected_days": int(candidates.date.nunique()),
         "max_control_distance": float(controls.match_distance.max()),
