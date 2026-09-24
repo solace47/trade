@@ -103,6 +103,21 @@ def test_net_flow_pair_matches_starting_short_position() -> None:
                         "code"].tolist() == ["sz.000003"]
 
 
+def test_annual_cash_matching_excludes_distant_conversion() -> None:
+    high = _row("2025-05-15", "sz.000001", 5, .02)
+    high.update(margin_interest=.02, asinh_cash_conversion=1.0)
+    distant = _row("2025-05-15", "sz.000002", 1, .001)
+    distant.update(margin_interest=.001, asinh_cash_conversion=2.0)
+    nearby = _row("2025-05-15", "sz.000003", 1, .002)
+    nearby.update(margin_interest=.002, asinh_cash_conversion=1.2)
+    selected, _ = select_pairs(
+        pd.DataFrame([high, distant, nearby]), {"2025-05-15": 10},
+        score_field="margin_interest",
+        feature_caliper=("asinh_cash_conversion", np.log(2)))
+    assert selected.loc[selected.candidate.eq(CONTROL),
+                        "code"].tolist() == ["sz.000003"]
+
+
 def test_financing_sell_pair_matches_prior_loss_and_starting_balance() -> None:
     high = _row("2025-03-04", "sz.000001", 5, .002)
     high.update(sell_pressure_score=.006,

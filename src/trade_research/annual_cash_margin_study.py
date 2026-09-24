@@ -131,7 +131,8 @@ def _prepare_inputs(universe_path: Path, margin_path: Path,
             or not np.isfinite(frame.margin_interest).all()):
         raise ValueError("Malformed original cash/margin inputs")
     frame["cash_group"] = np.where(frame.cash_to_parent_profit.ge(1),
-                                   "cash_supported", "accrual_dominant")
+                                   "cash_supported", "low_cash_conversion")
+    frame["asinh_cash_conversion"] = np.arcsinh(frame.cash_to_parent_profit)
     frame["window"] = frame.date.map(_window) + "_" + frame.cash_group
     return frame, source_report
 
@@ -144,15 +145,19 @@ def select(universe_path: Path, margin_path: Path, industry_path: Path,
         universe_path, margin_path, industry_path, index_paths, extracted_paths)
     dates = trading_dates(calendar_path, "2024-01-01", "2025-12-31")
     session_index = {day: index for index, day in enumerate(dates)}
+    lag = inputs.date.map(session_index) - inputs.trade_date.map(session_index)
+    if lag.isna().any() or not lag.eq(1).all():
+        raise ValueError("Margin interest is not from the previous session")
     selected_frames = []
     quintile_frames = []
     groups = {}
-    for group in ("cash_supported", "accrual_dominant"):
+    for group in ("cash_supported", "low_cash_conversion"):
         subset = inputs.loc[inputs.cash_group.eq(group)]
         quintiles = _quintiles(subset, "margin_interest")
         selected, summary = select_pairs(
             quintiles, session_index, score_field="margin_interest",
-            treated=TREATED, control=CONTROL)
+            treated=TREATED, control=CONTROL,
+            feature_caliper=("asinh_cash_conversion", np.log(2)))
         high = selected.loc[selected.candidate.eq(TREATED)]
         groups[group] = {"eligible_stock_days": len(subset),
                          "quintile_stock_days": len(quintiles),

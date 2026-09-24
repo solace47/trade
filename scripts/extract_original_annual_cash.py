@@ -18,6 +18,7 @@ import pdfplumber
 
 
 NUMBER = re.compile(r"^-?\d+(?:\.\d+)?$")
+NUMBER_TOKEN = re.compile(r"(?<!\S)(-?\(?\d[\d,]*(?:\.\d+)?\)?)(?!\S)")
 PROFIT_LABELS = ("归属于上市公司股东的净利润", "归属于母公司所有者的净利润",
                  "归属于母公司股东的净利润", "归属于本行股东的净利润",
                  "归属于本公司股东的净利润")
@@ -55,26 +56,51 @@ def _quarter_header(row: list[object]) -> bool:
     return "第一季度" in text and "第二季度" in text
 
 
-def _text_values(text: str):
-    for line in text.splitlines():
-        if ("报告期分季度" in line
-                or ("第一季度" in line and "第二季度" in line)):
-            break
-        line = line.strip()
-        for label in (*PROFIT_LABELS, CASH_LABEL):
-            if line.startswith(label):
-                rest = line[len(label):].strip().split()
-                if rest and (value := _number(rest[0])) is not None:
-                    yield label, value
+def _text_values(lines: list[tuple[int, str]]):
+    targets = set((*PROFIT_LABELS, CASH_LABEL))
+    for index, (page, line) in enumerate(lines):
+        match = NUMBER_TOKEN.search(line)
+        if match is None:
+            continue
+        value = _number(match.group(1))
+        if value is None:
+            continue
+        prefix = re.sub(r"\s+", "", line[:match.start()])
+        before = []
+        for _, previous in reversed(lines[max(0, index - 4):index]):
+            if NUMBER_TOKEN.search(previous):
+                break
+            before.insert(0, re.sub(r"\s+", "", previous))
+        after = []
+        for _, following in lines[index + 1:index + 5]:
+            if NUMBER_TOKEN.search(following):
+                break
+            after.append(re.sub(r"\s+", "", following))
+        for left in range(len(before) + 1):
+            for right in range(len(after) + 1):
+                label = "".join(before[len(before) - left:]) + prefix
+                label += "".join(after[:right])
+                if label in targets:
+                    yield label, value, page
+                    break
 
 
 def extract(pdf_path: Path) -> dict:
     values: dict[str, float] = {}
     pages: dict[str, int] = {}
+    text_lines: list[tuple[int, str]] = []
     with pdfplumber.open(pdf_path) as pdf:
         quarterly_reached = False
         for page_number, page in enumerate(pdf.pages[:25], start=1):
             text = page.extract_text() or ""
+            for line in text.splitlines():
+                if ("报告期分季度" in line
+                        or ("第一季度" in line and "第二季度" in line)):
+                    quarterly_reached = True
+                    break
+                if (not re.fullmatch(r"\s*\d+\s*", line)
+                        and "年度报告摘要" not in line):
+                    text_lines.append((page_number, line))
             for table in page.extract_tables():
                 quarterly_at = next((i for i, row in enumerate(table)
                                      if _quarter_header(row)), len(table))
@@ -90,18 +116,19 @@ def extract(pdf_path: Path) -> dict:
                 if quarterly_at < len(table):
                     quarterly_reached = True
                     break
-            for label, value in _text_values(text):
-                if ("parent_profit_raw" not in values
-                        and label in PROFIT_LABELS):
-                    values["parent_profit_raw"] = value
-                    pages["parent_profit_page"] = page_number
-                if "operating_cash_raw" not in values and label == CASH_LABEL:
-                    values["operating_cash_raw"] = value
-                    pages["operating_cash_page"] = page_number
             if len(values) == 2:
                 break
             if quarterly_reached or "报告期分季度" in text:
                 break
+    for label, value, page_number in _text_values(text_lines):
+        if "parent_profit_raw" not in values and label in PROFIT_LABELS:
+            values["parent_profit_raw"] = value
+            pages["parent_profit_page"] = page_number
+        if "operating_cash_raw" not in values and label == CASH_LABEL:
+            values["operating_cash_raw"] = value
+            pages["operating_cash_page"] = page_number
+        if len(values) == 2:
+            break
     if len(values) != 2:
         raise ValueError(f"Annual profit/cash-flow table unreadable: {pdf_path}")
     if values["parent_profit_raw"] == 0:

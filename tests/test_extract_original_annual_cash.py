@@ -53,9 +53,18 @@ def test_quarterly_profit_cannot_complete_missing_annual_table(monkeypatch) -> N
     monkeypatch.setattr(annual.pdfplumber, "open", lambda _: Document())
     with pytest.raises(ValueError, match="unreadable"):
         annual.extract(Path("summary.pdf"))
-    assert list(annual._text_values(
-        "第一季度 第二季度 第三季度 第四季度\n"
-        "归属于上市公司股东的净利润 25 35")) == []
+    assert list(annual._text_values([])) == []
+
+
+def test_split_annual_text_label_can_cross_pdf_page() -> None:
+    lines = [(4, "归属于上市公司股东 415,465,384.94 782,599,694.87"),
+             (5, "的净利润"),
+             (5, "经营活动产生的现金 2,095,748,225.61 -8,179,987,359.73"),
+             (5, "流量净额")]
+    assert list(annual._text_values(lines)) == [
+        ("归属于上市公司股东的净利润", 415465384.94, 4),
+        ("经营活动产生的现金流量净额", 2095748225.61, 5),
+    ]
 
 
 def test_failed_report_is_skipped_until_explicit_retry(tmp_path, monkeypatch) -> None:

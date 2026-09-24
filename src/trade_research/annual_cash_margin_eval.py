@@ -17,12 +17,12 @@ from .short_interest_eval import evaluate, summarize_repriced
 
 PERIODS = {
     f"{group}_{year}": (f"{year}_early_{group}", f"{year}_late_{group}")
-    for group in ("cash_supported", "accrual_dominant")
+    for group in ("cash_supported", "low_cash_conversion")
     for year in ("2024", "2025")
 }
 PERIODS.update({
     f"{group}_{year}_{half}": (f"{year}_{half}_{group}",)
-    for group in ("cash_supported", "accrual_dominant")
+    for group in ("cash_supported", "low_cash_conversion")
     for year in ("2024", "2025") for half in ("early", "late")
 })
 
@@ -45,16 +45,16 @@ def _same_day_interaction(selected_path: Path, repriced_path: Path) -> dict:
         raise ValueError("A daily annual-cash layer lacks a comparator")
     daily = (daily[TREATED] - daily[CONTROL]).rename("edge").reset_index()
     common = daily.pivot(index="date", columns="cash_group", values="edge")
-    common = common.dropna(subset=["cash_supported", "accrual_dominant"])
+    common = common.dropna(subset=["cash_supported", "low_cash_conversion"])
     result = {}
     for year in ("2024", "2025"):
         sample = common.loc[common.index.str.startswith(year)]
-        delta = sample.cash_supported - sample.accrual_dominant
+        delta = sample.cash_supported - sample.low_cash_conversion
         result[year] = {
             "common_dates": len(sample),
             "cash_supported_edge": float(sample.cash_supported.mean()),
-            "accrual_dominant_edge": float(sample.accrual_dominant.mean()),
-            "cash_minus_accrual_edge": float(delta.mean()),
+            "low_cash_conversion_edge": float(sample.low_cash_conversion.mean()),
+            "cash_minus_low_conversion_edge": float(delta.mean()),
             "week_ci": _week_bootstrap(delta.reset_index(drop=True),
                                        pd.Series(sample.index), 319),
         }
