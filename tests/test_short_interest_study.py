@@ -55,6 +55,10 @@ def test_short_interest_quintiles_rank_short_ratio_within_stratum() -> None:
     ]).drop(columns="quintile")
     ranked = _quintiles(frame).sort_values("short_ratio")
     assert ranked.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
+    frame["sell_pressure_score"] = -frame.short_ratio
+    financing = _quintiles(frame, "sell_pressure_score").sort_values(
+        "sell_pressure_score")
+    assert financing.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
 
 
 def test_net_flow_pair_requires_positive_high_and_negative_low() -> None:
@@ -88,3 +92,31 @@ def test_net_flow_pair_matches_starting_short_position() -> None:
         prior_level_caliper=(.5, 2))
     assert selected.loc[selected.candidate.eq(CONTROL),
                         "code"].tolist() == ["sz.000003"]
+
+
+def test_financing_sell_pair_matches_prior_loss_and_starting_balance() -> None:
+    high = _row("2025-03-04", "sz.000001", 5, .002)
+    high.update(sell_pressure_score=.006,
+                prior_financing_interest=.05,
+                return5_prior_adjusted=-.04)
+    wrong_balance = _row("2025-03-04", "sz.000002", 1, .0001)
+    wrong_balance.update(sell_pressure_score=-.003,
+                         prior_financing_interest=.2,
+                         return5_prior_adjusted=-.04)
+    wrong_decline = _row("2025-03-04", "sz.000003", 1, .0001)
+    wrong_decline.update(sell_pressure_score=-.003,
+                         prior_financing_interest=.05,
+                         return5_prior_adjusted=.02)
+    comparable = _row("2025-03-04", "sz.000004", 1, .0001)
+    comparable.update(sell_pressure_score=-.002,
+                      prior_financing_interest=.06,
+                      return5_prior_adjusted=-.03)
+    selected, _ = select_pairs(
+        pd.DataFrame([high, wrong_balance, wrong_decline, comparable]),
+        {"2025-03-04": 10}, score_field="sell_pressure_score",
+        treated="sell", control="buy", signed_flows=True,
+        prior_level_caliper=(.5, 2),
+        prior_level_field="prior_financing_interest",
+        prior5_return_caliper=.05)
+    assert selected.loc[selected.candidate.eq("buy"),
+                        "code"].tolist() == ["sz.000004"]

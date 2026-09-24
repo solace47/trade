@@ -89,7 +89,7 @@ def _quintiles(frame: pd.DataFrame,
                score_field: str = "short_ratio") -> pd.DataFrame:
     if "quintile" in frame.columns:
         raise ValueError("A prior study's quintile cannot define short-interest groups")
-    if score_field not in {"short_ratio", "net_short_flow"}:
+    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score"}:
         raise ValueError("Unknown short-interest ranking field")
     connection = duckdb.connect()
     connection.register("inputs", frame)
@@ -118,10 +118,15 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
                  score_field: str = "short_ratio",
                  treated: str = TREATED, control: str = CONTROL,
                  signed_flows: bool = False,
-                 prior_level_caliper: tuple[float, float] | None = None
+                 prior_level_caliper: tuple[float, float] | None = None,
+                 prior_level_field: str = "prior_short_interest",
+                 prior5_return_caliper: float | None = None,
                  ) -> tuple[pd.DataFrame, dict]:
-    if score_field not in {"short_ratio", "net_short_flow"}:
+    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score"}:
         raise ValueError("Unknown short-interest selection field")
+    if prior_level_caliper is not None and prior_level_field not in {
+            "prior_short_interest", "prior_financing_interest"}:
+        raise ValueError("Unknown starting-position field")
     high_rows = []
     low_rows = []
     last_kept: dict[str, int] = {}
@@ -147,12 +152,18 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
                 & controls.size_bucket.eq(signal.size_bucket)
             ]
             if prior_level_caliper is not None:
-                if signal.prior_short_interest <= 0:
+                if signal[prior_level_field] <= 0:
                     unmatched += 1
                     continue
                 choices = choices.loc[
-                    (choices.prior_short_interest / signal.prior_short_interest)
+                    (choices[prior_level_field] / signal[prior_level_field])
                     .between(*prior_level_caliper)
+                ]
+            if prior5_return_caliper is not None:
+                choices = choices.loc[
+                    (choices.return5_prior_adjusted
+                     - signal.return5_prior_adjusted).abs().le(
+                         prior5_return_caliper)
                 ]
             match = _match_one(signal, choices)
             if match is None:
