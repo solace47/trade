@@ -27,6 +27,8 @@ import numpy as np
 import pandas as pd
 
 from .earnings_events import BATCH_SIZE, _validate, stock_codes
+from .market_study import _quality_keys, _quality_symbols
+from .residual_liquidity import _period
 from .strategy_scan import _last_safe_entry
 
 
@@ -34,6 +36,7 @@ POSITIVE_TYPES = frozenset({"预增", "略增", "扭亏", "减亏", "续盈"})
 CAPACITY = 5
 FIRST_SIGNAL = "2024-01-01"
 LAST_SIGNAL = "2025-12-31"
+HORIZONS = (1, 2, 5)
 
 
 def load_complete_events(event_dir: Path, stock_basic: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -54,7 +57,8 @@ def load_complete_events(event_dir: Path, stock_basic: Path) -> tuple[pd.DataFra
             if len(frame) != saved.get("rows", {}).get(kind):
                 raise ValueError(f"Earnings batch {index} {kind} count differs")
             frames[kind].append(frame)
-    return tuple(pd.concat(frames[kind], ignore_index=True) for kind in frames)  # type: ignore[return-value]
+    return (pd.concat(frames["forecast"], ignore_index=True),
+            pd.concat(frames["express"], ignore_index=True))
 
 
 def next_session(events: pd.DataFrame, available_column: str,
@@ -199,6 +203,83 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
     return selected, report
 
 
+def evaluate(selected_path: Path, outcome_dir: Path, issues_dir: Path,
+             report_path: Path, trades_path: Path) -> dict:
+    """Join frozen selections to the existing executable-minute outcomes."""
+    selected = pd.read_parquet(selected_path)
+    expected = {"positive_forecast_reaction", "same_day_matched_nonannouncement"}
+    if set(selected.candidate) != expected:
+        raise ValueError("Missing an earnings candidate or matched control")
+    if not selected.date.str[:4].isin(("2024", "2025")).all():
+        raise ValueError("Earnings outcome window escaped 2024-2025")
+    pair_counts = selected.groupby(["date", "pair_code"]).candidate.nunique()
+    if not pair_counts.eq(2).all() or len(selected) != 2 * len(pair_counts):
+        raise ValueError("Earnings candidate/control pairing is not one-to-one")
+    event = selected.loc[selected.candidate.eq("positive_forecast_reaction")]
+    if not event.date.gt(event.event_pub_date).all():
+        raise ValueError("An earnings signal uses a future publication")
+    c = duckdb.connect()
+    c.execute("SET threads = 4")
+    c.register("selected", selected)
+    c.read_parquet(str(outcome_dir / "*.parquet")).create_view("o")
+    c.register("bad_days", _quality_keys(issues_dir))
+    c.register("bad_symbols", _quality_symbols(issues_dir))
+    trades = c.execute("""
+        SELECT r.*, o.horizon, o.entry_status, o.entry_price, o.shares,
+               o.exit_status, o.exit_date, o.exit_delay_sessions,
+               o.exit_price, o.net_return,
+               o.exit_status = 'filled'
+               AND NOT EXISTS (SELECT 1 FROM bad_symbols b
+                               WHERE b.code = r.code)
+               AND NOT EXISTS (
+                   SELECT 1 FROM bad_days q
+                   WHERE q.code = r.code AND q.date >= r.date
+                     AND q.date <= o.exit_date
+               ) AS quality_clean_exit
+        FROM selected r JOIN o USING (date, code)
+        WHERE o.horizon IN (1, 2, 5)
+    """).df()
+    if len(trades) != len(selected) * len(HORIZONS):
+        raise ValueError("An earnings stock-day lacks a minute-priced outcome")
+    report = {
+        "primary_horizon": 5,
+        "control": "unique same-day nonannouncement stocks matched on "
+                   "opening response, 14:50 return, turnover and prior20 return",
+        "matched_pairs": len(event),
+        "median_match_distance": float(selected.match_distance.dropna().median()),
+        "p90_match_distance": float(selected.match_distance.dropna().quantile(.9)),
+        "results": {},
+    }
+    for year in ("2024", "2025"):
+        annual = trades.loc[trades.date.str.startswith(year)]
+        chosen = annual.loc[annual.candidate.eq("positive_forecast_reaction")]
+        control = annual.loc[annual.candidate.eq("same_day_matched_nonannouncement")]
+        report["results"][year] = {}
+        for horizon in HORIZONS:
+            sample = chosen.loc[chosen.horizon.eq(horizon)]
+            reference = control.loc[control.horizon.eq(horizon)]
+            report["results"][year][str(horizon)] = {}
+            for period, rows in (
+                ("H1", sample.loc[sample.date.str[5:7].astype(int).le(6)]),
+                ("H2", sample.loc[sample.date.str[5:7].astype(int).gt(6)]),
+                ("full", sample),
+            ):
+                if rows.empty:
+                    continue
+                summary = _period(rows, reference)
+                summary["same_day_matched_mean"] = summary.pop("same_day_random_mean")
+                summary["per_signal_cash_mean"] = float(rows.net_return.where(
+                    rows.exit_status.eq("filled") & rows.quality_clean_exit, 0,
+                ).mean())
+                report["results"][year][str(horizon)][period] = summary
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    trades_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+                           encoding="utf-8")
+    trades.to_parquet(trades_path, index=False, compression="zstd")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshots", type=Path,
@@ -209,10 +290,23 @@ def main() -> None:
         "data/baostock/market_2020_2026/metadata/stock_basic.parquet"))
     parser.add_argument("--selected", type=Path,
                         default=Path("data/research/earnings_drift_selected.parquet"))
+    parser.add_argument("--outcomes", type=Path,
+                        default=Path("data/research/market_outcomes_ci"))
+    parser.add_argument("--issues", type=Path,
+                        default=Path("data/research/market_issues_ci"))
+    parser.add_argument("--report", type=Path,
+                        default=Path("data/research/earnings_drift_report.json"))
+    parser.add_argument("--trades", type=Path,
+                        default=Path("data/research/earnings_drift_trades.parquet"))
+    parser.add_argument("--select-only", action="store_true")
     args = parser.parse_args()
     selected, report = select(args.snapshots, args.events,
                               args.stock_basic, args.selected)
     print(json.dumps(report, ensure_ascii=False, indent=2))
+    if not args.select_only:
+        evaluated = evaluate(args.selected, args.outcomes, args.issues,
+                             args.report, args.trades)
+        print({"report": str(args.report), "years": list(evaluated["results"])})
 
 
 if __name__ == "__main__":
