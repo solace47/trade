@@ -165,7 +165,10 @@ def _capacity_events(signal: pd.DataFrame,
 
 def _match(universe: pd.DataFrame, events: pd.DataFrame,
            calendar: list[str], same_industry: bool,
-           event_label: str = EVENT) -> tuple[pd.DataFrame, dict]:
+           event_label: str = EVENT,
+           max_current_gap: float | None = None) -> tuple[pd.DataFrame, dict]:
+    if max_current_gap is not None and max_current_gap <= 0:
+        raise ValueError("Current-return match gap must be positive")
     event_keys = events[["date", "code", "notice_date", "pdf_url"]]
     signal = universe.merge(event_keys, on=["date", "code"], how="inner",
                             validate="one_to_one")
@@ -189,6 +192,11 @@ def _match(universe: pd.DataFrame, events: pd.DataFrame,
                 & controls.size_bucket.eq(item.size_bucket)
                 & controls.momentum_bucket.eq(item.momentum_bucket)
             ]
+            if max_current_gap is not None:
+                choices = choices.loc[
+                    (choices.return_1450 - item.return_1450).abs().le(
+                        max_current_gap)
+                ]
             if same_industry:
                 choices = choices.loc[choices.industry.eq(item.industry)]
             matched = _match_one(item, choices)
