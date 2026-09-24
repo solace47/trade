@@ -98,7 +98,8 @@ def _holding_intervals(metadata: pd.DataFrame, positions: pd.DataFrame
         suffixes=("_position", ""))
     if not joined.fundId_position.eq(joined.fundId).all():
         raise ValueError("Fund holdings and report IDs have different fund owners")
-    result = joined[["code", "fundId", "first_usable", "last_usable"]].copy()
+    result = joined[["uploadInfoId", "code", "fundId", "first_usable",
+                     "last_usable"]].copy()
     for column in ("first_usable", "last_usable"):
         result[column] = result[column].dt.strftime("%Y-%m-%d")
     return result.drop_duplicates()
