@@ -164,7 +164,8 @@ def _capacity_events(signal: pd.DataFrame,
 
 
 def _match(universe: pd.DataFrame, events: pd.DataFrame,
-           calendar: list[str], same_industry: bool) -> tuple[pd.DataFrame, dict]:
+           calendar: list[str], same_industry: bool,
+           event_label: str = EVENT) -> tuple[pd.DataFrame, dict]:
     event_keys = events[["date", "code", "notice_date", "pdf_url"]]
     signal = universe.merge(event_keys, on=["date", "code"], how="inner",
                             validate="one_to_one")
@@ -197,7 +198,7 @@ def _match(universe: pd.DataFrame, events: pd.DataFrame,
             peer, distance = matched
             left = item.copy()
             left["pair_code"] = item.code
-            left["candidate"] = EVENT
+            left["candidate"] = event_label
             left["match_distance"] = distance
             high_rows.append(left)
             right = peer.copy()
@@ -214,7 +215,7 @@ def _match(universe: pd.DataFrame, events: pd.DataFrame,
     if (not pairs.eq(2).all() or len(selected) != 2 * len(pairs)
             or selected.duplicated(["date", "code", "candidate"]).any()):
         raise ValueError("Malformed buyback event/control pair")
-    treated = selected.loc[selected.candidate.eq(EVENT)]
+    treated = selected.loc[selected.candidate.eq(event_label)]
     control = selected.loc[selected.candidate.eq(CONTROL)]
     report = {"eligible_event_quotes": len(signal),
               "capacity_selected": len(selected_events),

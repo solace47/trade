@@ -79,7 +79,8 @@ def _score(pairs: pd.DataFrame, outcome_dir: Path,
     return rows
 
 
-def _summary(rows: pd.DataFrame, year: str, segment: str) -> dict:
+def _summary(rows: pd.DataFrame, year: str, segment: str,
+             event_label: str = EVENT) -> dict:
     frame = rows.loc[rows.date.str.startswith(year)]
     if segment == "H1":
         frame = frame.loc[frame.date.str[5:7].astype(int).le(6)]
@@ -97,13 +98,13 @@ def _summary(rows: pd.DataFrame, year: str, segment: str) -> dict:
         ["cash_return", "cash_stress10"]].mean().unstack("candidate")
     if len(daily) != len(days) or daily.isna().any().any():
         raise ValueError("Buyback control is absent from a signal day")
-    event = daily[("cash_return", EVENT)].reset_index(drop=True)
+    event = daily[("cash_return", event_label)].reset_index(drop=True)
     peer = daily[("cash_return", CONTROL)].reset_index(drop=True)
     edge = event - peer
-    stress = (daily[("cash_stress10", EVENT)]
+    stress = (daily[("cash_stress10", event_label)]
               - daily[("cash_stress10", CONTROL)]).reset_index(drop=True)
     date_series = pd.Series(days)
-    treated = frame.loc[frame.candidate.eq(EVENT)]
+    treated = frame.loc[frame.candidate.eq(event_label)]
     control = frame.loc[frame.candidate.eq(CONTROL)]
     return {
         "pairs": len(treated), "days": len(days),
