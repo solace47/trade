@@ -59,6 +59,10 @@ def test_short_interest_quintiles_rank_short_ratio_within_stratum() -> None:
     financing = _quintiles(frame, "sell_pressure_score").sort_values(
         "sell_pressure_score")
     assert financing.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
+    frame["buy_activity_score"] = frame.short_ratio
+    buying = _quintiles(frame, "buy_activity_score").sort_values(
+        "buy_activity_score")
+    assert buying.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
 
 
 def test_net_flow_pair_requires_positive_high_and_negative_low() -> None:

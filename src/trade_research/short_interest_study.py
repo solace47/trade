@@ -89,7 +89,8 @@ def _quintiles(frame: pd.DataFrame,
                score_field: str = "short_ratio") -> pd.DataFrame:
     if "quintile" in frame.columns:
         raise ValueError("A prior study's quintile cannot define short-interest groups")
-    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score"}:
+    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score",
+                           "buy_activity_score"}:
         raise ValueError("Unknown short-interest ranking field")
     connection = duckdb.connect()
     connection.register("inputs", frame)
@@ -122,7 +123,8 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
                  prior_level_field: str = "prior_short_interest",
                  prior5_return_caliper: float | None = None,
                  ) -> tuple[pd.DataFrame, dict]:
-    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score"}:
+    if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score",
+                           "buy_activity_score"}:
         raise ValueError("Unknown short-interest selection field")
     if prior_level_caliper is not None and prior_level_field not in {
             "prior_short_interest", "prior_financing_interest"}:
