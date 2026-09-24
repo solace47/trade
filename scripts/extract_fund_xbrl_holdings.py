@@ -24,6 +24,11 @@ BASE = "http://eid.csrc.gov.cn"
 REFERER = BASE + "/fund/disclose/index.html"
 SECTION = re.compile(r'<a\s+name="tabItem4_topTenStockDetal"[^>]*>.*?'
                      r'(?=<a\s+name=|\Z)', re.I | re.S)
+ASSET_SECTION = re.compile(r'<a\s+name="tabItem4_assetsCircs"[^>]*>.*?'
+                           r'(?=<a\s+name=|\Z)', re.I | re.S)
+FOREIGN_SECTION = re.compile(
+    r'<a\s+name="tabItem7_topTen(?:JJTZ)?StockDetal"[^>]*>.*?'
+    r'(?=<a\s+name=|\Z)', re.I | re.S)
 DATA_ROW = re.compile(r'<tr\s+class="dd"[^>]*>(.*?)</tr>', re.I | re.S)
 CELL = re.compile(r'<td\b[^>]*>(.*?)</td>', re.I | re.S)
 TAG = re.compile(r"<[^>]*>")
@@ -35,6 +40,39 @@ def _plain(raw: str) -> str:
     return " ".join(html.unescape(TAG.sub("", raw)).split())
 
 
+def _stocks_explicitly_absent(document: str) -> bool:
+    """Verify a blank top-ten table against the separate asset summary."""
+    sections = ASSET_SECTION.findall(document)
+    if len(sections) != 1:
+        return False
+    for raw in DATA_ROW.findall(sections[0]):
+        fields = [_plain(cell) for cell in CELL.findall(raw)]
+        if "其中：股票" in fields:
+            return fields[-2:] == ["-", "-"]
+    return False
+
+
+def _foreign_only_report(document: str) -> bool:
+    """Recognize the separate cross-border template only when all rows are offshore."""
+    sections = FOREIGN_SECTION.findall(document)
+    if not sections:
+        return False
+    checked = 0
+    for section in sections:
+        if "证券代码" not in section or "所在证券市场" not in section:
+            return False
+        for raw in DATA_ROW.findall(section):
+            fields = [_plain(cell) for cell in CELL.findall(raw)]
+            if len(fields) != 9:
+                return False
+            code, market = fields[3:5]
+            if A_SHARE.fullmatch(code) or "上海" in market or "深圳" in market:
+                return False
+            if code and code != "-":
+                checked += 1
+    return checked > 0
+
+
 def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
     """Return A-share rows and total top-ten rows; reject unknown layouts."""
     cover = _plain(document[:8000])
@@ -42,6 +80,8 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
     if len(dates) != 1 or dates[0] != report_sent:
         raise ValueError("Fund report cover and indexed send dates differ")
     sections = SECTION.findall(document)
+    if not sections and _foreign_only_report(document):
+        return [], 0
     if len(sections) != 1:
         raise ValueError("Missing or duplicated top-ten stock section")
     section = sections[0]
@@ -50,21 +90,34 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
         raise ValueError("Unknown fund top-ten table header")
     rows = DATA_ROW.findall(section)
     if not rows:
-        if "注：无" in _plain(section) or "未持有股票" in _plain(section):
+        if ("注：无" in _plain(section) or "未持有股票" in _plain(section)
+                or _stocks_explicitly_absent(document)):
             return [], 0
         raise ValueError("Top-ten stock table is empty without an explicit note")
     if len(rows) > 20:
         raise ValueError("Unexpected number of top-ten stock rows")
     holdings = []
     ranks = []
+    previous_code = ""
     for raw in rows:
         fields = [_plain(cell) for cell in CELL.findall(raw)]
         if len(fields) != 6:
             raise ValueError("Unknown fund top-ten stock row layout")
         rank, code, name, shares, value, nav_weight = fields
-        if not rank.isdigit() or not name:
+        if [code, name, shares, value, nav_weight] == ["-"] * 5:
+            continue  # Some reports fill unused ranks with dashes.
+        if rank == "-" and ranks and (
+                bool(A_SHARE.fullmatch(code)) !=
+                bool(A_SHARE.fullmatch(previous_code))):
+            rank_number = ranks[-1]  # A+H split may omit the second rank.
+        elif rank.isdigit():
+            rank_number = int(rank)
+        else:
             raise ValueError("Invalid fund stock rank or name")
-        ranks.append(int(rank))
+        if not name:
+            raise ValueError("Invalid fund stock rank or name")
+        ranks.append(rank_number)
+        previous_code = code
         try:
             shares_decimal = Decimal(shares.replace(",", ""))
             if shares_decimal != shares_decimal.to_integral_value():
@@ -79,12 +132,23 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
         if A_SHARE.fullmatch(code):
             holdings.append({
                 "code": ("sh." if code.startswith(("60", "68")) else "sz.") + code,
-                "rank": int(rank), "shares": shares_int,
+                "rank": rank_number, "shares": shares_int,
                 "fair_value_yuan": value_float, "nav_weight_pct": weight_float,
             })
-    if ranks != list(range(1, len(ranks) + 1)):
+    if not ranks:
+        return [], 0
+    # Split securities and tied positions use either dense or competition ranks.
+    if ranks[0] != 1:
         raise ValueError("Unexpected top-ten stock ordering")
-    return holdings, len(rows)
+    current, run = ranks[0], 1
+    for later in ranks[1:]:
+        if later == current:
+            run += 1
+        elif later in (current + 1, current + run):
+            current, run = later, 1
+        else:
+            raise ValueError("Unexpected top-ten stock ordering")
+    return holdings, len(ranks)
 
 
 def _html_source(report_id: int, cache: Path) -> str:
@@ -100,7 +164,8 @@ def _html_source(report_id: int, cache: Path) -> str:
             response.raise_for_status()
             if ("/xbrl/REPORT/HTML/" in response.url
                     and len(response.content) > 10000
-                    and "tabItem4_topTenStockDetal" in response.text):
+                    and ("tabItem4_topTenStockDetal" in response.text
+                         or "tabItem7_topTenStockDetal" in response.text)):
                 cache.mkdir(parents=True, exist_ok=True)
                 temporary = path.with_suffix(".tmp")
                 with gzip.open(temporary, "wt", encoding="utf-8") as target:
@@ -116,7 +181,8 @@ def _html_source(report_id: int, cache: Path) -> str:
 
 def _one(row: dict, cache: Path) -> tuple[list[dict], dict]:
     report_id = int(row["uploadInfoId"])
-    base = {"uploadInfoId": report_id, "fundCode": row["fundCode"],
+    base = {"uploadInfoId": report_id, "fundId": int(row["fundId"]),
+            "fundCode": row["fundCode"],
             "reportYear": int(row["reportYear"]),
             "report_quarter": int(row["report_quarter"]),
             "available_after": row["available_after"],
