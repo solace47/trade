@@ -1,4 +1,4 @@
-"""Summarize the fixed late-flow selections after raw-minute order-size repricing."""
+"""Compare fixed selections after raw-minute order-size repricing."""
 
 from __future__ import annotations
 
@@ -12,15 +12,19 @@ import pandas as pd
 from trade_research.residual_liquidity import _period
 
 
-def summarize(selected_path: Path, repriced_path: Path, output: Path) -> dict:
+def summarize(selected_path: Path, repriced_path: Path, output: Path,
+              candidate: str = "top_flow", control: str = "same_day_random",
+              horizon: int = 1) -> dict:
     original = pd.read_parquet(selected_path)
     original = original.loc[
-        original.horizon.eq(1)
-        & original.candidate.isin(("top_flow", "same_day_random"))
+        original.horizon.eq(horizon)
+        & original.candidate.isin((candidate, control))
     ].copy()
+    if original.empty or original.candidate.nunique() != 2:
+        raise ValueError("Both fixed candidate and control must be present")
     repriced = pd.read_parquet(repriced_path)
-    if set(repriced.horizon) != {1} or set(repriced.exit_window) != {"close"}:
-        raise ValueError("Repricing must use T+1 and the 14:52-14:55 exit")
+    if set(repriced.horizon) != {horizon} or set(repriced.exit_window) != {"close"}:
+        raise ValueError("Repricing horizon or exit window differs from selection")
     if set(repriced.target_notional) != {20_000.0, 50_000.0, 100_000.0}:
         raise ValueError("Required order sizes are missing")
     validation = original.merge(
@@ -45,13 +49,15 @@ def summarize(selected_path: Path, repriced_path: Path, output: Path) -> dict:
 
     choices = original[["date", "code", "candidate"]]
     joined = choices.merge(repriced, on=["date", "code"], validate="many_to_many")
-    report = {"verified_100k_matches_stored": True, "results": {}}
+    report = {"verified_100k_matches_stored": True,
+              "candidate": candidate, "control": control,
+              "horizon": horizon, "results": {}}
     for notional, block in joined.groupby("target_notional"):
         by_year = report["results"][str(int(notional))] = {}
         for year in ("2024", "2025"):
             annual = block.loc[block.date.str.startswith(year)]
-            top = annual.loc[annual.candidate.eq("top_flow")]
-            random = annual.loc[annual.candidate.eq("same_day_random")]
+            top = annual.loc[annual.candidate.eq(candidate)]
+            random = annual.loc[annual.candidate.eq(control)]
             by_year[year] = {}
             for period, rows in (
                 ("H1", top.loc[top.date.str[5:7].astype(int).le(6)]),
@@ -73,8 +79,12 @@ def main() -> None:
                         default=Path("data/research/late_flow_repriced.parquet"))
     parser.add_argument("--output", type=Path,
                         default=Path("data/research/late_flow_reprice_report.json"))
+    parser.add_argument("--candidate", default="top_flow")
+    parser.add_argument("--control", default="same_day_random")
+    parser.add_argument("--horizon", type=int, default=1)
     args = parser.parse_args()
-    result = summarize(args.selected, args.repriced, args.output)
+    result = summarize(args.selected, args.repriced, args.output,
+                       args.candidate, args.control, args.horizon)
     print({"verified_100k": result["verified_100k_matches_stored"],
            "output": str(args.output)})
 

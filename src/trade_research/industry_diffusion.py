@@ -186,9 +186,13 @@ def evaluate(selected_path: Path, outcome_dir: Path, issues_dir: Path,
     """).df()
     if len(trades) != len(selected) * len(HORIZONS):
         raise ValueError("A selected industry stock-day lacks an outcome")
+    industry_age = (pd.to_datetime(selected.date)
+                    - pd.to_datetime(selected.updateDate)).dt.days
     result = {"primary_horizon": 5,
               "control": "same-day quiet mainboard stocks outside "
-                         "the winning-industry condition", "results": {}}
+                         "the winning-industry condition",
+              "max_selected_industry_age_days": int(industry_age.max()),
+              "results": {}}
     for year in ("2024", "2025"):
         annual = trades.loc[trades.date.str.startswith(year)]
         chosen = annual.loc[annual.candidate.eq("industry_laggard")]
@@ -204,8 +208,12 @@ def evaluate(selected_path: Path, outcome_dir: Path, issues_dir: Path,
                 ("full", sample),
             ):
                 if not rows.empty:
-                    result["results"][year][str(horizon)][period] = \
-                        _period(rows, reference)
+                    summary = _period(rows, reference)
+                    summary["per_signal_cash_mean"] = float(rows.net_return.where(
+                        rows.exit_status.eq("filled") & rows.quality_clean_exit,
+                        0,
+                    ).mean())
+                    result["results"][year][str(horizon)][period] = summary
     report_path.parent.mkdir(parents=True, exist_ok=True)
     trades_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n",
