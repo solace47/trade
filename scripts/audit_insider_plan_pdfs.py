@@ -1,4 +1,4 @@
-"""Verify original CNINFO PDFs for prospective insider share-increase plans.
+"""Verify original CNINFO PDFs for prospective insider trade plans.
 
 This stage opens no market prices or outcomes. Every candidate gets an audit
 status; failed original files are excluded rather than inferred from titles.
@@ -16,10 +16,11 @@ import pandas as pd
 import pdfplumber
 
 from audit_buyback_pdfs import _download
-from trade_research.insider_plan_source import confirm_pdf_text
+from trade_research.insider_plan_source import confirm_pdf_text as confirm_buy
+from trade_research.insider_sell_source import confirm_pdf_text as confirm_sell
 
 
-def _record(row: dict, pdf_dir: Path) -> dict:
+def _record(row: dict, pdf_dir: Path, kind: str) -> dict:
     name = Path(urlparse(row["pdf_url"]).path).name
     if not name.lower().endswith(".pdf") or "/" in name:
         raise ValueError("Malformed original insider-plan PDF URL")
@@ -31,7 +32,8 @@ def _record(row: dict, pdf_dir: Path) -> dict:
                              for page in pdf.pages[:3])
             pages = len(pdf.pages)
         return {**row,
-                "status": "ok" if confirm_pdf_text(text, row["code"])
+                "status": "ok" if ((confirm_buy if kind == "increase"
+                                     else confirm_sell)(text, row["code"]))
                 else "identity_or_plan_unconfirmed",
                 "pages": pages, "text_first_three_pages": text}
     except Exception as error:
@@ -40,8 +42,9 @@ def _record(row: dict, pdf_dir: Path) -> dict:
 
 
 def audit(year: int, source_dir: Path, output_dir: Path,
-          workers: int = 3, limit: int | None = None) -> dict:
-    if year not in (2024, 2025) or workers < 1:
+          workers: int = 3, limit: int | None = None,
+          kind: str = "increase") -> dict:
+    if year not in (2024, 2025) or workers < 1 or kind not in ("increase", "sell"):
         raise ValueError("Invalid PDF audit year or worker count")
     source = pd.read_parquet(source_dir / f"title_candidates_{year}.parquet")
     if source.empty or source.pdf_url.duplicated().any():
@@ -55,7 +58,7 @@ def audit(year: int, source_dir: Path, output_dir: Path,
     pdf_dir.mkdir(parents=True, exist_ok=True)
     records = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = [pool.submit(_record, row, pdf_dir)
+        futures = [pool.submit(_record, row, pdf_dir, kind)
                    for row in source.to_dict("records")]
         for future in as_completed(futures):
             records.append(future.result())
@@ -80,8 +83,11 @@ def main() -> None:
         "data/research/insider_buy"))
     parser.add_argument("--workers", type=int, default=3)
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--kind", choices=("increase", "sell"),
+                        default="increase")
     args = parser.parse_args()
-    print(audit(args.year, args.source, args.output, args.workers, args.limit))
+    print(audit(args.year, args.source, args.output, args.workers, args.limit,
+                args.kind))
 
 
 if __name__ == "__main__":
