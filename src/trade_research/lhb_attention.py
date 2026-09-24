@@ -223,6 +223,96 @@ def evaluate(selected_path: Path, outcome_dir: Path, issues_dir: Path,
     return report
 
 
+def summarize_repriced(selected_path: Path, repriced_path: Path,
+                       output: Path) -> dict:
+    """Summarize independent raw-minute pricing at two order sizes."""
+    membership = pd.read_parquet(selected_path)[["date", "code", "candidate", "pair_code"]]
+    repriced = pd.read_parquet(repriced_path)
+    required_sizes = {20_000.0, 100_000.0}
+    if set(repriced.target_notional) != required_sizes or set(repriced.horizon) != {1, 5}:
+        raise ValueError("Missing a frozen repricing order size or horizon")
+    if len(repriced) != len(membership) * 4:
+        raise ValueError("Incomplete raw-minute repricing")
+    rows = repriced.merge(membership, on=["date", "code"], validate="many_to_one")
+    result = {"sizes_yuan": [20_000, 100_000], "results": {}}
+    for size in sorted(required_sizes):
+        result["results"][str(int(size))] = {}
+        for year in ("2024", "2025"):
+            result["results"][str(int(size))][year] = {}
+            for horizon in (1, 5):
+                sample = rows.loc[
+                    rows.target_notional.eq(size) & rows.horizon.eq(horizon)
+                    & rows.date.str.startswith(year)
+                ]
+                listed = sample.loc[sample.candidate.eq(TREATED)]
+                unlisted = sample.loc[sample.candidate.eq(CONTROL)]
+                summary = _period(listed, unlisted)
+                summary["same_day_matched_mean"] = summary.pop("same_day_random_mean")
+                result["results"][str(int(size))][year][str(horizon)] = summary
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+                      encoding="utf-8")
+    return result
+
+
+def posthoc_balance_sensitivity(selected_path: Path, trades_path: Path,
+                                output: Path) -> dict:
+    """Check whether the original edge survives tighter observed covariates.
+
+    These filters were chosen after the primary outcome was viewed. They are
+    diagnostics of confounding, not an independent strategy test.
+    """
+    selected = pd.read_parquet(selected_path)
+    treated = selected.loc[selected.candidate.eq(TREATED)].set_index(["date", "pair_code"])
+    control = selected.loc[selected.candidate.eq(CONTROL)].set_index(["date", "pair_code"])
+    if not treated.index.equals(control.index):
+        raise ValueError("Paired selections do not align")
+    pair = pd.DataFrame(index=treated.index)
+    pair["same_exchange"] = treated.code.str[:2].eq(control.code.str[:2])
+    pair["turn_gap"] = (treated.t_turn - control.t_turn).abs()
+    pair["prior20_gap"] = (
+        treated.return20_prior_adjusted - control.return20_prior_adjusted
+    ).abs()
+    pair["distance"] = treated.match_distance
+    masks = {
+        "original": pd.Series(True, index=pair.index),
+        "same_exchange": pair.same_exchange,
+        "close_turn_and_prior20": pair.turn_gap.le(5) & pair.prior20_gap.le(.10),
+        "same_exchange_close_calipers": (
+            pair.same_exchange & pair.turn_gap.le(5) & pair.prior20_gap.le(.10)
+            & pair.distance.le(4)
+        ),
+    }
+    trades = pd.read_parquet(trades_path)
+    result = {"post_hoc": True, "primary_horizon": 5, "results": {}}
+    for name, mask in masks.items():
+        keys = pair.loc[mask].reset_index()[["date", "pair_code"]]
+        subset = trades.loc[trades.horizon.eq(5)].merge(
+            keys, on=["date", "pair_code"], validate="many_to_one")
+        result["results"][name] = {}
+        for year in ("2024", "2025"):
+            annual = subset.loc[subset.date.str.startswith(year)]
+            summary = _period(annual.loc[annual.candidate.eq(TREATED)],
+                              annual.loc[annual.candidate.eq(CONTROL)])
+            summary["same_day_matched_mean"] = summary.pop("same_day_random_mean")
+            result["results"][name][year] = summary
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+                      encoding="utf-8")
+    return result
+
+
+def write_reprice_signals(selected: pd.DataFrame, output: Path) -> None:
+    """Carry entry-state fields required by raw-minute execution pricing."""
+    fields = ["date", "code", "isST", "reference_gap",
+              "quote_outside_traded_range", "listing_age_sessions"]
+    signals = selected[fields].drop_duplicates(["date", "code"])
+    if len(signals) != len(selected):
+        raise ValueError("A matched stock-day occurs in more than one basket")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    signals.to_parquet(output, index=False, compression="zstd")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshots", type=Path,
@@ -245,15 +335,32 @@ def main() -> None:
                         default=Path("data/research/lhb_report.json"))
     parser.add_argument("--trades", type=Path,
                         default=Path("data/research/lhb_trades.parquet"))
+    parser.add_argument("--repriced", type=Path)
+    parser.add_argument("--reprice-signals", type=Path,
+                        default=Path("data/research/lhb_reprice_signals.parquet"))
+    parser.add_argument("--repriced-report", type=Path,
+                        default=Path("data/research/lhb_reprice_report.json"))
+    parser.add_argument("--balance-report", type=Path,
+                        default=Path("data/research/lhb_balance_sensitivity.json"))
     parser.add_argument("--select-only", action="store_true")
     args = parser.parse_args()
     selected, selection = select(args.snapshots, args.daily, args.calendar,
                                  args.sse, args.szse, args.selected)
+    write_reprice_signals(selected, args.reprice_signals)
     print(json.dumps(selection, ensure_ascii=False, indent=2))
     if not args.select_only:
         report = evaluate(args.selected, args.outcomes, args.issues,
                           args.report, args.trades)
         print(json.dumps(report, ensure_ascii=False, indent=2))
+        if args.repriced:
+            raw = summarize_repriced(args.selected, args.repriced,
+                                     args.repriced_report)
+            print({"raw_minute_sizes": raw["sizes_yuan"],
+                   "raw_minute_report": str(args.repriced_report)})
+        sensitivity = posthoc_balance_sensitivity(args.selected, args.trades,
+                                                  args.balance_report)
+        print({"post_hoc_checks": list(sensitivity["results"]),
+               "balance_report": str(args.balance_report)})
 
 
 if __name__ == "__main__":

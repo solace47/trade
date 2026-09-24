@@ -21,7 +21,7 @@ def _attach_quality(outcomes: pd.DataFrame, issues_dir: Path) -> pd.DataFrame:
     connection.register("bad_days", _quality_keys(issues_dir))
     connection.register("bad_symbols", _quality_symbols(issues_dir))
     return connection.execute("""
-        SELECT r.*, r.exit_date IS NOT NULL
+        SELECT r.*, r.exit_status = 'filled'
         AND NOT EXISTS (SELECT 1 FROM bad_symbols b WHERE b.code = r.code)
         AND NOT EXISTS (
             SELECT 1 FROM bad_days AS q
