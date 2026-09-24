@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 import duckdb
+import numpy as np
 import pandas as pd
 
 
@@ -114,6 +115,9 @@ def _visibility(universe: pd.DataFrame, intervals: pd.DataFrame) -> pd.DataFrame
 
 def _four_cell_coverage(inputs: pd.DataFrame) -> dict:
     """Count feasible financing-by-visibility strata before opening outcomes."""
+    for field in ("float_mv", "avg20_amount"):
+        if field not in inputs or inputs[field].isna().any() or inputs[field].le(0).any():
+            raise ValueError(f"Missing positive input balance field: {field}")
     extremes = inputs.loc[inputs.quintile.isin((1, 5))]
     keys = ["date", "board", "size_bucket", "cash_group"]
     cells = extremes.groupby(keys + ["fund_visible", "quintile"],
@@ -132,7 +136,7 @@ def _four_cell_coverage(inputs: pd.DataFrame) -> dict:
                                   & extremes.date.str.startswith(year)]
             matched = included.loc[included.cash_group.eq(cash_group)
                                     & included.date.str.startswith(year)]
-            report[cash_group][year] = {
+            section = {
                 "source_strata": len(strata),
                 "four_cell_strata": int(strata.four_cell.sum()),
                 "source_signal_days": int(source.date.nunique()),
@@ -140,6 +144,21 @@ def _four_cell_coverage(inputs: pd.DataFrame) -> dict:
                 "source_extreme_stock_days": len(source),
                 "four_cell_stock_days": len(matched),
             }
+            if not matched.empty:
+                medians = matched.groupby(
+                    keys + ["fund_visible", "quintile"], observed=True
+                )[["float_mv", "avg20_amount"]].median().unstack(
+                    ["fund_visible", "quintile"])
+                section["median_stratum_absent_visible_ratio"] = {
+                    field: {
+                        f"q{quintile}": float(np.median(
+                            medians[(field, False, quintile)]
+                            / medians[(field, True, quintile)]))
+                        for quintile in (1, 5)
+                    }
+                    for field in ("float_mv", "avg20_amount")
+                }
+            report[cash_group][year] = section
     return report
 
 

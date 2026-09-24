@@ -78,11 +78,18 @@ def test_four_cell_input_audit_counts_missing_strata() -> None:
             rows.append({"date": date, "board": "sh_main", "size_bucket": 1,
                          "cash_group": "low_cash_conversion",
                          "fund_visible": visible, "quintile": quintile,
-                         "code": f"sh.{number:06d}"})
+                         "code": f"sh.{number:06d}",
+                         "float_mv": 100.0 if visible else 90.0,
+                         "avg20_amount": 100.0 if visible else 80.0})
     coverage = _four_cell_coverage(pd.DataFrame(rows))[
         "low_cash_conversion"]["2024"]
-    assert coverage == {
-        "source_strata": 2, "four_cell_strata": 1,
-        "source_signal_days": 2, "four_cell_signal_days": 1,
-        "source_extreme_stock_days": 7, "four_cell_stock_days": 4,
+    assert coverage["source_strata"] == 2
+    assert coverage["four_cell_strata"] == 1
+    assert coverage["source_signal_days"] == 2
+    assert coverage["four_cell_signal_days"] == 1
+    assert coverage["source_extreme_stock_days"] == 7
+    assert coverage["four_cell_stock_days"] == 4
+    assert coverage["median_stratum_absent_visible_ratio"] == {
+        "float_mv": {"q1": 0.9, "q5": 0.9},
+        "avg20_amount": {"q1": 0.8, "q5": 0.8},
     }
