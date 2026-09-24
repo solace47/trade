@@ -1,7 +1,7 @@
-"""Compare five fixed screens and four exits using 2022-2023 only.
+"""Compare registered screens and exits using 2024-2025 only.
 
-Queries are restricted to 2022-2023. The selected screen, horizon, and daily
-capacity must be frozen before evaluating the 2024 and later holdout.
+Queries are restricted to 2024-2025. The selected screen, horizon, and daily
+capacity must be frozen before evaluating the 2026 holdout.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import pandas as pd
 from .factor_scan import FACTORS
 from .hf_outcomes import Assumptions
 from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
+from .study_periods import DEVELOPMENT_YEAR, VALIDATION_YEAR, HOLDOUT_YEAR
 
 
 CANDIDATES = tuple(name for name in FACTORS if name.startswith("candidate_"))
@@ -79,6 +80,7 @@ def _summarize(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
         "signal_days": int(frame["date"].nunique()),
         "entry_fills": int(entry_filled.sum()),
         "clean_completed_exits": len(valid),
+        "delayed_clean_exits": int(valid["exit_delay_sessions"].gt(0).sum()),
         "exit_source_quality_excluded": int((
             frame["exit_status"].eq("filled") & ~frame["quality_clean_exit"]
         ).sum()),
@@ -144,8 +146,12 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
-    last_2022 = _last_safe_entry(connection, "2022-01-01", "2023-01-01")
-    last_2023 = _last_safe_entry(connection, "2023-01-01", "2024-01-01")
+    last_development = _last_safe_entry(
+        connection, f"{DEVELOPMENT_YEAR}-01-01", f"{VALIDATION_YEAR}-01-01"
+    )
+    last_validation = _last_safe_entry(
+        connection, f"{VALIDATION_YEAR}-01-01", f"{HOLDOUT_YEAR}-01-01"
+    )
     bad_days = _quality_keys(issues_dir)
     bad_symbols = _quality_symbols(issues_dir)
     connection.register("bad_days", bad_days)
@@ -158,7 +164,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                s.return5_prior_adjusted,
                s.return20_prior_adjusted, s.preclose,
                o.horizon, o.entry_status, o.entry_price, o.shares,
-               o.exit_status, o.exit_date, o.exit_price, o.net_return,
+               o.exit_status, o.exit_date, o.exit_delay_sessions,
+               o.exit_price, o.net_return,
                NOT EXISTS (
                    SELECT 1 FROM bad_days AS x
                    WHERE x.code = s.code AND x.date >= s.date
@@ -168,8 +175,10 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_days AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
-        WHERE ((s.date >= '2022-01-01' AND s.date <= '{last_2022}')
-           OR (s.date >= '2023-01-01' AND s.date <= '{last_2023}'))
+        WHERE ((s.date >= '{DEVELOPMENT_YEAR}-01-01'
+                AND s.date <= '{last_development}')
+           OR (s.date >= '{VALIDATION_YEAR}-01-01'
+                AND s.date <= '{last_validation}'))
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -189,7 +198,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         frame = connection.execute(f"""
             SELECT * FROM (
                 SELECT date, code, horizon, entry_status, entry_price, shares,
-                       exit_status, exit_date, exit_price, net_return,
+                       exit_status, exit_date, exit_delay_sessions,
+                       exit_price, net_return,
                        quality_clean_exit,
                        return_1450, amount_1450,
                        ROW_NUMBER() OVER (
@@ -202,7 +212,7 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         frame["candidate"] = name
         trades.append(frame)
         periods = {}
-        for year in ("2022", "2023"):
+        for year in (str(DEVELOPMENT_YEAR), str(VALIDATION_YEAR)):
             annual = frame.loc[frame["date"].str.startswith(year)]
             for horizon in HORIZONS:
                 subset = annual.loc[annual["horizon"] == horizon]
@@ -216,14 +226,19 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                 )
         reports[name] = periods
     result = {
-        "scope": "Shanghai/Shenzhen development 2022 and validation 2023 only",
+        "scope": f"Shanghai/Shenzhen development {DEVELOPMENT_YEAR} and "
+                 f"validation {VALIDATION_YEAR} only",
         "shards": len(shards),
-        "last_entry_dates": {"2022": last_2022, "2023": last_2023},
+        "last_entry_dates": {
+            str(DEVELOPMENT_YEAR): last_development,
+            str(VALIDATION_YEAR): last_validation,
+        },
         "capacity": "at most five ranked signals per trading day",
         "ranking": "14:50 return descending, code ascending tie break",
         "candidate_screens": list(CANDIDATES),
         "horizons": HORIZONS,
-        "multiple_comparisons": "Choose one screen and horizon before opening 2024+ holdout",
+        "multiple_comparisons": f"Choose one screen and horizon before opening "
+                                f"the {HOLDOUT_YEAR} holdout",
         "reports": reports,
     }
     output.parent.mkdir(parents=True, exist_ok=True)

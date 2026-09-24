@@ -1,6 +1,7 @@
 """Cash and daily valuation checks for the conditional risk curve."""
 
 import pandas as pd
+import pytest
 
 from trade_research.hf_outcomes import Assumptions, _fees
 from trade_research.portfolio_curve import curve
@@ -27,3 +28,9 @@ def test_one_completed_trade_reconciles_to_cash_after_sale(tmp_path) -> None:
     assert frame["open_positions"].tolist() == [1, 0]
     assert summary["purchased_after_cash_limit"] == 1
     assert summary["capital_blocked"] == 0
+
+
+def test_old_signal_dates_are_not_used_in_portfolio_diagnostics(tmp_path) -> None:
+    trades = pd.DataFrame([{"date": "2023-12-29", "code": "sh.600000"}])
+    with pytest.raises(ValueError, match="recent research dates"):
+        curve(trades, tmp_path, ["2023-12-29"])

@@ -14,6 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from .hf_outcomes import Assumptions, _fees
+from .study_periods import DEVELOPMENT_YEAR
 
 
 def _calendar(path: Path, first: str, last: str) -> list[str]:
@@ -31,6 +32,8 @@ def curve(trades: pd.DataFrame, daily_root: Path, calendar: list[str],
         raise ValueError("A positive capital base and nonempty calendar are required")
     if trades.empty:
         raise ValueError("No model signals in this period")
+    if trades["date"].min() < f"{DEVELOPMENT_YEAR}-01-01":
+        raise ValueError("Portfolio diagnostics require recent research dates")
     if trades.duplicated(["date", "code"]).any():
         raise ValueError("Each stock may have only one signal per date")
     completed = trades.loc[

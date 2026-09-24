@@ -60,10 +60,10 @@ def test_quality_censoring_and_top_five_are_applied_before_metrics(tmp_path):
     ]).to_csv(issues / "shard_00.csv", index=False)
     report = study(snapshots, outcomes, issues, tmp_path / "report.json", allow_partial=True)
     period = report["policies"]
-    assert period["frozen_rule"]["2024_holdout"]["1"]["signals"] == 6
-    assert period["frozen_rule"]["2024_holdout"]["1"]["quality_clean_completed_exits"] == 4
-    assert period["frozen_rule_top5"]["2024_holdout"]["1"]["signals"] == 5
-    assert period["frozen_rule_top5"]["2024_holdout"]["1"]["quality_clean_completed_exits"] == 4
-    assert report["frozen_rule_top5_by_regime"]["2024_holdout"]["1"][
+    assert period["frozen_rule"]["2024_development"]["1"]["signals"] == 6
+    assert period["frozen_rule"]["2024_development"]["1"]["quality_clean_completed_exits"] == 4
+    assert period["frozen_rule_top5"]["2024_development"]["1"]["signals"] == 5
+    assert period["frozen_rule_top5"]["2024_development"]["1"]["quality_clean_completed_exits"] == 4
+    assert report["frozen_rule_top5_by_regime"]["2024_development"]["1"][
         "broad_advance"
     ]["signals"] == 5

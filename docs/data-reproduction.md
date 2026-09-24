@@ -43,4 +43,14 @@ PYTHONPATH=src .venv/bin/python -m trade_research.strategy_scan
 PYTHONPATH=src .venv/bin/python -m trade_research.strategy_select
 ```
 
-将 `RUN_ID` 换成 Actions 运行编号。调度器会导入、核对并删除每个远程分片文件，再依次启动剩余批次。只有 2022–2023 年筛选出合格条件后，才将条件与卖出周期写入 `config/strategy-freeze.json`，并通过 `trade_research.holdout_eval` 验证 2024 年以后数据。本次筛选结果为空，因此没有该配置文件。研究数据的具体版本保存在本地锁文件，不写入文档。
+将 `RUN_ID` 换成 Actions 运行编号。调度器会导入、核对并删除每个远程分片文件，再依次启动剩余批次。当前研究以 2024 年开发、2025 年验证；只有通过筛选后才把条件和卖出周期写入 `config/strategy-freeze.json`，通过 `trade_research.holdout_eval` 验证 2026 年数据。2023 年及以前不计入策略收益。研究数据的具体版本保存在本地锁文件，不写入文档。
+
+复算[策略结果](strategy-results.md)中的低成交额仓位敏感性：
+
+```bash
+PYTHONPATH=src .venv/bin/python -m trade_research.exploratory_signals --candidate low_amount_neutral --output data/research/size_signal_neutral.parquet
+PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals data/research/size_signal_neutral.parquet --output data/research/size_sensitivity_neutral.parquet
+```
+
+第二步默认从本地公开分钟档案按需读取 14:52–14:55 分钟条，并分别以 2 万、5 万、10 万元单笔资金重新估算四个持有期。
+按 14:50 市场广度复核这两组探索信号时运行 `PYTHONPATH=src .venv/bin/python scripts/regime_probe.py > data/research/regime_probe.jsonl`。

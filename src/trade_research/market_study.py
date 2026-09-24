@@ -10,6 +10,8 @@ import duckdb
 import numpy as np
 import pandas as pd
 
+from .study_periods import DEVELOPMENT_YEAR, VALIDATION_YEAR
+
 
 SCREEN = """
     s.isST = 0
@@ -113,13 +115,32 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots_raw")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes_raw")
+    last_entry = {}
+    for year in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
+        dates = [row[0] for row in connection.execute("""
+            SELECT DISTINCT date FROM snapshots_raw
+            WHERE date >= ? AND date < ? ORDER BY date
+        """, [f"{year}-01-01", f"{year + 1}-01-01"]).fetchall()]
+        if not dates:
+            if allow_partial:
+                continue
+            raise ValueError(f"No trading dates in {year}")
+        if len(dates) <= 10 and not allow_partial:
+            raise ValueError(f"Too few trading dates in {year}")
+        last_entry[year] = dates[-11] if len(dates) > 10 else dates[-1]
+    if not last_entry:
+        raise ValueError("No recent research dates")
     connection.register("bad_quality", bad)
     connection.register("bad_symbols", bad_symbols)
-    connection.execute("""
+    date_ranges = " OR ".join(
+        f"(s.date >= '{year}-01-01' AND s.date <= '{last_date}')"
+        for year, last_date in last_entry.items()
+    )
+    connection.execute(f"""
         CREATE TEMP VIEW clean_snapshots AS
         SELECT s.* FROM snapshots_raw AS s
         LEFT JOIN bad_symbols AS b ON b.code = s.code
-        WHERE b.code IS NULL
+        WHERE b.code IS NULL AND ({date_ranges})
     """)
     connection.execute("""
         CREATE TEMP VIEW market_environment AS
@@ -149,15 +170,14 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         ) AS tail_rank
         FROM screened
     """)
-    connection.execute("""
+    connection.execute(f"""
         CREATE TEMP VIEW joined AS
         SELECT s.date, s.code, s.candidate, s.tail_rank, m.regime,
                o.horizon, o.entry_status, o.exit_status, o.exit_delay_sessions,
                o.net_return,
-               CASE WHEN s.date < '2023-01-01' THEN '2022_development'
-                    WHEN s.date < '2024-01-01' THEN '2023_validation'
-                    WHEN s.date < '2025-01-01' THEN '2024_holdout'
-                    ELSE '2025_2026_later' END AS period,
+               CASE WHEN s.date < '{VALIDATION_YEAR}-01-01'
+                         THEN '{DEVELOPMENT_YEAR}_development'
+                    ELSE '{VALIDATION_YEAR}_validation' END AS period,
                NOT EXISTS (
                    SELECT 1 FROM bad_quality AS x
                    WHERE x.code = s.code AND x.date >= s.date
@@ -205,7 +225,9 @@ def study(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                 by_regime.setdefault(period, {}).setdefault(str(horizon), {})[regime] = \
                     _summarize(frame)
     result = {
-        "scope": "historical Shanghai/Shenzhen, quality-screened 2022-2026",
+        "scope": f"Shanghai/Shenzhen development {DEVELOPMENT_YEAR} and "
+                 f"validation {VALIDATION_YEAR} only",
+        "last_entry_dates": {str(year): date for year, date in last_entry.items()},
         "shards": len(shard_ids), "quality_bad_stock_days": len(bad),
         "quality_excluded_symbols": len(bad_symbols),
         "execution_model": "14:52-14:55 VWAP, costs, volume cap, limits, T+1, delayed exit",

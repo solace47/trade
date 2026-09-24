@@ -1,7 +1,7 @@
-"""Exploratory T+1 factor bins on development and validation dates only.
+"""Exploratory T+1 factor bins on 2024 development and 2025 validation dates.
 
-The 2024 holdout and later dates are deliberately inaccessible here. Bins
-are fixed in code before full-market results are inspected.
+This scan never reads 2026 signals. The bins are hypotheses to check,
+not an untouched preregistered experiment.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ import duckdb
 import pandas as pd
 
 from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
+from .study_periods import DEVELOPMENT_YEAR, VALIDATION_YEAR
 
 
 FACTORS = {
@@ -136,6 +137,7 @@ def _metrics(frame: pd.DataFrame, baseline: pd.DataFrame) -> dict:
     result = {
         "signals": signals, "entry_fills": fills,
         "clean_completed_exits": completed,
+        "delayed_clean_exits": int(frame["delayed_clean_exits"].sum()),
         "signal_days": int(len(frame)),
     }
     if completed == 0:
@@ -172,7 +174,7 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
     last_entry = {}
-    for year in (2022, 2023):
+    for year in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
         dates = [row[0] for row in connection.execute("""
             SELECT DISTINCT date FROM snapshots
             WHERE date >= ? AND date < ? ORDER BY date
@@ -190,9 +192,11 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                s.return20_prior_adjusted, s.amount_1450,
                s.ma5_prior_adjusted, s.ma20_prior_adjusted,
                s.ma60_prior_adjusted, s.preclose, s.high_1450, s.low_1450,
-               o.entry_status, o.exit_status, o.net_return,
-               CASE WHEN s.date < '2023-01-01' THEN '2022_development'
-                    ELSE '2023_validation' END AS period,
+               o.entry_status, o.exit_status, o.exit_delay_sessions,
+               o.net_return,
+               CASE WHEN s.date < '{VALIDATION_YEAR}-01-01'
+                    THEN '{DEVELOPMENT_YEAR}_development'
+                    ELSE '{VALIDATION_YEAR}_validation' END AS period,
                NOT EXISTS (
                    SELECT 1 FROM bad_quality AS x
                    WHERE x.code = s.code AND x.date >= s.date
@@ -203,8 +207,10 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         LEFT JOIN bad_quality AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
         WHERE o.horizon = 1
-          AND ((s.date >= '2022-01-01' AND s.date <= '{last_entry[2022]}')
-            OR (s.date >= '2023-01-01' AND s.date <= '{last_entry[2023]}'))
+          AND ((s.date >= '{DEVELOPMENT_YEAR}-01-01'
+                AND s.date <= '{last_entry[DEVELOPMENT_YEAR]}')
+            OR (s.date >= '{VALIDATION_YEAR}-01-01'
+                AND s.date <= '{last_entry[VALIDATION_YEAR]}'))
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -221,6 +227,9 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                COUNT(*) FILTER (WHERE entry_status = 'filled') AS entry_fills,
                COUNT(*) FILTER (WHERE exit_status = 'filled'
                    AND quality_clean_exit) AS clean_outcomes,
+               COUNT(*) FILTER (WHERE exit_status = 'filled'
+                   AND quality_clean_exit AND exit_delay_sessions > 0)
+                   AS delayed_clean_exits,
                COALESCE(SUM(net_return) FILTER (WHERE exit_status = 'filled'
                    AND quality_clean_exit), 0) AS net_sum,
                COUNT(*) FILTER (WHERE exit_status = 'filled'
@@ -237,6 +246,9 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                    COUNT(*) FILTER (WHERE entry_status = 'filled') AS entry_fills,
                    COUNT(*) FILTER (WHERE exit_status = 'filled'
                        AND quality_clean_exit) AS clean_outcomes,
+                   COUNT(*) FILTER (WHERE exit_status = 'filled'
+                       AND quality_clean_exit AND exit_delay_sessions > 0)
+                       AS delayed_clean_exits,
                    COALESCE(SUM(net_return) FILTER (WHERE exit_status = 'filled'
                        AND quality_clean_exit), 0) AS net_sum,
                    COUNT(*) FILTER (WHERE exit_status = 'filled'
@@ -250,7 +262,8 @@ def scan(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
             )
         report[name] = factor
     result = {
-        "scope": "Shanghai/Shenzhen 2022 development and 2023 validation, T+1",
+        "scope": f"Shanghai/Shenzhen {DEVELOPMENT_YEAR} development and "
+                 f"{VALIDATION_YEAR} validation, T+1",
         "shards": len(shards), "quality_bad_stock_days": len(bad),
         "last_entry_dates": {str(year): date for year, date in last_entry.items()},
         "quality_excluded_symbols": len(bad_symbols),

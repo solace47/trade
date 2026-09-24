@@ -1,4 +1,4 @@
-"""Evaluate a committed, frozen screen on 2024 and later market data."""
+"""Evaluate a committed, frozen recent-market screen on 2026 only."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import pandas as pd
 from .factor_scan import FACTORS
 from .market_study import _quality_keys, _quality_symbols
 from .strategy_scan import CANDIDATES, HORIZONS, _last_safe_entry, _summarize
+from .study_periods import HOLDOUT_YEAR
 
 
 def _freeze(path: Path) -> dict:
@@ -26,7 +27,7 @@ def _freeze(path: Path) -> dict:
 
 def _thresholds(report: dict) -> dict:
     checks = {}
-    for period in ("2024", "2025_2026"):
+    for period in (str(HOLDOUT_YEAR),):
         metrics = report[period]
         if not metrics.get("clean_completed_exits"):
             checks[period] = {"passed": False, "reasons": ["no completed exits"]}
@@ -38,16 +39,24 @@ def _thresholds(report: dict) -> dict:
             reasons.append("entry fill rate below 80%")
         if metrics["clean_completed_exits"] / max(metrics["entry_fills"], 1) < .95:
             reasons.append("clean exits below 95% of filled entries")
+        if metrics["delayed_clean_exits"] / metrics["clean_completed_exits"] > .05:
+            reasons.append("more than 5% of clean exits are delayed")
         if metrics["date_weighted_mean_net_return"] <= 0:
             reasons.append("date-weighted net return is not positive")
+        if metrics["median_net_return_per_trade"] <= 0:
+            reasons.append("median trade return is not positive")
         if metrics["date_weighted_week_bootstrap_95pct_interval"][0] <= 0:
             reasons.append("weekly bootstrap interval includes zero")
         if metrics["date_weighted_mean_with_10bps_slippage_each_side"] <= 0:
             reasons.append("net return fails the 10 bps per-side slippage stress")
+        if metrics["date_weighted_edge_vs_same_day_universe"] <= 0:
+            reasons.append("no edge over the same-day universe")
+        if metrics["edge_week_bootstrap_95pct_interval"][0] <= 0:
+            reasons.append("same-day edge interval includes zero")
         checks[period] = {"passed": not reasons, "reasons": reasons}
     return {
         "periods": checks,
-        "both_periods_pass": all(item["passed"] for item in checks.values()),
+        "holdout_pass": all(item["passed"] for item in checks.values()),
         "interpretation": "Prerequisite for publishing a formula, not an estimate of live fills",
     }
 
@@ -66,8 +75,9 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     connection = duckdb.connect()
     connection.read_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
     connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("outcomes")
-    last_2024 = _last_safe_entry(connection, "2024-01-01", "2025-01-01")
-    last_later = _last_safe_entry(connection, "2025-01-01", "2027-01-01")
+    last_holdout = _last_safe_entry(
+        connection, f"{HOLDOUT_YEAR}-01-01", f"{HOLDOUT_YEAR + 1}-01-01"
+    )
     connection.register("bad_days", _quality_keys(issues_dir))
     connection.register("bad_symbols", _quality_symbols(issues_dir))
     connection.execute(f"""
@@ -78,7 +88,8 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
                s.return5_prior_adjusted, s.return20_prior_adjusted,
                s.preclose,
                o.horizon, o.entry_status, o.entry_price, o.shares,
-               o.exit_status, o.exit_date, o.exit_price, o.net_return,
+               o.exit_status, o.exit_date, o.exit_delay_sessions,
+               o.exit_price, o.net_return,
                NOT EXISTS (
                    SELECT 1 FROM bad_days AS x
                    WHERE x.code = s.code AND x.date >= s.date
@@ -88,8 +99,8 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         JOIN outcomes AS o USING (date, code)
         LEFT JOIN bad_days AS b ON b.date = s.date AND b.code = s.code
         LEFT JOIN bad_symbols AS excluded ON excluded.code = s.code
-        WHERE ((s.date >= '2024-01-01' AND s.date <= '{last_2024}')
-           OR (s.date >= '2025-01-01' AND s.date <= '{last_later}'))
+        WHERE s.date >= '{HOLDOUT_YEAR}-01-01'
+          AND s.date <= '{last_holdout}'
           AND b.code IS NULL AND excluded.code IS NULL
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT s.quote_outside_traded_range
@@ -107,7 +118,8 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
     frame = connection.execute(f"""
         SELECT * FROM (
             SELECT date, code, horizon, entry_status, entry_price, shares,
-                   exit_status, exit_date, exit_price, net_return,
+                   exit_status, exit_date, exit_delay_sessions,
+                   exit_price, net_return,
                    quality_clean_exit, return_1450, amount_1450,
                    ROW_NUMBER() OVER (
                        PARTITION BY date ORDER BY return_1450 DESC, code
@@ -117,22 +129,15 @@ def evaluate(snapshot_dir: Path, outcome_dir: Path, issues_dir: Path,
         ) AS ranked WHERE daily_rank <= 5
     """, [horizon]).df()
     frame["candidate"] = frozen["candidate"]
-    periods = {}
-    for name, mask in (
-        ("2024", frame["date"].str.startswith("2024")),
-        ("2025_2026", frame["date"] >= "2025-01-01"),
-    ):
-        selected = frame.loc[mask]
-        baseline = benchmark.loc[
-            (benchmark["date"].str.startswith("2024") if name == "2024"
-             else benchmark["date"] >= "2025-01-01"),
-            ["date", "baseline_net_return"],
-        ]
-        periods[name] = _summarize(selected, baseline)
+    periods = {
+        str(HOLDOUT_YEAR): _summarize(
+            frame, benchmark[["date", "baseline_net_return"]]
+        )
+    }
     result = {
-        "scope": "Shanghai/Shenzhen 2024 holdout and 2025-2026 later test",
+        "scope": f"Shanghai/Shenzhen {HOLDOUT_YEAR} holdout only",
         "shards": len(shards), "frozen_strategy": frozen,
-        "last_entry_dates": {"2024": last_2024, "2025_2026": last_later},
+        "last_entry_dates": {str(HOLDOUT_YEAR): last_holdout},
         "periods": periods, "publication_thresholds": _thresholds(periods),
     }
     output.parent.mkdir(parents=True, exist_ok=True)
