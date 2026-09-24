@@ -159,6 +159,8 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
     """).fetchone()[0]
     pool = c.execute("""
         SELECT s.date, s.code, s.price_1450, s.open_1450, s.preclose,
+               s.isST, s.reference_gap, s.quote_outside_traded_range,
+               s.listing_age_sessions,
                s.return_1450, s.amount_1450, s.return20_prior_adjusted,
                s.open_1450 / s.preclose - 1 AS open_gap,
                p.event_pub_date, a.code IS NOT NULL AS has_event
