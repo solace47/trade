@@ -32,3 +32,23 @@ def test_four_cell_interaction_excludes_incomplete_stratum() -> None:
     assert round(sample["absent_edge"], 8) == 0.03
     assert round(sample["visible_edge"], 8) == 0.01
     assert round(sample["interaction"], 8) == 0.02
+
+
+def test_interaction_weights_dates_equally_after_stratum_means() -> None:
+    rows = []
+    for day, sizes, absent_high in (
+            ("2024-05-20", (1, 2), 0.02),
+            ("2024-05-21", (1,), -0.02)):
+        for size in sizes:
+            for visible, quintile, value in (
+                    (False, 1, 0.0), (False, 5, absent_high),
+                    (True, 1, 0.0), (True, 5, 0.0)):
+                row = _stock(day, f"{day}-{size}-{visible}-{quintile}",
+                             visible, quintile, value)
+                row["size_bucket"] = size
+                rows.append(row)
+    sample = _summarize(pd.DataFrame(rows))[
+        "groups"]["low_cash_conversion"]["2024"]["full"]
+    assert sample["four_cell_strata"] == 3
+    assert sample["days"] == 2
+    assert round(sample["interaction"], 8) == 0.0

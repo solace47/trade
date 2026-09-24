@@ -1,7 +1,9 @@
 import pandas as pd
 import pytest
 
-from trade_research.fund_visibility_inputs import _holding_intervals, _visibility
+from trade_research.fund_visibility_inputs import (
+    _holding_intervals, _load_sources, _visibility,
+)
 
 
 def test_strict_publication_day_and_rejected_replacement() -> None:
@@ -60,3 +62,8 @@ def test_late_old_quarter_does_not_replace_newer_disclosed_quarter() -> None:
         {"date": "2025-07-22", "code": "sh.600002"},
     ])
     assert _visibility(universe, intervals).visible_funds.tolist() == [1, 0, 0, 1]
+
+
+def test_partial_quarter_archive_cannot_build_visibility(tmp_path) -> None:
+    with pytest.raises(FileNotFoundError, match="2023q4"):
+        _load_sources(tmp_path / "index", tmp_path / "holdings")
