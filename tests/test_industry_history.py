@@ -15,6 +15,10 @@ def test_quarter_starts_are_known_by_each_quarter(tmp_path: Path) -> None:
     pd.DataFrame({"calendar_date": dates, "is_trading_day": ["1"] * 8}
                  ).to_parquet(calendar, index=False)
     assert quarter_starts(calendar) == dates
+    warmup = ["2023-07-03", "2023-10-09"] + dates
+    pd.DataFrame({"calendar_date": warmup, "is_trading_day": ["1"] * 10}
+                 ).to_parquet(calendar, index=False)
+    assert quarter_starts(calendar, "2023-07-01") == warmup
 
 
 def test_industry_rejects_future_update() -> None:

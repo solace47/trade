@@ -63,6 +63,10 @@ def test_short_interest_quintiles_rank_short_ratio_within_stratum() -> None:
     buying = _quintiles(frame, "buy_activity_score").sort_values(
         "buy_activity_score")
     assert buying.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
+    frame["margin_interest"] = frame.short_ratio
+    interest = _quintiles(frame, "margin_interest").sort_values(
+        "margin_interest")
+    assert interest.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
 
 
 def test_net_flow_pair_requires_positive_high_and_negative_low() -> None:
@@ -124,3 +128,18 @@ def test_financing_sell_pair_matches_prior_loss_and_starting_balance() -> None:
         prior5_return_caliper=.05)
     assert selected.loc[selected.candidate.eq("buy"),
                         "code"].tolist() == ["sz.000004"]
+
+
+def test_margin_interest_pair_matches_historical_nonsynchronicity() -> None:
+    high = _row("2025-03-04", "sz.000001", 5, .1)
+    high.update(margin_interest=.1, nonsynch=.7)
+    wrong = _row("2025-03-04", "sz.000002", 1, .01)
+    wrong.update(margin_interest=.01, nonsynch=.52)
+    comparable = _row("2025-03-04", "sz.000003", 1, .02)
+    comparable.update(margin_interest=.02, nonsynch=.68)
+    selected, _ = select_pairs(
+        pd.DataFrame([high, wrong, comparable]),
+        {"2025-03-04": 10}, score_field="margin_interest",
+        treated="high", control="low", feature_caliper=("nonsynch", .1))
+    assert selected.loc[selected.candidate.eq("low"),
+                        "code"].tolist() == ["sz.000003"]

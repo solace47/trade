@@ -14,19 +14,22 @@ import baostock as bs
 import pandas as pd
 
 
-def quarter_starts(calendar_file: Path) -> list[str]:
+def quarter_starts(calendar_file: Path,
+                   start: str = "2024-01-01") -> list[str]:
     calendar = pd.read_parquet(calendar_file)
     trading = calendar.loc[
         calendar.is_trading_day.astype(str).eq("1")
-        & calendar.calendar_date.between("2024-01-01", "2025-12-31"),
+        & calendar.calendar_date.between(start, "2025-12-31"),
         "calendar_date",
     ].copy()
     if trading.empty:
         raise ValueError("No recent trading dates in the calendar")
     dates = pd.to_datetime(trading)
     starts = trading.groupby([dates.dt.year, dates.dt.quarter]).min().tolist()
-    if len(starts) != 8:
-        raise ValueError("Expected eight quarterly industry as-of dates")
+    first = pd.Timestamp(start)
+    expected = (2025 - first.year) * 4 + 4 - first.quarter + 1
+    if len(starts) != expected:
+        raise ValueError("Incomplete quarterly industry as-of dates")
     return starts
 
 
@@ -69,8 +72,9 @@ def build_intervals(files: list[Path], output: Path) -> pd.DataFrame:
     return result
 
 
-def download(calendar_file: Path, output_dir: Path) -> list[Path]:
-    dates = quarter_starts(calendar_file)
+def download(calendar_file: Path, output_dir: Path,
+             start: str = "2024-01-01") -> list[Path]:
+    dates = quarter_starts(calendar_file, start)
     output_dir.mkdir(parents=True, exist_ok=True)
     login = bs.login()
     if login.error_code != "0":
@@ -111,8 +115,10 @@ def main() -> None:
                         default=Path("data/research/industry_history"))
     parser.add_argument("--intervals", type=Path,
                         default=Path("data/research/industry_intervals.parquet"))
+    parser.add_argument("--start", default="2024-01-01",
+                        help="First quarter to query; 2023-07-01 adds indicator warmup")
     args = parser.parse_args()
-    result = download(args.calendar, args.output_dir)
+    result = download(args.calendar, args.output_dir, args.start)
     intervals = build_intervals(result, args.intervals)
     print({"snapshots": len(result), "intervals": len(intervals),
            "output": str(args.intervals)})

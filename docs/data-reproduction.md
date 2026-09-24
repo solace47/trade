@@ -43,7 +43,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.strategy_scan
 PYTHONPATH=src .venv/bin/python -m trade_research.strategy_select
 ```
 
-将 `RUN_ID` 换成 Actions 运行编号。调度器会导入、核对并删除每个远程分片文件，再依次启动剩余批次。当前研究以 2024 年开发、2025 年验证；只有通过筛选后才把条件和卖出周期写入 `config/strategy-freeze.json`，通过 `trade_research.holdout_eval` 验证 2026 年数据。2023 年及以前不计入策略收益。研究数据的具体版本保存在本地锁文件，不写入文档。
+将 `RUN_ID` 换成 Actions 运行编号。调度器会导入、核对并删除每个远程分片文件，再依次启动剩余批次。当前 2024/2025 年研究均为探索性，2025 年已被反复查看，不再称为盲测；只有跨期稳定且规则事前冻结后，才考虑用 `trade_research.holdout_eval` 验证 2026 年数据。2023 年及以前不计入策略收益。研究数据的具体版本保存在本地锁文件，不写入文档。
 
 复算[策略结果](strategy-results.md)中的低成交额仓位敏感性：
 
@@ -79,3 +79,5 @@ PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
 固定风险排除规则运行 `PYTHONPATH=src .venv/bin/python -m trade_research.risk_filter`，同一确定性随机顺序对照过滤前后的选股。
 
 随机对照和卖出时段的信号清单先分别运行 `trade_research.exploratory_signals` 的 `random_low_amount`、`random_liquid`、`low_amount_neutral`、`mid_amount_prior_loser`，输出到 `data/research/` 下的 `random_low_all.parquet`、`random_liquid_all.parquet`、`size_signal_neutral.parquet`、`mid_loser_all.parquet`；再用 `scripts/assemble_research_lists.py --kind random|exit --year 2024` 汇总。2025 年随机对照同样运行 `--year 2025`。卖出时段汇总见 `scripts/exit_window_report.py`。以上选股清单先排名，盘后质量审计只标记结果。
+
+价格非同步度与融资兴趣组合先运行 `trade_research.industry_history --start 2023-07-01 --intervals data/research/industry_intervals_warmup.parquet`，再运行 `trade_research.price_nonsynch`、`trade_research.nonsynch_margin_study`。2023 年数据只用于 120 日指标预热；专项方案和结果见[组合记录](nonsynch-margin-plan.md)。

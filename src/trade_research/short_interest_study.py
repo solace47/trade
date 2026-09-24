@@ -90,7 +90,7 @@ def _quintiles(frame: pd.DataFrame,
     if "quintile" in frame.columns:
         raise ValueError("A prior study's quintile cannot define short-interest groups")
     if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score",
-                           "buy_activity_score"}:
+                           "buy_activity_score", "margin_interest"}:
         raise ValueError("Unknown short-interest ranking field")
     connection = duckdb.connect()
     connection.register("inputs", frame)
@@ -122,13 +122,17 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
                  prior_level_caliper: tuple[float, float] | None = None,
                  prior_level_field: str = "prior_short_interest",
                  prior5_return_caliper: float | None = None,
+                 feature_caliper: tuple[str, float] | None = None,
                  ) -> tuple[pd.DataFrame, dict]:
     if score_field not in {"short_ratio", "net_short_flow", "sell_pressure_score",
-                           "buy_activity_score"}:
+                           "buy_activity_score", "margin_interest"}:
         raise ValueError("Unknown short-interest selection field")
     if prior_level_caliper is not None and prior_level_field not in {
             "prior_short_interest", "prior_financing_interest"}:
         raise ValueError("Unknown starting-position field")
+    if feature_caliper is not None and (feature_caliper[0] != "nonsynch"
+                                       or feature_caliper[1] < 0):
+        raise ValueError("Unknown or negative matching feature caliper")
     high_rows = []
     low_rows = []
     last_kept: dict[str, int] = {}
@@ -166,6 +170,11 @@ def select_pairs(universe: pd.DataFrame, session_index: dict[str, int],
                     (choices.return5_prior_adjusted
                      - signal.return5_prior_adjusted).abs().le(
                          prior5_return_caliper)
+                ]
+            if feature_caliper is not None:
+                field, maximum = feature_caliper
+                choices = choices.loc[
+                    (choices[field] - signal[field]).abs().le(maximum)
                 ]
             match = _match_one(signal, choices)
             if match is None:
