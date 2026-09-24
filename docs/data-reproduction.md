@@ -74,4 +74,6 @@ PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
 
 周度适配运行 `PYTHONPATH=src .venv/bin/python -m trade_research.weekly_liquidity`。当前周只读信号日前的已完成日线和当日 14:50 快照；前 12 个有效周用于基准，2023 年只用于预热。
 
+市场相对下跌信号的次日上午退出重算运行 `PYTHONPATH=src .venv/bin/python scripts/residual_exit_probe.py`，以原始分钟文件重新估算每笔 2 万和 5 万元的成交。
+
 随机对照和卖出时段的信号清单先分别运行 `trade_research.exploratory_signals` 的 `random_low_amount`、`random_liquid`、`low_amount_neutral`、`mid_amount_prior_loser`，输出到 `data/research/` 下的 `random_low_all.parquet`、`random_liquid_all.parquet`、`size_signal_neutral.parquet`、`mid_loser_all.parquet`；再用 `scripts/assemble_research_lists.py --kind random|exit --year 2024` 汇总。2025 年随机对照同样运行 `--year 2025`。卖出时段汇总见 `scripts/exit_window_report.py`。以上选股清单先排名，盘后质量审计只标记结果。
