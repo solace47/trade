@@ -10,7 +10,8 @@ import duckdb
 import pandas as pd
 
 from .hf_outcomes import (
-    Assumptions, EXECUTION_LABELS, EXIT_WINDOWS, HORIZONS, outcomes_for_symbol,
+    Assumptions, EXECUTION_LABELS, EXIT_WINDOWS, HORIZONS,
+    RESEARCH_HORIZONS, outcomes_for_symbol,
 )
 from .market_study import _quality_keys, _quality_symbols
 
@@ -42,7 +43,7 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
         raise ValueError("Workers must be positive")
     if not exit_windows or any(window not in EXIT_WINDOWS for window in exit_windows):
         raise ValueError("Unknown or missing exit windows")
-    if not horizons or any(horizon not in HORIZONS for horizon in horizons):
+    if not horizons or any(horizon not in RESEARCH_HORIZONS for horizon in horizons):
         raise ValueError("Unsupported holding periods")
     signals = pd.read_parquet(signals_file)
     if signals.empty or signals.duplicated(["date", "code"]).any():
@@ -64,7 +65,10 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
         daily_file = daily_root / f"{exchange}_{symbol}.parquet"
         relevant_dates = {
             date for signal_date in stock_signals["date"]
-            for date in calendar[index[signal_date]:index[signal_date] + 11]
+            for date in calendar[
+                index[signal_date]:index[signal_date] + max(horizons)
+                + Assumptions().maximum_exit_delay_sessions + 1
+            ]
         }
         minute = pd.read_parquet(minute_file,
                                  columns=["timestamp", "volume", "turnover"],
@@ -140,7 +144,7 @@ def main() -> None:
     parser.add_argument("--notionals", type=float, nargs="+", default=[20_000, 50_000, 100_000])
     parser.add_argument("--exit-windows", choices=EXIT_WINDOWS, nargs="+",
                         default=["close"])
-    parser.add_argument("--horizons", type=int, choices=HORIZONS, nargs="+",
+    parser.add_argument("--horizons", type=int, choices=RESEARCH_HORIZONS, nargs="+",
                         default=list(HORIZONS))
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()

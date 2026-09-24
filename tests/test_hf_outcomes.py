@@ -118,3 +118,22 @@ def test_transfer_fee_uses_each_execution_date():
         before = _fees(100_000, side, assumptions, "2022-04-28")
         after = _fees(100_000, side, assumptions, "2022-04-29")
         assert round(before - after, 2) == 1.00
+
+
+def test_optional_twenty_session_exit_uses_actual_twentieth_session():
+    calendar = pd.bdate_range("2025-09-01", periods=27).strftime("%Y-%m-%d").tolist()
+    signals = pd.DataFrame([{"date": calendar[0], "code": "sh.600000",
+                             "isST": 0, "reference_gap": False}])
+    minute = pd.DataFrame([{
+        "date": date, "label": label, "volume": 250_000,
+        "turnover": 10.0 * 250_000,
+    } for date in calendar for label in ("1452", "1453", "1454", "1455")])
+    daily = pd.DataFrame([{
+        "date": date, "tradestatus": 1, "isST": 0,
+        "preclose": 10.0, "close": 10.0,
+    } for date in calendar])
+    result = outcomes_for_symbol(signals, minute, daily, calendar,
+                                 horizons=(20,)).iloc[0]
+    assert result["target_exit_date"] == calendar[20]
+    assert result["exit_date"] == calendar[20]
+    assert result["exit_status"] == "filled"

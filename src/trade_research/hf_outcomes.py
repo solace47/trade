@@ -21,6 +21,7 @@ from .hf_download import selected_paths
 
 
 HORIZONS = (1, 2, 3, 5)
+RESEARCH_HORIZONS = HORIZONS + (20,)
 EXECUTION_LABELS = ("1452", "1453", "1454", "1455")
 EXECUTION_LABEL = "1452-1455"
 EXIT_WINDOWS = {
@@ -140,7 +141,7 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         return pd.DataFrame()
     if not exit_labels or len(set(exit_labels)) != len(exit_labels):
         raise ValueError("Exit labels must be nonempty and unique")
-    if not horizons or any(horizon not in HORIZONS for horizon in horizons):
+    if not horizons or any(horizon not in RESEARCH_HORIZONS for horizon in horizons):
         raise ValueError("Unsupported holding period")
     code = str(signals["code"].iloc[0])
     daily = daily.sort_values("date").copy()
