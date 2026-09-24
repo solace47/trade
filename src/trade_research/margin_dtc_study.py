@@ -15,6 +15,8 @@ import numpy as np
 import pandas as pd
 
 from .exchange_public_events import trading_dates
+from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
+from .residual_liquidity import _period
 from .strategy_scan import _last_safe_entry
 
 
@@ -22,6 +24,7 @@ CAPACITY = 5
 MAX_DISTANCE = 5.0
 TREATED = "high_margin_dtc"
 CONTROL = "same_day_low_margin_dtc"
+HORIZONS = (1, 2, 5)
 
 
 def _distance(choices: pd.DataFrame, signal: pd.Series) -> pd.Series:
@@ -141,6 +144,8 @@ def select(snapshot_dir: Path, daily_dir: Path, calendar: Path,
                d.amount / (d.turn / 100) AS float_mv,
                s.price_1450, s.amount_1450, s.return_1450,
                s.return20_prior_adjusted,
+               s.isST, s.reference_gap, s.quote_outside_traded_range,
+               s.listing_age_sessions,
                s.open_1450 / s.preclose - 1 AS open_gap
         FROM margin m
         JOIN t_liquidity d ON d.date = m.trade_date AND d.code = m.code
@@ -175,7 +180,9 @@ def select(snapshot_dir: Path, daily_dir: Path, calendar: Path,
     """)
     universe = c.execute("""
         SELECT date, trade_date, code, board, size_bucket,
-               margin_dtc, float_mv, quintile
+               margin_dtc, float_mv, avg20_amount, amount_1450,
+               return20_prior_adjusted, return_1450, open_gap,
+               price_1450, quintile
         FROM quintiles ORDER BY date, code
     """).df()
     if universe.empty or universe.duplicated(["date", "code"]).any():
@@ -216,6 +223,198 @@ def select(snapshot_dir: Path, daily_dir: Path, calendar: Path,
     return selected, report
 
 
+def evaluate(selected_path: Path, universe_path: Path, outcome_dir: Path,
+             issues_dir: Path, report_path: Path,
+             trades_path: Path) -> dict:
+    """Read outcomes only after the selection and plan have been frozen."""
+    selected = pd.read_parquet(selected_path)
+    universe = pd.read_parquet(universe_path)
+    if set(selected.candidate) != {TREATED, CONTROL}:
+        raise ValueError("Missing a high/low margin basket")
+    if not selected.date.gt(selected.trade_date).all():
+        raise ValueError("Margin signal uses same-day or future balance")
+    if not selected.date.str[:4].isin(("2024", "2025")).all():
+        raise ValueError("Margin signal escaped the exploration window")
+    pair_counts = selected.groupby(["date", "pair_code"]).candidate.nunique()
+    if not pair_counts.eq(2).all() or len(selected) != 2 * len(pair_counts):
+        raise ValueError("Incomplete high/low margin pairs")
+    if not universe.date.gt(universe.trade_date).all():
+        raise ValueError("Full margin universe uses future balances")
+    c = duckdb.connect()
+    c.execute("SET threads = 4")
+    c.register("selected", selected)
+    c.register("universe", universe)
+    c.read_parquet(str(outcome_dir / "*.parquet")).create_view("o")
+    c.register("bad_days", _quality_keys(issues_dir))
+    c.register("bad_symbols", _quality_symbols(issues_dir))
+    quality = """
+        o.exit_status = 'filled'
+        AND NOT EXISTS (SELECT 1 FROM bad_symbols b WHERE b.code = r.code)
+        AND NOT EXISTS (
+            SELECT 1 FROM bad_days q
+            WHERE q.code = r.code AND q.date >= r.date
+              AND q.date <= o.exit_date
+        )
+    """
+    trades = c.execute(f"""
+        SELECT r.*, o.horizon, o.entry_status, o.entry_price, o.shares,
+               o.exit_status, o.exit_date, o.exit_delay_sessions,
+               o.exit_price, o.net_return,
+               {quality} AS quality_clean_exit
+        FROM selected r JOIN o USING (date, code)
+        WHERE o.horizon IN (1, 2, 5)
+    """).df()
+    if len(trades) != len(selected) * len(HORIZONS):
+        raise ValueError("A selected margin stock-day lacks minute outcomes")
+    report = {"primary_horizon": 5, "matched_pairs": len(pair_counts),
+              "matched": {}, "full_universe": {}}
+    for year in ("2024", "2025"):
+        year_rows = trades.loc[trades.date.str.startswith(year)]
+        report["matched"][year] = {}
+        for horizon in HORIZONS:
+            current = year_rows.loc[year_rows.horizon.eq(horizon)]
+            high = current.loc[current.candidate.eq(TREATED)]
+            low = current.loc[current.candidate.eq(CONTROL)]
+            report["matched"][year][str(horizon)] = {}
+            for label, rows in (
+                ("H1", high.loc[high.date.str[5:7].astype(int).le(6)]),
+                ("H2", high.loc[high.date.str[5:7].astype(int).gt(6)]),
+                ("full", high),
+            ):
+                if not rows.empty:
+                    summary = _period(rows, low)
+                    summary["same_day_matched_mean"] = summary.pop(
+                        "same_day_random_mean")
+                    report["matched"][year][str(horizon)][label] = summary
+
+    full = c.execute(f"""
+        SELECT r.date, r.board, r.size_bucket, r.quintile,
+               COUNT(*) AS stock_days,
+               AVG(CASE WHEN {quality} THEN o.net_return ELSE 0 END) AS cash_mean,
+               SUM(CASE WHEN o.entry_status = 'filled' THEN 1 ELSE 0 END) AS entries,
+               SUM(CASE WHEN {quality} THEN 1 ELSE 0 END) AS clean_exits
+        FROM universe r JOIN o USING (date, code)
+        WHERE r.quintile IN (1, 5) AND o.horizon = 5
+        GROUP BY r.date, r.board, r.size_bucket, r.quintile
+    """).df()
+    expected_full = int(universe.quintile.isin((1, 5)).sum())
+    if int(full.stock_days.sum()) != expected_full:
+        raise ValueError("A full-universe margin stock-day lacks T+5 outcome")
+    strata = full.pivot(index=["date", "board", "size_bucket"],
+                        columns="quintile", values="cash_mean")
+    if strata.isna().any().any() or set(strata.columns) != {1, 5}:
+        raise ValueError("A margin board/size stratum has no high/low group")
+    strata = strata.reset_index().rename(columns={1: "low", 5: "high"})
+    strata["edge"] = strata.high - strata.low
+    for year in ("2024", "2025"):
+        annual = strata.loc[strata.date.str.startswith(year)]
+        report["full_universe"][year] = {}
+        for board in ("all", "sh_main", "sh_star", "sz_main", "sz_gem"):
+            section = annual if board == "all" else annual.loc[annual.board.eq(board)]
+            daily = section.groupby("date", as_index=False)[["high", "low", "edge"]].mean()
+            if daily.empty:
+                continue
+            coverage = full.loc[full.date.str.startswith(year)]
+            if board != "all":
+                coverage = coverage.loc[coverage.board.eq(board)]
+            coverage = coverage.groupby("quintile")[[
+                "stock_days", "entries", "clean_exits"
+            ]].sum()
+            report["full_universe"][year][board] = {
+                "days": len(daily), "strata": len(section),
+                "high_cash_mean": float(daily.high.mean()),
+                "low_cash_mean": float(daily.low.mean()),
+                "edge_mean": float(daily.edge.mean()),
+                "edge_week_ci": _week_bootstrap(daily.edge, daily.date, 243),
+                "high_entry_rate": float(coverage.loc[5, "entries"] /
+                                         coverage.loc[5, "stock_days"]),
+                "low_entry_rate": float(coverage.loc[1, "entries"] /
+                                        coverage.loc[1, "stock_days"]),
+                "high_clean_exit_rate": float(coverage.loc[5, "clean_exits"] /
+                                              coverage.loc[5, "stock_days"]),
+                "low_clean_exit_rate": float(coverage.loc[1, "clean_exits"] /
+                                             coverage.loc[1, "stock_days"]),
+            }
+    report["full_universe_stock_days"] = expected_full
+    report["note"] = "2025 exploratory, not blind; 2026 outcomes untouched"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    trades_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+                           encoding="utf-8")
+    trades.to_parquet(trades_path, index=False, compression="zstd")
+    return report
+
+
+def write_reprice_signals(selected_path: Path, output: Path) -> None:
+    selected = pd.read_parquet(selected_path)
+    fields = ["date", "code", "isST", "reference_gap",
+              "quote_outside_traded_range", "listing_age_sessions"]
+    signals = selected[fields].sort_values(["date", "code"])
+    if signals.empty or signals.duplicated(["date", "code"]).any():
+        raise ValueError("Raw-minute repricing signals are empty or duplicated")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    signals.to_parquet(output, index=False, compression="zstd")
+
+
+def summarize_repriced(selected_path: Path, repriced_path: Path,
+                       output: Path, trades_path: Path | None = None) -> dict:
+    membership = pd.read_parquet(selected_path)[
+        ["date", "code", "candidate", "pair_code"]
+    ]
+    raw = pd.read_parquet(repriced_path)
+    if (len(raw) != len(membership) * 4
+            or set(raw.target_notional) != {20_000.0, 100_000.0}
+            or set(raw.horizon) != {1, 5}
+            or raw.duplicated(["date", "code", "target_notional", "horizon"]).any()):
+        raise ValueError("Incomplete frozen raw-minute margin repricing")
+    rows = raw.merge(membership, on=["date", "code"], validate="many_to_one")
+    if len(rows) != len(raw):
+        raise ValueError("Raw-minute margin trade is outside selected membership")
+    report = {"sizes_yuan": [20_000, 100_000], "results": {}}
+    if trades_path is not None:
+        stored = pd.read_parquet(trades_path)
+        stored = stored.loc[stored.horizon.isin((1, 5))]
+        compare = stored.merge(
+            raw.loc[raw.target_notional.eq(100_000)],
+            on=["date", "code", "horizon"], suffixes=("_stored", "_raw"),
+            validate="one_to_one",
+        )
+        if len(compare) != len(stored):
+            raise ValueError("Stored T+1/5 outcomes lack a 100k raw-minute match")
+        for field in ("entry_status", "exit_status", "exit_date",
+                      "quality_clean_exit"):
+            left = compare[f"{field}_stored"].fillna("missing")
+            right = compare[f"{field}_raw"].fillna("missing")
+            if not left.eq(right).all():
+                raise ValueError(f"Stored and raw-minute {field} disagree")
+        for field in ("entry_price", "shares", "exit_delay_sessions",
+                      "exit_price", "net_return"):
+            left = compare[f"{field}_stored"].to_numpy(dtype=float)
+            right = compare[f"{field}_raw"].to_numpy(dtype=float)
+            if not np.isclose(left, right, atol=1e-12, equal_nan=True).all():
+                raise ValueError(f"Stored and raw-minute {field} disagree")
+        report["exact_100k_repricing_rows"] = len(compare)
+    for size in (20_000, 100_000):
+        report["results"][str(size)] = {}
+        for year in ("2024", "2025"):
+            report["results"][str(size)][year] = {}
+            for horizon in (1, 5):
+                sample = rows.loc[
+                    rows.target_notional.eq(size) & rows.horizon.eq(horizon)
+                    & rows.date.str.startswith(year)
+                ]
+                high = sample.loc[sample.candidate.eq(TREATED)]
+                low = sample.loc[sample.candidate.eq(CONTROL)]
+                summary = _period(high, low)
+                summary["same_day_matched_mean"] = summary.pop(
+                    "same_day_random_mean")
+                report["results"][str(size)][year][str(horizon)] = summary
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+                      encoding="utf-8")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--snapshots", type=Path,
@@ -230,10 +429,34 @@ def main() -> None:
                         default=Path("data/research/margin_selected.parquet"))
     parser.add_argument("--universe", type=Path,
                         default=Path("data/research/margin_universe_quintiles.parquet"))
+    parser.add_argument("--outcomes", type=Path,
+                        default=Path("data/research/market_outcomes_ci"))
+    parser.add_argument("--issues", type=Path,
+                        default=Path("data/research/market_issues_ci"))
+    parser.add_argument("--report", type=Path,
+                        default=Path("data/research/margin_dtc_report.json"))
+    parser.add_argument("--trades", type=Path,
+                        default=Path("data/research/margin_dtc_trades.parquet"))
+    parser.add_argument("--reprice-signals", type=Path,
+                        default=Path("data/research/margin_dtc_reprice_signals.parquet"))
+    parser.add_argument("--repriced", type=Path)
+    parser.add_argument("--repriced-report", type=Path,
+                        default=Path("data/research/margin_dtc_reprice_report.json"))
+    parser.add_argument("--select-only", action="store_true")
     args = parser.parse_args()
     _, report = select(args.snapshots, args.daily, args.calendar,
                        args.margin, args.selected, args.universe)
+    write_reprice_signals(args.selected, args.reprice_signals)
     print(json.dumps(report, ensure_ascii=False, indent=2))
+    if not args.select_only:
+        result = evaluate(args.selected, args.universe, args.outcomes,
+                          args.issues, args.report, args.trades)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        if args.repriced:
+            summary = summarize_repriced(args.selected, args.repriced,
+                                         args.repriced_report, args.trades)
+            print({"raw_minute_sizes": summary["sizes_yuan"],
+                   "report": str(args.repriced_report)})
 
 
 if __name__ == "__main__":
