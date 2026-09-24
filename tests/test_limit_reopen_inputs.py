@@ -17,6 +17,8 @@ def test_limit_touch_requires_actual_high_and_reopened_cutoff(tmp_path):
             "reference_gap": False, "quote_outside_traded_range": False,
             "amount_1450": 50_000_000,
         })
+    rows.append({**rows[0], "date": "2024-12-25", "code": "sh.600004"})
+    rows.append({**rows[0], "date": "2025-12-25", "code": "sh.600005"})
     pd.DataFrame(rows).to_parquet(tmp_path / "sample.parquet", index=False)
     touched = _touches(tmp_path)
     assert set(touched.code) == {"sh.600001", "sh.600002"}

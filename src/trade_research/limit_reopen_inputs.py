@@ -33,6 +33,7 @@ def _touches(snapshot_dir: Path) -> pd.DataFrame:
                       THEN .20 ELSE .10 END AS band
           FROM read_parquet(?)
           WHERE date BETWEEN '2024-01-01' AND '2025-12-17'
+            AND SUBSTR(date, 6) <= '12-17'
             AND (code LIKE 'sh.60%' OR code LIKE 'sh.68%'
               OR code LIKE 'sz.00%' OR code LIKE 'sz.30%')
             AND isST = 0 AND tradestatus = 1 AND listing_age_sessions >= 20
