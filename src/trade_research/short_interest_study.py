@@ -57,7 +57,7 @@ def _prepare_inputs(universe_path: Path, margin_path: Path,
     """)
     connection.execute(f"""
         CREATE TEMP VIEW eligible AS
-        SELECT u.*, d.close AS source_close,
+        SELECT u.* EXCLUDE (quintile), d.close AS source_close,
                m.short_balance_shares, m.short_balance_yuan,
                CASE WHEN u.code LIKE 'sh.%'
                     THEN m.short_balance_shares * d.close
@@ -86,6 +86,8 @@ def _prepare_inputs(universe_path: Path, margin_path: Path,
 
 
 def _quintiles(frame: pd.DataFrame) -> pd.DataFrame:
+    if "quintile" in frame.columns:
+        raise ValueError("A prior study's quintile cannot define short-interest groups")
     connection = duckdb.connect()
     connection.register("inputs", frame)
     result = connection.execute(f"""
@@ -103,6 +105,9 @@ def _quintiles(frame: pd.DataFrame) -> pd.DataFrame:
     """).df()
     if result.empty or result.duplicated(["date", "code"]).any():
         raise ValueError("No valid short-interest quintile strata")
+    if (result.groupby(["date", "board", "size_bucket"])
+            .quintile.nunique().ne(5).any()):
+        raise ValueError("A short-interest stratum lacks five ranked groups")
     return result
 
 

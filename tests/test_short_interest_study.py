@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import pandas as pd
 
-from trade_research.short_interest_study import CONTROL, TREATED, select_pairs
+from trade_research.short_interest_study import (
+    CONTROL, TREATED, _quintiles, select_pairs,
+)
 
 
 def _row(day: str, code: str, quintile: int, ratio: float,
@@ -44,3 +46,12 @@ def test_pair_rejects_future_or_same_day_margin_record() -> None:
         assert "future-informed" in str(exc)
     else:
         raise AssertionError("Same-session margin balance reached the signal")
+
+
+def test_short_interest_quintiles_rank_short_ratio_within_stratum() -> None:
+    frame = pd.DataFrame([
+        _row("2024-07-23", f"sz.{number:06d}", 0, number / 1_000_000)
+        for number in range(1, 26)
+    ]).drop(columns="quintile")
+    ranked = _quintiles(frame).sort_values("short_ratio")
+    assert ranked.quintile.tolist() == [1] * 5 + [2] * 5 + [3] * 5 + [4] * 5 + [5] * 5
