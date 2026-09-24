@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import gzip
+import json
 from io import BytesIO
 from zipfile import ZipFile
 
+import pandas as pd
 import pytest
 
 from trade_research.margin_public_data import (
-    SZSE_HEADER, _validate_sse, read_szse_day,
+    SZSE_HEADER, _validate_sse, load_margin, read_szse_day,
 )
 
 
@@ -55,3 +58,33 @@ def test_sse_margin_day_rejects_missing_page_or_wrong_day() -> None:
         _validate_sse([row], "20240604", 1)
     with pytest.raises(ValueError, match="Duplicate"):
         _validate_sse([row, row], "20240603", 2)
+
+
+def test_merge_preserves_exchange_short_balances_and_previous_day(tmp_path) -> None:
+    day = "2024-06-03"
+    calendar = tmp_path / "calendar.parquet"
+    pd.DataFrame({"calendar_date": [day], "is_trading_day": ["1"]}).to_parquet(
+        calendar, index=False)
+    archive = tmp_path / "margin"
+    (archive / "sse_daily").mkdir(parents=True)
+    (archive / "szse_daily").mkdir(parents=True)
+    sse_row = {"stockCode": "600000", "opDate": "20240603",
+               "rzye": "1,000", "rzmre": "100", "rzche": "20",
+               "rqyl": "30", "rqmcl": "10"}
+    record = {"date": day, "source": "sse", "total": 1, "pages": 1,
+              "rows": [sse_row]}
+    with gzip.open(archive / "sse_daily" / f"{day}.json.gz", "wt") as file:
+        json.dump(record, file)
+    workbook = _workbook([list(SZSE_HEADER),
+                          ["000001", "样本", "200", "2,000", "5",
+                           "40", "600", "2,600"]])
+    (archive / "szse_daily" / f"{day}.xlsx").write_bytes(workbook)
+    merged = load_margin(calendar, archive, day, day).set_index("code")
+    assert list(merged.index) == ["sh.600000", "sz.000001"]
+    assert merged.trade_date.eq(day).all()
+    assert merged.loc["sh.600000", "short_balance_shares"] == 30
+    assert merged.loc["sh.600000", "short_sell_shares"] == 10
+    assert pd.isna(merged.loc["sh.600000", "short_balance_yuan"])
+    assert merged.loc["sz.000001", "short_balance_shares"] == 40
+    assert merged.loc["sz.000001", "short_sell_shares"] == 5
+    assert merged.loc["sz.000001", "short_balance_yuan"] == 600

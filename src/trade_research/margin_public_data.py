@@ -223,12 +223,21 @@ def load_margin(calendar: Path, archive_dir: Path, start: str,
     result = []
     for day in trading_dates(calendar, start, end):
         sse = _read_saved_sse(archive_dir / "sse_daily" / f"{day}.json.gz", day)
-        sh = pd.DataFrame(sse["rows"])[["stockCode", "rzmre", "rzye"]]
-        sh.columns = ["code", "buy_yuan", "balance_yuan"]
+        sh = pd.DataFrame(sse["rows"])[
+            ["stockCode", "rzmre", "rzye", "rqyl", "rqmcl"]
+        ]
+        sh.columns = ["code", "buy_yuan", "balance_yuan",
+                      "short_balance_shares", "short_sell_shares"]
         sh["code"] = "sh." + sh.code
+        for column in ("buy_yuan", "balance_yuan", "short_balance_shares",
+                       "short_sell_shares"):
+            sh[column] = sh[column].map(_numeric)
+        sh["short_balance_yuan"] = pd.Series([pd.NA] * len(sh), dtype="Int64")
         sh.insert(0, "trade_date", day)
         sz = read_szse_day((archive_dir / "szse_daily" / f"{day}.xlsx").read_bytes(), day)
-        sz = sz[["code", "buy_yuan", "balance_yuan"]].copy()
+        sz = sz[["code", "buy_yuan", "balance_yuan",
+                 "short_balance_shares", "short_sell_shares",
+                 "short_balance_yuan"]].copy()
         sz["code"] = "sz." + sz.code
         sz.insert(0, "trade_date", day)
         result.extend((sh, sz))
@@ -247,9 +256,19 @@ def main() -> None:
     parser.add_argument("--start", default="2024-01-01")
     parser.add_argument("--end", default="2025-12-31")
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--merged-output", type=Path,
+                        default=Path("data/research/margin/margin_2024_2025.parquet"))
+    parser.add_argument("--merge-only", action="store_true",
+                        help="Validate and merge already archived exchange days")
     args = parser.parse_args()
-    print(archive_margin(args.calendar, args.output_dir, args.start, args.end,
-                         args.workers))
+    if not args.merge_only:
+        print(archive_margin(args.calendar, args.output_dir, args.start, args.end,
+                             args.workers))
+    merged = load_margin(args.calendar, args.output_dir, args.start, args.end)
+    args.merged_output.parent.mkdir(parents=True, exist_ok=True)
+    merged.to_parquet(args.merged_output, index=False, compression="zstd")
+    print({"merged_rows": len(merged), "merged_dates": merged.trade_date.nunique(),
+           "merged_output": str(args.merged_output)})
 
 
 if __name__ == "__main__":
