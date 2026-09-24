@@ -6,12 +6,13 @@ import argparse
 import json
 from pathlib import Path
 
+import duckdb
 import numpy as np
 import pandas as pd
 
 from .annual_cash_margin_study import CONTROL, TREATED
 from .margin_heterogeneity_eval import write_reprice_signals
-from .market_study import _week_bootstrap
+from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
 from .short_interest_eval import evaluate, summarize_repriced
 
 
@@ -25,6 +26,68 @@ PERIODS.update({
     for group in ("cash_supported", "low_cash_conversion")
     for year in ("2024", "2025") for half in ("early", "late")
 })
+
+
+def _extreme_q5_diagnostic(quintiles_path: Path, outcome_dir: Path,
+                           issues_dir: Path) -> dict:
+    """Post-hoc capacity diagnostic; it is not a frozen trading rule."""
+    quintiles = pd.read_parquet(quintiles_path)[
+        ["date", "code", "cash_group", "quintile", "margin_interest"]]
+    top = quintiles.loc[quintiles.quintile.eq(5)].copy()
+    connection = duckdb.connect()
+    connection.execute("SET threads = 4")
+    connection.register("top", top)
+    connection.read_parquet(str(outcome_dir / "*.parquet")).create_view("o")
+    connection.register("bad_days", _quality_keys(issues_dir))
+    connection.register("bad_symbols", _quality_symbols(issues_dir))
+    daily = connection.execute("""
+        WITH ranked AS (
+            SELECT *, ROW_NUMBER() OVER (
+                PARTITION BY date, cash_group
+                ORDER BY margin_interest DESC, code
+            ) <= 5 AS extreme FROM top
+        ), scored AS (
+            SELECT r.date, r.cash_group, r.extreme,
+                CASE WHEN o.exit_status = 'filled'
+                    AND NOT EXISTS (
+                        SELECT 1 FROM bad_symbols b WHERE b.code = r.code
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1 FROM bad_days d WHERE d.code = r.code
+                          AND d.date >= r.date AND d.date <= o.exit_date
+                    ) THEN o.net_return ELSE 0 END AS cash_return
+            FROM ranked r JOIN o USING (date, code)
+            WHERE o.horizon = 5
+        )
+        SELECT date, cash_group, extreme, COUNT(*) AS n,
+               AVG(cash_return) AS cash_mean
+        FROM scored GROUP BY 1, 2, 3
+    """).df()
+    if int(daily.n.sum()) != len(top):
+        raise ValueError("Incomplete full-market extreme financing diagnostic")
+    report = {"note": "Exploratory 100k stored-minute comparison; no size matching",
+              "groups": {}}
+    for group in ("cash_supported", "low_cash_conversion"):
+        report["groups"][group] = {}
+        for year in ("2024", "2025"):
+            section = daily.loc[daily.cash_group.eq(group)
+                                & daily.date.str.startswith(year)]
+            wide = section.pivot(index="date", columns="extreme",
+                                 values="cash_mean")
+            if (wide.empty or set(wide.columns) != {True, False}
+                    or wide.isna().any().any()):
+                raise ValueError("Missing same-day rest-of-quintile comparator")
+            difference = wide[True] - wide[False]
+            report["groups"][group][year] = {
+                "days": len(wide),
+                "extreme_cash_mean": float(wide[True].mean()),
+                "other_q5_cash_mean": float(wide[False].mean()),
+                "difference": float(difference.mean()),
+                "week_ci": _week_bootstrap(
+                    difference.reset_index(drop=True),
+                    pd.Series(difference.index), 223),
+            }
+    return report
 
 
 def _same_day_interaction(selected_path: Path, repriced_path: Path) -> dict:
@@ -87,6 +150,10 @@ def main() -> None:
     result = evaluate(args.selected, args.quintiles, args.outcomes,
                       args.issues, args.report, args.trades,
                       TREATED, CONTROL, PERIODS)
+    result["exploratory_extreme_q5"] = _extreme_q5_diagnostic(
+        args.quintiles, args.outcomes, args.issues)
+    args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+                           encoding="utf-8")
     print({"matched_pairs": len(pd.read_parquet(args.selected)) // 2,
            "full_market_stock_days": result["full_market_stock_days"],
            "matched_t5_edges": {key: value["5"]["edge_mean"]
