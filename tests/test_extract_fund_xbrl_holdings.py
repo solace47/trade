@@ -131,6 +131,8 @@ def test_cross_border_template_is_zero_only_when_securities_are_offshore() -> No
                           "2024-04-19") == ([], 0)
     with pytest.raises(ValueError, match="Missing or duplicated"):
         parse_holdings(document("600519", "上海证券交易所"), "2024-04-19")
+    with pytest.raises(ValueError, match="Missing or duplicated"):
+        parse_holdings(document("830799", "北京证券交易所"), "2024-04-19")
 
 
 def test_blank_cross_border_table_requires_note_and_zero_equity_assets() -> None:

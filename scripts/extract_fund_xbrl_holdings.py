@@ -53,7 +53,7 @@ def _stocks_explicitly_absent(document: str) -> bool:
 
 
 def _foreign_only_report(document: str) -> bool:
-    """Recognize the separate cross-border template only when all rows are offshore."""
+    """Recognize the separate template only with verified HK exchange rows."""
     sections = FOREIGN_SECTION.findall(document)
     if not sections:
         return False
@@ -66,7 +66,7 @@ def _foreign_only_report(document: str) -> bool:
             if len(fields) != 9:
                 return False
             code, market = fields[3:5]
-            if A_SHARE.fullmatch(code) or "上海" in market or "深圳" in market:
+            if A_SHARE.fullmatch(code) or "香港联合交易所" not in market:
                 return False
             if code and code != "-":
                 checked += 1
