@@ -51,3 +51,30 @@ def test_window_has_no_2023_or_2026_signals() -> None:
         _window("2023-12-31")
     with pytest.raises(ValueError):
         _window("2026-01-05")
+
+
+def test_later_profit_cannot_pair_with_earlier_annual_cash(tmp_path) -> None:
+    indices = []
+    extracted = []
+    for year in (2023, 2024):
+        day = f"{year + 1}-04-27"
+        url = f"https://static.cninfo.com.cn/finalpage/{day}/first.PDF"
+        index_path = tmp_path / f"index_{year}.parquet"
+        pd.DataFrame([{"report_year": year, "code": "sz.301055",
+                       "kind": "summary", "notice_date": day,
+                       "pdf_url": url}]).to_parquet(index_path)
+        indices.append(index_path)
+        extracted_path = tmp_path / f"cash_{year}.jsonl"
+        extracted_path.write_text(json.dumps({
+            "report_year": year, "code": "sz.301055", "status": "ok",
+            "notice_date": day, "pdf_url": url,
+            "parent_profit_raw": 17506.71,
+            "operating_cash_raw": 104174515.04,
+            "cash_to_parent_profit": 104174515.04 / 17506.71,
+            "parent_profit_page": 4, "operating_cash_page": 3,
+        }) + "\n")
+        extracted.append(extracted_path)
+    reports, audit = _original_reports(
+        tuple(indices), tuple(extracted), {"sz.301055"})
+    assert reports.empty
+    assert audit["page_gap_excluded"] == 2

@@ -73,7 +73,7 @@ def test_separated_financial_tables_are_rejected(monkeypatch) -> None:
             self.table = table
 
         def extract_text(self):
-            return ""
+            return "主要会计数据和财务指标"
 
         def extract_tables(self):
             return [self.table]
@@ -92,7 +92,7 @@ def test_separated_financial_tables_are_rejected(monkeypatch) -> None:
             return False
 
     monkeypatch.setattr(annual.pdfplumber, "open", lambda _: Document())
-    with pytest.raises(ValueError, match="too far apart"):
+    with pytest.raises(ValueError, match="table order invalid"):
         annual.extract(Path("summary.pdf"))
 
 
@@ -102,7 +102,7 @@ def test_annual_table_after_page_25_and_split_label(monkeypatch) -> None:
             self.table = table
 
         def extract_text(self):
-            return ""
+            return "主要会计数据和财务指标" if self.table is not None else ""
 
         def extract_tables(self):
             return [self.table] if self.table is not None else []
@@ -127,6 +127,41 @@ def test_annual_table_after_page_25_and_split_label(monkeypatch) -> None:
     assert result["operating_cash_raw"] == -1943054851.89
     assert result["parent_profit_page"] == 27
     assert result["operating_cash_page"] == 28
+
+
+def test_current_annual_profit_precedes_later_adjustment(monkeypatch) -> None:
+    class Page:
+        def __init__(self, text, table):
+            self.text = text
+            self.table = table
+
+        def extract_text(self):
+            return self.text
+
+        def extract_tables(self):
+            return [self.table]
+
+    class Document:
+        pages = [
+            Page("主要会计数据和财务指标\n归属于上市公司股东\n"
+                 "25,118,302.46 41,489,959.40\n的净利润\n"
+                 "经营活动产生的现金\n104,174,515.04 111,937,684.40\n流量净额",
+                 [["经营活动产生的现金流量净额", "104,174,515.04"]]),
+            Page("2022年度利润表项目\n归属于母公司所有者的净利润 17,506.71",
+                 [["归属于母公司所有者的净利润", "17,506.71"]]),
+        ]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+    monkeypatch.setattr(annual.pdfplumber, "open", lambda _: Document())
+    result = annual.extract(Path("summary.pdf"))
+    assert result["parent_profit_raw"] == 25118302.46
+    assert result["operating_cash_raw"] == 104174515.04
+    assert result["parent_profit_page"] == result["operating_cash_page"] == 1
 
 
 def test_failed_report_is_skipped_until_explicit_retry(tmp_path, monkeypatch) -> None:

@@ -102,11 +102,20 @@ def extract(pdf_path: Path) -> dict:
     text_lines: list[tuple[int, str]] = []
     with pdfplumber.open(pdf_path) as pdf:
         quarterly_reached = False
+        annual_started = False
         pending: tuple[str, float, int] | None = None
         for page_number, page in enumerate(pdf.pages[:60], start=1):
             next_pending = None
             text = page.extract_text() or ""
-            for line in text.splitlines():
+            lines = text.splitlines()
+            if not annual_started:
+                start = next((i for i, line in enumerate(lines)
+                              if "主要会计数据" in line or "主要财务数据" in line), None)
+                if start is None:
+                    continue
+                annual_started = True
+                lines = lines[start:]
+            for line in lines:
                 if ("报告期分季度" in line
                         or ("第一季度" in line and "第二季度" in line)):
                     quarterly_reached = True
@@ -145,22 +154,24 @@ def extract(pdf_path: Path) -> dict:
                     break
             if len(values) == 2:
                 break
+            for label, value, value_page in _text_values(text_lines):
+                if "parent_profit_raw" not in values and label in PROFIT_LABELS:
+                    values["parent_profit_raw"] = value
+                    pages["parent_profit_page"] = value_page
+                if "operating_cash_raw" not in values and label == CASH_LABEL:
+                    values["operating_cash_raw"] = value
+                    pages["operating_cash_page"] = value_page
+                if len(values) == 2:
+                    break
+            if len(values) == 2:
+                break
             if quarterly_reached or "报告期分季度" in text:
                 break
             pending = next_pending
-    for label, value, page_number in _text_values(text_lines):
-        if "parent_profit_raw" not in values and label in PROFIT_LABELS:
-            values["parent_profit_raw"] = value
-            pages["parent_profit_page"] = page_number
-        if "operating_cash_raw" not in values and label == CASH_LABEL:
-            values["operating_cash_raw"] = value
-            pages["operating_cash_page"] = page_number
-        if len(values) == 2:
-            break
     if len(values) != 2:
         raise ValueError(f"Annual profit/cash-flow table unreadable: {pdf_path}")
-    if abs(pages["parent_profit_page"] - pages["operating_cash_page"]) > 1:
-        raise ValueError(f"Annual profit/cash-flow tables too far apart: {pdf_path}")
+    if not 0 <= pages["operating_cash_page"] - pages["parent_profit_page"] <= 1:
+        raise ValueError(f"Annual profit/cash-flow table order invalid: {pdf_path}")
     if values["parent_profit_raw"] == 0:
         raise ValueError(f"Annual parent profit is zero: {pdf_path}")
     return {**values, **pages,

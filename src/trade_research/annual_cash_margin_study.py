@@ -65,10 +65,10 @@ def _original_reports(index_paths: tuple[Path, Path],
             or not records.report_year.isin((2023, 2024)).all()):
         raise ValueError("Malformed original annual disclosure date")
     extracted_ok = len(records)
-    page_gap = (records.parent_profit_page
-                - records.operating_cash_page).abs()
-    rejected_page_gap = int(page_gap.isna().sum() + page_gap.gt(1).sum())
-    records = records.loc[page_gap.le(1)].copy()
+    page_gap = records.operating_cash_page - records.parent_profit_page
+    rejected_page_gap = int(page_gap.isna().sum() + page_gap.lt(0).sum()
+                            + page_gap.gt(1).sum())
+    records = records.loc[page_gap.between(0, 1)].copy()
     records = records.loc[records.notice_date.le(cutoff)
                           & records.parent_profit_raw.gt(0)].copy()
     ratio = (records.operating_cash_raw / records.parent_profit_raw).to_numpy()
