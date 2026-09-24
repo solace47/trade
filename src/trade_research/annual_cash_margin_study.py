@@ -65,6 +65,10 @@ def _original_reports(index_paths: tuple[Path, Path],
             or not records.report_year.isin((2023, 2024)).all()):
         raise ValueError("Malformed original annual disclosure date")
     extracted_ok = len(records)
+    page_gap = (records.parent_profit_page
+                - records.operating_cash_page).abs()
+    rejected_page_gap = int(page_gap.isna().sum() + page_gap.gt(1).sum())
+    records = records.loc[page_gap.le(1)].copy()
     records = records.loc[records.notice_date.le(cutoff)
                           & records.parent_profit_raw.gt(0)].copy()
     ratio = (records.operating_cash_raw / records.parent_profit_raw).to_numpy()
@@ -74,6 +78,7 @@ def _original_reports(index_paths: tuple[Path, Path],
         raise ValueError("Original annual cash conversion is malformed")
     report = {"indexed_margin_stock_years": len(indices),
               "extracted_stock_years": extracted_ok,
+              "page_gap_excluded": rejected_page_gap,
               "profitable_timely_stock_years": len(records),
               "note": "Original PDF values only; no later vendor imputation"}
     return records[["report_year", "code", "notice_date", "pdf_url",

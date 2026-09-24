@@ -23,7 +23,8 @@ def test_original_cash_inputs_require_complete_matching_source(tmp_path) -> None
         item = {"report_year": year, "code": code, "status": "ok",
                 "notice_date": day, "pdf_url": url,
                 "parent_profit_raw": 100, "operating_cash_raw": 150,
-                "cash_to_parent_profit": 1.5}
+                "cash_to_parent_profit": 1.5,
+                "parent_profit_page": 4, "operating_cash_page": 5}
         if year == 2024:
             item["parent_profit_raw"] = -100
             item["cash_to_parent_profit"] = -1.5

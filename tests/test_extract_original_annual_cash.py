@@ -67,6 +67,68 @@ def test_split_annual_text_label_can_cross_pdf_page() -> None:
     ]
 
 
+def test_separated_financial_tables_are_rejected(monkeypatch) -> None:
+    class Page:
+        def __init__(self, table):
+            self.table = table
+
+        def extract_text(self):
+            return ""
+
+        def extract_tables(self):
+            return [self.table]
+
+    class Document:
+        pages = [
+            Page([["归属于上市公司股东的净利润", "100"]]),
+            Page([["其他项目", "20"]]),
+            Page([["经营活动产生的现金流量净额", "150"]]),
+        ]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+    monkeypatch.setattr(annual.pdfplumber, "open", lambda _: Document())
+    with pytest.raises(ValueError, match="too far apart"):
+        annual.extract(Path("summary.pdf"))
+
+
+def test_annual_table_after_page_25_and_split_label(monkeypatch) -> None:
+    class Page:
+        def __init__(self, table=None):
+            self.table = table
+
+        def extract_text(self):
+            return ""
+
+        def extract_tables(self):
+            return [self.table] if self.table is not None else []
+
+    class Document:
+        pages = [Page() for _ in range(26)] + [
+            Page([["归属于上市", "161,819,588.65", "305,069,713.68"]]),
+            Page([["公司股东的净利润", "", ""],
+                  ["经营活动产生的现金流量净额", "-1,943,054,851.89",
+                   "-391,133,201.40"]]),
+        ]
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_):
+            return False
+
+    monkeypatch.setattr(annual.pdfplumber, "open", lambda _: Document())
+    result = annual.extract(Path("summary.pdf"))
+    assert result["parent_profit_raw"] == 161819588.65
+    assert result["operating_cash_raw"] == -1943054851.89
+    assert result["parent_profit_page"] == 27
+    assert result["operating_cash_page"] == 28
+
+
 def test_failed_report_is_skipped_until_explicit_retry(tmp_path, monkeypatch) -> None:
     index = tmp_path / "index.parquet"
     universe = tmp_path / "universe.parquet"

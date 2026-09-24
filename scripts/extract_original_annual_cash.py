@@ -23,6 +23,7 @@ PROFIT_LABELS = ("归属于上市公司股东的净利润", "归属于母公司�
                  "归属于母公司股东的净利润", "归属于本行股东的净利润",
                  "归属于本公司股东的净利润")
 CASH_LABEL = "经营活动产生的现金流量净额"
+ANNUAL_LABELS = (*PROFIT_LABELS, CASH_LABEL)
 
 
 def _number(cell: object) -> float | None:
@@ -54,6 +55,16 @@ def _table_values(table: list[list[object]]):
 def _quarter_header(row: list[object]) -> bool:
     text = "".join(str(cell or "") for cell in row).replace("\n", "")
     return "第一季度" in text and "第二季度" in text
+
+
+def _leading_table_label(table: list[list[object]]) -> str:
+    """Read a label continued at the top of the following PDF page."""
+    parts = []
+    for row in table[:6]:
+        if any(_number(cell) is not None for cell in row):
+            break
+        parts.append("".join(str(cell or "") for cell in row))
+    return re.sub(r"\s+", "", "".join(parts))
 
 
 def _text_values(lines: list[tuple[int, str]]):
@@ -91,7 +102,9 @@ def extract(pdf_path: Path) -> dict:
     text_lines: list[tuple[int, str]] = []
     with pdfplumber.open(pdf_path) as pdf:
         quarterly_reached = False
-        for page_number, page in enumerate(pdf.pages[:25], start=1):
+        pending: tuple[str, float, int] | None = None
+        for page_number, page in enumerate(pdf.pages[:60], start=1):
+            next_pending = None
             text = page.extract_text() or ""
             for line in text.splitlines():
                 if ("报告期分季度" in line
@@ -104,7 +117,18 @@ def extract(pdf_path: Path) -> dict:
             for table in page.extract_tables():
                 quarterly_at = next((i for i, row in enumerate(table)
                                      if _quarter_header(row)), len(table))
-                for label, value in _table_values(table[:quarterly_at]):
+                annual_table = table[:quarterly_at]
+                if pending is not None:
+                    prefix, value, value_page = pending
+                    label = prefix + _leading_table_label(annual_table)
+                    if label in PROFIT_LABELS and "parent_profit_raw" not in values:
+                        values["parent_profit_raw"] = value
+                        pages["parent_profit_page"] = value_page
+                    elif label == CASH_LABEL and "operating_cash_raw" not in values:
+                        values["operating_cash_raw"] = value
+                        pages["operating_cash_page"] = value_page
+                    pending = None
+                for label, value in _table_values(annual_table):
                     if ("parent_profit_raw" not in values
                             and any(field in label for field in PROFIT_LABELS)
                             and "扣除" not in label):
@@ -113,6 +137,9 @@ def extract(pdf_path: Path) -> dict:
                     if "operating_cash_raw" not in values and CASH_LABEL in label:
                         values["operating_cash_raw"] = value
                         pages["operating_cash_page"] = page_number
+                    if (len(label) >= 4 and any(target.startswith(label)
+                            and target != label for target in ANNUAL_LABELS)):
+                        next_pending = (label, value, page_number)
                 if quarterly_at < len(table):
                     quarterly_reached = True
                     break
@@ -120,6 +147,7 @@ def extract(pdf_path: Path) -> dict:
                 break
             if quarterly_reached or "报告期分季度" in text:
                 break
+            pending = next_pending
     for label, value, page_number in _text_values(text_lines):
         if "parent_profit_raw" not in values and label in PROFIT_LABELS:
             values["parent_profit_raw"] = value
@@ -131,6 +159,8 @@ def extract(pdf_path: Path) -> dict:
             break
     if len(values) != 2:
         raise ValueError(f"Annual profit/cash-flow table unreadable: {pdf_path}")
+    if abs(pages["parent_profit_page"] - pages["operating_cash_page"]) > 1:
+        raise ValueError(f"Annual profit/cash-flow tables too far apart: {pdf_path}")
     if values["parent_profit_raw"] == 0:
         raise ValueError(f"Annual parent profit is zero: {pdf_path}")
     return {**values, **pages,
