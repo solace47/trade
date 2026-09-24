@@ -24,6 +24,12 @@ BASE = "http://eid.csrc.gov.cn"
 REFERER = BASE + "/fund/disclose/index.html"
 SECTION = re.compile(r'<a\s+name="tabItem4_topTenStockDetal"[^>]*>.*?'
                      r'(?=<a\s+name=|\Z)', re.I | re.S)
+INDEX_SECTION = re.compile(r'<a\s+name="tabItem4_QMZSTZAGYJZTZMX"[^>]*>.*?'
+                           r'(?=<a\s+name=|\Z)', re.I | re.S)
+ACTIVE_SECTION = re.compile(r'<a\s+name="tabItem4_QMJJTZAGYJZTZMX"[^>]*>.*?'
+                            r'(?=<a\s+name=|\Z)', re.I | re.S)
+ACTIVE_INDUSTRY_SECTION = re.compile(r'<a\s+name="tabItem4_BBQMJJTZ"[^>]*>.*?'
+                                     r'(?=<a\s+name=|\Z)', re.I | re.S)
 ASSET_SECTION = re.compile(r'<a\s+name="tabItem4_assetsCircs"[^>]*>.*?'
                            r'(?=<a\s+name=|\Z)', re.I | re.S)
 FOREIGN_SECTION = re.compile(
@@ -52,6 +58,18 @@ def _stocks_explicitly_absent(document: str) -> bool:
     return False
 
 
+def _active_stocks_explicitly_absent(document: str) -> bool:
+    """Cross-check an unannotated empty active table against industry totals."""
+    sections = ACTIVE_INDUSTRY_SECTION.findall(document)
+    if len(sections) != 1 or "积极投资按行业分类" not in sections[0]:
+        return False
+    rows = [[_plain(cell) for cell in CELL.findall(raw)]
+            for raw in DATA_ROW.findall(sections[0])]
+    return (len(rows) >= 2 and rows[-1] == ["", "合计", "-", "-"]
+            and all(len(row) == 4 and row[-2:] == ["-", "-"]
+                    for row in rows))
+
+
 def _foreign_only_report(document: str) -> bool:
     """Recognize the separate template only with verified HK exchange rows."""
     sections = FOREIGN_SECTION.findall(document)
@@ -73,36 +91,15 @@ def _foreign_only_report(document: str) -> bool:
     return checked > 0
 
 
-def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
-    """Return A-share rows and total top-ten rows; reject unknown layouts."""
-    cover = _plain(document[:8000])
-    dates = SEND_DATE.findall(cover)
-    if len(dates) != 1 or dates[0] != report_sent:
-        raise ValueError("Fund report cover and indexed send dates differ")
-    sections = SECTION.findall(document)
-    if not sections and _foreign_only_report(document):
-        return [], 0
-    foreign = FOREIGN_SECTION.findall(document)
-    if (not sections and len(foreign) == 1
-            and not DATA_ROW.findall(foreign[0])
-            and "未持有股票及存托凭证" in _plain(foreign[0])
-            and _stocks_explicitly_absent(document)):
-        return [], 0
-    if len(sections) != 1:
-        raise ValueError("Missing or duplicated top-ten stock section")
-    section = sections[0]
+def _stock_rows(section: str) -> list[dict]:
+    """Read every reported stock, including non-A shares needed for ranking."""
     if not all(label in section for label in (
             "股票代码", "数量（股）", "公允价值（元）")):
         raise ValueError("Unknown fund top-ten table header")
     rows = DATA_ROW.findall(section)
-    if not rows:
-        if ("注：无" in _plain(section) or "未持有股票" in _plain(section)
-                or _stocks_explicitly_absent(document)):
-            return [], 0
-        raise ValueError("Top-ten stock table is empty without an explicit note")
     if len(rows) > 20:
         raise ValueError("Unexpected number of top-ten stock rows")
-    holdings = []
+    stocks = []
     ranks = []
     previous_code = ""
     for raw in rows:
@@ -135,14 +132,13 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
             raise ValueError("Invalid fund stock quantity or value") from error
         if shares_int < 0 or value_float < 0 or weight_float < 0:
             raise ValueError("Negative fund stock quantity or value")
-        if A_SHARE.fullmatch(code):
-            holdings.append({
-                "code": ("sh." if code.startswith(("60", "68")) else "sz.") + code,
+        stocks.append({
+                "raw_code": code,
                 "rank": rank_number, "shares": shares_int,
                 "fair_value_yuan": value_float, "nav_weight_pct": weight_float,
             })
     if not ranks:
-        return [], 0
+        return []
     # Split securities and tied positions use either dense or competition ranks.
     if ranks[0] != 1:
         raise ValueError("Unexpected top-ten stock ordering")
@@ -154,7 +150,106 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
             current, run = later, 1
         else:
             raise ValueError("Unexpected top-ten stock ordering")
-    return holdings, len(ranks)
+    return stocks
+
+
+def _a_share_rows(stocks: list[dict]) -> list[dict]:
+    return [{"code": ("sh." if item["raw_code"].startswith(("60", "68"))
+                      else "sz.") + item["raw_code"],
+             **{key: value for key, value in item.items() if key != "raw_code"}}
+            for item in stocks if A_SHARE.fullmatch(item["raw_code"])]
+
+
+def _split_top_ten(document: str) -> tuple[list[dict], int]:
+    """Reconstruct combined top ten only where capped source tables suffice."""
+    # Older index-fund reports use the generic top-ten anchor for the index
+    # book, with a separate active-investment table. Their active positions
+    # can exceed the generic table's tenth value, so that table is not the
+    # combined fund top ten.
+    index_sections = INDEX_SECTION.findall(document) + SECTION.findall(document)
+    active_sections = ACTIVE_SECTION.findall(document)
+    if len(index_sections) != 1 or len(active_sections) != 1:
+        raise ValueError("Missing or duplicated index/active stock section")
+    index_section, active_section = index_sections[0], active_sections[0]
+    if not ("前十名股票投资明细" in index_section
+            and "积极投资" in active_section
+            and "前五名股票投资明细" in active_section):
+        raise ValueError("Unknown index/active stock section heading")
+    index_stocks = _stock_rows(index_section)
+    active_stocks = _stock_rows(active_section)
+    books = []
+    for kind, section, stocks in (("index", index_section, index_stocks),
+                                  ("active", active_section, active_stocks)):
+        if not stocks and not (
+                "注：无" in _plain(section)
+                or f"未持有{'指数投资' if kind == 'index' else '积极投资'}"
+                in _plain(section)
+                or (kind == "index" and "未持有股票资产" in _plain(section))
+                or (kind == "active" and _active_stocks_explicitly_absent(document))
+                or _stocks_explicitly_absent(document)):
+            raise ValueError(f"Empty {kind} stock table without a source note")
+        ranks = list(dict.fromkeys(item["rank"] for item in stocks))
+        groups = [
+            {"stocks": [item for item in stocks if item["rank"] == rank],
+             "value": sum(Decimal(str(item["fair_value_yuan"]))
+                          for item in stocks if item["rank"] == rank)}
+            for rank in ranks
+        ]
+        if any(len(group["stocks"]) > 1 and
+               (len(group["stocks"]) != 2 or
+                sum(bool(A_SHARE.fullmatch(item["raw_code"]))
+                    for item in group["stocks"]) != 1)
+               for group in groups):
+            raise ValueError(f"Unresolved tied {kind} stock rank")
+        if any(left["value"] < right["value"]
+               for left, right in zip(groups, groups[1:])):
+            raise ValueError(f"Unsorted {kind} stock table")
+        books.append(groups)
+    index_groups, active_groups = books
+    combined = index_groups + active_groups
+    codes = [item["raw_code"] for group in combined
+             for item in group["stocks"]]
+    if len(codes) != len(set(codes)):
+        raise ValueError("Duplicate stock across index/active tables")
+    combined.sort(key=lambda group: group["value"], reverse=True)
+    if len(combined) > 10 and combined[9]["value"] == combined[10]["value"]:
+        raise ValueError("Combined stock tenth-place tie is unresolved")
+    if len(active_groups) >= 5 and (len(combined) < 10
+                                    or active_groups[-1]["value"]
+                                    >= combined[9]["value"]):
+        raise ValueError("Capped active table cannot establish combined top ten")
+    selected = [{**item, "rank": rank}
+                for rank, group in enumerate(combined[:10], start=1)
+                for item in group["stocks"]]
+    return _a_share_rows(selected), len(selected)
+
+
+def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
+    """Return A-share rows and total top-ten rows; reject unknown layouts."""
+    cover = _plain(document[:8000])
+    dates = SEND_DATE.findall(cover)
+    if len(dates) != 1 or dates[0] != report_sent:
+        raise ValueError("Fund report cover and indexed send dates differ")
+    sections = SECTION.findall(document)
+    if INDEX_SECTION.search(document) or ACTIVE_SECTION.search(document):
+        return _split_top_ten(document)
+    if not sections and _foreign_only_report(document):
+        return [], 0
+    foreign = FOREIGN_SECTION.findall(document)
+    if (not sections and len(foreign) == 1
+            and not DATA_ROW.findall(foreign[0])
+            and "未持有股票及存托凭证" in _plain(foreign[0])
+            and _stocks_explicitly_absent(document)):
+        return [], 0
+    if len(sections) != 1:
+        raise ValueError("Missing or duplicated top-ten stock section")
+    section = sections[0]
+    stocks = _stock_rows(section)
+    if not stocks and not ("注：无" in _plain(section)
+                           or "未持有股票" in _plain(section)
+                           or _stocks_explicitly_absent(document)):
+        raise ValueError("Top-ten stock table is empty without an explicit note")
+    return _a_share_rows(stocks), len(stocks)
 
 
 def _html_source(report_id: int, cache: Path) -> str:
@@ -171,7 +266,9 @@ def _html_source(report_id: int, cache: Path) -> str:
             if ("/xbrl/REPORT/HTML/" in response.url
                     and len(response.content) > 10000
                     and ("tabItem4_topTenStockDetal" in response.text
-                         or "tabItem7_topTenStockDetal" in response.text)):
+                         or "tabItem7_topTenStockDetal" in response.text
+                         or ("tabItem4_QMZSTZAGYJZTZMX" in response.text
+                             and "tabItem4_QMJJTZAGYJZTZMX" in response.text))):
                 cache.mkdir(parents=True, exist_ok=True)
                 temporary = path.with_suffix(".tmp")
                 with gzip.open(temporary, "wt", encoding="utf-8") as target:

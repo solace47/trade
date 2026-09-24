@@ -152,3 +152,95 @@ def test_blank_cross_border_table_requires_note_and_zero_equity_assets() -> None
                        "2024-07-19")
     with pytest.raises(ValueError, match="Missing or duplicated"):
         parse_holdings(document("-", "报告期末无其他说明"), "2024-07-19")
+
+
+def _split_document(index_values: list[float], active_values: list[float],
+                    active_note: str = "") -> str:
+    def table(values: list[float], start_code: int) -> str:
+        return "".join(
+            f'<tr class="dd"><td>{rank}</td><td>{start_code + rank:06d}</td>'
+            f'<td>股票{rank}</td><td>100</td><td>{value:,.2f}</td>'
+            '<td>1.0</td></tr>'
+            for rank, value in enumerate(values, start=1))
+
+    return ("<p>报告送出日期：2025-01-20</p>"
+            '<a name="tabItem4_QMZSTZAGYJZTZMX"></a>'
+            "报告期末指数投资前十名股票投资明细" + HEADER
+            + table(index_values, 600000)
+            + '<a name="tabItem4_QMJJTZAGYJZTZMX"></a>'
+            + "报告期末积极投资前五名股票投资明细" + HEADER
+            + table(active_values, 300000) + active_note
+            + '<a name="tabItem4_bondCombination"></a>')
+
+
+def test_split_index_and_active_tables_reconstruct_combined_top_ten() -> None:
+    document = _split_document([100 - i for i in range(10)],
+                               [105, 95, 1, .9, .8])
+    holdings, total = parse_holdings(document, "2025-01-20")
+    assert total == 10
+    assert [row["code"] for row in holdings[:3]] == [
+        "sz.300001", "sh.600001", "sh.600002"]
+    assert [row["rank"] for row in holdings] == list(range(1, 11))
+
+
+def test_older_generic_anchor_with_active_book_is_also_combined() -> None:
+    document = _split_document([100 - i for i in range(10)], [105, 1])
+    document = document.replace("tabItem4_QMZSTZAGYJZTZMX",
+                                "tabItem4_topTenStockDetal")
+    holdings, total = parse_holdings(document, "2025-01-20")
+    assert total == 10
+    assert holdings[0]["code"] == "sz.300001"
+    assert "sh.600010" not in {row["code"] for row in holdings}
+
+
+def test_split_table_rejects_undisclosed_active_stock_at_cutoff() -> None:
+    document = _split_document([100 - i for i in range(10)],
+                               [110, 109, 108, 107, 106])
+    with pytest.raises(ValueError, match="Capped active table"):
+        parse_holdings(document, "2025-01-20")
+
+
+def test_split_table_requires_explicit_note_for_empty_active_book() -> None:
+    document = _split_document([100 - i for i in range(10)], [],
+                               "注：本基金本报告期末未持有积极投资的股票。")
+    assert parse_holdings(document, "2025-01-20")[1] == 10
+    with pytest.raises(ValueError, match="Empty active stock table"):
+        parse_holdings(_split_document([100 - i for i in range(10)], []),
+                       "2025-01-20")
+
+
+def test_empty_active_table_is_supported_by_zero_industry_totals() -> None:
+    document = _split_document([100 - i for i in range(10)], [])
+    industry = ('<a name="tabItem4_BBQMJJTZ"></a>'
+                '报告期末积极投资按行业分类的境内股票投资组合'
+                '<tr class="dd"><td>A</td><td>农业</td><td>-</td><td>-</td></tr>'
+                '<tr class="dd"><td></td><td>合计</td><td>-</td><td>-</td></tr>')
+    document = document.replace('<a name="tabItem4_QMZSTZAGYJZTZMX">',
+                                industry + '<a name="tabItem4_QMZSTZAGYJZTZMX">')
+    assert parse_holdings(document, "2025-01-20")[1] == 10
+    with pytest.raises(ValueError, match="Empty active stock table"):
+        parse_holdings(document.replace('<td>合计</td><td>-</td>',
+                                        '<td>合计</td><td>1</td>'),
+                       "2025-01-20")
+
+
+def test_split_a_h_positions_use_combined_company_value() -> None:
+    document = _split_document([100 - i for i in range(10)], [94.5, 1])
+    original = ('<tr class="dd"><td>1</td><td>600001</td>'
+                '<td>股票1</td><td>100</td><td>100.00</td><td>1.0</td></tr>')
+    split = (original.replace('100.00', '60.00')
+             + '<tr class="dd"><td>1</td><td>03968</td>'
+               '<td>股票1</td><td>100</td><td>50.00</td><td>1.0</td></tr>')
+    document = document.replace(original, split)
+    holdings, total = parse_holdings(document, "2025-01-20")
+    assert total == 11  # Ten issuers, with one A+H split into two rows.
+    assert holdings[0]["code"] == "sh.600001"
+    assert holdings[0]["rank"] == 1
+    assert "sh.600010" not in {row["code"] for row in holdings}
+
+
+def test_split_table_rejects_missing_second_book() -> None:
+    document = _split_document([100 - i for i in range(10)], [1])
+    document = document.replace('tabItem4_QMJJTZAGYJZTZMX', 'otherSection')
+    with pytest.raises(ValueError, match="Missing or duplicated index/active"):
+        parse_holdings(document, "2025-01-20")
