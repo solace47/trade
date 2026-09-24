@@ -20,7 +20,7 @@ MIN_UNLOCK_PRIOR_FLOAT = .20
 MAX_CURRENT_RETURN_GAP = .01
 
 
-def _announcements(base: Path, calendar: list[str]) -> tuple[pd.DataFrame, dict]:
+def _confirmed_audits(base: Path) -> tuple[pd.DataFrame, dict]:
     frames, counts = [], {}
     for year in (2024, 2025):
         index = pd.read_parquet(base / f"search_{year}.parquet")
@@ -40,7 +40,11 @@ def _announcements(base: Path, calendar: list[str]) -> tuple[pd.DataFrame, dict]
                              "original_confirmed": len(ok),
                              "pdf_status": audit.status.value_counts().to_dict()}
         frames.append(ok)
-    all_ok = pd.concat(frames, ignore_index=True)
+    return pd.concat(frames, ignore_index=True), counts
+
+
+def _announcements(base: Path, calendar: list[str]) -> tuple[pd.DataFrame, dict]:
+    all_ok, counts = _confirmed_audits(base)
     events = all_ok.loc[
         all_ok.unlock_date.str[:4].isin(("2024", "2025"))
         & all_ok.unlock_date.str[5:].le("12-17")
