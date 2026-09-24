@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 
 from trade_research.fund_visibility_inputs import (
-    _four_cell_coverage, _holding_intervals, _load_sources, _visibility,
+    _four_cell_coverage, _holding_intervals, _load_sources, _visibility, build,
 )
 
 
@@ -93,3 +93,41 @@ def test_four_cell_input_audit_counts_missing_strata() -> None:
         "float_mv": {"q1": 0.9, "q5": 0.9},
         "avg20_amount": {"q1": 0.8, "q5": 0.8},
     }
+
+
+def test_complete_eight_quarter_sources_build_audited_inputs(tmp_path) -> None:
+    quarters = ("2023q4", "2024q1", "2024q2", "2024q3", "2024q4",
+                "2025q1", "2025q2", "2025q3")
+    index_dir = tmp_path / "index"
+    holdings_dir = tmp_path / "holdings"
+    index_dir.mkdir()
+    holdings_dir.mkdir()
+    for report_id, quarter in enumerate(quarters, start=1):
+        year, number = int(quarter[:4]), int(quarter[-1])
+        available = {1: f"{year}-04-20", 2: f"{year}-07-20",
+                     3: f"{year}-10-20", 4: f"{year + 1}-01-20"}[number]
+        base = {"uploadInfoId": report_id, "fundId": 10,
+                "reportYear": str(year), "report_quarter": number}
+        pd.DataFrame([{**base, "available_after": available}]).to_parquet(
+            index_dir / f"{quarter}.parquet", index=False)
+        pd.DataFrame([{**base, "code": "sh.600000"}]).to_parquet(
+            holdings_dir / f"{quarter}.parquet", index=False)
+        pd.DataFrame([{**base, "status": "parsed"}]).to_parquet(
+            holdings_dir / f"{quarter}_audit.parquet", index=False)
+    universe_path = tmp_path / "universe.parquet"
+    pd.DataFrame([
+        {"date": day, "code": "sh.600000", "board": "sh_main",
+         "size_bucket": 1, "cash_group": "low_cash_conversion",
+         "quintile": 1, "float_mv": 1_000_000_000.0,
+         "avg20_amount": 40_000_000.0}
+        for day in ("2024-05-15", "2025-05-15")
+    ]).to_parquet(universe_path, index=False)
+    output = tmp_path / "inputs.parquet"
+    report_path = tmp_path / "inputs.json"
+    report = build(index_dir, holdings_dir, universe_path, output, report_path)
+    assert report["source_reports"] == 8
+    assert set(report["quarter_source_reports"]) == set(quarters)
+    assert report["eligible_stock_days"] == 2
+    assert report["visible_stock_days"] == 2
+    assert pd.read_parquet(output).visible_funds.tolist() == [1, 1]
+    assert report_path.exists()
