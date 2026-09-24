@@ -48,7 +48,8 @@ def _check(pairs: pd.DataFrame, expected: dict) -> None:
 
 
 def _attach(raw: pd.DataFrame, pairs: pd.DataFrame) -> pd.DataFrame:
-    rows = raw.merge(pairs[["date", "code", "candidate", "pair_code"]],
+    rows = raw.merge(pairs[["date", "code", "candidate", "pair_code",
+                            "industry"]],
                      on=["date", "code"], validate="many_to_one")
     if len(rows) != 4 * len(pairs):
         raise ValueError("Raw-minute IPO unlock leg is absent")
@@ -80,6 +81,48 @@ def _posthoc_sparse_days(rows: pd.DataFrame, calendar: list[str]) -> dict:
              "edge_mean": float(group.edge.mean())}
             for offset, group in part.groupby("offset")
         ]
+    return result
+
+
+def _posthoc_peer_swap(main: pd.DataFrame,
+                       industry: pd.DataFrame) -> dict:
+    def pair_cash(rows: pd.DataFrame) -> pd.DataFrame:
+        event = rows.loc[rows.candidate.eq(EVENT),
+                         ["date", "code", "industry", "cash_return"]].rename(
+            columns={"code": "pair_code", "industry": "event_industry",
+                     "cash_return": "event_cash"})
+        peer = rows.loc[rows.candidate.eq(CONTROL),
+                        ["date", "pair_code", "industry",
+                         "cash_return"]].rename(
+            columns={"industry": "peer_industry",
+                     "cash_return": "peer_cash"})
+        return event.merge(peer, on=["date", "pair_code"],
+                           validate="one_to_one")
+
+    broad = pair_cash(main)
+    narrow = pair_cash(industry)
+    shared = broad.merge(narrow, on=["date", "pair_code"],
+                         suffixes=("_broad", "_industry"),
+                         validate="one_to_one")
+    if (shared.empty or not np.isclose(shared.event_cash_broad,
+                                       shared.event_cash_industry).all()):
+        raise ValueError("IPO unlock common-event returns differ")
+    result = {}
+    for year in ("2024", "2025"):
+        part = shared.loc[shared.date.str.startswith(year)]
+        daily = part.groupby("date")[["event_cash_broad", "peer_cash_broad",
+                                      "peer_cash_industry"]].mean()
+        result[year] = {
+            "shared_events": len(part), "days": len(daily),
+            "event_cash_mean": float(daily.event_cash_broad.mean()),
+            "broad_peer_cash_mean": float(daily.peer_cash_broad.mean()),
+            "industry_peer_cash_mean": float(
+                daily.peer_cash_industry.mean()),
+            "broad_edge_mean": float((daily.event_cash_broad
+                                      - daily.peer_cash_broad).mean()),
+            "industry_edge_mean": float((daily.event_cash_broad
+                                         - daily.peer_cash_industry).mean()),
+        }
     return result
 
 
@@ -135,6 +178,11 @@ def evaluate(source_dir: Path, raw_path: Path, outcome_dir: Path,
     report["posthoc_six_session_offsets_20k_t5"] = _posthoc_sparse_days(
         selected.loc[selected.target_notional.eq(20_000)
                      & selected.horizon.eq(5)], calendar)
+    report["posthoc_common_event_peer_swap_20k_t5"] = _posthoc_peer_swap(
+        selected.loc[selected.target_notional.eq(20_000)
+                     & selected.horizon.eq(5)],
+        within.loc[within.target_notional.eq(20_000)
+                   & within.horizon.eq(5)])
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                            encoding="utf-8")
