@@ -8,8 +8,11 @@ The BaoStock forecast type is only an adaptation, not their earnings-surprise
 measure, and neither paper establishes a recent 14:50 trading return.
 
 Before looking at outcomes: on the first trading day strictly after a positive
-forecast was published, require an opening gain >=1% and no reversal by 14:50.
-Rank by opening gain and take at most five liquid mainboard stocks per day.
+forecast was published, require an opening gain of 1%-5%, no reversal by
+14:50, a 14:50 gain <=8%, and an adjusted prior-20-session return within
+/-20%. These caps avoid locked limit-up entries and extreme prior momentum
+observed in the selection-only audit. Rank by opening gain and take at most
+five liquid mainboard stocks per day.
 Compare to unique same-day stocks without a forecast or express event, matched
 on opening gain, 14:50 gain, turnover, and prior 20-session return. T+5 is
 primary, T+1/T+2 diagnostic. 2025 has already been viewed in other studies,
@@ -169,7 +172,9 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
           AND s.open_1450 BETWEEN s.low_1450 - .005 AND s.high_1450 + .005
           AND s.price_1450 >= 5 AND s.amount_1450 >= 30000000
           AND s.return20_prior_adjusted IS NOT NULL
-          AND s.open_1450 / s.preclose - 1 >= .01
+          AND s.return20_prior_adjusted BETWEEN -.20 AND .20
+          AND s.open_1450 / s.preclose - 1 BETWEEN .01 AND .05
+          AND s.return_1450 <= .08
           AND s.price_1450 >= s.open_1450
     """).df()
     if pool.duplicated(["date", "code"]).any():
@@ -194,7 +199,8 @@ def select(snapshot_dir: Path, event_dir: Path, stock_basic: Path,
         "hypothesis": "Positive forecast with positive opening response drifts after 14:50",
         "source": "BaoStock historical forecast publication dates; express excludes controls",
         "rule": "positive forecast type, first later trading day, mainboard non-ST, "
-                "age>=20, price>=5, amount>=30m, opening gain>=1%, no 14:50 fade; "
+                "age>=20, price>=5, amount>=30m, opening gain 1%-5%, "
+                "14:50 gain<=8%, prior20 return within +/-20%, no 14:50 fade; "
                 "rank opening gain descending, maximum five per day",
         "control": "unique same-day nonannouncement stocks with identical eligibility; "
                    "nearest by |gap|/.01 + |14:50 return|/.02 + "
