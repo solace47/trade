@@ -1,6 +1,10 @@
-import pandas as pd
+import json
 
-from trade_research.fund_attention_eval import _summarize
+import pandas as pd
+import pytest
+
+from trade_research.fund_attention_eval import _summarize, _validate_input_audit
+from trade_research.fund_visibility_inputs import QUARTERS
 
 
 def _stock(day: str, code: str, visible: bool, quintile: int,
@@ -52,3 +56,21 @@ def test_interaction_weights_dates_equally_after_stratum_means() -> None:
     assert sample["four_cell_strata"] == 3
     assert sample["days"] == 2
     assert round(sample["interaction"], 8) == 0.0
+
+
+def test_outcome_gate_requires_all_eight_source_quarters(tmp_path) -> None:
+    inputs = pd.DataFrame({"fund_visible": [False, True]})
+    path = tmp_path / "fund_visibility_inputs.json"
+    with pytest.raises(FileNotFoundError, match="Eight-quarter"):
+        _validate_input_audit(inputs, path)
+    audit = {"quarter_source_reports": {q: 1 for q in QUARTERS[:-1]},
+             "source_reports": 7, "parsed_reports": 7,
+             "rejected_reports": 0, "eligible_stock_days": 2,
+             "visible_stock_days": 1}
+    path.write_text(json.dumps(audit), encoding="utf-8")
+    with pytest.raises(ValueError, match="eight-quarter"):
+        _validate_input_audit(inputs, path)
+    audit["quarter_source_reports"][QUARTERS[-1]] = 1
+    audit["source_reports"] = audit["parsed_reports"] = 8
+    path.write_text(json.dumps(audit), encoding="utf-8")
+    _validate_input_audit(inputs, path)

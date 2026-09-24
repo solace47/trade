@@ -34,6 +34,12 @@ def _load_sources(index_dir: Path, holdings_dir: Path
         index = pd.read_parquet(index_path)
         holding = pd.read_parquet(holdings_path)
         audit = pd.read_parquet(audit_path)
+        year, number = int(quarter[:4]), int(quarter[-1])
+        if (index.empty or audit.empty or any(
+                not frame.reportYear.astype(int).eq(year).all()
+                or not frame.report_quarter.astype(int).eq(number).all()
+                for frame in (index, holding, audit))):
+            raise ValueError(f"Fund {quarter} source rows name another quarter")
         if (len(index) != len(audit)
                 or index.uploadInfoId.duplicated().any()
                 or audit.uploadInfoId.duplicated().any()
@@ -169,9 +175,17 @@ def build(index_dir: Path, holdings_dir: Path, universe_path: Path,
     universe = pd.read_parquet(universe_path)
     if not universe.date.between("2024-01-01", "2025-12-31").all():
         raise ValueError("2023 and earlier cannot enter strategy stock-days")
+    if set(universe.date.str[:4]) != {"2024", "2025"}:
+        raise ValueError("Both exploratory signal years are required")
     result = _visibility(universe, intervals)
+    quarter_reports = {
+        quarter: int((metadata.reportYear.astype(int).eq(int(quarter[:4]))
+                      & metadata.report_quarter.eq(int(quarter[-1]))).sum())
+        for quarter in QUARTERS
+    }
     report = {
         "source_reports": len(metadata),
+        "quarter_source_reports": quarter_reports,
         "parsed_reports": int(audit.status.eq("parsed").sum()),
         "rejected_reports": int(audit.status.eq("rejected").sum()),
         "source_a_share_rows": len(positions),

@@ -16,10 +16,28 @@ import numpy as np
 import pandas as pd
 
 from .market_study import _quality_keys, _quality_symbols, _week_bootstrap
+from .fund_visibility_inputs import QUARTERS
 
 
 STRATUM = ["date", "board", "size_bucket", "cash_group"]
 CELLS = [(False, 1), (False, 5), (True, 1), (True, 5)]
+
+
+def _validate_input_audit(inputs: pd.DataFrame, audit_path: Path) -> None:
+    """Require the complete source builder's sidecar before outcome access."""
+    if not audit_path.exists():
+        raise FileNotFoundError("Eight-quarter input audit is required")
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    quarters = audit.get("quarter_source_reports")
+    if (not isinstance(quarters, dict) or set(quarters) != set(QUARTERS)
+            or any(not isinstance(count, int) or count <= 0
+                   for count in quarters.values())
+            or audit.get("source_reports") != sum(quarters.values())
+            or audit.get("parsed_reports", -1)
+               + audit.get("rejected_reports", -1) != audit["source_reports"]
+            or audit.get("eligible_stock_days") != len(inputs)
+            or audit.get("visible_stock_days") != int(inputs.fund_visible.sum())):
+        raise ValueError("Incomplete or mismatched eight-quarter input audit")
 
 
 def _summarize(scored: pd.DataFrame) -> dict:
@@ -95,16 +113,17 @@ def _summarize(scored: pd.DataFrame) -> dict:
     return report
 
 
-def evaluate(inputs_path: Path, outcome_dir: Path, issues_dir: Path,
-             report_path: Path) -> dict:
+def evaluate(inputs_path: Path, input_audit_path: Path, outcome_dir: Path,
+             issues_dir: Path, report_path: Path) -> dict:
     if not inputs_path.exists():
         raise FileNotFoundError("Complete eight-quarter fund inputs are required")
     inputs = pd.read_parquet(inputs_path)
     if (inputs.empty or inputs.duplicated(["date", "code"]).any()
-            or not inputs.date.str[:4].isin(("2024", "2025")).all()
+            or set(inputs.date.str[:4]) != {"2024", "2025"}
             or inputs.fund_visible.isna().any()
             or not inputs.fund_visible.eq(inputs.visible_funds.gt(0)).all()):
         raise ValueError("Malformed or incomplete fund-visibility inputs")
+    _validate_input_audit(inputs, input_audit_path)
     selected = inputs.loc[inputs.quintile.isin((1, 5)),
                           ["date", "code", "board", "size_bucket",
                            "cash_group", "fund_visible", "quintile"]]
@@ -152,6 +171,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inputs", type=Path, default=Path(
         "data/research/fund_visibility_inputs.parquet"))
+    parser.add_argument("--input-audit", type=Path, default=Path(
+        "data/research/fund_visibility_inputs.json"))
     parser.add_argument("--outcomes", type=Path, default=Path(
         "data/research/market_outcomes_ci"))
     parser.add_argument("--issues", type=Path, default=Path(
@@ -159,7 +180,8 @@ def main() -> None:
     parser.add_argument("--report", type=Path, default=Path(
         "data/research/fund_attention_report.json"))
     args = parser.parse_args()
-    report = evaluate(args.inputs, args.outcomes, args.issues, args.report)
+    report = evaluate(args.inputs, args.input_audit, args.outcomes,
+                      args.issues, args.report)
     print({"total_extreme_stock_days": report["total_extreme_stock_days"],
            "four_cell_strata": report["four_cell_strata"],
            "report": str(args.report)})
