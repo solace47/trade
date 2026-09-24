@@ -47,7 +47,7 @@ def _stocks_explicitly_absent(document: str) -> bool:
         return False
     for raw in DATA_ROW.findall(sections[0]):
         fields = [_plain(cell) for cell in CELL.findall(raw)]
-        if "其中：股票" in fields:
+        if "其中：股票" in fields or "权益投资" in fields:
             return fields[-2:] == ["-", "-"]
     return False
 
@@ -81,6 +81,12 @@ def parse_holdings(document: str, report_sent: str) -> tuple[list[dict], int]:
         raise ValueError("Fund report cover and indexed send dates differ")
     sections = SECTION.findall(document)
     if not sections and _foreign_only_report(document):
+        return [], 0
+    foreign = FOREIGN_SECTION.findall(document)
+    if (not sections and len(foreign) == 1
+            and not DATA_ROW.findall(foreign[0])
+            and "未持有股票及存托凭证" in _plain(foreign[0])
+            and _stocks_explicitly_absent(document)):
         return [], 0
     if len(sections) != 1:
         raise ValueError("Missing or duplicated top-ten stock section")

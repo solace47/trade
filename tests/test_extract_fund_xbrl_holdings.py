@@ -131,3 +131,22 @@ def test_cross_border_template_is_zero_only_when_securities_are_offshore() -> No
                           "2024-04-19") == ([], 0)
     with pytest.raises(ValueError, match="Missing or duplicated"):
         parse_holdings(document("600519", "上海证券交易所"), "2024-04-19")
+
+
+def test_blank_cross_border_table_requires_note_and_zero_equity_assets() -> None:
+    def document(equity: str, note: str) -> str:
+        return ("<p>报告送出日期：2024-07-19</p>"
+                "<a name=\"tabItem4_assetsCircs\"></a>"
+                "<tr class=\"dd\"><td>1</td><td>权益投资</td>"
+                f"<td>{equity}</td><td>-</td></tr>"
+                "<a name=\"tabItem7_topTenStockDetal\"></a>"
+                f"<p>{note}</p>"
+                "<a name=\"tabItem7_bondCombination\"></a>")
+
+    assert parse_holdings(document("-", "本基金本报告期末未持有股票及存托凭证"),
+                          "2024-07-19") == ([], 0)
+    with pytest.raises(ValueError, match="Missing or duplicated"):
+        parse_holdings(document("100", "本基金本报告期末未持有股票及存托凭证"),
+                       "2024-07-19")
+    with pytest.raises(ValueError, match="Missing or duplicated"):
+        parse_holdings(document("-", "报告期末无其他说明"), "2024-07-19")
