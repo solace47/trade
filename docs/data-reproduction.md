@@ -88,6 +88,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.entry_timing --workers 4
 PYTHONPATH=src .venv/bin/python -m trade_research.steady_path
 ```
 
+允许空仓的绝对收益岭回归先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.absolute_ridge`；新名单同日配对未达预设覆盖，程序不生成复价输入，见[输入记录](absolute-ridge-plan.md)。
+
 低成交额分层由 `trade_research.stratified_low_sample` 固定抽样，并用 `trade_research.size_sensitivity` 以每笔 2 万元重算；`trade_research.paired_controls` 按信号日同随机组配对。退出时点试验调用 `size_sensitivity --exit-windows close morning late_morning`；提前卖出试验见 `scripts/adaptive_exit_probe.py`。本地结果都写入 `data/research/`，不加入 README 或 Git。
 
 市场相对收益与成交量试验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.residual_liquidity`。它只读取 2024–2025 年信号，年末预留十个交易日，并把逐笔和汇总结果写入被忽略的 `data/research/`。
