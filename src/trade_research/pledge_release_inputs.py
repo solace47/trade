@@ -87,6 +87,16 @@ def _tag_plan(pairs: pd.DataFrame, events: pd.DataFrame) -> pd.DataFrame:
     return tagged
 
 
+def _signals(*memberships: pd.DataFrame) -> pd.DataFrame:
+    columns = ["date", "code", "isST", "reference_gap",
+               "quote_outside_traded_range", "listing_age_sessions"]
+    signals = pd.concat([frame[columns] for frame in memberships],
+                        ignore_index=True).drop_duplicates()
+    if signals.empty or signals.duplicated(["date", "code"]).any():
+        raise ValueError("Inconsistent original-minute pledge signal inputs")
+    return signals.sort_values(["date", "code"]).reset_index(drop=True)
+
+
 def build(root: Path, review_path: Path, snapshot_dir: Path,
           daily_dir: Path, calendar_path: Path,
           industry_path: Path) -> dict:
@@ -128,6 +138,8 @@ def build(root: Path, review_path: Path, snapshot_dir: Path,
     pairs.to_parquet(root / "pairs.parquet", index=False, compression="zstd")
     industry.to_parquet(root / "industry_pairs.parquet", index=False,
                        compression="zstd")
+    _signals(pairs, industry).to_parquet(
+        root / "reprice_signals.parquet", index=False, compression="zstd")
     (root / "input_audit.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8")
