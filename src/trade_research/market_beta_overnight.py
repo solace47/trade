@@ -42,6 +42,9 @@ def _connect() -> duckdb.DuckDBPyConnection:
 def freeze(source_file: Path = ROOT / "prior_market_beta" / "all_candidates.parquet",
            prefix_audit_file: Path = ROOT / "minute_prefix_1449" / "input_audit.json",
            output_dir: Path = OUTPUT) -> dict:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for stale in ("inputs.parquet", "input_audit.json", "gross_report.json"):
+        (output_dir / stale).unlink(missing_ok=True)
     prefix_audit = json.loads(prefix_audit_file.read_text(encoding="utf-8"))
     if not prefix_audit["input_gate_passed"]:
         raise ValueError("14:49 minute input audit failed")
@@ -124,7 +127,6 @@ def freeze(source_file: Path = ROOT / "prior_market_beta" / "all_candidates.parq
         and row["mean_beta_gap"] >= .30
         for row in by_half.values()
     )
-    output_dir.mkdir(parents=True, exist_ok=True)
     inputs.to_parquet(output_dir / "inputs.parquet", index=False, compression="zstd")
     audit = {"cutoff": "14:49", "source": str(source_file),
              "input_count": len(inputs), "scope": list(HALVES),
