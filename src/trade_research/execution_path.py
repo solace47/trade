@@ -101,13 +101,14 @@ def freeze(prefix_dir: Path = ROOT / "minute_prefix_1449",
 
 def minute_participation(bars: pd.DataFrame, code: str, date: str,
                          preclose: float, shares: int,
-                         slippage_bps: float) -> tuple[int, float | None]:
+                         slippage_bps: float,
+                         lot_override: int | None = None) -> tuple[int, float | None]:
     """Take at most 10% of each minute's volume, earliest minute first.
 
     Child orders use 100-share lots, or conservative 200-share lots on STAR.
     This is still a bar-VWAP estimate, not verified queue execution.
     """
-    lot = 200 if code.startswith("sh.68") else 100
+    lot = lot_override or (200 if code.startswith("sh.68") else 100)
     upper = _limit_price(preclose, _board_limit_rate(code, 0, date), True)
     remaining, filled, value = shares, 0, 0.0
     for row in bars.itertuples(index=False):
@@ -185,6 +186,15 @@ def _one_stock(item: tuple[str, pd.DataFrame], minute_root: Path) -> list[dict]:
             result[f"extra_entry_bps_{slip}"] = (
                 10_000 * (path_price / aggregate_price - 1)
                 if aggregate_price is not None and taken == shares else None)
+            if signal.board == "star":
+                # A submitted STAR order can be partially matched in shares;
+                # this is an optimistic bound beside the frozen 200-share
+                # child-order stress model, not a revised primary result.
+                partial, partial_price = minute_participation(
+                    bars, code, signal.date, signal.preclose, shares, slip,
+                    lot_override=1)
+                result[f"share_partial_filled_{slip}"] = partial == shares
+                result[f"share_partial_price_{slip}"] = partial_price
         rows.append(result)
     return rows
 

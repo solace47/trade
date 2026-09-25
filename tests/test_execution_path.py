@@ -38,3 +38,14 @@ def test_star_child_orders_use_conservative_200_share_lots():
         "sh.688001", "2025-01-02", 100, 400, 5,
     )
     assert filled == 400
+
+
+def test_star_share_partial_fill_bound_uses_the_same_volume_cap():
+    bars = _bars([100] * 4, [1990, 1990, 1990, 1990])
+    conservative, _ = minute_participation(
+        bars, "sh.688001", "2025-01-02", 100, 400, 5)
+    partial, _ = minute_participation(
+        bars, "sh.688001", "2025-01-02", 100, 400, 5,
+        lot_override=1)
+    assert conservative == 0
+    assert partial == 400
