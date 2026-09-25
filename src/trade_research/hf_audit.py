@@ -1,8 +1,10 @@
 """Audit a pinned one-minute archive against BaoStock daily bars.
 
-The archive uses naive timestamps interpreted as Asia/Shanghai bar-end labels.
+The archive uses naive UTC+8 timestamps, treated here as bar-end labels.
+The publisher does not explicitly certify the start/end convention; this is
+an inference from the grid and must be checked before live 14:50 use.
 09:30 is the opening-auction record; 09:31--11:30 and 13:01--15:00 are
-the 240 regular-session minute records. The last complete archive date is
+the 240 subsequent minute records. The last complete archive date is
 2026-08-06; the repository's 2026-08-07 records are intraday only.
 """
 

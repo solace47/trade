@@ -1,4 +1,4 @@
-"""Build true 14:50 features from the pinned one-minute archive."""
+"""Build features through the archive's 14:50 label, assuming bar-end stamps."""
 
 from __future__ import annotations
 
