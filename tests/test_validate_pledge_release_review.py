@@ -13,7 +13,8 @@ def _rows(decision: str = "pending") -> tuple[pd.DataFrame, pd.DataFrame]:
                             "screens": "after_only", "decision": decision,
                             "actor": "", "registered_date": "",
                             "released": "", "held": "",
-                            "after_pledged": "", "evidence": ""}],
+                            "after_pledged": "", "planned_repledge": "",
+                            "evidence": ""}],
                           columns=COLUMNS)
     return review, candidates
 
@@ -28,10 +29,14 @@ def test_pending_original_blocks_matching_and_missing_one_fails() -> None:
 def test_verified_original_must_satisfy_frozen_counts() -> None:
     review, candidates = _rows("verified")
     review.loc[0, ["actor", "registered_date", "released", "held",
-                   "after_pledged", "evidence"]] = [
+                   "after_pledged", "planned_repledge", "evidence"]] = [
         "直接控股股东", "2024-03-19", "20000000", "100000000",
-        "30000000", "原件载明已登记且无新增质押"]
+        "30000000", "no", "原件载明已登记且无新增质押"]
     assert validate_rows(review, candidates)["ready_for_matching"]
+    review.loc[0, "planned_repledge"] = ""
+    with pytest.raises(ValueError, match="repledge plan decision"):
+        validate_rows(review, candidates)
+    review.loc[0, "planned_repledge"] = "no"
     review.loc[0, "after_pledged"] = "55000000"
     with pytest.raises(ValueError, match="frozen crossing rule"):
         validate_rows(review, candidates)

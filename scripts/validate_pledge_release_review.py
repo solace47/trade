@@ -11,7 +11,7 @@ import pandas as pd
 
 COLUMNS = ("notice_date", "code", "pdf_url", "screens", "decision",
            "actor", "registered_date", "released", "held", "after_pledged",
-           "evidence")
+           "planned_repledge", "evidence")
 SCREENS = ("vertical", "table", "after_only")
 DECISIONS = {"pending", "prelim", "reject", "verified"}
 
@@ -60,9 +60,13 @@ def validate_rows(review: pd.DataFrame, candidates: pd.DataFrame) -> dict:
         if decision == "reject" and not row["evidence"].strip():
             raise ValueError("Rejected original needs a source-based reason")
         if decision != "verified":
+            if row["planned_repledge"]:
+                raise ValueError("Unverified original cannot set repledge plan")
             continue
         if not row["actor"].strip() or not row["evidence"].strip():
             raise ValueError("Verified original needs actor and evidence")
+        if row["planned_repledge"] not in {"yes", "no"}:
+            raise ValueError("Verified original needs a repledge plan decision")
         try:
             registered = date.fromisoformat(row["registered_date"])
             noticed = date.fromisoformat(row["notice_date"])
@@ -82,6 +86,7 @@ def validate_rows(review: pd.DataFrame, candidates: pd.DataFrame) -> dict:
     return {"originals": len(ledger),
             "decisions": {key: int(counts.get(key, 0))
                           for key in sorted(DECISIONS)},
+            "planned_repledge": int((ledger["planned_repledge"] == "yes").sum()),
             "ready_for_matching": (counts.get("pending", 0) == 0
                                    and counts.get("prelim", 0) == 0
                                    and counts.get("verified", 0) > 0),
