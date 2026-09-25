@@ -1,4 +1,4 @@
-signal_date,notice_date,code,pdf_url,decision,actor,sale_date,actual_shares,evidence,support_url
+signal_date,notice_date,code,pdf_url,decision,actor,reported_sale_period,actual_shares,evidence,support_url
 2024-01-04,2024-01-03,sz.300542,https://static.cninfo.com.cn/finalpage/2024-01-03/1218801409.PDF,reject_pre2024,徐连平,2023-08-10/25,1742800,原件明确全部在2023年8月卖出,
 2024-01-04,2024-01-03,sz.300731,https://static.cninfo.com.cn/finalpage/2024-01-03/1218800190.PDF,reject_unproven_2024_sale,广州兴橙,,1264300,原件仅给出2023-11-30至2024-01-02跨年总数；分年成交；截至信号时无可核实的2024正数成交拆分，按事前规则剔除,
 2024-01-12,2024-01-11,sz.301278,https://static.cninfo.com.cn/finalpage/2024-01-11/1218858489.PDF,reject_unproven_2024_sale,成都富恩德星羽,,833200,原件仅给出2023-12-26至2024-01-10跨年总数；分年成交；截至信号时无可核实的2024正数成交拆分，按事前规则剔除,

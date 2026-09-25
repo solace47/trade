@@ -16,7 +16,7 @@ def _sample():
     decisions = pd.DataFrame([
         {"signal_date": day, "notice_date": notice, "code": row.code,
          "pdf_url": row.pdf_url, "decision": "verified_direct",
-         "actor": "股东甲", "sale_date": "2024-05-30",
+         "actor": "股东甲", "reported_sale_period": "2024-05-30",
          "actual_shares": "100", "evidence": "原件证实股东甲完成计划且实际卖出100股",
          "support_url": ""} for row in originals.itertuples()
     ])
@@ -39,7 +39,7 @@ def test_review_rejects_late_support_and_pre_2024_sale() -> None:
     with pytest.raises(ValueError, match="not public"):
         validate_review(originals, decisions, 2024)
     decisions.loc[0, "support_url"] = ""
-    decisions.loc[0, "sale_date"] = "2023-12-31"
+    decisions.loc[0, "reported_sale_period"] = "2023-12-31"
     with pytest.raises(ValueError, match="2024"):
         validate_review(originals, decisions, 2024)
 

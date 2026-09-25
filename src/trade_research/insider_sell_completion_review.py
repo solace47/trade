@@ -21,7 +21,8 @@ from .insider_sell_completion_inputs import GOOD_IDENTITY, _events
 
 EVENT = "verified_sell_completion"
 REQUIRED = {"signal_date", "notice_date", "code", "pdf_url", "decision",
-            "actor", "sale_date", "actual_shares", "evidence", "support_url"}
+            "actor", "reported_sale_period", "actual_shares", "evidence",
+            "support_url"}
 SOURCE_DAY = re.compile(r"/((?:202[3-6])-[01]\d-[0-3]\d)/")
 
 
@@ -62,8 +63,9 @@ def validate_review(eligible: pd.DataFrame, review: pd.DataFrame,
                 raise ValueError("Supporting original was not public by signal day")
     verified = checked.loc[checked.decision.str.startswith("verified_")].copy()
     shares = pd.to_numeric(verified.actual_shares, errors="coerce")
-    if (not verified.sale_date.str.match(r"^202[45]").all()
-            or verified.sale_date.str[:4].gt(str(year)).any()
+    # This is the original's reported interval, not an exact last trade day.
+    if (not verified.reported_sale_period.str.match(r"^202[45]").all()
+            or verified.reported_sale_period.str[:4].gt(str(year)).any()
             or shares.isna().any() or shares.le(0).any()
             or shares.mod(1).ne(0).any()
             or verified.duplicated(["date", "code"]).any()):
