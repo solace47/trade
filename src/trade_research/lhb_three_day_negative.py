@@ -1,7 +1,7 @@
 """Input-only audit for next-session three-day negative abnormal disclosures.
 
-The hypothesis and matching constraints were fixed in
-docs/lhb-three-day-negative-plan.md before opening this event's returns.
+The hypothesis and matching constraints were fixed before opening this
+event's returns. Their stopped input audit is summarized in docs/input-gates.md.
 """
 
 from __future__ import annotations
