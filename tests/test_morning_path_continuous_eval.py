@@ -1,0 +1,28 @@
+"""Check the frozen residual adjustment and outcome gate boundary."""
+
+import json
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from trade_research.morning_path_continuous_eval import _adjusted_edge, evaluate
+
+
+def test_date_balanced_adjustment_recovers_zero_imbalance_edge():
+    rng = np.random.default_rng(81)
+    columns = ("gap_pp", "day_pp", "prior20_pp", "tail_pp",
+               "max5", "log_price", "log_amount")
+    values = rng.normal(size=(24, len(columns)))
+    frame = pd.DataFrame(values, columns=[f"delta_{x}" for x in columns])
+    frame["date"] = ["2024-02-01"] * 18 + ["2024-02-02"] * 6
+    frame["edge_cash"] = .002 + values @ np.arange(1, 8) / 1000
+    adjusted = _adjusted_edge(frame)
+    assert adjusted["adjusted_edge_at_zero_input_difference"] == pytest.approx(.002)
+
+
+def test_failed_input_gate_does_not_read_outcomes(tmp_path):
+    (tmp_path / "input_audit.json").write_text(
+        json.dumps({"outcome_gate_passed": False}), encoding="utf-8")
+    with pytest.raises(ValueError, match="Input gate failed"):
+        evaluate(tmp_path)
