@@ -21,6 +21,9 @@ def test_midpoint_requires_actor_and_original_zero_statement():
     assert zero_evidence(
         "股票代码000002。本次增持计划时间过半，控股股东尚未增持公司股份。",
         "sz.000001") is None
+    assert zero_evidence(
+        "股票代码000001。增持计划时间过半，暂未通过交易所以集中竞价方式进行增持。",
+        "sz.000001")
 
 
 def test_original_review_ledger_is_complete_and_excludes_mixed_plans(tmp_path):
@@ -51,7 +54,7 @@ def test_original_review_ledger_is_complete_and_excludes_mixed_plans(tmp_path):
     assert screen(tmp_path, tmp_path)["2024"]["midpoint_actor_titles"] == 2
     result = audit(tmp_path, review_path)
     assert result["2024"]["confirmed_zero_pdfs"] == 1
-    assert result["2025"]["mixed_plan_exclusions"] == 1
+    assert result["2025"]["rejected_or_ambiguous_pdfs"] == 1
     assert len(pd.read_parquet(tmp_path / "confirmed_2025.parquet")) == 1
     pd.DataFrame(reviews[:-1]).to_csv(review_path, index=False)
     with pytest.raises(ValueError, match="reviewed ledger differ"):

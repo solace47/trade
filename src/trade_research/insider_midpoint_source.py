@@ -19,6 +19,7 @@ ACTOR = re.compile(r"控股股东|实际控制人|董事长")
 MIDPOINT = re.compile(r"时间过半|期限过半|期间过半")
 ZERO = re.compile(
     r"(?:尚未|暂未|仍未)(?:通过.{0,16})?增持|"
+    r"(?:尚未|暂未|仍未)通过[^。；]{0,60}?(?:进行)?增持|"
     r"尚未实施增持|尚未开展对公司股票的增持"
 )
 SEARCHES = ("primary", "implementation", "broad")
@@ -129,7 +130,7 @@ def audit(source_dir: Path, review_path: Path) -> dict:
         report[str(year)] = {
             "all_title_pdfs_full_text": len(joined),
             "zero_marker_pdfs_reviewed": len(marked),
-            "mixed_plan_exclusions": int(marked.zero_confirmed.eq(0).sum()),
+            "rejected_or_ambiguous_pdfs": int(marked.zero_confirmed.eq(0).sum()),
             "confirmed_zero_pdfs": len(confirmed),
             "confirmed_stocks": int(confirmed.code.nunique()),
         }
