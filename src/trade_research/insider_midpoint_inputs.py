@@ -72,8 +72,15 @@ def build(source_dir: Path, snapshot_dir: Path, daily_dir: Path,
         cooldown_sessions=COOLDOWN)
     main = _tag(main, events)
     within = _tag(within, events)
+    main_events = main.loc[main.candidate.eq(EVENT)]
+    peak_months = {
+        year: main_events.loc[main_events.date.str.startswith(year), "date"]
+        .str[:7].value_counts().idxmax()
+        for year in ("2024", "2025")
+    }
     report = {"source": source, "universe_stock_days": len(universe),
               "main": main_report, "same_industry": industry_report,
+              "peak_months": peak_months,
               "exchange_counts": {
                   name: frame.loc[frame.candidate.eq(EVENT),
                                   "event_exchange"].value_counts().to_dict()
