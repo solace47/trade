@@ -278,10 +278,47 @@ def evaluate(signals_file: Path = OUTPUT / "frozen_signals.parquet",
     return report
 
 
+def evaluate_star_bound(full_signals_file: Path = OUTPUT / "full" /
+                        "frozen_signals.parquet",
+                        output_dir: Path = OUTPUT / "full" /
+                        "star_partial") -> dict:
+    """Reprice only the previously frozen STAR subset with share partials."""
+    full = pd.read_parquet(full_signals_file)
+    star = full.loc[full.board.eq("star")].copy()
+    if star.empty or star.duplicated(["date", "code"]).any():
+        raise ValueError("Missing or duplicate frozen STAR stock-days")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    signals_file = output_dir / "frozen_star_signals.parquet"
+    star.to_parquet(signals_file, index=False, compression="zstd")
+    report = evaluate(signals_file=signals_file, output_dir=output_dir)
+    raw = pd.read_parquet(output_dir / "entry_results.parquet")
+    clean = raw.loc[~raw.quality_issue & raw.bars_complete]
+    report["star_share_partial_bound_by_half"] = {
+        half: {
+            "clean_complete_stock_days": len(part),
+            "conservative_200_share_fill_rate_5": float(
+                part.participation_filled_5.mean()),
+            "one_share_partial_fill_bound_5": float(
+                part.share_partial_filled_5.mean()),
+            "one_share_partial_fill_bound_10": float(
+                part.share_partial_filled_10.mean()),
+            "new_full_fills_at_5": int((
+                part.share_partial_filled_5.eq(True)
+                & part.participation_filled_5.eq(False)).sum()),
+        } for half, part in clean.groupby("half")
+    }
+    if set(report["star_share_partial_bound_by_half"]) != set(HALVES):
+        raise ValueError("Missing a STAR half-year")
+    (output_dir / "entry_audit.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=("freeze", "evaluate",
-                                           "freeze-full", "evaluate-full"))
+                                           "freeze-full", "evaluate-full",
+                                           "evaluate-star-bound"))
     args = parser.parse_args()
     if args.stage == "freeze":
         report = freeze()
@@ -289,9 +326,11 @@ def main() -> None:
         report = evaluate()
     elif args.stage == "freeze-full":
         report = freeze(output_dir=OUTPUT / "full", all_eligible=True)
-    else:
+    elif args.stage == "evaluate-full":
         report = evaluate(signals_file=OUTPUT / "full" / "frozen_signals.parquet",
                           output_dir=OUTPUT / "full")
+    else:
+        report = evaluate_star_bound()
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
