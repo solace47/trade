@@ -21,12 +21,16 @@ SALT = "minute-acf-v1"
 
 
 def build_year(minute_paths: list[str], year: int, output: Path,
-               threads: int = 4) -> None:
-    """Read the 31 labels from 14:20 through 14:50 under the bar-end assumption."""
+               threads: int = 4, cutoff_label: str = "1450") -> None:
+    """Read 14:20 through the selected completed minute label."""
     if year not in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
         raise ValueError("Minute autocorrelation extraction is restricted to 2024-2025")
     if not minute_paths or threads < 1:
         raise ValueError("Minute sources and a positive thread count are required")
+    if cutoff_label not in ("1449", "1450"):
+        raise ValueError("Unsupported minute cutoff")
+    bar_count = int(cutoff_label[-2:]) - 20 + 1
+    return_count = bar_count - 1
     output.parent.mkdir(parents=True, exist_ok=True)
     connection = duckdb.connect()
     connection.execute(f"SET threads = {threads}")
@@ -45,7 +49,7 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                 FROM source_minutes
                 WHERE timestamp >= TIMESTAMP '{year}-01-01'
                   AND timestamp < TIMESTAMP '{year + 1}-01-01'
-                  AND strftime(timestamp, '%H%M') BETWEEN '1420' AND '1450'
+                  AND strftime(timestamp, '%H%M') BETWEEN '1420' AND '{cutoff_label}'
             ), lagged AS (
                 SELECT *, LAG(close) OVER (
                     PARTITION BY date, code ORDER BY timestamp
@@ -69,10 +73,12 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                        COUNT(minute_return) AS valid_returns,
                        COUNT(*) FILTER (WHERE minute_return <> 0)
                            AS nonzero_returns,
-                       MAX(close) FILTER (WHERE label = '1450') AS price_1450,
-                       MAX(minute_return) FILTER (WHERE label = '1450')
+                       MAX(close) FILTER (WHERE label = '{cutoff_label}')
+                           AS price_{cutoff_label},
+                       MAX(minute_return) FILTER (WHERE label = '{cutoff_label}')
                            AS last_minute_log_return,
-                       SUM(POWER(minute_return, 2)) AS realized_variance_last30,
+                       SUM(POWER(minute_return, 2))
+                           AS realized_variance_last{return_count},
                        SUM((minute_return-average_return)
                            * (prior_return-average_return))
                            AS lag_one_covariance_sum,
@@ -80,13 +86,13 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                            AS centered_square_sum
                 FROM centered GROUP BY date, code
             )
-            SELECT date, code, price_1450, last_minute_log_return,
-                   realized_variance_last30, nonzero_returns,
+            SELECT date, code, price_{cutoff_label}, last_minute_log_return,
+                   realized_variance_last{return_count}, nonzero_returns,
                    lag_one_covariance_sum / centered_square_sum AS rho1
             FROM aggregated
-            WHERE bars = 31 AND distinct_labels = 31
-              AND valid_returns = 30 AND nonzero_returns >= 10
-              AND price_1450 > 0 AND centered_square_sum > 0
+            WHERE bars = {bar_count} AND distinct_labels = {bar_count}
+              AND valid_returns = {return_count} AND nonzero_returns >= 10
+              AND price_{cutoff_label} > 0 AND centered_square_sum > 0
         ) TO '{path_literal}' (FORMAT PARQUET, COMPRESSION ZSTD)
     """)
     connection.close()
@@ -323,14 +329,18 @@ def main() -> None:
     parser.add_argument("--output", type=Path,
                         default=ROOT / "minute_autocovariance")
     parser.add_argument("--threads", type=int, default=4)
+    parser.add_argument("--cutoff-label", choices=("1449", "1450"),
+                        default="1450")
     args = parser.parse_args()
     paths = [str(args.minute_root / exchange / "*.parquet")
              for exchange in ("SH", "SZ")]
     for year in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
         output = args.output / f"{year}.parquet"
-        build_year(paths, year, output, args.threads)
+        build_year(paths, year, output, args.threads,
+                   cutoff_label=args.cutoff_label)
         print(f"Wrote {output}", flush=True)
-    print(freeze(args.output), flush=True)
+    if args.cutoff_label == "1450":
+        print(freeze(args.output), flush=True)
 
 
 if __name__ == "__main__":

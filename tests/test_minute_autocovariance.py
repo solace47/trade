@@ -45,6 +45,25 @@ def test_autocorrelation_excludes_sparse_and_pre_2024(tmp_path: Path) -> None:
     assert pd.read_parquet(tmp_path / "sparse_out.parquet").empty
 
 
+def test_autocorrelation_1449_never_reads_1450(tmp_path: Path) -> None:
+    labels = pd.date_range("2024-01-02 14:20", periods=31, freq="min")
+    returns = np.array([.001, -.002] * 14 + [.001])
+    closes = 10 * np.exp(np.r_[0, np.cumsum(returns)])
+    source = tmp_path / "minutes.parquet"
+    output = tmp_path / "acf_1449.parquet"
+    pd.DataFrame({
+        "symbol": "600000", "exchange": "SH", "timestamp": labels,
+        "close": np.r_[closes[:30], 100.0],
+    }).to_parquet(source, index=False)
+
+    build_year([str(source)], 2024, output, 1, cutoff_label="1449")
+
+    row = pd.read_parquet(output).iloc[0]
+    assert row.price_1449 == pytest.approx(closes[29])
+    assert row.nonzero_returns == 29
+    assert row.last_minute_log_return == pytest.approx(returns[28])
+
+
 def test_daily_pairs_use_strong_and_weak_quintiles_only() -> None:
     date = "2024-01-03"
     rows = []
