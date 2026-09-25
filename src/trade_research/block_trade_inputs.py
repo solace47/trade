@@ -36,9 +36,11 @@ def _is_a_share(code: str) -> bool:
 
 def _load_trades(source_dir: Path, dates: list[str]) -> tuple[pd.DataFrame, dict]:
     records = []
-    raw = {"sse_rows": 0, "szse_rows": 0, "non_a_rows": 0}
+    raw = {"sse_rows": 0, "szse_rows": 0, "szse_http_days": 0,
+           "non_a_rows": 0}
     for day in dates:
         saved = validate_saved(source_dir / f"{day}.json", day)
+        raw["szse_http_days"] += saved.get("szse_transport") == "http"
         for exchange in ("sse", "szse"):
             raw[f"{exchange}_rows"] += len(saved[exchange])
             for row in saved[exchange]:

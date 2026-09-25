@@ -3,6 +3,7 @@
 import pandas as pd
 import pytest
 
+import trade_research.block_trade_source as source
 from trade_research.block_trade_inputs import (
     CONTROL, EVENT, _discount_events, _match,
 )
@@ -18,6 +19,42 @@ def test_exchange_rows_accept_display_rounding_but_reject_wrong_date() -> None:
     wrong = {**fund, "tradeamount": "300"}
     with pytest.raises(ValueError, match="value"):
         _validate_trade(wrong, "2024-01-02", "sse")
+
+
+def test_official_http_fallback_is_explicit_and_recorded(monkeypatch) -> None:
+    observed = []
+    monkeypatch.setattr(source, "fetch_sse_day", lambda _day, _session: [{}])
+
+    def fake_szse(_day, _session, api, page_url):
+        observed.append((api, page_url))
+        return [{}]
+
+    monkeypatch.setattr(source, "fetch_szse_day", fake_szse)
+    secure = source.fetch_day("2024-01-02")
+    fallback = source.fetch_day("2024-01-02", szse_http=True)
+    assert secure["szse_transport"] == "https"
+    assert fallback["szse_transport"] == "http"
+    assert observed[0][0].startswith("https://www.szse.cn/")
+    assert observed[1][0].startswith("http://www.szse.cn/")
+
+
+def test_sequential_archive_keeps_good_days_before_a_source_failure(
+        monkeypatch, tmp_path) -> None:
+    days = ["2025-09-19", "2025-09-22", "2025-09-23"]
+    monkeypatch.setattr(source, "trading_dates", lambda *_args: days)
+
+    def fake_day(day, _http):
+        if day == days[1]:
+            raise ConnectionError("official source unavailable")
+        return {"schema_version": 1, "trade_date": day,
+                "sse": [{}], "szse": [{}], "szse_transport": "http"}
+
+    monkeypatch.setattr(source, "fetch_day", fake_day)
+    output = tmp_path / "archive"
+    with pytest.raises(ConnectionError, match="official source unavailable"):
+        source.archive(tmp_path / "calendar", output, days[0], days[-1],
+                       workers=1, szse_http=True)
+    assert sorted(p.stem for p in output.glob("*.json")) == [days[0]]
 
 
 def test_discount_uses_only_published_trade_date_and_strict_low() -> None:

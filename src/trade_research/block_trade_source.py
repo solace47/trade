@@ -124,14 +124,15 @@ def _szse_tab(text: str) -> dict:
     return matches[0]
 
 
-def fetch_szse_day(day: str, session: requests.Session) -> list[dict]:
+def fetch_szse_day(day: str, session: requests.Session,
+                   api: str = SZSE_API, page_url: str = SZSE_PAGE) -> list[dict]:
     rows: list[dict] = []
     page_no = 1
     while True:
         params = {"SHOWTYPE": "JSON", "CATALOGID": SZSE_CATALOG,
                   "TABKEY": "tab2", "txtStart": day, "txtEnd": day,
                   "PAGENO": page_no}
-        tab = _szse_tab(_request(session, SZSE_API, params, SZSE_PAGE).text)
+        tab = _szse_tab(_request(session, api, params, page_url).text)
         meta = tab["metadata"]
         total = meta.get("recordcount")
         if total == 0 and meta.get("pagecount") == 0 and not tab["data"]:
@@ -154,22 +155,28 @@ def fetch_szse_day(day: str, session: requests.Session) -> list[dict]:
     return rows
 
 
-def fetch_day(day: str) -> dict:
+def fetch_day(day: str, szse_http: bool = False) -> dict:
     if not re.fullmatch(r"202[45]-\d\d-\d\d", day):
         raise ValueError("Block trade archive is limited to 2024–2025")
     with requests.Session() as session:
         sse = fetch_sse_day(day, session)
-        szse = fetch_szse_day(day, session)
+        szse = fetch_szse_day(
+            day, session,
+            SZSE_API.replace("https://", "http://", 1) if szse_http else SZSE_API,
+            SZSE_PAGE.replace("https://", "http://", 1) if szse_http else SZSE_PAGE)
     if not sse and not szse:
         raise ValueError(f"Both exchange block trade lists are empty on {day}")
     return {"schema_version": 1, "trade_date": day,
-            "sse": sse, "szse": szse}
+            "sse": sse, "szse": szse,
+            "szse_transport": "http" if szse_http else "https"}
 
 
 def validate_saved(path: Path, day: str) -> dict:
     record = json.loads(path.read_text(encoding="utf-8"))
     if record.get("schema_version") != 1 or record.get("trade_date") != day:
         raise ValueError(f"Invalid saved block trade envelope: {path}")
+    if record.get("szse_transport", "https") not in ("https", "http"):
+        raise ValueError(f"Invalid saved SZSE transport: {path}")
     for exchange in ("sse", "szse"):
         rows = record.get(exchange)
         if not isinstance(rows, list):
@@ -182,7 +189,7 @@ def validate_saved(path: Path, day: str) -> dict:
 
 
 def archive(calendar: Path, output_dir: Path, start: str, end: str,
-            workers: int = 2) -> dict:
+            workers: int = 2, szse_http: bool = False) -> dict:
     if workers not in (1, 2, 3):
         raise ValueError("Use 1–3 exchange request workers")
     dates = trading_dates(calendar, start, end)
@@ -197,19 +204,38 @@ def archive(calendar: Path, output_dir: Path, start: str, end: str,
         else:
             pending.append(day)
     completed = 0
+
+    def save(day: str, record: dict) -> None:
+        nonlocal completed
+        path = output_dir / f"{day}.json"
+        temporary = path.with_suffix(".tmp")
+        temporary.write_text(json.dumps(record, ensure_ascii=False) + "\n",
+                             encoding="utf-8")
+        temporary.replace(path)
+        completed += 1
+
     for offset in range(0, len(pending), 25):
         batch = pending[offset:offset + 25]
-        with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = {executor.submit(fetch_day, day): day for day in batch}
-            for future in as_completed(futures):
-                day = futures[future]
-                record = future.result()
-                path = output_dir / f"{day}.json"
-                temporary = path.with_suffix(".tmp")
-                temporary.write_text(json.dumps(record, ensure_ascii=False) + "\n",
-                                     encoding="utf-8")
-                temporary.replace(path)
-                completed += 1
+        if workers == 1:
+            # A failed source day stops immediately; already saved days survive.
+            for day in batch:
+                save(day, fetch_day(day, szse_http))
+        else:
+            failures = []
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                futures = {executor.submit(fetch_day, day, szse_http): day
+                           for day in batch}
+                for future in as_completed(futures):
+                    day = futures[future]
+                    try:
+                        record = future.result()
+                    except Exception as exc:
+                        failures.append((day, exc))
+                        continue
+                    save(day, record)
+            if failures:
+                days = ", ".join(day for day, _ in failures)
+                raise RuntimeError(f"Block trade source failed for {days}") from failures[0][1]
         print(f"Block trade days: {completed}/{len(pending)} new; "
               f"{len(dates) - len(pending)} cached", flush=True)
     return {"expected_days": len(dates), "cached_days": len(dates) - len(pending),
@@ -225,9 +251,11 @@ def main() -> None:
     parser.add_argument("--start", default="2024-01-01")
     parser.add_argument("--end", default="2025-12-31")
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--szse-http-fallback", action="store_true",
+                        help="Use the official SZSE HTTP endpoint when HTTPS is unreachable")
     args = parser.parse_args()
     print(archive(args.calendar, args.output_dir, args.start, args.end,
-                  args.workers))
+                  args.workers, args.szse_http_fallback))
 
 
 if __name__ == "__main__":
