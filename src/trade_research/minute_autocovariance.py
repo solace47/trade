@@ -22,7 +22,7 @@ SALT = "minute-acf-v1"
 
 def build_year(minute_paths: list[str], year: int, output: Path,
                threads: int = 4) -> None:
-    """Read only the 31 completed bars from 14:20 through 14:50."""
+    """Read the 31 labels from 14:20 through 14:50 under the bar-end assumption."""
     if year not in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
         raise ValueError("Minute autocorrelation extraction is restricted to 2024-2025")
     if not minute_paths or threads < 1:

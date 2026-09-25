@@ -1,7 +1,7 @@
-"""Extract recent 14:50-safe intraday features from the pinned minute archive.
+"""Extract intraday features through the archive's 14:50 label.
 
-Only completed bars through 14:50 enter these features. Later minutes are
-reserved for the execution and outcome model, never for signal construction.
+This assumes labels denote bar ends; the publisher has not certified that
+convention. Later labels are reserved for execution and outcomes.
 """
 
 from __future__ import annotations

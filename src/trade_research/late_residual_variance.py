@@ -1,4 +1,4 @@
-"""Extract 14:50-safe market-adjusted realized variance for all SH/SZ stocks."""
+"""Extract market-adjusted variance through the archive's 14:50 label."""
 
 from __future__ import annotations
 

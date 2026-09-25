@@ -1,7 +1,7 @@
-"""Build a 14:50-safe, minute-bar proxy for late directional turnover.
+"""Build a 14:50-label minute proxy for late directional turnover.
 
 This is NOT order imbalance: minute OHLCV cannot identify aggressor side.
-Only 14:20-14:50 completed bars enter the proxy. The 14:20 bar supplies
+Only 14:20-14:50 labels enter, assuming bar-end timestamps. The 14:20 bar supplies
 the first comparison close; its turnover does not enter the denominator.
 """
 

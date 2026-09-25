@@ -1,4 +1,4 @@
-"""Fixed cost-aware ridge ranking with 14:50-safe late-session features.
+"""Fixed cost-aware ridge ranking with 14:50-label late-session features.
 
 Train on early 2024, check later 2024, refit on 2024, then check 2025.
 The five-session horizon and regularization are fixed before this run.

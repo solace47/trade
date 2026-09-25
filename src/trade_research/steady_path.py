@@ -1,6 +1,6 @@
 """Test a fixed two-phase intraday climb against the same calm up-day pool.
 
-Selection sees completed bars through 14:50 only. Prior negative results
+Selection sees labels through 14:50 under the bar-end assumption. Prior negative results
 motivated this exploratory test; 2025 is not a blind holdout.
 """
 
