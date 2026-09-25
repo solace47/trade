@@ -82,6 +82,7 @@ def test_daily_pairs_use_strong_and_weak_quintiles_only() -> None:
     assert audit["strong_pool"] == audit["weak_pool"] == 8
     assert audit["by_half"][0]["attempts"] == 5
     assert audit["pairs"] == 5
+    assert audit["stage_reach"]["2024H1"]["variance"] == 5
     assert audit["outcome_gate_passed"] is False
     assert signals.loc[signals.candidate.eq("strong_negative"), "rho1"].max() < -.5
     assert signals.loc[signals.candidate.eq("weak_negative"), "rho1"].min() > .4

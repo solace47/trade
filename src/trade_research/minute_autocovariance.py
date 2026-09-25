@@ -120,9 +120,11 @@ def _daily_groups(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, int]
             pd.concat(weak, ignore_index=True), eligible_days)
 
 
-def _match(row, available: pd.DataFrame) -> pd.Series | None:
+def _match(row, available: pd.DataFrame,
+           reach: dict[str, int]) -> pd.Series | None:
     if available.empty:
         return None
+    reach["pool"] += 1
     prior = (available.return20_prior_adjusted
              - row.return20_prior_adjusted).abs()
     current = (available.return_1450 - row.return_1450).abs()
@@ -130,11 +132,16 @@ def _match(row, available: pd.DataFrame) -> pd.Series | None:
     price = available.price_1450 / row.price_1450
     amount = available.amount_1450 / row.amount_1450
     variance = available.realized_variance_last30 / row.realized_variance_last30
-    matches = available.loc[
-        prior.le(.03) & current.le(.005) & tail.le(.0015)
-        & price.between(.5, 2) & amount.between(.5, 2)
-        & variance.between(.5, 2)
-    ].copy()
+    valid = pd.Series(True, index=available.index)
+    for name, condition in (
+        ("prior", prior.le(.03)), ("current", current.le(.005)),
+        ("tail", tail.le(.0015)), ("price", price.between(.5, 2)),
+        ("amount", amount.between(.5, 2)),
+        ("variance", variance.between(.5, 2)),
+    ):
+        valid &= condition
+        reach[name] += int(valid.any())
+    matches = available.loc[valid].copy()
     if matches.empty:
         return None
     matches["distance"] = (
@@ -194,6 +201,10 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
     last_used: dict[str, int] = {}
     selections: list[dict] = []
     attempts = {half: 0 for half in ("2024H1", "2024H2", "2025H1", "2025H2")}
+    stage_names = ("pool", "prior", "current", "tail", "price", "amount",
+                   "variance")
+    stage_reach = {half: {name: 0 for name in stage_names}
+                   for half in attempts}
     for date, ranked in strong.groupby("date", sort=True):
         market_index = date_index[date]
         available = weak_by_date[date].copy()
@@ -209,7 +220,7 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
                 lambda code: market_index - last_used.get(code, -1000)
                 > COOLDOWN
             )]
-            matched = _match(row, fresh)
+            matched = _match(row, fresh, stage_reach[_half(date)])
             if matched is None:
                 continue
             strong_row = row._asdict()
@@ -263,6 +274,7 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
         "eligible_days": eligible_days,
         "strong_pool": len(strong), "weak_pool": len(weak),
         "pairs": len(signals) // 2, "by_half": by_half,
+        "stage_reach": stage_reach,
         "outcome_gate_passed": gate,
     }
     return signals, audit
