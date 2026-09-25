@@ -57,6 +57,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 平静上涨与市场广度的同日配对检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.quiet_breadth`，输出保存在 `data/research/quiet_breadth/`。
 历史时段尾盘量能检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.tail_volume_surprise`；以其 `repricing_signals.parquet` 调用 `trade_research.size_sensitivity --notionals 100000 --horizons 1 5` 可逐笔核对原始分钟成交。
 市场尾盘方向分层先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.late_market_direction inputs`，输入门槛通过后运行同模块 `evaluate`，重用已核对的回落配对原始分钟复价；见[专项记录](late-market-direction-plan.md)。
+14:20 前全市场方向先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.market_pre_tail_state`，输入门槛通过后运行 `PYTHONPATH=src .venv/bin/python -m trade_research.market_pre_tail_eval`，重用同一冻结配对的真实分钟成交，并附全市场未严配诊断；见[专项记录](market-pre-tail-state-plan.md)。
 同行业相对尾盘压力仅做输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_sector_pressure_inputs`；严格跨行业对照未过预设门槛，详见[专项记录](late-sector-pressure-plan.md)。
 市场尾盘下跌日逆市上涨对平稳股的检验依次运行 `trade_research.down_market_rally_inputs`、`trade_research.size_sensitivity --signals data/research/down_market_rally/repricing_signals.parquet --output data/research/down_market_rally/repriced.parquet --notionals 20000 100000 --horizons 1 5 --exit-windows morning close`、`trade_research.down_market_rally_eval`；各命令以 `PYTHONPATH=src .venv/bin/python -m` 开头，详见[配对记录](down-market-rally-avoidance-plan.md)。
 下跌尾盘的成交时点仅做输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_volume_timing`；严格同日配对未过冻结门槛，见[专项记录](late-volume-timing-plan.md)。
