@@ -6,12 +6,43 @@ import argparse
 import json
 from pathlib import Path
 
+import duckdb
 import numpy as np
 import pandas as pd
 
-from .market_study import _week_bootstrap
+from .market_study import _quality_keys, _week_bootstrap
 from .morning_path_continuous import HALVES, KEY, OUTPUT
+from .quality_period import load_period_bad_symbols
 from .strategy_scan import _stressed_returns
+
+
+def _period_quality(trades: pd.DataFrame, issues_dir: Path,
+                    period_report: Path) -> pd.DataFrame:
+    """Keep bad-day exclusions but limit whole-symbol flags to 2024–2025."""
+    connection = duckdb.connect()
+    try:
+        connection.register("trades", trades)
+        connection.register("bad_days", _quality_keys(issues_dir))
+        connection.register("bad_symbols", load_period_bad_symbols(
+            period_report, "2024-01-01", "2025-12-31"))
+        evaluated = connection.execute("""
+            SELECT r.*, r.exit_status = 'filled'
+                AND NOT EXISTS (SELECT 1 FROM bad_symbols b
+                                WHERE b.code = r.code)
+                AND NOT EXISTS (SELECT 1 FROM bad_days q
+                                WHERE q.code = r.code
+                                  AND q.date >= r.date
+                                  AND q.date <= r.exit_date)
+                AS quality_clean_exit_period
+            FROM trades r
+        """).df()
+    finally:
+        connection.close()
+    if len(evaluated) != len(trades):
+        raise ValueError("Period quality join changed the trade count")
+    evaluated = evaluated.drop(columns="quality_clean_exit").rename(
+        columns={"quality_clean_exit_period": "quality_clean_exit"})
+    return evaluated
 
 
 def _adjusted_edge(strata: pd.DataFrame) -> dict:
@@ -116,7 +147,10 @@ def _one_grid(signals: pd.DataFrame, trades: pd.DataFrame) -> dict:
     return report
 
 
-def evaluate(output: Path = OUTPUT) -> dict:
+def evaluate(output: Path = OUTPUT,
+             issues_dir: Path = Path("data/research/market_issues_ci"),
+             period_report: Path = Path(
+                 "data/research/quality_period_2024_2025.json")) -> dict:
     audit = json.loads((output / "input_audit.json").read_text(
         encoding="utf-8"))
     if not audit["outcome_gate_passed"]:
@@ -131,7 +165,9 @@ def evaluate(output: Path = OUTPUT) -> dict:
             or set(trades.exit_window) != {"morning", "close"}
             or set(trades.horizon) != {1}):
         raise ValueError("Incomplete frozen raw-minute outcome grid")
+    trades = _period_quality(trades, issues_dir, period_report)
     result = {"input_audit": audit,
+              "bad_symbol_policy": "2024–2025 severe fields only",
               "cash_for_unfilled_delayed_or_bad_quality": 0,
               "cost_stress_bps_each_side": [10, 15],
               "results": {}}

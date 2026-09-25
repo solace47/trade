@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from trade_research.morning_path_continuous_eval import _adjusted_edge, evaluate
+from trade_research.morning_path_continuous_eval import (
+    _adjusted_edge, _period_quality, evaluate,
+)
 
 
 def test_date_balanced_adjustment_recovers_zero_imbalance_edge():
@@ -26,3 +28,29 @@ def test_failed_input_gate_does_not_read_outcomes(tmp_path):
         json.dumps({"outcome_gate_passed": False}), encoding="utf-8")
     with pytest.raises(ValueError, match="Input gate failed"):
         evaluate(tmp_path)
+
+
+def test_period_quality_keeps_other_year_source_faults_out(tmp_path):
+    issue_dir = tmp_path / "issues"
+    issue_dir.mkdir()
+    pd.DataFrame([{"date": "2024-03-13", "code": "sh.600002",
+                   "kind": "ohlc_disagreement"}]).to_csv(
+        issue_dir / "shard_0.csv", index=False)
+    period_file = tmp_path / "period.json"
+    period_file.write_text(json.dumps({
+        "first_date": "2024-01-01", "last_date": "2025-12-31",
+        "period_bad_symbols": ["sh.600003"],
+    }), encoding="utf-8")
+    trades = pd.DataFrame([
+        {"date": "2024-03-12", "code": "sh.600001",
+         "exit_date": "2024-03-13", "exit_status": "filled",
+         "quality_clean_exit": False},
+        {"date": "2024-03-12", "code": "sh.600002",
+         "exit_date": "2024-03-13", "exit_status": "filled",
+         "quality_clean_exit": True},
+        {"date": "2024-03-12", "code": "sh.600003",
+         "exit_date": "2024-03-13", "exit_status": "filled",
+         "quality_clean_exit": True},
+    ])
+    result = _period_quality(trades, issue_dir, period_file)
+    assert result.quality_clean_exit.tolist() == [True, False, False]
