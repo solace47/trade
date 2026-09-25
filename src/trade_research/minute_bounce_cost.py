@@ -47,10 +47,14 @@ import duckdb
 import numpy as np
 import pandas as pd
 
+from .market_study import _quality_keys
+from .quality_period import load_period_bad_symbols
+
 
 ROOT = Path("data/research")
 OUTPUT = ROOT / "minute_bounce_cost"
 HALVES = ("2024H1", "2024H2", "2025H1", "2025H2")
+ENTRY_LABEL = "1452-1455"
 
 
 def _half(dates: pd.Series) -> pd.Series:
@@ -167,12 +171,191 @@ def freeze(prefix_dir: Path = ROOT / "minute_prefix_1449",
     return report
 
 
+def _date_equal_drift(frame: pd.DataFrame) -> pd.DataFrame:
+    """Average within board first, then weight each date equally."""
+    means = frame.groupby(["half", "date", "board", "rho_third"])[
+        "drift_bps"].mean().unstack("rho_third")
+    if 1 not in means or 3 not in means:
+        raise ValueError("Both extreme thirds are required")
+    paired = means.loc[means[1].notna() & means[3].notna()].copy()
+    if paired.empty:
+        raise ValueError("No same-date, same-board drift controls")
+    paired["low_minus_high_bps"] = paired[1] - paired[3]
+    return paired.reset_index().groupby(["half", "date"], as_index=False)[
+        "low_minus_high_bps"].mean()
+
+
+def _yearly_week_intervals(daily: pd.DataFrame, draws: int = 2000,
+                           seed: int = 20260925) -> dict[str, list[float]]:
+    """Resample weeks within each half so both halves keep equal weight."""
+    rng = np.random.default_rng(seed)
+    intervals = {}
+    rows = daily.copy()
+    rows["week"] = pd.to_datetime(rows.date).dt.to_period("W-SUN").astype(str)
+    for year in ("2024", "2025"):
+        half_draws = []
+        for half in (f"{year}H1", f"{year}H2"):
+            weekly = rows.loc[rows.half.eq(half)].groupby("week")[
+                "low_minus_high_bps"].agg(["sum", "count"])
+            if len(weekly) < 12:
+                raise ValueError(f"Too few independent weeks in {half}")
+            indexes = rng.integers(0, len(weekly), (draws, len(weekly)))
+            totals = weekly["sum"].to_numpy()[indexes].sum(axis=1)
+            counts = weekly["count"].to_numpy()[indexes].sum(axis=1)
+            half_draws.append(totals / counts)
+        samples = (half_draws[0] + half_draws[1]) / 2
+        intervals[year] = np.quantile(samples, [.025, .975]).tolist()
+    return intervals
+
+
+def _controlled_gap(frame: pd.DataFrame) -> dict[str, float | int]:
+    """Within-date-board linear adjustment; descriptive, not causal."""
+    extreme = frame.loc[frame.rho_third.isin((1, 3))].copy()
+    extreme["low"] = extreme.rho_third.eq(1).astype(float)
+    extreme["last_bps"] = extreme.last_minute_log_return * 10_000
+    extreme["tail_bps"] = extreme.return_last29 * 10_000
+    extreme["day_bps"] = extreme.day_return * 10_000
+    extreme["log_price"] = np.log(extreme.price_1449)
+    extreme["log_amount"] = np.log(extreme.amount_1449)
+    extreme["log_variance"] = np.log(extreme.realized_variance_last29)
+    predictors = ("low", "last_bps", "tail_bps", "day_bps", "log_price",
+                  "log_amount", "log_variance")
+    fields = [*predictors, "drift_bps"]
+    groups = extreme.groupby(["date", "board"])
+    extreme = extreme.loc[groups.rho_third.transform("nunique").eq(2)].copy()
+    extreme[fields] -= extreme.groupby(["date", "board"])[
+        fields].transform("mean")
+    x = extreme[list(predictors)].to_numpy(dtype=float)
+    y = extreme.drift_bps.to_numpy(dtype=float)
+    coefficients, _, rank, _ = np.linalg.lstsq(x, y, rcond=None)
+    if rank != len(predictors):
+        raise ValueError("Controlled drift design is rank deficient")
+    return {"rows": len(extreme), "date_board_groups": int(extreme.groupby(
+        ["date", "board"]).ngroups),
+        "adjusted_low_minus_high_bps": float(coefficients[0])}
+
+
+def evaluate_entry(
+    input_dir: Path = OUTPUT,
+    outcomes_dir: Path = ROOT / "market_outcomes_ci",
+    issues_dir: Path = ROOT / "market_issues_ci",
+    period_quality: Path = ROOT / "quality_period_2024_2025.json",
+) -> dict:
+    audit = json.loads((input_dir / "input_audit.json").read_text())
+    if not audit["input_gate_passed"] or audit["scope"] != list(HALVES):
+        raise ValueError("Frozen input gate did not pass")
+    inputs = pd.read_parquet(input_dir / "inputs.parquet")
+    if inputs.empty or inputs.duplicated(["date", "code"]).any():
+        raise ValueError("Frozen inputs are missing or nonunique")
+    if not inputs.date.str[:4].isin(("2024", "2025")).all():
+        raise ValueError("Outcome request escaped development years")
+    connection = duckdb.connect()
+    try:
+        connection.execute("SET threads = 4")
+        connection.execute("SET memory_limit = '8GB'")
+        connection.register("signals", inputs[["date", "code"]])
+        connection.read_parquet(str(outcomes_dir / "*.parquet")
+                                ).create_view("outcomes")
+        # Intentionally project no exit field or post-entry return at this gate.
+        entries = connection.execute("""
+            SELECT i.date, i.code, o.entry_status, o.entry_price
+            FROM signals i LEFT JOIN outcomes o
+              ON i.date = o.date AND i.code = o.code
+             AND o.horizon = 1 AND o.entry_label = '1452-1455'
+             AND o.exit_label = '1452-1455'
+        """).df()
+    finally:
+        connection.close()
+    if entries.duplicated(["date", "code"]).any():
+        raise ValueError("Nonunique archived T+1 entry")
+    if len(entries) != len(inputs):
+        raise ValueError("T+1 entry key cardinality changed")
+    rows = inputs.merge(entries, on=["date", "code"], validate="one_to_one")
+    bad_days = _quality_keys(issues_dir)
+    bad_days["bad_day"] = True
+    rows = rows.merge(bad_days, on=["date", "code"], how="left",
+                      validate="one_to_one")
+    bad_symbols = set(load_period_bad_symbols(
+        period_quality, "2024-01-01", "2025-12-17").code.dropna())
+    rows["clean_fill"] = (
+        rows.entry_status.eq("filled") & rows.entry_price.gt(0)
+        & rows.bad_day.isna() & ~rows.code.isin(bad_symbols)
+    )
+    rows["drift_bps"] = np.where(
+        rows.clean_fill,
+        10_000 * ((rows.entry_price / 1.0005) / rows.price_1449 - 1),
+        np.nan,
+    )
+    composition = {}
+    by_half = {}
+    for half in HALVES:
+        group = rows.loc[rows.half.eq(half)]
+        by_third = {}
+        for third in (1, 2, 3):
+            part = group.loc[group.rho_third.eq(third)]
+            by_third[str(third)] = {
+                "signals": len(part),
+                "clean_fills": int(part.clean_fill.sum()),
+                "clean_fill_fraction": float(part.clean_fill.mean()),
+                "mean_drift_bps": float(part.drift_bps.mean()),
+            }
+        by_half[half] = {"thirds": by_third}
+        composition[half] = {
+            str(third): {
+                "last_minute_bps": float(part.last_minute_log_return.median() * 10_000),
+                "tail29_bps": float(part.return_last29.median() * 10_000),
+                "day_bps": float(part.day_return.median() * 10_000),
+                "price": float(part.price_1449.median()),
+                "amount_yuan": float(part.amount_1449.median()),
+                "variance": float(part.realized_variance_last29.median()),
+            }
+            for third in (1, 3)
+            for part in [group.loc[group.rho_third.eq(third)]]
+        }
+    clean = rows.loc[rows.clean_fill].copy()
+    daily = _date_equal_drift(clean)
+    for half in HALVES:
+        part = daily.loc[daily.half.eq(half)]
+        by_half[half]["paired_dates"] = len(part)
+        by_half[half]["date_equal_low_minus_high_bps"] = float(
+            part.low_minus_high_bps.mean())
+        by_half[half]["adjusted"] = _controlled_gap(
+            clean.loc[clean.half.eq(half)])
+    intervals = _yearly_week_intervals(daily)
+    key_fraction = float(rows.entry_status.notna().mean())
+    gate = (
+        key_fraction >= .999
+        and all(by_half[h]["thirds"][str(t)]["clean_fill_fraction"] >= .95
+                for h in HALVES for t in (1, 3))
+        and all(by_half[h]["date_equal_low_minus_high_bps"] > 5
+                for h in HALVES)
+        and all(intervals[y][0] > 0 for y in ("2024", "2025"))
+    )
+    report = {
+        "input_cutoff": "14:49", "entry_window": ENTRY_LABEL,
+        "read_post_entry_returns": False,
+        "outcome_key_fraction": key_fraction,
+        "by_half": by_half,
+        "composition_medians": composition,
+        "annual_week_bootstrap_95_bps": intervals,
+        "post_entry_return_gate_passed": bool(gate),
+        "note": "Entry VWAP inferred by removing fixed 5bp model slippage; minute VWAP cannot prove order-book fills.",
+    }
+    (input_dir / "entry_drift_audit.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("stage", nargs="?", choices=("freeze", "entry"),
+                        default="freeze")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT)
     args = parser.parse_args()
-    print(json.dumps(freeze(output_dir=args.output_dir),
-                     ensure_ascii=False, indent=2))
+    report = (freeze(output_dir=args.output_dir) if args.stage == "freeze"
+              else evaluate_entry(input_dir=args.output_dir))
+    print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
