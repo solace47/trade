@@ -135,6 +135,11 @@ def _one_stock(item: tuple[str, pd.DataFrame], minute_root: Path) -> list[dict]:
     minute = pd.read_parquet(path, columns=["timestamp", "volume", "turnover"],
                              filters=[("timestamp", ">=", start),
                                       ("timestamp", "<", end)])
+    # Filter the four clock minutes before formatting calendar dates; a full
+    # two-year file has about 120,000 rows but only a few thousand entry bars.
+    clock_minute = minute.timestamp.dt.hour * 60 + minute.timestamp.dt.minute
+    minute = minute.loc[clock_minute.between(14 * 60 + 52,
+                                             14 * 60 + 55)].copy()
     minute["date"] = minute.timestamp.dt.strftime("%Y-%m-%d")
     minute["label"] = minute.timestamp.dt.strftime("%H%M")
     minute = minute.loc[minute.date.isin(signals.date)
