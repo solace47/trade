@@ -48,6 +48,7 @@ def test_complete_prefix_excludes_later_bar_and_incomplete_day(tmp_path: Path) -
     assert result.volume_1449.iloc[0] == 23000
     assert result.amount_1449.iloc[0] == pytest.approx(valid.turnover.sum())
     assert result.return_last29.iloc[0] == pytest.approx(9.7 / 9.9 - 1)
+    assert result.vwap_1446_1449.iloc[0] == pytest.approx(10.0 * 3 / 4 + 9.7 / 4)
     assert not result.quote_outside_traded_range.iloc[0]
 
 
