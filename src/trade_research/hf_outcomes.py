@@ -27,6 +27,7 @@ EXECUTION_LABEL = "1452-1455"
 ENTRY_WINDOWS = {
     "baseline": EXECUTION_LABELS,
     "delay_one_minute": ("1453", "1454", "1455", "1456"),
+    "auction": ("1500",),
 }
 EXIT_WINDOWS = {
     "close": EXECUTION_LABELS,
