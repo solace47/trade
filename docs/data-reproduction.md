@@ -60,6 +60,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 ```bash
 PYTHONPATH=src .venv/bin/python -m trade_research.intraday_features --threads 8
 PYTHONPATH=src .venv/bin/python -m trade_research.intraday_scan --year 2024
+PYTHONPATH=src .venv/bin/python -m trade_research.intraday_scan --year 2025
 PYTHONPATH=src .venv/bin/python scripts/intraday_factor_bins.py
 PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
 PYTHONPATH=src .venv/bin/python scripts/tail_return_decomposition.py

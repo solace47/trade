@@ -21,6 +21,70 @@ ROOT = Path("data/research")
 PERIODS = (("2024", "2024-12-17"), ("2025", "2025-12-17"))
 
 
+def describe_existing_screens(connection: duckdb.DuckDBPyConnection,
+                              baseline: pd.DataFrame,
+                              slip: float) -> list[dict]:
+    """Attribute the six already registered screens on matching signal dates."""
+    paths = [ROOT / "intraday_scan" / f"trades_{year}.parquet"
+             for year, _ in PERIODS]
+    if not all(path.exists() for path in paths):
+        raise FileNotFoundError("Run intraday_scan for both 2024 and 2025 first")
+    connection.read_parquet([str(path) for path in paths]).create_view("screens")
+    connection.register("baseline_daily", baseline[["date", "net_return"]])
+    trades = connection.execute("""
+        SELECT t.screen, t.date, t.code, t.entry_status, t.exit_status,
+               t.quality_clean_exit, t.exit_delay_sessions,
+               t.entry_price, t.exit_price, t.net_return,
+               n.open_1450 AS next_open,
+               b.net_return AS baseline_net
+        FROM screens t
+        LEFT JOIN snapshots n ON n.code = t.code AND n.date = t.exit_date
+        JOIN baseline_daily b ON b.date = t.date
+        WHERE t.horizon = 1
+    """).df()
+    trades["usable"] = (
+        trades.entry_status.eq("filled") & trades.exit_status.eq("filled")
+        & trades.quality_clean_exit & trades.exit_delay_sessions.eq(0)
+        & trades.entry_price.gt(0) & trades.exit_price.gt(0)
+        & trades.next_open.gt(0)
+    )
+    valid = trades.loc[trades.usable].copy()
+    valid["overnight_gross"] = valid.next_open / (
+        valid.entry_price / (1 + slip)
+    ) - 1
+    valid["next_day_gross"] = (
+        valid.exit_price / (1 - slip)
+    ) / valid.next_open - 1
+    by_date = valid.groupby(["screen", "date"]).agg(
+        overnight_gross=("overnight_gross", "mean"),
+        next_day_gross=("next_day_gross", "mean"),
+        net_return=("net_return", "mean"),
+        baseline_net=("baseline_net", "first"),
+    ).reset_index()
+    by_date["edge"] = by_date.net_return - by_date.baseline_net
+    by_date["period"] = by_date.date.str[:4] + "-" + (
+        by_date.date.str[5:7].astype(int).le(6).map({True: "H1", False: "H2"})
+    )
+    trades["period"] = trades.date.str[:4] + "-" + (
+        trades.date.str[5:7].astype(int).le(6).map({True: "H1", False: "H2"})
+    )
+    report = []
+    for (screen, period), frame in by_date.groupby(["screen", "period"]):
+        selected = trades.loc[trades.screen.eq(screen) & trades.period.eq(period)]
+        row = {
+            "screen": screen, "period": period, "days": len(frame),
+            "signals": len(selected),
+            "clean_ontime": int(selected.usable.sum()),
+        }
+        for name in ("overnight_gross", "next_day_gross", "net_return", "edge"):
+            row[name] = float(frame[name].mean())
+            row[f"{name}_week_ci"] = _week_bootstrap(
+                frame[name], frame.date, 20260925
+            )
+        report.append(row)
+    return report
+
+
 def main() -> None:
     shards = {
         path.name.split("_")[1]
@@ -80,6 +144,8 @@ def main() -> None:
     if daily.empty or daily[["overnight_gross", "next_day_gross",
                                   "net_return"]].isna().any().any():
         raise ValueError("Missing clean T+1 fills on a research day")
+    daily.to_parquet(ROOT / "tail_return_decomposition_daily.parquet",
+                     index=False, compression="zstd")
     report = []
     half = daily.date.str[5:7].astype(int).le(6).map(
         {True: "H1", False: "H2"}
@@ -103,7 +169,14 @@ def main() -> None:
     destination = ROOT / "tail_return_decomposition.json"
     destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                            encoding="utf-8")
-    print(json.dumps(report, ensure_ascii=False, indent=2))
+    screen_report = describe_existing_screens(connection, daily, slip)
+    screen_output = ROOT / "tail_signal_attribution.json"
+    screen_output.write_text(
+        json.dumps(screen_report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    print({"market_periods": len(report), "screen_periods": len(screen_report),
+           "market_output": str(destination), "screen_output": str(screen_output)})
 
 
 if __name__ == "__main__":
