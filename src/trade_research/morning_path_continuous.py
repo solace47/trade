@@ -22,8 +22,15 @@ KEY = ("half", "date", "board", "day_bin", "gap_bin")
 
 
 def load_inputs(source: Path = SOURCE, morning: Path = MORNING,
-                snapshots: Path = SNAPSHOTS) -> pd.DataFrame:
+                snapshots: Path = SNAPSHOTS,
+                opening_anchor: str = "source_0930_close") -> pd.DataFrame:
     """Join opening reference and order fields without reading future prices."""
+    anchor_price = {
+        "source_0930_close": "m.price_0930",
+        "daily_open": "s.open_1450",
+    }.get(opening_anchor)
+    if anchor_price is None:
+        raise ValueError("Unknown morning opening anchor")
     base = pd.read_parquet(source)
     connection = duckdb.connect()
     try:
@@ -31,16 +38,16 @@ def load_inputs(source: Path = SOURCE, morning: Path = MORNING,
         connection.register("base", base)
         connection.from_parquet(str(morning / "*.parquet")).create_view("m")
         connection.from_parquet(str(snapshots / "*.parquet")).create_view("s")
-        inputs = connection.execute("""
+        inputs = connection.execute(f"""
             SELECT b.date, b.code, b.board, b.max5, b.morning_pp,
                    b.day_pp, b.tail_pp, b.prior20_pp, b.price_1449,
                    b.amount_1449, b.half,
-                   100 * (m.price_0930 / s.preclose - 1) AS gap_pp,
+                   100 * ({anchor_price} / s.preclose - 1) AS gap_pp,
                    s.listing_age_sessions, s.isST, s.reference_gap,
                    s.quote_outside_traded_range
             FROM base b JOIN m USING (date, code)
             JOIN s USING (date, code)
-            WHERE s.preclose > 0 AND m.price_0930 > 0
+            WHERE s.preclose > 0 AND {anchor_price} > 0
         """).df()
     finally:
         connection.close()
