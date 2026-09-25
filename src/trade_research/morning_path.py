@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import argparse
 from hashlib import md5
 import json
 from pathlib import Path
 
+import duckdb
 import numpy as np
 import pandas as pd
 
@@ -112,5 +114,95 @@ def freeze(source_path: Path = SOURCE, output_dir: Path = OUTPUT) -> dict:
     return report
 
 
+def opening_gap_audit(
+        input_dir: Path = OUTPUT,
+        morning_dir: Path = ROOT / "morning_burst" / "parts",
+        snapshot_dir: Path = ROOT / "market_snapshots_ci") -> dict:
+    """Post-freeze, input-only support check; never touches trade outcomes."""
+    all_arms = pd.read_parquet(input_dir / "all_arms.parquet")
+    matched = pd.read_parquet(input_dir / "matched.parquet")
+    connection = duckdb.connect()
+    try:
+        connection.execute("SET threads = 4")
+        connection.register("arms", all_arms)
+        connection.from_parquet(str(morning_dir / "*.parquet")
+                                ).create_view("morning")
+        connection.from_parquet(str(snapshot_dir / "*.parquet")
+                                ).create_view("snapshots")
+        inputs = connection.execute("""
+            SELECT a.*, 100 * (m.price_0930 / s.preclose - 1)
+                           AS opening_gap_pp,
+                   100 * (a.price_1449 / m.price_1130 - 1)
+                           AS afternoon_pp
+            FROM arms a JOIN morning m USING (date, code)
+            JOIN snapshots s USING (date, code)
+            WHERE s.preclose > 0 AND m.price_0930 > 0
+              AND m.price_1130 > 0
+        """).df()
+    finally:
+        connection.close()
+    if (len(inputs) != len(all_arms)
+            or inputs.duplicated(["date", "code"]).any()
+            or not np.isfinite(inputs[["opening_gap_pp", "afternoon_pp"]]
+                               .to_numpy()).all()):
+        raise ValueError("Incomplete opening-gap input join")
+    original = inputs.merge(matched[["date", "code"]],
+                            on=["date", "code"], validate="one_to_one")
+    medians = original.groupby(["half", "arm"])[
+        ["opening_gap_pp", "afternoon_pp"]].median()
+    means = original.groupby(["half", "arm"])[
+        ["opening_gap_pp", "afternoon_pp"]].mean()
+    report = {"original_matched": {
+        half: {arm: {
+            "opening_gap_mean_pp": float(means.loc[(half, arm),
+                                                 "opening_gap_pp"]),
+            "opening_gap_median_pp": float(medians.loc[(half, arm),
+                                                     "opening_gap_pp"]),
+            "afternoon_mean_pp": float(means.loc[(half, arm),
+                                               "afternoon_pp"]),
+        } for arm in ("morning", "afternoon")}
+        for half in HALVES}, "gap_bin_checks": {}}
+    for width in (.5, 1.0):
+        inputs["opening_gap_bin"] = np.floor(
+            inputs.opening_gap_pp / width).astype(int)
+        counts = inputs.groupby(
+            ["half", "date", "board", "day_bin", "opening_gap_bin", "arm"]
+        ).size().unstack("arm", fill_value=0)
+        by_half = {}
+        for half in HALVES:
+            part = counts.loc[half]
+            both = part.morning.ge(5) & part.afternoon.ge(5)
+            candidates = all_arms.loc[all_arms.half.eq(half)]
+            by_half[half] = {
+                "comparable_strata": int(both.sum()),
+                "comparable_days": int(part.index.get_level_values(
+                    "date")[both].nunique()),
+                "morning_coverage": float(part.morning[both].sum()
+                                          / candidates.arm.eq("morning").sum()),
+                "afternoon_coverage": float(part.afternoon[both].sum()
+                                            / candidates.arm.eq("afternoon").sum()),
+            }
+        report["gap_bin_checks"][str(width)] = by_half
+    broad = report["gap_bin_checks"]["1.0"]
+    report["stop_before_outcomes"] = any(
+        part["comparable_strata"] < 50
+        or part["comparable_days"] < 30
+        or part["morning_coverage"] < .20
+        or part["afternoon_coverage"] < .20
+        for part in broad.values()
+    )
+    inputs.to_parquet(input_dir / "opening_gap_inputs.parquet", index=False,
+                      compression="zstd")
+    (input_dir / "opening_gap_audit.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    return report
+
+
 if __name__ == "__main__":
-    print(json.dumps(freeze(), ensure_ascii=False, indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("stage", choices=("freeze", "opening-gap-audit"),
+                        nargs="?", default="freeze")
+    args = parser.parse_args()
+    action = freeze if args.stage == "freeze" else opening_gap_audit
+    print(json.dumps(action(), ensure_ascii=False, indent=2))
