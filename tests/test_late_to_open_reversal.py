@@ -68,3 +68,36 @@ def test_pre_tail_match_changes_only_the_return_balance_target() -> None:
 
     assert matched_control(False) == day_match
     assert matched_control(True) == early_match
+
+
+def test_board_match_uses_same_board_even_when_cross_board_is_closer() -> None:
+    date = "2024-01-02"
+    decline, cross_board, same_board = (
+        "sh.600001", "sz.300001", "sh.600002")
+    snapshots = pd.DataFrame([
+        {"date": date, "code": code, "return20_prior_adjusted": 0.0,
+         "return_1450": day_return, "amount_1450": 500_000_000,
+         "price_1450": 10.0, "position_1450": .5, "isST": 0,
+         "listing_age_sessions": 100, "reference_gap": False,
+         "quote_outside_traded_range": False}
+        for code, day_return in ((decline, 0.0), (cross_board, 0.0),
+                                 (same_board, .002))
+    ])
+    intraday = pd.DataFrame([
+        {"date": date, "code": code, "price_1450": 10.0,
+         "return_last30": -.005 if code == decline else .005}
+        for code in (decline, cross_board, same_board)
+    ])
+    connection = duckdb.connect()
+    connection.register("snapshots", snapshots)
+    connection.register("intraday", intraday)
+
+    original, _ = select_inputs(connection)
+    matched, audit = select_inputs(connection, match_board=True)
+
+    assert original.loc[original.candidate.eq("late_rally_control"),
+                        "code"].tolist() == [cross_board]
+    assert matched.loc[matched.candidate.eq("late_rally_control"),
+                       "code"].tolist() == [same_board]
+    assert audit["same_board_fraction"] == 1.0
+    assert audit["original_treatment_overlap_fraction"] == 1.0

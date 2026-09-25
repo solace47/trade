@@ -17,10 +17,23 @@ CAPACITY = 5
 COOLDOWN = 5
 
 
+def _board(code: str) -> str | None:
+    if code.startswith(("sh.60", "sz.00")):
+        return "main"
+    if code.startswith("sz.30"):
+        return "chinext"
+    if code.startswith("sh.68"):
+        return "star"
+    return None
+
+
 def select_inputs(connection: duckdb.DuckDBPyConnection, *,
-                  match_pre_tail: bool = False) -> tuple[pd.DataFrame, dict]:
+                  match_pre_tail: bool = False,
+                  match_board: bool = False) -> tuple[pd.DataFrame, dict]:
+    if match_pre_tail and match_board:
+        raise ValueError("Choose one matching sensitivity")
     connection.execute("""
-        CREATE TEMP TABLE eligible AS
+        CREATE OR REPLACE TEMP TABLE eligible AS
         SELECT s.date, s.code, s.return20_prior_adjusted,
                s.return_1450, s.amount_1450, s.price_1450,
                s.position_1450, i.return_last30,
@@ -49,6 +62,11 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
         WHERE return_last30 BETWEEN .003 AND .01
         ORDER BY date, code
     """).df()
+    if match_board:
+        declines["board"] = declines.code.map(_board)
+        rallies["board"] = rallies.code.map(_board)
+        declines = declines.loc[declines.board.notna()].copy()
+        rallies = rallies.loc[rallies.board.notna()].copy()
     calendar = connection.execute("""
         SELECT DISTINCT date FROM snapshots
         WHERE date BETWEEN '2024-01-01' AND '2025-12-31'
@@ -60,6 +78,8 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
     last_selected: dict[str, int] = {}
     selected: list[dict] = []
     attempted = 0
+    board_attempts = {"main": 0, "chinext": 0, "star": 0}
+    board_pairs = {"main": 0, "chinext": 0, "star": 0}
     for date, ranked in declines.groupby("date", sort=True):
         if date not in rallies_by_date:
             continue
@@ -73,9 +93,13 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
                 continue
             attempted += 1
             daily_picks += 1
+            if match_board:
+                board_attempts[row.board] += 1
             fresh = available.loc[available.code.map(
                 lambda code: index - last_selected.get(code, -1000) > COOLDOWN
             )]
+            if match_board:
+                fresh = fresh.loc[fresh.board.eq(row.board)]
             prior_gap = (fresh.return20_prior_adjusted
                          - row.return20_prior_adjusted).abs()
             matched_return = "return_to_1420" if match_pre_tail else "return_1450"
@@ -107,6 +131,8 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
             up.update(candidate="late_rally_control", pair_id=row.code,
                       daily_rank=daily_picks)
             selected.extend((down, up))
+            if match_board:
+                board_pairs[row.board] += 1
             available = available.drop(index=control.code)
             last_selected[row.code] = index
             last_selected[control.code] = index
@@ -145,22 +171,47 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
     }
     audit["outcome_gate_passed"] = (
         len(by_half) == 4 and all(item["pairs"] >= 50 for item in by_half)
-        and (not match_pre_tail or all(item["days"] >= 15 for item in by_half))
+        and (not (match_pre_tail or match_board)
+             or all(item["days"] >= 15 for item in by_half))
         and audit["match_fraction"] >= .35
     )
+    if match_board:
+        original, _ = select_inputs(connection)
+        treatment = set(zip(signals.loc[signals.candidate.eq("late_decline"), "date"],
+                            signals.loc[signals.candidate.eq("late_decline"), "code"]))
+        original_treatment = set(zip(
+            original.loc[original.candidate.eq("late_decline"), "date"],
+            original.loc[original.candidate.eq("late_decline"), "code"],
+        ))
+        audit["original_treatment_overlap"] = len(treatment & original_treatment)
+        audit["original_treatment_overlap_fraction"] = (
+            len(treatment & original_treatment) / len(original_treatment)
+        )
+        audit["same_board_fraction"] = float(
+            pairs.code_down.map(_board).eq(pairs.code_up.map(_board)).mean()
+        )
+        audit["attempted_by_board"] = board_attempts
+        audit["paired_by_board"] = board_pairs
+        audit["outcome_gate_passed"] = (
+            audit["outcome_gate_passed"]
+            and audit["original_treatment_overlap_fraction"] >= .60
+            and audit["same_board_fraction"] == 1.0
+        )
     return signals, audit
 
 
-def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False) -> dict:
-    if match_pre_tail and output_dir == OUTPUT:
-        raise ValueError("Pre-tail matching requires a separate output directory")
+def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False,
+           match_board: bool = False) -> dict:
+    if (match_pre_tail or match_board) and output_dir == OUTPUT:
+        raise ValueError("A matching sensitivity requires a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
     connection.read_parquet(str(ROOT / "market_snapshots_ci" / "*.parquet")
                             ).create_view("snapshots")
     connection.read_parquet(str(ROOT / "intraday_features" / "*.parquet")
                             ).create_view("intraday")
-    signals, audit = select_inputs(connection, match_pre_tail=match_pre_tail)
+    signals, audit = select_inputs(connection, match_pre_tail=match_pre_tail,
+                                   match_board=match_board)
     output_dir.mkdir(parents=True, exist_ok=True)
     for stale in ("repricing_signals.parquet", "repriced.parquet", "report.json"):
         (output_dir / stale).unlink(missing_ok=True)
@@ -187,10 +238,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--match-pre-tail", action="store_true")
+    parser.add_argument("--match-board", action="store_true")
     args = parser.parse_args()
-    output = args.output or (ROOT / "late_pretrend_match"
-                             if args.match_pre_tail else OUTPUT)
-    print(freeze(output, match_pre_tail=args.match_pre_tail))
+    output = args.output or (ROOT / "late_board_match" if args.match_board else
+                             ROOT / "late_pretrend_match" if args.match_pre_tail else
+                             OUTPUT)
+    print(freeze(output, match_pre_tail=args.match_pre_tail,
+                 match_board=args.match_board))
 
 
 if __name__ == "__main__":
