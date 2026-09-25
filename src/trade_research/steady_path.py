@@ -48,6 +48,12 @@ def select(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, dict]:
             OR (s.date BETWEEN '2025-01-01' AND '2025-12-17'))
           AND {BASE}
     """)
+    connection.execute("""
+        CREATE TEMP TABLE comparable_dates AS
+        SELECT date FROM eligible GROUP BY date
+        HAVING COUNT(*) FILTER (WHERE steady) > 0
+           AND COUNT(*) FILTER (WHERE NOT steady) > 0
+    """)
     conditions = {
         "two_phase_climb": "steady",
         "calm_up_control": "NOT steady",
@@ -62,7 +68,8 @@ def select(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, dict]:
                        PARTITION BY date
                        ORDER BY md5('steady-path-v1' || date || code), code
                    ) AS daily_rank
-            FROM eligible WHERE {condition}
+            FROM eligible JOIN comparable_dates USING (date)
+            WHERE {condition}
             QUALIFY daily_rank <= {CAPACITY}
         """).df()
         picked["candidate"] = name
@@ -76,8 +83,10 @@ def select(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, dict]:
         SELECT substr(date, 1, 4) AS period, COUNT(*) AS pool,
                COUNT(*) FILTER (WHERE steady) AS steady_pool,
                COUNT(DISTINCT date) AS days,
-               COUNT(DISTINCT date) FILTER (WHERE steady) AS steady_days
-        FROM eligible GROUP BY 1 ORDER BY 1
+               COUNT(DISTINCT date) FILTER (WHERE steady) AS steady_days,
+               COUNT(DISTINCT c.date) AS comparable_days
+        FROM eligible e LEFT JOIN comparable_dates c USING (date)
+        GROUP BY 1 ORDER BY 1
     """).df().to_dict("records")
     return selected, {"pool_counts": counts, "conditions": conditions}
 
