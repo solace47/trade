@@ -75,7 +75,14 @@ def build_batch(minute_paths: list[str], output: Path, threads: int = 4) -> None
 
 
 def _inputs(morning_dir: Path, prefix_dir: Path,
-            snapshot_dir: Path) -> pd.DataFrame:
+            snapshot_dir: Path,
+            opening_anchor: str = "source_0930_close") -> pd.DataFrame:
+    anchor_price = {
+        "source_0930_close": "m.price_0930",
+        "daily_open": "s.open_1450",
+    }.get(opening_anchor)
+    if anchor_price is None:
+        raise ValueError("Unknown morning opening anchor")
     connection = duckdb.connect()
     try:
         connection.execute("SET threads = 4")
@@ -86,14 +93,14 @@ def _inputs(morning_dir: Path, prefix_dir: Path,
                                 ).create_view("prefix")
         connection.from_parquet(str(snapshot_dir / "*.parquet")
                                 ).create_view("snapshots")
-        return connection.execute("""
+        return connection.execute(f"""
             SELECT m.date, m.code,
                    CASE WHEN m.code LIKE 'sh.60%' OR m.code LIKE 'sz.00%'
                         THEN 'main'
                         WHEN m.code LIKE 'sz.30%' THEN 'chinext'
                         WHEN m.code LIKE 'sh.68%' THEN 'star'
                    END AS board,
-                   m.max5, 100 * (m.price_1130 / m.price_0930 - 1)
+                   m.max5, 100 * (m.price_1130 / {anchor_price} - 1)
                        AS morning_pp,
                    100 * (p.price_1449 / s.preclose - 1) AS day_pp,
                    100 * p.return_last29 AS tail_pp,
@@ -111,7 +118,8 @@ def _inputs(morning_dir: Path, prefix_dir: Path,
               AND s.return20_prior_adjusted BETWEEN -.10 AND .10
               AND p.return_last29 BETWEEN -.01 AND .01
               AND p.price_1449 / s.preclose - 1 BETWEEN 0 AND .03
-              AND m.price_1130 / m.price_0930 - 1 BETWEEN 0 AND .03
+              AND {anchor_price} > 0
+              AND m.price_1130 / {anchor_price} - 1 BETWEEN 0 AND .03
               AND (m.code LIKE 'sh.60%' OR m.code LIKE 'sz.00%'
                 OR m.code LIKE 'sz.30%' OR m.code LIKE 'sh.68%')
         """).df()
