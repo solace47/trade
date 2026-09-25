@@ -4,7 +4,9 @@ import duckdb
 import pandas as pd
 import pytest
 
-from trade_research.absolute_ridge import choose, match_controls, training_labels
+from trade_research.absolute_ridge import (
+    choose, feature_frame, match_controls, training_labels,
+)
 
 
 def test_choose_holds_cash_and_respects_five_session_cooldown() -> None:
@@ -62,3 +64,38 @@ def test_training_rejects_an_exit_inside_the_test_period() -> None:
 
     with pytest.raises(ValueError, match="overlap test time"):
         training_labels(connection, train, "2024-07-01")
+
+
+def test_main_only_retraining_excludes_growth_boards_and_2023(
+        tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr("trade_research.absolute_ridge.ROOT", tmp_path)
+    snapshot_dir = tmp_path / "market_snapshots_ci"
+    intraday_dir = tmp_path / "intraday_features"
+    snapshot_dir.mkdir()
+    intraday_dir.mkdir()
+    keys = [(date, code) for date in ("2023-12-29", "2024-07-01")
+            for code in ("sh.600001", "sz.000001", "sz.300001", "sh.688001")]
+    pd.DataFrame([
+        {"date": date, "code": code, "return_1450": .01,
+         "position_1450": .6, "amount_1450": 200_000_000,
+         "volume_ratio_est": 1.0, "return5_prior_adjusted": .01,
+         "return20_prior_adjusted": .02, "distance_ma20_adjusted": .01,
+         "high_1450": 10.2, "low_1450": 9.8, "preclose": 10.0,
+         "open_1450": 10.0, "price_1450": 10.1, "isST": 0,
+         "listing_age_sessions": 30, "reference_gap": False,
+         "quote_outside_traded_range": False}
+        for date, code in keys
+    ]).to_parquet(snapshot_dir / "synthetic.parquet", index=False)
+    pd.DataFrame([
+        {"date": date, "code": code, "price_1450": 10.1,
+         "return_last30": .001, "volume_share_last30": .1,
+         "premium_to_last30_vwap": .001}
+        for date, code in keys
+    ]).to_parquet(intraday_dir / "synthetic.parquet", index=False)
+
+    all_boards = feature_frame(duckdb.connect())
+    main = feature_frame(duckdb.connect(), main_only=True)
+
+    assert len(all_boards) == 4
+    assert set(main.code) == {"sh.600001", "sz.000001"}
+    assert main.board.eq("main").all()

@@ -16,6 +16,7 @@ from .market_study import _quality_keys
 
 ROOT = Path("data/research")
 OUTPUT = ROOT / "absolute_ridge"
+MAIN_OUTPUT = ROOT / "absolute_ridge_main"
 FEATURES = (
     "return_1450", "return_1450_sq", "position_1450", "log_amount",
     "log_volume_ratio", "return5_prior_adjusted",
@@ -32,7 +33,8 @@ CAPACITY = 5
 COOLDOWN = 5
 
 
-def feature_frame(connection: duckdb.DuckDBPyConnection) -> pd.DataFrame:
+def feature_frame(connection: duckdb.DuckDBPyConnection,
+                  main_only: bool = False) -> pd.DataFrame:
     connection.read_parquet(str(ROOT / "market_snapshots_ci" / "*.parquet")
                             ).create_view("snapshots")
     connection.read_parquet(str(ROOT / "intraday_features" / "*.parquet")
@@ -65,6 +67,8 @@ def feature_frame(connection: duckdb.DuckDBPyConnection) -> pd.DataFrame:
     frame["board"] = frame.code.map(_board)
     frame = frame.replace([np.inf, -np.inf], np.nan).dropna(subset=FEATURES)
     frame = frame.loc[frame.board.notna()].copy()
+    if main_only:
+        frame = frame.loc[frame.board.eq("main")].copy()
     if frame.empty or frame.duplicated(["date", "code"]).any():
         raise ValueError("Invalid 14:50 feature universe")
     return frame
@@ -191,10 +195,12 @@ def match_controls(chosen: pd.DataFrame,
     ])
 
 
-def freeze(output_dir: Path = OUTPUT) -> dict:
+def freeze(output_dir: Path = OUTPUT, main_only: bool = False) -> dict:
+    if main_only and output_dir == OUTPUT:
+        raise ValueError("Main-board retraining needs a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
-    features = feature_frame(connection)
+    features = feature_frame(connection, main_only=main_only)
     connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
                             ).create_view("outcomes")
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
@@ -244,6 +250,7 @@ def freeze(output_dir: Path = OUTPUT) -> dict:
     ).reset_index().to_dict("records")
     audit = {
         "feature_rows": len(features), "training": training_audits,
+        "universe": "main" if main_only else "all_boards",
         "signals": len(chosen), "controls": len(controls),
         "control_fraction": len(controls) / len(chosen),
         "by_half": by_half, "by_board": by_board,
@@ -279,9 +286,11 @@ def freeze(output_dir: Path = OUTPUT) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--main-only", action="store_true")
     args = parser.parse_args()
-    report = freeze(args.output)
+    output = args.output or (MAIN_OUTPUT if args.main_only else OUTPUT)
+    report = freeze(output, main_only=args.main_only)
     print({key: report[key] for key in (
         "signals", "controls", "control_fraction", "by_half",
         "outcome_gate_passed")})
