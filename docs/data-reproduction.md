@@ -28,6 +28,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.market_integrity
 
 调度器会核对每个远程分片并导入本地。全市场 14:50 快照、T+1/2/3/5 存档和问题日分别在 `data/research/market_snapshots_ci/`、`market_outcomes_ci/`、`market_issues_ci/`；先检查完整性，再运行研究。
 
+按研究年份复核整只股票源文件剔除名单：`PYTHONPATH=src .venv/bin/python -m trade_research.quality_period`。逐日问题仍由原审计排除；`scripts/tail_return_decomposition.py` 和近期两项毛空间程序支持 `--period-quality data/research/quality_period_2024_2025.json` 与单独输出目录，供分期清单敏感性复算，不覆盖历史主结果。
+
 ## 尾盘特征与输入门槛
 
 ```bash

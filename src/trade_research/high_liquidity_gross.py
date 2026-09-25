@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 
 from .market_study import _quality_keys, _quality_symbols
+from .quality_period import load_period_bad_symbols
 
 
 ROOT = Path("data/research")
@@ -138,7 +139,8 @@ def evaluate(input_dir: Path = OUTPUT,
              daily_dir: Path = Path("data/baostock/market_2020_2026/daily"),
              calendar_file: Path = Path(
                  "data/baostock/market_2020_2026/metadata/calendar.parquet"),
-             issues_dir: Path = ROOT / "market_issues_ci") -> dict:
+             issues_dir: Path = ROOT / "market_issues_ci",
+             period_quality: Path | None = None) -> dict:
     audit = json.loads((input_dir / "input_audit.json").read_text(encoding="utf-8"))
     if not audit["outcome_gate_passed"]:
         raise ValueError("Input gate failed; do not read next-day prices")
@@ -148,7 +150,10 @@ def evaluate(input_dir: Path = OUTPUT,
         c.from_parquet(str(daily_dir / "*.parquet")).create_view("daily_source")
         c.from_parquet(str(calendar_file)).create_view("calendar_source")
         c.register("bad_days", _quality_keys(issues_dir))
-        c.register("bad_symbols", _quality_symbols(issues_dir))
+        bad_symbols = (_quality_symbols(issues_dir) if period_quality is None
+                       else load_period_bad_symbols(
+                           period_quality, "2024-01-01", "2025-12-31"))
+        c.register("bad_symbols", bad_symbols)
         joined = c.execute("""
             WITH trading AS (
                 SELECT calendar_date AS date,
@@ -214,6 +219,8 @@ def evaluate(input_dir: Path = OUTPUT,
     )
     report = {
         "scope": list(HALVES), "price_anchor": "14:49 to next daily open; not a fill",
+        "bad_symbol_policy": ("full_source" if period_quality is None
+                              else "research_period"),
         "matched_input_rows": len(comparable), "quality_clean_rows": len(clean),
         "quality_clean_fraction": len(clean) / len(comparable),
         "clean_matched_strata": len(strata), "clean_matched_dates": len(daily),
@@ -229,9 +236,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=("freeze", "evaluate"))
     parser.add_argument("--output-dir", type=Path, default=OUTPUT)
+    parser.add_argument("--period-quality", type=Path)
     args = parser.parse_args()
     report = freeze(output_dir=args.output_dir) if args.stage == "freeze" else evaluate(
-        input_dir=args.output_dir)
+        input_dir=args.output_dir, period_quality=args.period_quality)
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

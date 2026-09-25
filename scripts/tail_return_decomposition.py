@@ -5,6 +5,7 @@ the report; the next open is used for attribution after the signal, never for
 selection. The result is conditional on a clean, on-time modeled fill.
 """
 
+import argparse
 import json
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from trade_research.market_study import (
     _quality_keys, _quality_symbols, _week_bootstrap,
 )
 from trade_research.hf_outcomes import Assumptions
+from trade_research.quality_period import load_period_bad_symbols
 
 
 ROOT = Path("data/research")
@@ -86,6 +88,10 @@ def describe_existing_screens(connection: duckdb.DuckDBPyConnection,
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--period-quality", type=Path)
+    parser.add_argument("--output-dir", type=Path, default=ROOT)
+    args = parser.parse_args()
     shards = {
         path.name.split("_")[1]
         for path in (ROOT / "market_snapshots_ci").glob("shard_*_part_*.parquet")
@@ -100,7 +106,10 @@ def main() -> None:
     connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
                             ).create_view("outcomes")
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
-    connection.register("bad_symbols", _quality_symbols(ROOT / "market_issues_ci"))
+    bad_symbols = (_quality_symbols(ROOT / "market_issues_ci")
+                   if args.period_quality is None else load_period_bad_symbols(
+                       args.period_quality, "2024-01-01", "2025-12-31"))
+    connection.register("bad_symbols", bad_symbols)
     ranges = " OR ".join(
         f"(s.date BETWEEN '{year}-01-01' AND '{last}')"
         for year, last in PERIODS
@@ -144,7 +153,8 @@ def main() -> None:
     if daily.empty or daily[["overnight_gross", "next_day_gross",
                                   "net_return"]].isna().any().any():
         raise ValueError("Missing clean T+1 fills on a research day")
-    daily.to_parquet(ROOT / "tail_return_decomposition_daily.parquet",
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    daily.to_parquet(args.output_dir / "tail_return_decomposition_daily.parquet",
                      index=False, compression="zstd")
     report = []
     half = daily.date.str[5:7].astype(int).le(6).map(
@@ -153,6 +163,8 @@ def main() -> None:
     for (year, section), frame in daily.groupby([daily.date.str[:4], half]):
         row = {
             "period": f"{year}-{section}",
+            "bad_symbol_policy": ("full_source" if args.period_quality is None
+                                  else "research_period"),
             "days": len(frame),
             "eligible_signals": int(frame.eligible_signals.sum()),
             "clean_ontime": int(frame.clean_ontime.sum()),
@@ -166,17 +178,21 @@ def main() -> None:
                 frame[name], frame.date, 20260925
             )
         report.append(row)
-    destination = ROOT / "tail_return_decomposition.json"
+    destination = args.output_dir / "tail_return_decomposition.json"
     destination.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                            encoding="utf-8")
-    screen_report = describe_existing_screens(connection, daily, slip)
-    screen_output = ROOT / "tail_signal_attribution.json"
-    screen_output.write_text(
-        json.dumps(screen_report, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
+    screen_report = []
+    if args.period_quality is None:
+        # Historical screen files contain source-wide quality flags already;
+        # mixing them with period-quality baseline numbers would mislead.
+        screen_report = describe_existing_screens(connection, daily, slip)
+        screen_output = args.output_dir / "tail_signal_attribution.json"
+        screen_output.write_text(
+            json.dumps(screen_report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
     print({"market_periods": len(report), "screen_periods": len(screen_report),
-           "market_output": str(destination), "screen_output": str(screen_output)})
+           "market_output": str(destination)})
 
 
 if __name__ == "__main__":
