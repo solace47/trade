@@ -37,7 +37,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_autocovariance --thread
 PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 ```
 
-14:49 前缀程序按证券分批读取原档，输出到 `data/research/minute_prefix_1449/` 并审计完整标签、唯一键及与 14:50 快照的覆盖；新研究须先用该前缀，见[执行边界](research-status.md#执行边界)。分钟自相关程序先从原档提取 14:20–14:50，再用快照和方差表审计严格同日配对；四个半年段均未过预设输入门槛，所以没有生成复价名单，也不应读取本项后续成交或收益。尾盘容量基准依次运行 `trade_research.pretrade_tail_capacity --build-last5 2024` 和 `--build-last5 2025`、`trade_research.pretrade_tail_capacity --window 5`、`trade_research.pretrade_tail_profile --build-history`、`trade_research.pretrade_tail_profile`；其历史 20% 分位版本也停在输入门槛，口径见[容量记录](pretrade-tail-capacity-plan.md)。
+14:49 前缀程序按证券分批读取原档，输出到 `data/research/minute_prefix_1449/` 并审计完整标签、唯一键及与 14:50 快照的覆盖；新研究须先用该前缀，见[执行边界](research-status.md#执行边界)。分钟自相关程序先从原档提取 14:20–14:50，再用快照和方差表审计严格同日配对；四个半年段均未过预设输入门槛，所以没有生成复价名单，也不应读取本项后续成交或收益。尾盘容量的三种历史方案及停止原因已收敛到[输入门槛记录](input-gates.md)，复算程序分别为 `trade_research.pretrade_tail_capacity` 和 `trade_research.pretrade_tail_profile`。
 
 其他检验由对应模块的默认命令重建输入，只有审计文件中的 `outcome_gate_passed` 为真且 `repricing_signals.parquet` 已生成，才能进入下一步。已完成的专项规则及结果留在各专项文档；本页只维护公共流程。
 
