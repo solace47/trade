@@ -29,9 +29,11 @@ def _board(code: str) -> str | None:
 
 def select_inputs(connection: duckdb.DuckDBPyConnection, *,
                   match_pre_tail: bool = False,
-                  match_board: bool = False) -> tuple[pd.DataFrame, dict]:
-    if match_pre_tail and match_board:
+                  match_board: bool = False,
+                  main_only: bool = False) -> tuple[pd.DataFrame, dict]:
+    if sum((match_pre_tail, match_board, main_only)) > 1:
         raise ValueError("Choose one matching sensitivity")
+    same_board = match_board or main_only
     connection.execute("""
         CREATE OR REPLACE TEMP TABLE eligible AS
         SELECT s.date, s.code, s.return20_prior_adjusted,
@@ -62,11 +64,12 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
         WHERE return_last30 BETWEEN .003 AND .01
         ORDER BY date, code
     """).df()
-    if match_board:
+    if same_board:
         declines["board"] = declines.code.map(_board)
         rallies["board"] = rallies.code.map(_board)
-        declines = declines.loc[declines.board.notna()].copy()
-        rallies = rallies.loc[rallies.board.notna()].copy()
+        allowed = ("main",) if main_only else ("main", "chinext", "star")
+        declines = declines.loc[declines.board.isin(allowed)].copy()
+        rallies = rallies.loc[rallies.board.isin(allowed)].copy()
     calendar = connection.execute("""
         SELECT DISTINCT date FROM snapshots
         WHERE date BETWEEN '2024-01-01' AND '2025-12-31'
@@ -93,12 +96,12 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
                 continue
             attempted += 1
             daily_picks += 1
-            if match_board:
+            if same_board:
                 board_attempts[row.board] += 1
             fresh = available.loc[available.code.map(
                 lambda code: index - last_selected.get(code, -1000) > COOLDOWN
             )]
-            if match_board:
+            if same_board:
                 fresh = fresh.loc[fresh.board.eq(row.board)]
             prior_gap = (fresh.return20_prior_adjusted
                          - row.return20_prior_adjusted).abs()
@@ -131,7 +134,7 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
             up.update(candidate="late_rally_control", pair_id=row.code,
                       daily_rank=daily_picks)
             selected.extend((down, up))
-            if match_board:
+            if same_board:
                 board_pairs[row.board] += 1
             available = available.drop(index=control.code)
             last_selected[row.code] = index
@@ -171,11 +174,11 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
     }
     audit["outcome_gate_passed"] = (
         len(by_half) == 4 and all(item["pairs"] >= 50 for item in by_half)
-        and (not (match_pre_tail or match_board)
+        and (not (match_pre_tail or same_board)
              or all(item["days"] >= 15 for item in by_half))
         and audit["match_fraction"] >= .35
     )
-    if match_board:
+    if same_board:
         original, _ = select_inputs(connection)
         treatment = set(zip(signals.loc[signals.candidate.eq("late_decline"), "date"],
                             signals.loc[signals.candidate.eq("late_decline"), "code"]))
@@ -194,15 +197,17 @@ def select_inputs(connection: duckdb.DuckDBPyConnection, *,
         audit["paired_by_board"] = board_pairs
         audit["outcome_gate_passed"] = (
             audit["outcome_gate_passed"]
-            and audit["original_treatment_overlap_fraction"] >= .60
+            and (not match_board
+                 or audit["original_treatment_overlap_fraction"] >= .60)
             and audit["same_board_fraction"] == 1.0
         )
+        audit["population"] = "main_only" if main_only else "all_boards"
     return signals, audit
 
 
 def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False,
-           match_board: bool = False) -> dict:
-    if (match_pre_tail or match_board) and output_dir == OUTPUT:
+           match_board: bool = False, main_only: bool = False) -> dict:
+    if (match_pre_tail or match_board or main_only) and output_dir == OUTPUT:
         raise ValueError("A matching sensitivity requires a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
@@ -211,7 +216,7 @@ def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False,
     connection.read_parquet(str(ROOT / "intraday_features" / "*.parquet")
                             ).create_view("intraday")
     signals, audit = select_inputs(connection, match_pre_tail=match_pre_tail,
-                                   match_board=match_board)
+                                   match_board=match_board, main_only=main_only)
     output_dir.mkdir(parents=True, exist_ok=True)
     for stale in ("repricing_signals.parquet", "repriced.parquet", "report.json"):
         (output_dir / stale).unlink(missing_ok=True)
@@ -237,14 +242,17 @@ def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False,
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--match-pre-tail", action="store_true")
-    parser.add_argument("--match-board", action="store_true")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--match-pre-tail", action="store_true")
+    group.add_argument("--match-board", action="store_true")
+    group.add_argument("--main-only", action="store_true")
     args = parser.parse_args()
-    output = args.output or (ROOT / "late_board_match" if args.match_board else
+    output = args.output or (ROOT / "late_main_only" if args.main_only else
+                             ROOT / "late_board_match" if args.match_board else
                              ROOT / "late_pretrend_match" if args.match_pre_tail else
                              OUTPUT)
     print(freeze(output, match_pre_tail=args.match_pre_tail,
-                 match_board=args.match_board))
+                 match_board=args.match_board, main_only=args.main_only))
 
 
 if __name__ == "__main__":

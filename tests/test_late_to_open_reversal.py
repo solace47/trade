@@ -94,6 +94,7 @@ def test_board_match_uses_same_board_even_when_cross_board_is_closer() -> None:
 
     original, _ = select_inputs(connection)
     matched, audit = select_inputs(connection, match_board=True)
+    main, main_audit = select_inputs(connection, main_only=True)
 
     assert original.loc[original.candidate.eq("late_rally_control"),
                         "code"].tolist() == [cross_board]
@@ -101,3 +102,6 @@ def test_board_match_uses_same_board_even_when_cross_board_is_closer() -> None:
                        "code"].tolist() == [same_board]
     assert audit["same_board_fraction"] == 1.0
     assert audit["original_treatment_overlap_fraction"] == 1.0
+    assert main.loc[main.candidate.eq("late_rally_control"),
+                    "code"].tolist() == [same_board]
+    assert main_audit["population"] == "main_only"
