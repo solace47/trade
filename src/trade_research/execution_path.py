@@ -30,14 +30,14 @@ BOARDS = ("main", "chinext", "star")
 
 def freeze(prefix_dir: Path = ROOT / "minute_prefix_1449",
            snapshot_dir: Path = ROOT / "market_snapshots_ci",
-           output_dir: Path = OUTPUT) -> dict:
-    """Pick one stock per date and board with a stable, outcome-blind order."""
+           output_dir: Path = OUTPUT, all_eligible: bool = False) -> dict:
+    """Freeze either the fixed pilot sample or its unchanged eligible universe."""
     connection = duckdb.connect()
     try:
         connection.execute("SET threads = 4")
         connection.from_parquet(str(prefix_dir / "*" / "*.parquet")).create_view("prefix")
         connection.from_parquet(str(snapshot_dir / "*.parquet")).create_view("snapshots")
-        selected = connection.execute("""
+        query = """
             WITH eligible AS (
                 SELECT p.date, p.code, p.price_1449, p.amount_1449,
                        s.preclose,
@@ -64,9 +64,10 @@ def freeze(prefix_dir: Path = ROOT / "minute_prefix_1449",
                 ) AS choice FROM eligible
             )
             SELECT date, code, board, half, price_1449, amount_1449,
-                   preclose FROM ranked WHERE choice = 1
-            ORDER BY date, board
-        """).df()
+                   preclose FROM ranked
+        """ + ("" if all_eligible else " WHERE choice = 1") + \
+            " ORDER BY date, board, code"
+        selected = connection.execute(query).df()
     finally:
         connection.close()
     if (selected.empty or selected.duplicated(["date", "code"]).any()
@@ -81,7 +82,9 @@ def freeze(prefix_dir: Path = ROOT / "minute_prefix_1449",
         raise ValueError("Fewer than 100 stock-days in a half-year board cell")
     report = {
         "cutoff": "14:49", "years": [2024, 2025],
-        "sampling": "one per date and board, md5(date || code) ascending",
+        "sampling": ("all eligible stock-days, pilot filters unchanged"
+                     if all_eligible else
+                     "one per date and board, md5(date || code) ascending"),
         "selected_stock_days": len(selected),
         "cells": {f"{half}_{board}": {
             "stock_days": int(row.stock_days), "dates": int(row.dates),
@@ -193,8 +196,12 @@ def evaluate(signals_file: Path = OUTPUT / "frozen_signals.parquet",
     grouped = list(signals.groupby("code", sort=True))
     rows = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        for group_rows in pool.map(lambda item: _one_stock(item, minute_root), grouped):
+        for count, group_rows in enumerate(
+                pool.map(lambda item: _one_stock(item, minute_root), grouped), start=1):
             rows.extend(group_rows)
+            if count % 500 == 0 or count == len(grouped):
+                print(f"Read raw entry minutes for {count}/{len(grouped)} stocks",
+                      flush=True)
     result = pd.DataFrame(rows)
     if len(result) != len(signals):
         raise ValueError("Entry result count differs from frozen sample")
@@ -218,6 +225,20 @@ def evaluate(signals_file: Path = OUTPUT / "frozen_signals.parquet",
             "mean_extra_entry_bps_5": float(both.extra_entry_bps_5.mean()),
             "median_extra_entry_bps_5": float(both.extra_entry_bps_5.median()),
         }
+    by_half_board = {}
+    for (half, board), part in clean.groupby(["half", "board"]):
+        both = part.loc[part.aggregate_status_5.eq("filled")
+                        & part.participation_filled_5]
+        by_half_board[f"{half}_{board}"] = {
+            "clean_complete_stock_days": len(part),
+            "aggregate_fill_rate_5": float(part.aggregate_status_5.eq("filled").mean()),
+            "participation_fill_rate_5": float(part.participation_filled_5.mean()),
+            "participation_fill_rate_10": float(part.participation_filled_10.mean()),
+            "both_filled_5": len(both),
+            "mean_extra_entry_bps_5": float(both.extra_entry_bps_5.mean()),
+        }
+    both_all = clean.loc[clean.aggregate_status_5.eq("filled")
+                         & clean.participation_filled_5]
     report = {
         "frozen_stock_days": len(signals),
         "incomplete_bars": int((~result.bars_complete).sum()),
@@ -226,6 +247,13 @@ def evaluate(signals_file: Path = OUTPUT / "frozen_signals.parquet",
         "same_stock_day_control": True,
         "holding_returns_read": False,
         "by_half": by_half,
+        "by_half_board": by_half_board,
+        "both_filled_abs_price_diff_over_5bps_rate": float(
+            both_all.extra_entry_bps_5.abs().gt(5).mean()),
+        "both_filled_price_diff_p10_p90_bps": [
+            float(both_all.extra_entry_bps_5.quantile(.1)),
+            float(both_all.extra_entry_bps_5.quantile(.9)),
+        ],
     }
     output_dir.mkdir(parents=True, exist_ok=True)
     result.sort_values(["date", "code"]).to_parquet(
@@ -237,9 +265,18 @@ def evaluate(signals_file: Path = OUTPUT / "frozen_signals.parquet",
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=("freeze", "evaluate"))
+    parser.add_argument("stage", choices=("freeze", "evaluate",
+                                           "freeze-full", "evaluate-full"))
     args = parser.parse_args()
-    report = freeze() if args.stage == "freeze" else evaluate()
+    if args.stage == "freeze":
+        report = freeze()
+    elif args.stage == "evaluate":
+        report = evaluate()
+    elif args.stage == "freeze-full":
+        report = freeze(output_dir=OUTPUT / "full", all_eligible=True)
+    else:
+        report = evaluate(signals_file=OUTPUT / "full" / "frozen_signals.parquet",
+                          output_dir=OUTPUT / "full")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 
