@@ -52,6 +52,9 @@ def test_pdf_identity_uses_header_code_not_later_body_mentions() -> None:
     text = "证券代码：002268 关于减持计划完成。其他公告股票代码002286。"
     assert pdf_code_matches(text, "sz.002268")
     assert not pdf_code_matches(text, "sz.002286")
+    dual_listing = "证券代码：A股 600613 股票简称：神奇制药 B股 900904"
+    assert pdf_code_matches(dual_listing, "sh.600613")
+    assert not pdf_code_matches(dual_listing, "sh.900904")
     assert identity_status(text, {
         "code": "sz.002286",
         "pdf_url": "https://static.cninfo.com.cn/finalpage/2025-09-18/random.PDF",

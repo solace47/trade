@@ -23,7 +23,7 @@ from scripts.audit_buyback_pdfs import _download
 ACTOR = re.compile(r"控股股东|实际控制人|(?<!副)董事长|5\s*%\s*以上|大股东")
 COMPLETION = re.compile(r"完成|完毕")
 STOCK_CODE = re.compile(
-    r"(?:证券代码|股票代码|票代码|公司代码|A股代码)[:：]?([036]\d{5})"
+    r"(?:证券代码|股票代码|票代码|公司代码|A股代码)[:：]?(?:A股)?([036]\d{5})"
 )
 # The issuer's 2025-09-18 completion PDF misprints its header as 002268.
 # Its body, CNINFO metadata, and the issuer's 2025-05-30 plan PDF all identify
