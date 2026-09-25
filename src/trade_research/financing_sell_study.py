@@ -1,7 +1,7 @@
 """Input-only selection for five-session margin-financing net sales.
 
-The thresholds and direction were frozen before reading outcomes; see
-docs/net-financing-sell-plan.md.  An official balance at t enters t+1 only.
+The thresholds and direction were frozen before reading outcomes; the original
+plan remains in Git history. An official balance at t enters t+1 only.
 """
 
 from __future__ import annotations

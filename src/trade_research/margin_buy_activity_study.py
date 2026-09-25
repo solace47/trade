@@ -1,7 +1,7 @@
 """Input-only selection for five-session margin-purchase participation.
 
-The hypothesis and screens were frozen before reading their outcomes; see
-docs/margin-buy-activity-plan.md. Day t official purchases enter t+1 only.
+The hypothesis and screens were frozen before reading their outcomes; the
+original plan remains in Git history. Day t purchases enter t+1 only.
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Input-only selection of five-session net short-position changes.
 
-See docs/net-short-flow-plan.md.  The exchange balance at t is available for
-the next session's 14:50 signal, never for the same session.
+The frozen plan remains in Git history. The exchange balance at t is available
+for the next session's 14:50 signal, never for the same session.
 """
 
 from __future__ import annotations

@@ -1,8 +1,7 @@
 """Frozen test: public trading-list attention as a 14:50 risk filter.
 
-See docs/lhb-attention-plan.md for the before-outcomes hypothesis, cohort,
-matching distance and decision rule. Publication on day t is first usable on
-the next trading day. 2025 is exploratory, not a blind holdout.
+The before-outcomes plan remains in Git history. Publication on day t is first
+usable on the next trading day. 2025 is exploratory, not a blind holdout.
 """
 
 from __future__ import annotations

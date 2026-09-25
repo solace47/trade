@@ -2,7 +2,7 @@
 
 This module fits only on 2024 outcomes that finished before each test starts.
 It does not inspect the 2024-H2 or 2025 test outcomes during selection.
-See docs/margin-heterogeneity-plan.md.
+The original frozen plan remains in Git history.
 """
 
 from __future__ import annotations

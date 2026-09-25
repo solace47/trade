@@ -1,6 +1,6 @@
 """Frozen input selection for official margin days-to-cover at 14:50.
 
-See docs/margin-days-to-cover-plan.md.  Selection reads no forward returns.
+The frozen plan remains in Git history. Selection reads no forward returns.
 The margin balance for trade day t is assigned to the following session only.
 """
 

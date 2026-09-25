@@ -1,6 +1,6 @@
 """Input-only selection for open-close Amihud by margin interest.
 
-See docs/open-close-illiquidity-plan.md. No future returns are read here.
+The frozen plan remains in Git history. No future returns are read here.
 """
 
 from __future__ import annotations

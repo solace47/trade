@@ -1,7 +1,7 @@
 """Frozen input-only selection for post-July-2024 short interest at 14:50.
 
-The hypothesis and all thresholds precede the outcome read; see
-docs/short-interest-plan.md.  Exchange day t enters session t+1 only.
+The hypothesis and all thresholds precede the outcome read; the original plan
+remains in Git history. Exchange day t enters session t+1 only.
 """
 
 from __future__ import annotations

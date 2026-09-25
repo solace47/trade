@@ -1,6 +1,6 @@
 """Select frozen margin-interest groups within past price non-synchronicity.
 
-No forward outcomes enter selection. See docs/nonsynch-margin-plan.md.
+No forward outcomes enter selection. The frozen plan remains in Git history.
 """
 
 from __future__ import annotations
