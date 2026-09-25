@@ -1,10 +1,10 @@
 """Audit a pinned one-minute archive against BaoStock daily bars.
 
-The archive uses naive UTC+8 timestamps, treated here as bar-end labels.
-The publisher does not explicitly certify the start/end convention; this is
-an inference from the grid and must be checked before live 14:50 use.
-09:30 is the opening-auction record; 09:31--11:30 and 13:01--15:00 are
-the 240 subsequent minute records. The last complete archive date is
+The archive uses naive UTC+8 timestamps. The publisher does not certify
+whether labels denote minute starts or ends. The grid has a 09:30 label
+followed by 09:31--11:30 and 13:01--15:00, but the 09:30 record is not
+uniformly an opening-auction-only bar: many have multiple prices. The
+240 later labels do not resolve the start/end convention. The last complete archive date is
 2026-08-06; the repository's 2026-08-07 records are intraday only.
 """
 
@@ -84,7 +84,7 @@ def audit_symbol(code: str, minute_path: Path, daily_path: Path,
     ).sum())
     complete = minute.loc[minute["date"].isin(complete_dates)]
     # Quote-only bars can have zero volume and a price outside the day's
-    # executed range (especially the 09:30 auction placeholder).
+    # executed range, including the 09:30 placeholder.
     traded = complete.loc[complete["volume"] > 0]
     aggregates = traded.groupby("date").agg(
         minute_open=("open", "first"), minute_high=("high", "max"),
@@ -129,6 +129,8 @@ def audit_symbol(code: str, minute_path: Path, daily_path: Path,
     ]
     issues.extend({"code": code, "date": date, "kind": "active_no_trade"}
                   for date in sorted(active_no_trade))
+    # Legacy summary keys below contain "auction" for compatibility, but
+    # the 09:30 source label is not confirmed to be auction-only.
     row = {
         "code": code, "status": "ok", "minute_rows": len(minute),
         "active_daily_days": len(active_dates), "observed_days": len(observed_dates),

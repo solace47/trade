@@ -113,7 +113,7 @@ def build(hf_root: Path, bao_root: Path, first_date: str = FIRST_DATE,
     result.to_parquet(output, index=False, compression="zstd")
     summary = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "cutoff": "14:50 Asia/Shanghai; 231 source bars including 09:30 auction",
+        "cutoff": "14:50 Asia/Shanghai; 231 source bars including the 09:30 label",
         "first_date": first_date, "last_date": last_date,
         "snapshots": len(result), "symbols": int(result["code"].nunique()),
         "dates": int(result["date"].nunique()),
