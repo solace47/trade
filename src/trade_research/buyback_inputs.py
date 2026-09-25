@@ -148,14 +148,17 @@ def _universe(snapshot_dir: Path, daily_dir: Path, industry_path: Path,
 
 
 def _capacity_events(signal: pd.DataFrame,
-                     calendar: list[str]) -> pd.DataFrame:
+                     calendar: list[str],
+                     cooldown_sessions: int = COOLDOWN) -> pd.DataFrame:
+    if cooldown_sessions < 0:
+        raise ValueError("Cooldown sessions must be nonnegative")
     index = {day: number for number, day in enumerate(calendar)}
     last_kept: dict[str, int] = {}
     chunks = []
     for day, daily in signal.groupby("date", sort=True):
         session = index[day]
         available = daily.loc[daily.code.map(
-            lambda code: session - last_kept.get(code, -1000) > COOLDOWN
+            lambda code: session - last_kept.get(code, -1000) > cooldown_sessions
         )].sort_values(["avg20_amount", "code"], ascending=[False, True])
         chosen = available.head(CAPACITY)
         chunks.append(chosen)
@@ -166,7 +169,8 @@ def _capacity_events(signal: pd.DataFrame,
 def _match(universe: pd.DataFrame, events: pd.DataFrame,
            calendar: list[str], same_industry: bool,
            event_label: str = EVENT,
-           max_current_gap: float | None = None) -> tuple[pd.DataFrame, dict]:
+           max_current_gap: float | None = None,
+           cooldown_sessions: int = COOLDOWN) -> tuple[pd.DataFrame, dict]:
     if max_current_gap is not None and max_current_gap <= 0:
         raise ValueError("Current-return match gap must be positive")
     event_keys = events[["date", "code", "notice_date", "pdf_url"]]
@@ -174,7 +178,7 @@ def _match(universe: pd.DataFrame, events: pd.DataFrame,
                             validate="one_to_one")
     if signal.empty:
         raise ValueError("No buyback plan has an eligible 14:50 quote")
-    selected_events = _capacity_events(signal, calendar)
+    selected_events = _capacity_events(signal, calendar, cooldown_sessions)
     event_keys = pd.MultiIndex.from_frame(events[["date", "code"]])
     is_event = pd.MultiIndex.from_frame(
         universe[["date", "code"]]).isin(event_keys)
@@ -226,6 +230,7 @@ def _match(universe: pd.DataFrame, events: pd.DataFrame,
     treated = selected.loc[selected.candidate.eq(event_label)]
     control = selected.loc[selected.candidate.eq(CONTROL)]
     report = {"eligible_event_quotes": len(signal),
+              "cooldown_sessions": cooldown_sessions,
               "capacity_selected": len(selected_events),
               "matched_pairs": len(treated), "unmatched": unmatched,
               "matched_days": int(treated.date.nunique()),

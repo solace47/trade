@@ -36,3 +36,6 @@ def test_buyback_capacity_and_cooldown_use_inputs_only() -> None:
     assert not chosen.date.eq(days[4]).any()
     assert chosen.loc[chosen.date.eq(days[11]), "code"].tolist() == [
         "sh.000007"]
+    long_cooldown = _capacity_events(pd.DataFrame(rows), days, 120)
+    assert long_cooldown.date.eq(days[0]).sum() == 5
+    assert not long_cooldown.date.isin((days[4], days[11])).any()
