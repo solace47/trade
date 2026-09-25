@@ -62,6 +62,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.intraday_features --threads 8
 PYTHONPATH=src .venv/bin/python -m trade_research.intraday_scan --year 2024
 PYTHONPATH=src .venv/bin/python scripts/intraday_factor_bins.py
 PYTHONPATH=src .venv/bin/python scripts/late_ridge_probe.py
+PYTHONPATH=src .venv/bin/python scripts/tail_return_decomposition.py
 ```
 
 低成交额分层由 `trade_research.stratified_low_sample` 固定抽样，并用 `trade_research.size_sensitivity` 以每笔 2 万元重算；`trade_research.paired_controls` 按信号日同随机组配对。退出时点试验调用 `size_sensitivity --exit-windows close morning late_morning`；提前卖出试验见 `scripts/adaptive_exit_probe.py`。本地结果都写入 `data/research/`，不加入 README 或 Git。
