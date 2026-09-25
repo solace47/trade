@@ -66,6 +66,16 @@ def _full_market_diagnostic(output_dir: Path) -> dict:
                             ).create_view("archived")
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
     connection.register("bad_symbols", _quality_symbols(ROOT / "market_issues_ci"))
+    expected, archived = connection.execute("""
+        SELECT (SELECT COUNT(*) FROM candidates
+                WHERE surprise >= 1.5 OR surprise <= 1.0),
+               (SELECT COUNT(*) FROM candidates x
+                JOIN archived o USING (date, code)
+                WHERE o.horizon = 1
+                  AND (x.surprise >= 1.5 OR x.surprise <= 1.0))
+    """).fetchone()
+    if expected != archived:
+        raise ValueError("Full-market diagnostic lacks archived T+1 outcomes")
     daily = connection.execute("""
         WITH scored AS (
             SELECT x.date,

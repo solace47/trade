@@ -61,6 +61,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 尾盘下跌半方差的输入审计运行 `trade_research.late_variance --threads 8 --output-dir data/research/late_semivariance`，随后运行 `trade_research.late_semivariance_input`；匹配上界未过事前门槛，程序不读收益，见[专项记录](late-semivariance-plan.md)。
 尾盘延迟一分钟的同股复价先运行 `trade_research.entry_delay` 审核五分钟输入，再以 `trade_research.size_sensitivity --signals data/research/late_variance_risk/repricing_signals.parquet --output data/research/entry_delay/repriced.parquet --notionals 20000 100000 --horizons 1 5 --entry-windows baseline delay_one_minute` 复价，最后运行 `trade_research.entry_delay --evaluate`；见[执行记录](entry-delay-plan.md)。
 市场尾盘波动状态的输入先运行 `trade_research.market_variance_state`，确认两种状态各半年的配对覆盖后运行 `trade_research.market_variance_state --evaluate`；它重用已核对的原始分钟成交结果，见[分层记录](market-variance-state-plan.md)。
+尾盘剩余方差先运行 `trade_research.late_residual_variance --threads 8`，再运行同命令加 `--market-proxy clipped_mean`；分别运行 `trade_research.late_residual_variance_risk` 及加 `--market-proxy clipped_mean` 冻结两版名单。只有输入审计通过才对各目录的 `repricing_signals.parquet` 运行 `trade_research.size_sensitivity --notionals 20000 100000 --horizons 1 5`，结果写为同目录 `repriced.parquet`，再以 `trade_research.late_variance_risk_eval --output` 指向相应目录；见[剩余方差记录](late-residual-variance-plan.md)。
 
 近期尾盘研究从原始分钟文件重建特征，再执行 2024 年开发扫描：
 
