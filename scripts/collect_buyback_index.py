@@ -22,6 +22,7 @@ API = "https://www.cninfo.com.cn/new/hisAnnouncement/query"
 SEARCH = "回购方案"
 PAGE_SIZE = 30
 MAX_WORKING_PAGE = 100
+REQUEST_DELAY_SEC = 0.0
 STOCK = re.compile(r"^(?:00|30|60|68)\d{4}$")
 
 
@@ -44,7 +45,7 @@ def _fetch(start: date, end: date, page: int, cache: Path,
         "--data-urlencode", f"searchkey={searchkey}",
         "--data-urlencode", "isHLtitle=true",
     ]
-    for attempt in range(3):
+    for attempt in range(5):
         result = subprocess.run(command, capture_output=True, text=True,
                                 check=False)
         if result.returncode == 0:
@@ -55,11 +56,13 @@ def _fetch(start: date, end: date, page: int, cache: Path,
                     cache.mkdir(parents=True, exist_ok=True)
                     path.write_text(json.dumps(payload, ensure_ascii=False),
                                     encoding="utf-8")
+                    if REQUEST_DELAY_SEC:
+                        time.sleep(REQUEST_DELAY_SEC)
                     return payload
             except json.JSONDecodeError:
                 pass
-        if attempt < 2:
-            time.sleep(attempt + 1)
+        if attempt < 4:
+            time.sleep(2 ** attempt)
     raise RuntimeError(f"CNINFO repurchase query failed: {start}–{end}, page {page}")
 
 
@@ -77,7 +80,17 @@ def _range_rows(start: date, end: date, cache: Path,
     rows = first["announcements"][:]
     for page in range(2, pages + 1):
         rows.extend(_fetch(start, end, page, cache, searchkey)["announcements"])
-    if len(rows) != first["totalAnnouncement"]:
+    urls = [row.get("adjunctUrl") for row in rows]
+    if (len(rows) != first["totalAnnouncement"]
+            or len(urls) != len(set(urls))):
+        # CNINFO can reindex a long historical search while pages are being
+        # fetched. Re-query disjoint shorter ranges instead of accepting a
+        # shifted page boundary or discarding an unobserved PDF.
+        if start < end:
+            middle = start + timedelta(days=(end - start).days // 2)
+            return (_range_rows(start, middle, cache, searchkey)
+                    + _range_rows(middle + timedelta(days=1), end, cache,
+                                  searchkey))
         raise ValueError(f"Incomplete CNINFO repurchase pages: {start}–{end}")
     return rows
 
@@ -125,12 +138,19 @@ def collect(year: int, cache: Path, output: Path,
 
 
 def main() -> None:
+    global MAX_WORKING_PAGE, REQUEST_DELAY_SEC
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--year", type=int, choices=(2024, 2025), required=True)
     parser.add_argument("--cache", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--searchkey", default=SEARCH)
+    parser.add_argument("--max-pages", type=int, default=MAX_WORKING_PAGE)
+    parser.add_argument("--request-delay", type=float, default=REQUEST_DELAY_SEC)
     args = parser.parse_args()
+    if args.max_pages < 1 or args.request_delay < 0:
+        parser.error("Maximum pages must be positive and delay nonnegative")
+    MAX_WORKING_PAGE = args.max_pages
+    REQUEST_DELAY_SEC = args.request_delay
     if args.searchkey != SEARCH and (args.cache is None or args.output is None):
         parser.error("A different search word needs an explicit cache and output")
     cache = args.cache or Path(f"data/research/buyback/cninfo_cache_{args.year}")
