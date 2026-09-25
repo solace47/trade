@@ -56,6 +56,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 按 14:50 市场广度复核这两组探索信号时运行 `PYTHONPATH=src .venv/bin/python scripts/regime_probe.py > data/research/regime_probe.jsonl`。
 平静上涨与市场广度的同日配对检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.quiet_breadth`，输出保存在 `data/research/quiet_breadth/`。
 历史时段尾盘量能检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.tail_volume_surprise`；以其 `repricing_signals.parquet` 调用 `trade_research.size_sensitivity --notionals 100000 --horizons 1 5` 可逐笔核对原始分钟成交。
+市场尾盘方向分层先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.late_market_direction inputs`，输入门槛通过后运行同模块 `evaluate`，重用已核对的回落配对原始分钟复价；见[专项记录](late-market-direction-plan.md)。
 下跌尾盘的成交时点仅做输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_volume_timing`；严格同日配对未过冻结门槛，见[专项记录](late-volume-timing-plan.md)。
 尾盘后半段路径仅做 14:50 输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_half_pressure`；配对覆盖未过预设门槛，程序不会输出可用于复价的名单。
 尾盘回落与次晨反转依次运行 `trade_research.late_to_open_reversal`、`trade_research.size_sensitivity --signals data/research/late_to_open_reversal/repricing_signals.parquet --output data/research/late_to_open_reversal/repriced.parquet --notionals 20000 100000 --horizons 1 5 --exit-windows morning close`、`trade_research.late_to_open_reversal_eval`；命令均以 `PYTHONPATH=src .venv/bin/python -m` 开头，结果见[专项记录](late-to-open-reversal-plan.md)。
