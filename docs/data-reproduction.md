@@ -58,6 +58,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 历史时段尾盘量能检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.tail_volume_surprise`；以其 `repricing_signals.parquet` 调用 `trade_research.size_sensitivity --notionals 100000 --horizons 1 5` 可逐笔核对原始分钟成交。
 尾盘后半段路径仅做 14:50 输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_half_pressure`；配对覆盖未过预设门槛，程序不会输出可用于复价的名单。
 尾盘相对波动风险检验依次运行 `trade_research.late_variance --threads 8`、`trade_research.late_variance_risk`，再将 `data/research/late_variance_risk/repricing_signals.parquet` 交给 `trade_research.size_sensitivity --notionals 20000 100000 --horizons 1 5`，输出至同目录 `repriced.parquet`，最后运行 `trade_research.late_variance_risk_eval`。事后固定排序敏感性运行 `PYTHONPATH=src .venv/bin/python scripts/variance_seed_stability.py`，十组均写入同目录 `seed_stability.json`；口径与结果见[专项记录](late-variance-risk-plan.md)。
+尾盘下跌半方差的输入审计运行 `trade_research.late_variance --threads 8 --output-dir data/research/late_semivariance`，随后运行 `trade_research.late_semivariance_input`；匹配上界未过事前门槛，程序不读收益，见[专项记录](late-semivariance-plan.md)。
 
 近期尾盘研究从原始分钟文件重建特征，再执行 2024 年开发扫描：
 

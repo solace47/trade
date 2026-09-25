@@ -1,4 +1,4 @@
-"""Extract 14:20–14:50 realized variance from completed minute closes."""
+"""Extract total and signed 14:20–14:50 variance from completed minute closes."""
 
 from __future__ import annotations
 
@@ -40,6 +40,9 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                     PARTITION BY date, code ORDER BY timestamp
                 ) AS previous_close
                 FROM selected
+            ), returns AS (
+                SELECT *, LN(close / NULLIF(previous_close, 0)) AS minute_return
+                FROM lagged
             ), aggregated AS (
                 SELECT date, code, COUNT(*) AS bars,
                        COUNT(DISTINCT label) AS distinct_labels,
@@ -48,13 +51,33 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                            WHERE label >= '1421' AND close > 0
                              AND previous_close > 0
                        ) AS valid_returns,
-                       SUM(POWER(LN(close / NULLIF(previous_close, 0)), 2))
+                       SUM(POWER(minute_return, 2))
                            FILTER (WHERE label >= '1421'
                                    AND close > 0 AND previous_close > 0)
-                           AS realized_variance_last30
-                FROM lagged GROUP BY date, code
+                           AS realized_variance_last30,
+                       SUM(POWER(minute_return, 2))
+                           FILTER (WHERE label >= '1421' AND minute_return < 0)
+                           AS downside_variance_last30,
+                       SUM(POWER(minute_return, 2))
+                           FILTER (WHERE label >= '1421' AND minute_return > 0)
+                           AS upside_variance_last30,
+                       COUNT(*) FILTER (
+                           WHERE label >= '1421' AND minute_return < 0
+                       ) AS down_moves_last30,
+                       COUNT(*) FILTER (
+                           WHERE label >= '1421' AND minute_return > 0
+                       ) AS up_moves_last30
+                FROM returns GROUP BY date, code
             )
-            SELECT date, code, price_1450, realized_variance_last30
+            SELECT date, code, price_1450, realized_variance_last30,
+                   coalesce(downside_variance_last30, 0)
+                       AS downside_variance_last30,
+                   coalesce(upside_variance_last30, 0)
+                       AS upside_variance_last30,
+                   coalesce(downside_variance_last30, 0)
+                       / NULLIF(realized_variance_last30, 0)
+                       AS downside_share_last30,
+                   down_moves_last30, up_moves_last30
             FROM aggregated
             WHERE bars = 31 AND distinct_labels = 31
               AND valid_returns = 30 AND price_1450 > 0
