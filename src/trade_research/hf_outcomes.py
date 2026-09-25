@@ -33,6 +33,7 @@ EXIT_WINDOWS = {
     "close": EXECUTION_LABELS,
     "morning": ("0935", "0936", "0937", "0938"),
     "late_morning": ("1000", "1001", "1002", "1003"),
+    "auction": ("1500",),
 }
 
 

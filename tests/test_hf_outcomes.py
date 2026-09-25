@@ -64,6 +64,23 @@ def test_next_morning_exit_keeps_same_tail_entry() -> None:
     assert next_morning["net_return"] > next_close["net_return"]
 
 
+def test_auction_exit_uses_only_fifteen_hundred_bar() -> None:
+    signals, minute, daily = _inputs()
+    auction = pd.DataFrame([{
+        "date": DATES[1], "label": "1500", "volume": 250_000,
+        "turnover": 10.2 * 250_000,
+    }])
+    minute = pd.concat([minute, auction], ignore_index=True)
+    result = outcomes_for_symbol(
+        signals, minute, daily, DATES, horizons=(1,),
+        exit_labels=EXIT_WINDOWS["auction"],
+    ).iloc[0]
+    assert result.entry_label == "1452-1455"
+    assert result.exit_label == "1500-1500"
+    assert result.exit_status == "filled"
+    assert result.exit_price > 10.0
+
+
 def test_delayed_entry_uses_later_minutes_and_same_exit() -> None:
     signals, minute, daily = _inputs()
     minute.loc[(minute.date == DATES[0]) & (minute.label == "1452"),
