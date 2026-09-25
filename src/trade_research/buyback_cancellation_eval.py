@@ -201,6 +201,28 @@ def _matching_context(pairs: pd.DataFrame, year: str) -> dict:
     }
 
 
+def _industry_coverage_diagnostic(main: pd.DataFrame,
+                                  industry_pairs: pd.DataFrame,
+                                  year: str) -> dict:
+    sample = main.loc[main.date.str.startswith(year)
+                      & main.target_notional.eq(20_000)
+                      & main.horizon.eq(5)
+                      & main.decision.eq("pure_cancel")]
+    wide = sample.pivot(index=["date", "pair_code"],
+                        columns="candidate", values="cash_return")
+    wide["edge"] = wide[EVENT] - wide[CONTROL]
+    available = pd.MultiIndex.from_frame(industry_pairs.loc[
+        industry_pairs.candidate.eq(EVENT), ["date", "pair_code"]])
+    output = {}
+    for label, mask in (("industry_available", wide.index.isin(available)),
+                        ("industry_unavailable", ~wide.index.isin(available))):
+        subset = wide.loc[mask]
+        daily = subset.edge.groupby(level="date").mean()
+        output[label] = {"pairs": len(subset), "days": len(daily),
+                         "main_control_edge_mean": float(daily.mean())}
+    return output
+
+
 def evaluate(review_path: Path, source: Path, pair_dir: Path,
              raw_path: Path, industry_raw_path: Path,
              report_path: Path) -> dict:
@@ -231,7 +253,7 @@ def evaluate(review_path: Path, source: Path, pair_dir: Path,
               "source_review": gate, "original_minute": {},
               "same_day_purpose": {}, "same_event_industry": {},
               "posthoc_tail": {}, "posthoc_complete_pairs": {},
-              "matching_context": {}}
+              "matching_context": {}, "posthoc_industry_coverage": {}}
     for size in (20_000, 100_000):
         report["original_minute"][str(size)] = {}
         for horizon in (1, 5):
@@ -256,6 +278,8 @@ def evaluate(review_path: Path, source: Path, pair_dir: Path,
         report["posthoc_complete_pairs"][year] = _complete_pairs(main, year)
         report["matching_context"][year] = _matching_context(
             main_pairs, year)
+        report["posthoc_industry_coverage"][year] = (
+            _industry_coverage_diagnostic(main, industry_pairs, year))
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2)
                            + "\n", encoding="utf-8")
