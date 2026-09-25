@@ -86,6 +86,36 @@ def _table_rows(table: list[list[str | None]]) -> list[dict]:
     return proposals
 
 
+def load_tables(year: int, root: Path, rows: list[dict]) -> list[dict]:
+    """Cache source PDF tables so additional input screens reuse exact cells."""
+    source = [row for row in rows if row["code"].startswith("sz.")]
+    cache = root / f"shenzhen_tables_{year}.jsonl"
+    if cache.exists():
+        extracted = [json.loads(line) for line in cache.read_text(
+            encoding="utf-8").splitlines()]
+        if (len(extracted) != len(source)
+                or len({row["pdf_url"] for row in extracted}) != len(source)
+                or {row["pdf_url"] for row in extracted}
+                != {row["pdf_url"] for row in source}):
+            raise ValueError("Stale Shenzhen source table cache")
+        return extracted
+    extracted = []
+    for count, row in enumerate(source, 1):
+        path = root / "pdfs" / str(year) / Path(
+            urlparse(row["pdf_url"]).path).name
+        with pdfplumber.open(path) as pdf:
+            pages = [page.extract_tables() for page in pdf.pages]
+        extracted.append({"pdf_url": row["pdf_url"], "pages": pages})
+        if count % 100 == 0:
+            print(f"Read {year} Shenzhen tables: {count}", flush=True)
+    temporary = cache.with_suffix(".tmp")
+    temporary.write_text("".join(
+        json.dumps(row, ensure_ascii=False) + "\n" for row in extracted),
+        encoding="utf-8")
+    temporary.replace(cache)
+    return extracted
+
+
 def propose(year: int, root: Path) -> dict:
     if year not in (2024, 2025):
         raise ValueError("Only frozen 2024/2025 pledge years")
@@ -97,28 +127,22 @@ def propose(year: int, root: Path) -> dict:
             or {row["pdf_url"] for row in rows} != set(indexed.pdf_url)
             or any(row["status"] != "ok" for row in rows)):
         raise ValueError("Incomplete original PDF identity audit")
+    source = {row["pdf_url"]: row for row in rows
+              if row["code"].startswith("sz.")}
     proposed = []
-    sz_count = 0
-    for row in rows:
-        if not row["code"].startswith("sz."):
-            continue
-        sz_count += 1
-        path = root / "pdfs" / str(year) / Path(
-            urlparse(row["pdf_url"]).path).name
-        with pdfplumber.open(path) as pdf:
-            for page_no, page in enumerate(pdf.pages, 1):
-                for table in page.extract_tables():
-                    for result in _table_rows(table):
-                        proposed.append({key: row[key] for key in (
-                            "code", "notice_date", "title", "pdf_url")}
-                                        | {"page": page_no} | result)
-        if sz_count % 100 == 0:
-            print(f"Read {year} Shenzhen tables: {sz_count}", flush=True)
+    for extracted in load_tables(year, root, rows):
+        row = source[extracted["pdf_url"]]
+        for page_no, tables in enumerate(extracted["pages"], 1):
+            for table in tables:
+                for result in _table_rows(table):
+                    proposed.append({key: row[key] for key in (
+                        "code", "notice_date", "title", "pdf_url")}
+                                    | {"page": page_no} | result)
     proposed.sort(key=lambda row: (
         row["notice_date"], row["code"], row["pdf_url"], row["actor_cell"]))
     output = root / f"table_crossing_proposals_{year}.csv"
     pd.DataFrame(proposed).drop_duplicates().to_csv(output, index=False)
-    return {"year": year, "shenzhen_originals": sz_count,
+    return {"year": year, "shenzhen_originals": len(source),
             "table_crossing_proposals": len(proposed),
             "outcomes_opened": False}
 
