@@ -81,7 +81,7 @@ def freeze(source_file: Path = ROOT / "prior_market_beta" / "all_candidates.parq
         build_history(connection)
         inputs = connection.execute("""
             WITH eligible AS (
-                SELECT s.*, h.weekday, h.prior_count,
+                SELECT s.*, h.weekday, h.prior_count AS weekday_prior_count,
                        h.weekday_mean, h.last_prior_date,
                        CASE
                            WHEN s.code LIKE 'sh.60%' OR s.code LIKE 'sz.00%'
@@ -100,7 +100,7 @@ def freeze(source_file: Path = ROOT / "prior_market_beta" / "all_candidates.parq
             )
             SELECT date, code, board, weekday, price_1449, amount_1449,
                    return_1449, return_last29, return20_prior_adjusted,
-                   prior_count, weekday_mean, last_prior_date, board_size,
+                   weekday_prior_count, weekday_mean, last_prior_date, board_size,
                    CASE WHEN score_quintile = 5 THEN 'high'
                         ELSE 'middle' END AS arm,
                    CASE WHEN return_1449 < -.01 THEN 'down'
@@ -125,7 +125,7 @@ def freeze(source_file: Path = ROOT / "prior_market_beta" / "all_candidates.parq
             or not inputs.date.str[:4].isin(("2024", "2025")).all()
             or not inputs.weekday.isin((1, 5)).all()
             or not inputs.last_prior_date.lt(inputs.date).all()
-            or inputs.prior_count.lt(40).any()
+            or inputs.weekday_prior_count.lt(40).any()
             or not np.isfinite(inputs[["price_1449", "amount_1449",
                                        "weekday_mean"]].to_numpy()).all()):
         raise ValueError("Invalid decision-time same-weekday inputs")
