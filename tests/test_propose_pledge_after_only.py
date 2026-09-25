@@ -61,3 +61,27 @@ def test_extension_schedule_is_not_a_release() -> None:
         ["直接控股股东", "6,680.2874", "1,871", "28.0078%"],
     ]
     assert after_only_crossings([[extension, after]]) == []
+
+
+def test_multi_actor_total_does_not_hide_controllers_own_sum() -> None:
+    release = [
+        ["股东名称", "本次解除质押数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "5,800,000", "12.93%"],
+        [None, "5,500,000", "12.26%"],
+        [None, "5,500,000", "12.26%"],
+        ["实际控制人", "5,000,000", "49.96%"],
+        ["合计", "21,800,000", "39.73%"],
+    ]
+    after = [
+        ["股东名称", "持股数量（股）", "累计被质押数量（股）",
+         "占其所持股份比例"],
+        ["直接控股股东", "44,864,400", "26,830,000", "59.80%"],
+        ["实际控制人", "10,008,279", "5,000,000", "49.96%"],
+    ]
+    rows = after_only_crossings([[release, after]])
+    matched = [row for row in rows
+               if row["release_actor_cell"] == "直接控股股东"
+               and row["after_actor_cell"] == "直接控股股东"]
+    assert len(matched) == 1
+    assert matched[0]["released"] == 16_800_000
+    assert matched[0]["crossed_tier"] == "80"

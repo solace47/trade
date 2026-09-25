@@ -65,14 +65,16 @@ def _release_rows(table: list[list[str | None]]) -> list[dict]:
                         "released": shares,
                         "released_pct_printed": next_percent})
             break
-    if not any(row["release_actor_cell"] == "合计" for row in out):
-        by_actor: dict[str, list[dict]] = {}
-        for row in out:
+    by_actor: dict[str, list[dict]] = {}
+    for row in out:
+        if row["release_actor_cell"] != "合计":
             by_actor.setdefault(row["release_actor_cell"], []).append(row)
-        for actor, group in by_actor.items():
-            if len(group) > 1:
+    for actor, group in by_actor.items():
+        if len(group) > 1:
+            released = sum(row["released"] for row in group)
+            if not any(row["released"] == released for row in group):
                 out.append({"release_actor_cell": actor,
-                            "released": sum(row["released"] for row in group),
+                            "released": released,
                             "released_pct_printed": sum(
                                 row["released_pct_printed"] for row in group)})
     return out
