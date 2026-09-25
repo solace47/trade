@@ -10,7 +10,7 @@ import duckdb
 import pandas as pd
 
 from .hf_outcomes import (
-    Assumptions, EXECUTION_LABELS, EXIT_WINDOWS, HORIZONS,
+    Assumptions, ENTRY_WINDOWS, EXIT_WINDOWS, HORIZONS,
     RESEARCH_HORIZONS, outcomes_for_symbol,
 )
 from .market_study import _quality_keys, _quality_symbols
@@ -36,13 +36,16 @@ def _attach_quality(outcomes: pd.DataFrame, issues_dir: Path) -> pd.DataFrame:
 def run(signals_file: Path, minute_root: Path, daily_root: Path,
         calendar_file: Path, output: Path, notionals: tuple[float, ...],
         issues_dir: Path, exit_windows: tuple[str, ...] = ("close",),
-        horizons: tuple[int, ...] = HORIZONS, workers: int = 4) -> pd.DataFrame:
+        horizons: tuple[int, ...] = HORIZONS, workers: int = 4,
+        entry_windows: tuple[str, ...] = ("baseline",)) -> pd.DataFrame:
     if not notionals or any(value <= 0 for value in notionals):
         raise ValueError("Order sizes must be positive")
     if workers < 1:
         raise ValueError("Workers must be positive")
     if not exit_windows or any(window not in EXIT_WINDOWS for window in exit_windows):
         raise ValueError("Unknown or missing exit windows")
+    if not entry_windows or any(window not in ENTRY_WINDOWS for window in entry_windows):
+        raise ValueError("Unknown or missing entry windows")
     if not horizons or any(horizon not in RESEARCH_HORIZONS for horizon in horizons):
         raise ValueError("Unsupported holding periods")
     signals = pd.read_parquet(signals_file)
@@ -77,9 +80,10 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
                                      ("timestamp", "<", pd.Timestamp(max(relevant_dates))
                                       + pd.Timedelta(days=1)),
                                  ])
-        needed_labels = set(EXECUTION_LABELS).union(*(
-            EXIT_WINDOWS[window] for window in exit_windows
-        ))
+        needed_labels = set().union(
+            *(ENTRY_WINDOWS[window] for window in entry_windows),
+            *(EXIT_WINDOWS[window] for window in exit_windows),
+        )
         labels = minute["timestamp"].dt.strftime("%H%M")
         minute = minute.loc[labels.isin(needed_labels)].copy()
         minute["date"] = minute["timestamp"].dt.strftime("%Y-%m-%d")
@@ -96,16 +100,19 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
         daily = daily.loc[daily["date"].between(daily_start, last_needed)].copy()
         frames = []
         for notional in notionals:
-            for window in exit_windows:
-                frame = outcomes_for_symbol(
-                    stock_signals, minute, daily, calendar,
-                    Assumptions(target_notional=notional),
-                    exit_labels=EXIT_WINDOWS[window],
-                    horizons=horizons,
-                )
-                frame["target_notional"] = notional
-                frame["exit_window"] = window
-                frames.append(frame)
+            for entry_window in entry_windows:
+                for exit_window in exit_windows:
+                    frame = outcomes_for_symbol(
+                        stock_signals, minute, daily, calendar,
+                        Assumptions(target_notional=notional),
+                        exit_labels=EXIT_WINDOWS[exit_window],
+                        horizons=horizons,
+                        entry_labels=ENTRY_WINDOWS[entry_window],
+                    )
+                    frame["target_notional"] = notional
+                    frame["entry_window"] = entry_window
+                    frame["exit_window"] = exit_window
+                    frames.append(frame)
         return frames
 
     grouped = list(signals.groupby("code", sort=True))
@@ -116,12 +123,14 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
             if count % 100 == 0 or count == len(grouped):
                 print(f"Repriced {count}/{len(grouped)} stocks", flush=True)
     result = pd.concat(frames, ignore_index=True)
-    expected = len(signals) * len(notionals) * len(exit_windows) * len(horizons)
+    expected = (len(signals) * len(notionals) * len(entry_windows)
+                * len(exit_windows) * len(horizons))
     if len(result) != expected:
         raise ValueError(f"Expected {expected} outcomes, found {len(result)}")
     result = _attach_quality(result, issues_dir)
     result = result.sort_values(
-        ["target_notional", "exit_window", "date", "code", "horizon"]
+        ["target_notional", "entry_window", "exit_window", "date", "code",
+         "horizon"]
     )
     output.parent.mkdir(parents=True, exist_ok=True)
     result.to_parquet(output, index=False, compression="zstd")
@@ -144,6 +153,8 @@ def main() -> None:
     parser.add_argument("--notionals", type=float, nargs="+", default=[20_000, 50_000, 100_000])
     parser.add_argument("--exit-windows", choices=EXIT_WINDOWS, nargs="+",
                         default=["close"])
+    parser.add_argument("--entry-windows", choices=ENTRY_WINDOWS, nargs="+",
+                        default=["baseline"])
     parser.add_argument("--horizons", type=int, choices=RESEARCH_HORIZONS, nargs="+",
                         default=list(HORIZONS))
     parser.add_argument("--workers", type=int, default=4)
@@ -151,10 +162,11 @@ def main() -> None:
     result = run(args.signals, args.minute_root, args.daily_root,
                  args.calendar, args.output, tuple(args.notionals),
                  args.issues, tuple(args.exit_windows), tuple(args.horizons),
-                 args.workers)
-    print({"signals": len(result) // (len(args.notionals) * len(args.exit_windows)
-                                  * len(args.horizons)),
+                 args.workers, tuple(args.entry_windows))
+    print({"signals": len(result) // (len(args.notionals) * len(args.entry_windows)
+                                  * len(args.exit_windows) * len(args.horizons)),
            "outcomes": len(result), "order_sizes": args.notionals,
+           "entry_windows": args.entry_windows,
            "exit_windows": args.exit_windows, "horizons": args.horizons})
 
 

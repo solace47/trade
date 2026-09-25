@@ -3,7 +3,7 @@
 import pandas as pd
 
 from trade_research.hf_outcomes import (
-    Assumptions, EXIT_WINDOWS, _board_limit_rate, _fees, _order_shares,
+    Assumptions, ENTRY_WINDOWS, EXIT_WINDOWS, _board_limit_rate, _fees, _order_shares,
     outcomes_for_symbol,
 )
 
@@ -62,6 +62,41 @@ def test_next_morning_exit_keeps_same_tail_entry() -> None:
     assert next_morning["exit_delay_sessions"] == 0
     assert next_morning["exit_label"] == "0935-0938"
     assert next_morning["net_return"] > next_close["net_return"]
+
+
+def test_delayed_entry_uses_later_minutes_and_same_exit() -> None:
+    signals, minute, daily = _inputs()
+    minute.loc[(minute.date == DATES[0]) & (minute.label == "1452"),
+               "turnover"] *= 1.04
+    late = pd.DataFrame([{
+        "date": date, "label": "1456", "volume": 250_000,
+        "turnover": (9.6 if date == DATES[0] else 10.0) * 250_000,
+    } for date in DATES])
+    minute = pd.concat([minute, late], ignore_index=True)
+    baseline = outcomes_for_symbol(
+        signals, minute, daily, DATES, horizons=(1,),
+    ).iloc[0]
+    delayed = outcomes_for_symbol(
+        signals, minute, daily, DATES, horizons=(1,),
+        entry_labels=ENTRY_WINDOWS["delay_one_minute"],
+    ).iloc[0]
+
+    assert baseline.entry_label == "1452-1455"
+    assert delayed.entry_label == "1453-1456"
+    assert delayed.entry_price < baseline.entry_price
+    assert delayed.exit_price == baseline.exit_price
+    assert delayed.exit_date == baseline.exit_date
+    assert delayed.net_return > baseline.net_return
+
+
+def test_delayed_entry_requires_all_four_minutes() -> None:
+    signals, minute, daily = _inputs()
+    result = outcomes_for_symbol(
+        signals, minute, daily, DATES, horizons=(1,),
+        entry_labels=ENTRY_WINDOWS["delay_one_minute"],
+    ).iloc[0]
+    assert result.entry_status == "below_minimum_lot"
+    assert result.entry_price is None
 
 
 def test_limit_up_entry_and_limit_down_exit_are_not_filled():

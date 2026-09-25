@@ -24,6 +24,10 @@ HORIZONS = (1, 2, 3, 5)
 RESEARCH_HORIZONS = HORIZONS + (20,)
 EXECUTION_LABELS = ("1452", "1453", "1454", "1455")
 EXECUTION_LABEL = "1452-1455"
+ENTRY_WINDOWS = {
+    "baseline": EXECUTION_LABELS,
+    "delay_one_minute": ("1453", "1454", "1455", "1456"),
+}
 EXIT_WINDOWS = {
     "close": EXECUTION_LABELS,
     "morning": ("0935", "0936", "0937", "0938"),
@@ -136,11 +140,15 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
                         daily: pd.DataFrame, calendar: list[str],
                         assumptions: Assumptions = Assumptions(),
                         exit_labels: tuple[str, ...] = EXECUTION_LABELS,
-                        horizons: tuple[int, ...] = HORIZONS) -> pd.DataFrame:
+                        horizons: tuple[int, ...] = HORIZONS,
+                        entry_labels: tuple[str, ...] = EXECUTION_LABELS
+                        ) -> pd.DataFrame:
     if signals.empty:
         return pd.DataFrame()
     if not exit_labels or len(set(exit_labels)) != len(exit_labels):
         raise ValueError("Exit labels must be nonempty and unique")
+    if not entry_labels or len(set(entry_labels)) != len(entry_labels):
+        raise ValueError("Entry labels must be nonempty and unique")
     if not horizons or any(horizon not in RESEARCH_HORIZONS for horizon in horizons):
         raise ValueError("Unsupported holding period")
     code = str(signals["code"].iloc[0])
@@ -151,9 +159,10 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
     ).abs() > 0.005
     reference_gap_dates = set(active.loc[active["reference_gap"], "date"])
     daily_by_date = {row["date"]: row for _, row in daily.iterrows()}
-    entry_quotes = _window_quotes(minute, EXECUTION_LABELS)
-    exit_quotes = (entry_quotes if exit_labels == EXECUTION_LABELS
+    entry_quotes = _window_quotes(minute, entry_labels)
+    exit_quotes = (entry_quotes if exit_labels == entry_labels
                    else _window_quotes(minute, exit_labels))
+    entry_label = f"{entry_labels[0]}-{entry_labels[-1]}"
     exit_label = f"{exit_labels[0]}-{exit_labels[-1]}"
     calendar_index = {date: n for n, date in enumerate(calendar)}
     rows = []
@@ -182,7 +191,7 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         for horizon in horizons:
             result = {
                 "date": entry_date, "code": code, "horizon": horizon,
-                "entry_label": EXECUTION_LABEL, "exit_label": exit_label,
+                "entry_label": entry_label, "exit_label": exit_label,
                 "entry_status": entry_status, "entry_price": entry_price,
                 "shares": shares if entry_price is not None else 0,
                 "target_exit_date": None, "exit_date": None,
