@@ -17,12 +17,15 @@ CAPACITY = 5
 COOLDOWN = 5
 
 
-def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, dict]:
+def select_inputs(connection: duckdb.DuckDBPyConnection, *,
+                  match_pre_tail: bool = False) -> tuple[pd.DataFrame, dict]:
     connection.execute("""
         CREATE TEMP TABLE eligible AS
         SELECT s.date, s.code, s.return20_prior_adjusted,
                s.return_1450, s.amount_1450, s.price_1450,
-               s.position_1450, i.return_last30
+               s.position_1450, i.return_last30,
+               (1 + s.return_1450) / (1 + i.return_last30) - 1
+                   AS return_to_1420
         FROM snapshots s JOIN intraday i USING (date, code)
         WHERE ((s.date BETWEEN '2024-01-01' AND '2024-12-17')
             OR (s.date BETWEEN '2025-01-01' AND '2025-12-17'))
@@ -35,11 +38,12 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
           AND s.position_1450 BETWEEN 0 AND 1
           AND ABS(s.price_1450 - i.price_1450) <= .005
     """)
+    rank_seed = "late-pretrend-v1" if match_pre_tail else "late-open-v1"
     declines = connection.execute("""
         SELECT * FROM eligible
         WHERE return_last30 BETWEEN -.01 AND -.003
-        ORDER BY date, md5('late-open-v1' || date || code), code
-    """).df()
+        ORDER BY date, md5(? || date || code), code
+    """, [rank_seed]).df()
     rallies = connection.execute("""
         SELECT * FROM eligible
         WHERE return_last30 BETWEEN .003 AND .01
@@ -74,7 +78,8 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
             )]
             prior_gap = (fresh.return20_prior_adjusted
                          - row.return20_prior_adjusted).abs()
-            current_gap = (fresh.return_1450 - row.return_1450).abs()
+            matched_return = "return_to_1420" if match_pre_tail else "return_1450"
+            current_gap = (fresh[matched_return] - getattr(row, matched_return)).abs()
             amount_ratio = fresh.amount_1450 / row.amount_1450
             price_ratio = fresh.price_1450 / row.price_1450
             position_gap = (fresh.position_1450 - row.position_1450).abs()
@@ -130,25 +135,32 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
                                      - pairs.return20_prior_adjusted_up).abs().median()),
         "median_current_gap": float((pairs.return_1450_down
                                      - pairs.return_1450_up).abs().median()),
+        "median_pre_tail_gap": float((pairs.return_to_1420_down
+                                      - pairs.return_to_1420_up).abs().median()),
         "median_position_gap": float((pairs.position_1450_down
                                       - pairs.position_1450_up).abs().median()),
         "by_half": by_half,
+        "matched_return": "return_to_1420" if match_pre_tail else "return_1450",
+        "ranking_seed": rank_seed,
     }
     audit["outcome_gate_passed"] = (
         len(by_half) == 4 and all(item["pairs"] >= 50 for item in by_half)
+        and (not match_pre_tail or all(item["days"] >= 15 for item in by_half))
         and audit["match_fraction"] >= .35
     )
     return signals, audit
 
 
-def freeze(output_dir: Path = OUTPUT) -> dict:
+def freeze(output_dir: Path = OUTPUT, *, match_pre_tail: bool = False) -> dict:
+    if match_pre_tail and output_dir == OUTPUT:
+        raise ValueError("Pre-tail matching requires a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
     connection.read_parquet(str(ROOT / "market_snapshots_ci" / "*.parquet")
                             ).create_view("snapshots")
     connection.read_parquet(str(ROOT / "intraday_features" / "*.parquet")
                             ).create_view("intraday")
-    signals, audit = select_inputs(connection)
+    signals, audit = select_inputs(connection, match_pre_tail=match_pre_tail)
     output_dir.mkdir(parents=True, exist_ok=True)
     for stale in ("repricing_signals.parquet", "repriced.parquet", "report.json"):
         (output_dir / stale).unlink(missing_ok=True)
@@ -173,9 +185,12 @@ def freeze(output_dir: Path = OUTPUT) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--match-pre-tail", action="store_true")
     args = parser.parse_args()
-    print(freeze(args.output))
+    output = args.output or (ROOT / "late_pretrend_match"
+                             if args.match_pre_tail else OUTPUT)
+    print(freeze(output, match_pre_tail=args.match_pre_tail))
 
 
 if __name__ == "__main__":

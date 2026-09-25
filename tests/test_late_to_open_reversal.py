@@ -37,3 +37,34 @@ def test_only_first_five_eligible_declines_are_attempted() -> None:
     assert audit["paired"] == 1
     assert signals.loc[signals.candidate.eq("late_decline"), "code"].tolist() == [
         ranked[0]]
+
+
+def test_pre_tail_match_changes_only_the_return_balance_target() -> None:
+    date = "2024-01-02"
+    decline, early_match, day_match = "sh.600001", "sh.600002", "sh.600003"
+    snapshots = pd.DataFrame([
+        {"date": date, "code": code, "return20_prior_adjusted": 0.0,
+         "return_1450": day_return, "amount_1450": 500_000_000,
+         "price_1450": 10.0, "position_1450": .5, "isST": 0,
+         "listing_age_sessions": 100, "reference_gap": False,
+         "quote_outside_traded_range": False}
+        for code, day_return in (
+            (decline, -.005), (early_match, .005), (day_match, -.005))
+    ])
+    intraday = pd.DataFrame([
+        {"date": date, "code": code, "price_1450": 10.0,
+         "return_last30": -.005 if code == decline else .005}
+        for code in (decline, early_match, day_match)
+    ])
+
+    def matched_control(pre_tail: bool) -> str:
+        connection = duckdb.connect()
+        connection.register("snapshots", snapshots)
+        connection.register("intraday", intraday)
+        signals, _ = select_inputs(connection, match_pre_tail=pre_tail)
+        return signals.loc[
+            signals.candidate.eq("late_rally_control"), "code"
+        ].iloc[0]
+
+    assert matched_control(False) == day_match
+    assert matched_control(True) == early_match
