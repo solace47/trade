@@ -1,4 +1,4 @@
-"""Auction input audit must use the single 15:00 print, not zero-volume placeholders."""
+"""Auction input audit must ignore 14:58 volume, including positive SH bars."""
 
 import pandas as pd
 import pytest
@@ -20,8 +20,10 @@ def test_auction_bar_quality_and_order_capacity(tmp_path) -> None:
     minutes = tmp_path / "minutes"
     (minutes / "SH").mkdir(parents=True)
     bars = [
-        [("14:58", 10.0, 0, 0), ("15:00", 10.0, 30_000, 300_000)],
-        [("15:00", 10.0, 10_000, 100_000)],
+        [("14:58", 10.0, 200_000, 2_000_000),
+         ("15:00", 10.0, 30_000, 300_000)],
+        [("14:58", 10.0, 200_000, 2_000_000),
+         ("15:00", 10.0, 10_000, 100_000)],
         [("15:00", 10.0, 30_000, 300_000)] * 2,
         [("15:00", 10.0, 30_000, 305_000)],
     ]
@@ -37,6 +39,8 @@ def test_auction_bar_quality_and_order_capacity(tmp_path) -> None:
     output = tmp_path / "output"
     audit = build_inputs(output, minutes, source, workers=1)
     inputs = pd.read_parquet(output / "auction_inputs.parquet").set_index("code")
+    assert inputs.loc[codes[0], "auction_volume"] == 30_000
+    assert inputs.loc[codes[1], "auction_volume"] == 10_000
     assert inputs.valid_auction_bar.tolist() == [True, True, False, False]
     assert inputs.capacity_20k.tolist() == [True, False, False, False]
     assert audit["invalid_auction_bars"] == 2
