@@ -41,21 +41,22 @@ def build_history(connection: duckdb.DuckDBPyConnection) -> None:
     """A 365-calendar-day, same-weekday window excludes the signal day."""
     connection.execute("""
         CREATE OR REPLACE TEMP TABLE weekday_history AS
-        WITH valid AS (
+        WITH dated AS (
             SELECT date, code,
                    EXTRACT(ISODOW FROM CAST(date AS DATE)) AS weekday,
-                   pctChg / 100.0 AS daily_return
+                   CASE WHEN tradestatus = 1 AND isST = 0
+                             AND pctChg IS NOT NULL AND isfinite(pctChg)
+                             AND ABS(pctChg) <= 21
+                        THEN pctChg / 100.0 ELSE NULL END AS historical_return
             FROM daily_source
             WHERE date BETWEEN '2023-01-01' AND '2025-12-17'
-              AND tradestatus = 1 AND isST = 0
-              AND pctChg IS NOT NULL AND isfinite(pctChg)
-              AND ABS(pctChg) <= 21
         )
         SELECT date, code, weekday,
-               COUNT(*) OVER prior_year AS prior_count,
-               AVG(daily_return) OVER prior_year AS weekday_mean,
-               MAX(date) OVER prior_year AS last_prior_date
-        FROM valid WHERE weekday IN (1, 5)
+               COUNT(historical_return) OVER prior_year AS prior_count,
+               AVG(historical_return) OVER prior_year AS weekday_mean,
+               MAX(CASE WHEN historical_return IS NOT NULL THEN date END)
+                   OVER prior_year AS last_prior_date
+        FROM dated WHERE weekday IN (1, 5)
         WINDOW prior_year AS (
             PARTITION BY code, weekday ORDER BY CAST(date AS DATE)
             RANGE BETWEEN INTERVAL 365 DAYS PRECEDING

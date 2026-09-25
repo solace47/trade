@@ -27,10 +27,12 @@ def _signal_score(today_pct_change: float) -> tuple[int, float, str]:
 
 def test_signal_day_close_cannot_change_same_weekday_score() -> None:
     calm = _signal_score(0.0)
-    extreme = _signal_score(20.0)
+    extreme = _signal_score(30.0)
+    missing = _signal_score(float("nan"))
     assert calm[0] == 52
     assert calm[2] == "2024-01-08"
     assert extreme == calm
+    assert missing == calm
 
 
 def test_freeze_saves_weekday_count_instead_of_upstream_beta_count(tmp_path) -> None:
@@ -45,7 +47,9 @@ def test_freeze_saves_weekday_count_instead_of_upstream_beta_count(tmp_path) -> 
                             "prior_count": 999})
         for date in pd.date_range("2023-01-02", periods=55, freq="W-MON"):
             daily_rows.append({"date": date.strftime("%Y-%m-%d"), "code": code,
-                               "pctChg": float(index - 15) / 10,
+                               "pctChg": (None if index == 29 and
+                                          date.strftime("%Y-%m-%d") == signal_date
+                                          else float(index - 15) / 10),
                                "tradestatus": 1, "isST": 0})
     source = tmp_path / "source.parquet"
     pd.DataFrame(source_rows).to_parquet(source)
@@ -62,6 +66,7 @@ def test_freeze_saves_weekday_count_instead_of_upstream_beta_count(tmp_path) -> 
     assert set(inputs.weekday_prior_count) == {52}
     assert set(inputs.last_prior_date) == {"2024-01-08"}
     assert "prior_count" not in inputs
+    assert "sh.600029" in set(inputs.code)
 
 
 def test_gross_cannot_read_future_prices_after_failed_input_gate(tmp_path) -> None:
