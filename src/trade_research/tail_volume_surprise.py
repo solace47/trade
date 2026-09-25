@@ -222,6 +222,16 @@ def study(output_dir: Path = ROOT / "tail_volume_surprise") -> dict:
     signals.to_parquet(output_dir / "selections.parquet", index=False,
                        compression="zstd")
     connection.register("selected", signals)
+    repricing_signals = connection.execute("""
+        SELECT s.* FROM selected r JOIN snapshots s USING (date, code)
+    """).df()
+    if (len(repricing_signals) != len(signals)
+            or repricing_signals.duplicated(["date", "code"]).any()):
+        raise ValueError("Repricing inputs lack one-to-one snapshot coverage")
+    repricing_signals.to_parquet(
+        output_dir / "repricing_signals.parquet", index=False,
+        compression="zstd",
+    )
     connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
                             ).create_view("outcomes")
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
