@@ -37,7 +37,8 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
         calendar_file: Path, output: Path, notionals: tuple[float, ...],
         issues_dir: Path, exit_windows: tuple[str, ...] = ("close",),
         horizons: tuple[int, ...] = HORIZONS, workers: int = 4,
-        entry_windows: tuple[str, ...] = ("baseline",)) -> pd.DataFrame:
+        entry_windows: tuple[str, ...] = ("baseline",),
+        sizing_price_column: str | None = None) -> pd.DataFrame:
     if not notionals or any(value <= 0 for value in notionals):
         raise ValueError("Order sizes must be positive")
     if workers < 1:
@@ -51,6 +52,8 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
     signals = pd.read_parquet(signals_file)
     if signals.empty or signals.duplicated(["date", "code"]).any():
         raise ValueError("Signals must be nonempty and unique by stock-day")
+    if sizing_price_column is not None and sizing_price_column not in signals.columns:
+        raise ValueError("The decision-time sizing price is missing")
     trading = pd.read_parquet(calendar_file)
     calendar = sorted(trading.loc[
         trading["is_trading_day"].eq("1")
@@ -108,6 +111,7 @@ def run(signals_file: Path, minute_root: Path, daily_root: Path,
                         exit_labels=EXIT_WINDOWS[exit_window],
                         horizons=horizons,
                         entry_labels=ENTRY_WINDOWS[entry_window],
+                        sizing_price_column=sizing_price_column,
                     )
                     frame["target_notional"] = notional
                     frame["entry_window"] = entry_window
@@ -158,16 +162,19 @@ def main() -> None:
     parser.add_argument("--horizons", type=int, choices=RESEARCH_HORIZONS, nargs="+",
                         default=list(HORIZONS))
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--sizing-price-column", type=str)
     args = parser.parse_args()
     result = run(args.signals, args.minute_root, args.daily_root,
                  args.calendar, args.output, tuple(args.notionals),
                  args.issues, tuple(args.exit_windows), tuple(args.horizons),
-                 args.workers, tuple(args.entry_windows))
+                 args.workers, tuple(args.entry_windows),
+                 args.sizing_price_column)
     print({"signals": len(result) // (len(args.notionals) * len(args.entry_windows)
                                   * len(args.exit_windows) * len(args.horizons)),
            "outcomes": len(result), "order_sizes": args.notionals,
            "entry_windows": args.entry_windows,
-           "exit_windows": args.exit_windows, "horizons": args.horizons})
+           "exit_windows": args.exit_windows, "horizons": args.horizons,
+           "sizing_price_column": args.sizing_price_column})
 
 
 if __name__ == "__main__":

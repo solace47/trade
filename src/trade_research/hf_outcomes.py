@@ -12,6 +12,7 @@ import argparse
 from dataclasses import asdict, dataclass
 from decimal import Decimal, ROUND_HALF_UP
 import json
+from math import isfinite
 from pathlib import Path
 
 import pandas as pd
@@ -143,7 +144,8 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
                         assumptions: Assumptions = Assumptions(),
                         exit_labels: tuple[str, ...] = EXECUTION_LABELS,
                         horizons: tuple[int, ...] = HORIZONS,
-                        entry_labels: tuple[str, ...] = EXECUTION_LABELS
+                        entry_labels: tuple[str, ...] = EXECUTION_LABELS,
+                        sizing_price_column: str | None = None,
                         ) -> pd.DataFrame:
     if signals.empty:
         return pd.DataFrame()
@@ -153,6 +155,8 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         raise ValueError("Entry labels must be nonempty and unique")
     if not horizons or any(horizon not in RESEARCH_HORIZONS for horizon in horizons):
         raise ValueError("Unsupported holding period")
+    if sizing_price_column is not None and sizing_price_column not in signals.columns:
+        raise ValueError("The decision-time sizing price is missing")
     code = str(signals["code"].iloc[0])
     daily = daily.sort_values("date").copy()
     active = daily.loc[daily["tradestatus"] == 1].copy()
@@ -174,7 +178,12 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         entry_date = signal.date
         entry_quote = entry_quotes.get(entry_date)
         estimated_price = float(entry_quote["vwap"]) if entry_quote is not None else 0.0
-        shares = _order_shares(code, estimated_price, assumptions.target_notional)
+        sizing_price = (float(getattr(signal, sizing_price_column))
+                        if sizing_price_column is not None else estimated_price)
+        if sizing_price_column is not None and (not isfinite(sizing_price)
+                                                or sizing_price <= 0):
+            raise ValueError("Invalid decision-time sizing price")
+        shares = _order_shares(code, sizing_price, assumptions.target_notional)
         if shares == 0:
             entry_price, entry_status = None, "below_minimum_lot"
         elif getattr(signal, "listing_age_sessions", 5) < 5:

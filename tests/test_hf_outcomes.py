@@ -144,6 +144,24 @@ def test_historical_chinext_rule_and_star_order_quantity():
     assert _order_shares("sh.688001", 10.0, 20_050) == 2005
 
 
+def test_known_price_can_fix_order_size_before_entry_window() -> None:
+    signals, minute, daily = _inputs()
+    signals["price_1449"] = 9.0
+    assumptions = Assumptions(target_notional=20_000)
+    default = outcomes_for_symbol(
+        signals, minute, daily, DATES, assumptions,
+        horizons=(1,),
+    ).iloc[0]
+    fixed = outcomes_for_symbol(
+        signals, minute, daily, DATES, assumptions,
+        horizons=(1,), sizing_price_column="price_1449",
+    ).iloc[0]
+    assert default.shares == 2000
+    assert fixed.shares == 2200
+    assert fixed.entry_price == default.entry_price
+    assert fixed.exit_price == default.exit_price
+
+
 def test_mainboard_risk_warning_limit_changes_in_july_2026():
     for code in ("sh.600000", "sz.000001"):
         assert _board_limit_rate(code, 1, "2026-07-03") == 0.05
