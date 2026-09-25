@@ -28,7 +28,8 @@ BASE = """
 """
 
 
-def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, dict]:
+def select_inputs(connection: duckdb.DuckDBPyConnection,
+                  rank_salt: str = "rv-risk-v1") -> tuple[pd.DataFrame, dict]:
     connection.execute("""
         CREATE TEMP TABLE history AS
         SELECT date, code, price_1450,
@@ -61,8 +62,8 @@ def select_inputs(connection: duckdb.DuckDBPyConnection) -> tuple[pd.DataFrame, 
     """)
     high = connection.execute("""
         SELECT * FROM candidates WHERE surprise >= 1.5
-        ORDER BY date, md5('rv-risk-v1' || date || code), code
-    """).df()
+        ORDER BY date, md5(? || date || code), code
+    """, [rank_salt]).df()
     low = connection.execute("""
         SELECT * FROM candidates WHERE surprise <= 1.0
         ORDER BY date, code
