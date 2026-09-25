@@ -56,6 +56,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity --signals dat
 按 14:50 市场广度复核这两组探索信号时运行 `PYTHONPATH=src .venv/bin/python scripts/regime_probe.py > data/research/regime_probe.jsonl`。
 平静上涨与市场广度的同日配对检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.quiet_breadth`，输出保存在 `data/research/quiet_breadth/`。
 历史时段尾盘量能检验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.tail_volume_surprise`；以其 `repricing_signals.parquet` 调用 `trade_research.size_sensitivity --notionals 100000 --horizons 1 5` 可逐笔核对原始分钟成交。
+尾盘后半段路径仅做 14:50 输入审计：`PYTHONPATH=src .venv/bin/python -m trade_research.late_half_pressure`；配对覆盖未过预设门槛，程序不会输出可用于复价的名单。
 
 近期尾盘研究从原始分钟文件重建特征，再执行 2024 年开发扫描：
 
