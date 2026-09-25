@@ -54,11 +54,11 @@ def _release_rows(table: list[list[str | None]]) -> list[dict]:
             if is_percent or amount <= 0:
                 continue
             shares = _shares(amount, unit)
-            if shares is None or shares < 1000:
+            if shares is None or shares <= 0:
                 continue
             next_percent = next((value for value, percent in
                                  numbers[index + 1:index + 4]
-                                 if percent and 0 < value <= 100), None)
+                                 if percent and 0 <= value <= 100), None)
             if next_percent is None:
                 continue
             out.append({"release_actor_cell": actor,
@@ -82,10 +82,17 @@ def _release_rows(table: list[list[str | None]]) -> list[dict]:
 
 def _after_rows(table: list[list[str | None]]) -> list[dict]:
     header = _header(table)
-    before_after = (re.search(r"(?:质押前|前质押)", header)
-                    and re.search(r"(?:质押后|后质押)", header))
+    heading_rows = table[:4]
+    heading_columns = (
+        re.sub(r"\s+", "", "".join(
+            row[index] or "" for row in heading_rows if index < len(row)))
+        for index in range(max((len(row) for row in heading_rows), default=0)))
+    prior_column = any(
+        re.search(r"(?:本次|交易|变动|延期|解除|解押|质押)"
+                  r".{0,20}前.{0,6}质押|质押前", column)
+        for column in heading_columns)
     if ("持股数量" not in header or "质押" not in header
-            or before_after):
+            or prior_column):
         return []
     unit = "万股" if "万股" in header else "股"
     out = []

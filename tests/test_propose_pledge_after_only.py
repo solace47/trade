@@ -8,7 +8,7 @@ def test_after_only_table_can_propose_direct_tier_crossing() -> None:
         ["合计", "20,925.00", "22.91%"],
     ]
     after = [
-        ["股东名称", "持股数量（万股）", "累计被质押数量（万股）",
+        ["股东名称", "持股数量（万股）", "目前累计质押数量（万股）",
          "占控股股东及一致行动人所持股份比例"],
         ["锦隆能源", "91,317.54", "25,619.10", "13.11%"],
     ]
@@ -85,3 +85,60 @@ def test_multi_actor_total_does_not_hide_controllers_own_sum() -> None:
     assert len(matched) == 1
     assert matched[0]["released"] == 16_800_000
     assert matched[0]["crossed_tier"] == "80"
+
+
+def test_one_share_rows_are_included_in_same_actor_sum() -> None:
+    release = [
+        ["股东名称", "本次解除质押数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "5,807,100", "19.09%"],
+        ["直接控股股东", "1", "0.00%"],
+        ["直接控股股东", "1", "0.00%"],
+    ]
+    after = [
+        ["股东名称", "持股数量（股）", "累计被质押数量（股）",
+         "占其所持股份比例"],
+        ["直接控股股东", "30,421,897", "20,416,598", "67.11%"],
+    ]
+    rows = after_only_crossings([[release, after]])
+    assert any(row["released"] == 5_807_102 for row in rows)
+
+
+def test_trading_before_column_is_not_post_release_stock() -> None:
+    release = [
+        ["股东名称", "本次解除质押数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "14,500,000", "23.24%"],
+    ]
+    before_after = [
+        ["股东名称", "持股数量（股）", "本次交易前目前累计质押股份数量（股）",
+         "目前累计质押股份数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "62,389,317", "30,500,000", "16,000,000",
+         "25.65%"],
+    ]
+    assert after_only_crossings([[release, before_after]]) == []
+
+
+def test_extension_before_column_is_not_post_release_stock() -> None:
+    release = [
+        ["股东名称", "本次解除质押数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "9,030,000", "5.24%"],
+    ]
+    before_after = [
+        ["股东名称", "持股数量（股）",
+         "本次解除质押及质押股份延期购回前质押股份数量（股）",
+         "本次解除质押及质押股份延期购回后质押股份数量（股）"],
+        ["直接控股股东", "172,325,527", "84,319,159", "75,289,159"],
+    ]
+    assert after_only_crossings([[release, before_after]]) == []
+
+
+def test_split_before_header_is_not_post_release_stock() -> None:
+    release = [
+        ["股东名称", "本次解除质押数量（股）", "占其所持股份比例"],
+        ["直接控股股东", "39,000,000", "28.70%"],
+    ]
+    before_after = [
+        ["股东名称", "持股数量（股）", "本次解除质", "本次解除"],
+        [None, None, "押前质押股份数量", "质押后质押股份数量"],
+        ["直接控股股东", "135,901,179", "84,000,000", "45,000,000"],
+    ]
+    assert after_only_crossings([[release, before_after]]) == []
