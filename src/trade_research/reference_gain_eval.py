@@ -22,6 +22,23 @@ DAILY = Path("data/baostock/market_2020_2026/daily")
 SIGNAL_SHA = "c23556798937d28472cb909dc52947cc3f8e41a8771adcef971e134ae6abf214"
 
 
+def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
+                         win: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
+    accounted = account_rows(raw, calendar)
+    accounted = accounted.merge(signals[["date", "code", "arm", "pair_id", "price_1449"]],
+        on=["date", "code"], validate="many_to_one")
+    for side, key in (("entry", "date"), ("exit", "exit_date")):
+        fields = win.rename(columns={"date": key,
+            **{k: side + "_" + k for k in win.columns if k not in ("date", "code")}})
+        accounted = accounted.merge(fields, on=[key, "code"], how="left", validate="many_to_one")
+    accounted["execution_source_valid"] = accounted.entry_window_status.eq("valid") & (
+        accounted.exit_window_status.eq("valid") | accounted.entry_status.ne("filled"))
+    for slip in (5, 15):
+        accounted[f"known_return{slip}"] = accounted[f"known_return{slip}"].where(accounted.execution_source_valid)
+    accounted["unknown_after_buy"] |= accounted.entry_status.eq("filled") & ~accounted.execution_source_valid
+    return accounted
+
+
 def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
             rule_commit: str = "8c75ac3") -> dict:
     signal_file = output / "signals.parquet"
@@ -93,19 +110,8 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
     raw = pd.concat(trades, ignore_index=True)
     raw["quality_clean_exit"] = False  # Replaced by the established period-only audit below.
     raw, _ = apply_period_quality(raw)
-    accounted = account_rows(raw, calendar)
-    accounted = accounted.merge(signals[["date", "code", "arm", "pair_id", "price_1449"]],
-        on=["date", "code"], validate="many_to_one")
     win = pd.concat(windows, ignore_index=True)
-    for side, key in (("entry", "date"), ("exit", "exit_date")):
-        fields = win.rename(columns={"date": key,
-            **{k: side + "_" + k for k in win.columns if k not in ("date", "code")}})
-        accounted = accounted.merge(fields, on=[key, "code"], how="left", validate="many_to_one")
-    accounted["execution_source_valid"] = accounted.entry_window_status.eq("valid") & (
-        accounted.exit_window_status.eq("valid") | accounted.entry_status.ne("filled"))
-    for slip in (5, 15):
-        accounted[f"known_return{slip}"] = accounted[f"known_return{slip}"].where(accounted.execution_source_valid)
-    accounted["unknown_after_buy"] |= accounted.entry_status.eq("filled") & ~accounted.execution_source_valid
+    accounted = account_with_windows(raw, signals, win, calendar)
     for name, table in (("repriced", raw), ("accounted_initial", accounted),
                         ("raw_windows", pd.concat(bars, ignore_index=True)), ("window_quality", win)):
         table.to_parquet(output / f"{name}.parquet", index=False, compression="zstd")

@@ -85,6 +85,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 ## 原始分钟复价与验证
 
+可买条件与浅层树对照先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.shallow_tree_1449` 固定名单；已有复价结果时程序拒绝覆盖名单。随后分别对 `data/research/shallow_tree_1449/ridge` 和 `tree` 调用 `reference_gain_eval.reprice(path, expected_signal_sha=该目录输入报告中的指纹, rule_commit="4f8bb7c")`，再运行 `trade_research.shallow_tree_eval` 汇总原五日延迟规则的经济情景。继续运行 `trade_research.shallow_tree_continuation`，将尚未卖出的原持仓追踪至 2025 年末，结果另存 `continued/`；对该目录调用 `shallow_tree_eval.summarize(path)` 生成续查报告。剩余未知终值保留为空，本金全损情景单列，不能当成实际收益。上述模块均使用同一 Python 环境与 `PYTHONPATH=src` 前缀，固定规则与结论见[输入检验](input-gates.md#决策时可买条件与浅层树模型对照)。
+
 `trade_research.size_sensitivity` 按固定名单逐股读取原始分钟，在 14:52–14:55 估算入场，并按指定时段和持有期重算成交、税费、滑点及现金感知结果。以下是**已过输入门槛的历史名单**的复算示例，不应用于上节失败的分钟自相关名单：
 
 ```bash
