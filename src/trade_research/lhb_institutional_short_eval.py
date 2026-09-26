@@ -18,14 +18,15 @@ from .risk_removal_eval import evaluate as tick
 from .shallow_tree_continuation import continue_model
 
 
-def execute(output: Path = ROOT) -> dict:
+def execute(output: Path = ROOT, *, horizons: tuple[int, int] = (1, 3),
+            rule_commit: str = RULE_COMMIT) -> dict:
     selection = json.loads((output / "input_report.json").read_text())
     checks = json.loads((output / "independent_input_checks.json").read_text())
     expected = selection["signals_sha256"]
     if sha(output / "signals.parquet") != expected or checks["signals_sha256"] != expected:
         raise ValueError("The independently checked list changed")
     if not (output / "execution_report.json").exists():
-        reprice(output, expected_signal_sha=expected, rule_commit=RULE_COMMIT, horizons=(1, 3))
+        reprice(output, expected_signal_sha=expected, rule_commit=rule_commit, horizons=horizons)
     continued = output / "continued"
     if not (continued / "execution_report.json").exists():
         continue_model(output, continued)
@@ -38,7 +39,8 @@ def execute(output: Path = ROOT) -> dict:
     return json.loads((continued / "execution_report.json").read_text())
 
 
-def compare(output: Path = ROOT) -> dict:
+def compare(output: Path = ROOT, *, horizons: tuple[int, int] = (1, 3),
+            rule_commit: str = RULE_COMMIT) -> dict:
     selection = json.loads((output / "input_report.json").read_text())
     folder = output / "continued"
     report = json.loads((folder / "tick_report.json").read_text())
@@ -49,11 +51,11 @@ def compare(output: Path = ROOT) -> dict:
         raise ValueError("A frozen input or execution ledger changed")
     rows = pd.read_parquet(folder / "tick_cost_scenario.parquet")
     queue = pd.read_parquet(folder / "execution_queue_audit.parquet")
-    if set(rows.horizon) != {1, 3}:
+    if len(horizons) != 2 or horizons[0] != 1 or set(rows.horizon) != set(horizons):
         raise ValueError("Both predeclared short horizons are required")
-    one, three = (rows.loc[rows.horizon.eq(h)].set_index(["date", "code"]).sort_index() for h in (1, 3))
+    one, other = (rows.loc[rows.horizon.eq(h)].set_index(["date", "code"]).sort_index() for h in horizons)
     same = ["arm", "pair_id", "shares", "entry_status", "entry_price"]
-    pd.testing.assert_frame_equal(one[same], three[same], check_exact=True)
+    pd.testing.assert_frame_equal(one[same], other[same], check_exact=True)
     for bps in (5, 15):
         rows[f"queue_checked_return{bps}"] = conservative_returns(rows, queue, f"tick_return{bps}")
     periods = [("full", "2024-01-01", "2025-12-31")]
@@ -77,9 +79,9 @@ def compare(output: Path = ROOT) -> dict:
             for label, first, last in periods:
                 distributions.append({"horizon": int(horizon), "bps": bps, "period": label,
                     **trade_distribution(high.loc[high.date.between(first, last)], col)})
-    result = {"rule_commit": RULE_COMMIT, "signals_sha256": selection["signals_sha256"],
+    result = {"rule_commit": rule_commit, "signals_sha256": selection["signals_sha256"],
         "interpretation": "exposed_2024_2025_catalogue_and_recorded_fill_scenario_not_portfolio_return",
-        "primary": "T1_tail_max_15bps_or_half_cent_per_leg", "secondary": "T3_same_tail_window",
+        "primary": "T1_tail_max_15bps_or_half_cent_per_leg", "secondary": f"T{horizons[1]}_same_tail_window",
         "same_buy_orders_verified": True, "metrics": metrics, "trade_distributions": distributions,
         "queue_report": queue_report, "tick_report_sha256": sha(folder / "tick_report.json"),
         "new_2026_holding_prices_read": False, "publishable_formula": False}
