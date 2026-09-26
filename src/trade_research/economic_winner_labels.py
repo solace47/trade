@@ -14,7 +14,11 @@ def evaluate():
     if (ROOT/'label_report.json').exists():raise ValueError('Do not overwrite inspected economic labels')
     manifest=json.loads((ROOT/'input_manifest.json').read_text())
     raw=json.loads((ROOT/'raw_report.json').read_text())
+    window_check=json.loads((ROOT/'window_verification.json').read_text())
+    assert window_check['passed'] and window_check['raw_report_sha256']==sha(ROOT/'raw_report.json')
     cat=json.loads((ROOT/'catalog/coverage_report.json').read_text())
+    cat_check=json.loads((ROOT/'catalog_verification.json').read_text())
+    assert cat_check['passed'] and cat_check['coverage_report_sha256']==sha(ROOT/'catalog/coverage_report.json')
     assert cat['complete'] and raw['input_manifest_sha256']==sha(ROOT/'input_manifest.json')
     assert sha(BASE)==manifest['base_sha256'] and sha(LABELS)==manifest['labels_sha256'] and sha(PROTOCOL)==manifest['protocol_sha256']
     for path,digest in raw['parts_sha256'].items():assert sha(Path(path))==digest
@@ -119,6 +123,8 @@ def evaluate():
     row.to_parquet(ROOT/'labels.parquet',index=False,compression='zstd')
     summary=row.groupby(['half','board','base_status']).size().rename('rows').reset_index().to_dict('records')
     result={'input_manifest_sha256':sha(ROOT/'input_manifest.json'),'raw_report_sha256':sha(ROOT/'raw_report.json'),
+        'window_verification_sha256':sha(ROOT/'window_verification.json'),
+        'catalog_verification_sha256':sha(ROOT/'catalog_verification.json'),
         'catalog_coverage_sha256':sha(ROOT/'catalog/coverage_report.json'),'windows_sha256':sha(ROOT/'windows.parquet'),
         'labels_sha256':sha(ROOT/'labels.parquet'),'stock_days':len(row),'windows':len(windows),'base_statuses':summary,
         'new_2026_prices_read':False,'complete_real_portfolio_returns':False,

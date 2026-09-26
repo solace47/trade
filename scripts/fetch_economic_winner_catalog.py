@@ -66,7 +66,7 @@ def main():
     (folder/'vendor').mkdir(exist_ok=True)
     pending=sum(not(folder/'vendor'/(code+'_'+year+'.json')).exists()
         or(folder/'vendor'/(code+'_'+year+'.error.json')).exists() for code,year in pairs)
-    # Drain sparse retries on one session; concurrent anonymous logouts can invalidate another login.
+    # Drain sparse retries on one session after repeated "not logged in" responses.
     workers=4 if pending>40 else 1
     prior=folder/'parallel_fetch_report.json'
     if prior.exists():

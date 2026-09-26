@@ -15,6 +15,43 @@ root=Path('data/research/economic_winner')
 portrait=Path('data/research/next_day_winner')
 
 
+def catalog():
+    from collections import Counter
+    folder=root/'catalog';inputs=json.loads((root/'input_manifest.json').read_text())
+    report=json.loads((folder/'coverage_report.json').read_text())
+    source=json.loads((folder/'catalog_report.json').read_text())
+    assert report['complete'] and report['catalog_report_sha256']==sha(folder/'catalog_report.json')
+    expected=[];coverage=[]
+    jobs=pd.read_parquet(folder/'jobs.parquet')
+    for row in jobs.itertuples():
+        path=folder/'vendor'/(row.code+'_'+row.year+'.json')
+        assert not path.with_suffix('.error.json').exists() and source['sha256'][str(path)]==sha(path)
+        records=json.loads(path.read_text());assert isinstance(records,list)
+        for record in records:assert record['code']==row.code and record['dividOperateDate'].startswith(row.year+'-')
+        expected.extend(records);coverage.append({'code':row.code,'year':row.year,'events':len(records)})
+    original_fields=sorted({name for row in expected for name in row})
+    actual=pd.read_parquet(folder/'events.parquet')
+    canonical=lambda rows:Counter(json.dumps({k:r.get(k) for k in original_fields},sort_keys=True,ensure_ascii=False) for r in rows)
+    assert canonical(expected)==canonical(actual[original_fields].to_dict('records'))
+    pd.testing.assert_frame_equal(pd.DataFrame(coverage),pd.read_parquet(folder/'query_coverage.parquet'),check_dtype=False)
+    old_events=Path('data/research/winner_direction/catalog/events_reconciled.parquet')
+    old_coverage=old_events.with_name('combined_coverage.parquet')
+    assert sha(old_events)==inputs['old_events_sha256'] and sha(old_coverage)==inputs['old_coverage_sha256']
+    combined=pd.read_parquet(folder/'combined_events.parquet')
+    originals=pd.concat([pd.read_parquet(old_events),actual],ignore_index=True)
+    assert canonical(combined[original_fields].to_dict('records'))==canonical(originals[original_fields].to_dict('records'))
+    checked=pd.concat([pd.read_parquet(old_coverage),pd.DataFrame(coverage)],ignore_index=True).sort_values(['code','year']).reset_index(drop=True)
+    pd.testing.assert_frame_equal(checked,pd.read_parquet(folder/'combined_coverage.parquet').sort_values(['code','year']).reset_index(drop=True),check_dtype=False)
+    needed=pd.read_parquet(folder/'needed.parquet')
+    assert needed.merge(checked[['code','year']],on=['code','year'],how='left',indicator=True)._merge.eq('both').all()
+    assert sha(folder/'combined_events.parquet')==report['events_sha256'] and sha(folder/'combined_coverage.parquet')==report['coverage_sha256']
+    result={'passed':True,'coverage_report_sha256':sha(folder/'coverage_report.json'),'new_code_years':len(jobs),
+        'required_code_years':len(needed),'new_event_rows':len(actual),
+        'duplicate_action_dates_retained':int(actual.loc[actual.duplicated(['code','dividOperateDate'],keep=False),['code','dividOperateDate']].drop_duplicates().shape[0]),
+        'cash_terms_not_used_for_labels':True,'new_2026_prices_read':False}
+    save_json(root/'catalog_verification.json',result);print(json.dumps(result,ensure_ascii=False,indent=2))
+
+
 def windows():
     manifest=json.loads((root/'input_manifest.json').read_text())
     raw=json.loads((root/'raw_report.json').read_text())
@@ -177,5 +214,5 @@ def labels():
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('stage',choices=['windows','labels']);args=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('stage',choices=['catalog','windows','labels']);args=p.parse_args()
     globals()[args.stage]()
