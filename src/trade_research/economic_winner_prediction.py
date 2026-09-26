@@ -29,7 +29,8 @@ def select(scores,dates,policy):
     for date,g in eligible.sort_values(order,ascending=ascending).groupby('date',sort=True):
         rank=0
         for row in g.itertuples():
-            if row.code in last and position[date]-last[row.code]<5:continue
+            # Match the existing policy: skip the five sessions after selection.
+            if row.code in last and position[date]-last[row.code]<=5:continue
             rank+=1;last[row.code]=position[date]
             out.append({'date':date,'code':row.code,'daily_rank':rank,'policy':policy})
             if rank==5:break
