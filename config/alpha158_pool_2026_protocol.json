@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "signal_first": "2026-01-01",
+  "signal_last": "2026-07-17",
+  "execution_last": "2026-08-06",
+  "warmup_first": "2019-01-01",
+  "model_path": "config/alpha158_frozen_2026_model.json",
+  "model_sha256": "6472e82edd4cc550f886c2c816c2203ee9670d8769febfc79d11c5bf88aa5eed",
+  "hash_salt": "positive-score-pool-v1",
+  "capacity": 5,
+  "cooldown_sessions": 5,
+  "notional": 20000,
+  "initial_capital": 500000,
+  "primary_horizon": 5,
+  "cost_bps": [
+    5,
+    15
+  ],
+  "minimum_price_cost": 0.005,
+  "primary_cost_bps": 15,
+  "variants": [
+    "positive_pool",
+    "highest_score"
+  ],
+  "descriptive_periods": [
+    [
+      "2026Q1",
+      "2026-01-01",
+      "2026-03-31"
+    ],
+    [
+      "2026Q2",
+      "2026-04-01",
+      "2026-06-30"
+    ],
+    [
+      "2026Jul",
+      "2026-07-01",
+      "2026-07-17"
+    ]
+  ],
+  "refit": false,
+  "strict_blind": false,
+  "old_pilot_exposure": true,
+  "new_2026_prices_read_before_freeze": false,
+  "calendar_start": "2026-01-01"
+}
