@@ -47,6 +47,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 ## 固定交易的统计分辨率
 
+旧执行价来源审计执行 `PYTHONPATH=src .venv/bin/python -m trade_research.fixed_execution_quality freeze`、同模块 `evaluate`。冻结现有 12,648 行会计记录及其 22,210 个已模拟买卖事件，只新增读取原买卖日期的四分钟 OHLC 并复核量额；原费用、收益和未知持仓字段不变。19 个原始窗口存在分钟价格矛盾，不能将旧账本的可复算性当作分钟源字段已获核准；具体边界见[研究状态](research-status.md#旧固定交易的执行价来源读取新增-ohlc-前冻结)。
+
 依次运行 `PYTHONPATH=src .venv/bin/python -m trade_research.statistical_resolution freeze`、同模块 `evaluate`。只使用已核算旧名单的 2 万元 T+1 结果，核对原同日配对后进行预定的逐日、周块和两周块抽样；存档每日差、180,000 次抽样误差和固定平移情景。它不读取新策略收益，不改变旧策略结论；适用边界及结果见[研究状态](research-status.md#旧固定交易的统计分辨率重抽样前冻结)。
 
 ## 整数价位输入检验
