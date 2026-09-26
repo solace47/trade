@@ -9,6 +9,10 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 流通规模与尾段换手代理
+
+`float_turnover_winner`生成严格前日分母、三个可见代理及原值／末位精度两情景分组；`scripts/verify_float_turnover_winner_inputs.py`独立复现所有来源连接、排名及原始分钟。输入核准后运行`float_turnover_winner_analysis`与`scripts/verify_float_turnover_winner_analysis.py`，输出所有单变量和联合组。完整数据保存于`data/research/float_turnover_winner/`，协议为`config/float_turnover_winner_protocol.json`；官方前端与文档原件在`source/`，不调用当前全日换手率回填历史盘中输入。
+
 ## 实际尾盘经济赢家与组合预测
 
 原经济画像按`economic_winner`的`freeze`、`raw`准备输入，再用`scripts/fetch_economic_winner_catalog.py`补齐目录；该续传器保留同次分配金额冲突，日期并集只作权益未知标记。依次运行`scripts/verify_economic_winner_labels.py`的`catalog`与`windows`，`economic_winner_labels`，再核准`labels`。所有以下脚本都用`PYTHONPATH=src .venv/bin/python`；模块用同前缀加`-m trade_research.`。完整产物已存在时禁止覆盖。
