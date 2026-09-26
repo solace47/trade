@@ -206,15 +206,20 @@ def freeze(output_dir: Path = OUTPUT, main_only: bool = False,
            feature_builder: Callable[[duckdb.DuckDBPyConnection, bool],
                                      pd.DataFrame] | None = None,
            decision_price_column: str | None = None,
-           cutoff_label: str = "1450") -> dict:
+           cutoff_label: str = "1450",
+           training_label_frame: pd.DataFrame | None = None) -> dict:
     if main_only and output_dir == OUTPUT:
         raise ValueError("Main-board retraining needs a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
     features = (feature_builder or feature_frame)(connection, main_only)
-    connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
-                            ).create_view("outcomes")
-    connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
+    if training_label_frame is None:
+        connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
+                                ).create_view("outcomes")
+        connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
+    elif (training_label_frame.duplicated(["date", "code"]).any()
+          or not training_label_frame.date.str.startswith("2024").all()):
+        raise ValueError("Provided training labels must be unique and from 2024")
     calendar = connection.execute("""
         SELECT DISTINCT date FROM snapshots
         WHERE date BETWEEN '2024-01-01' AND '2025-12-31'
@@ -223,7 +228,17 @@ def freeze(output_dir: Path = OUTPUT, main_only: bool = False,
     chosen_frames, training_audits = [], []
     for train_end, test_first, test_last, name in PERIODS:
         train = features.loc[features.date.le(train_end)].copy()
-        labels = training_labels(connection, train, test_first)
+        if training_label_frame is None:
+            labels = training_labels(connection, train, test_first)
+        else:
+            labels = train[["date", "code"]].merge(
+                training_label_frame, on=["date", "code"],
+                validate="one_to_one",
+            )
+            if (len(labels) != len(train)
+                    or labels.target_exit_date.ge(test_first).any()
+                    or labels.exit_date.ge(test_first).any()):
+                raise ValueError("Provided training labels are incomplete or overlap test time")
         model, model_audit = fit(train, labels)
         test = features.loc[features.date.between(test_first, test_last)]
         scored = score(test, model)
