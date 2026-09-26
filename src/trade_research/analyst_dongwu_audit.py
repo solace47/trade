@@ -18,7 +18,32 @@ from .corporate_cash import save_json, sha
 
 
 REVIEWS = Path("config/analyst_dongwu_source_reviews.json")
+IDENTITY_ALIAS = Path("config/analyst_source_identity_alias.json")
 NUMBER = re.compile(r"-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?\)")
+
+
+def identity_alias(root: Path) -> dict:
+    evidence = json.loads(IDENTITY_ALIAS.read_text())
+    path = root.parent / "source_docs" / "bse_code_mapping.html"
+    if sha(path) != evidence["mapping_sha256"]:
+        raise ValueError("Reviewed exchange code mapping changed")
+    rows = [row for row in re.findall(r"<tr[^>]*>.*?</tr>", path.read_text(), re.S)
+            if evidence["entity_name"] in row]
+    if len(rows) != 1 or any(code not in rows[0] for code in (evidence["stock_code"], evidence["printed_legacy_code"])):
+        raise ValueError("Exchange mapping does not establish the reviewed entity identity")
+    return evidence
+
+
+def printed_security(page: str, info_code: str, catalog_code: str, alias: dict) -> str:
+    head = re.sub(r"\s+", "", page)[:500]
+    expected = catalog_code
+    if info_code in alias["reviewed_document_ids"]:
+        if catalog_code != alias["stock_code"] or alias["entity_name"] not in head:
+            raise ValueError("Reviewed source identity alias belongs to another entity")
+        expected = alias["printed_legacy_code"]
+    if re.findall(r"[（(](\d{6})[）)]", head) != [expected]:
+        raise ValueError("Printed security identifier differs from the source evidence")
+    return expected
 
 
 def profit_table(page: str) -> dict[int, Decimal]:
@@ -55,6 +80,7 @@ def reported_direction(review: dict) -> str | None:
 
 def audit(root: Path = ROOT, reviews_path: Path = REVIEWS) -> dict:
     frozen = json.loads(reviews_path.read_text())
+    alias = identity_alias(root)
     for name in ("catalog", "sample"):
         if sha(root / f"{name}.json") != frozen[f"{name}_sha256"]:
             raise ValueError("Frozen broker catalog or source sample changed")
@@ -84,6 +110,7 @@ def audit(root: Path = ROOT, reviews_path: Path = REVIEWS) -> dict:
             body = pdf.pages[review["comparison_page"] - 1].extract_text() or ""
             metadata = {key: pdf.metadata.get(key) for key in ("CreationDate", "ModDate")}
         compact = re.sub(r"\s+", "", first)
+        printed_code = printed_security(first, code, item["stock_code"], alias)
         match = re.search(r"(20\d{2})年(\d{1,2})月(\d{1,2})日", compact[:700])
         if match is None:
             raise ValueError("Printed header date is missing")
@@ -105,6 +132,7 @@ def audit(root: Path = ROOT, reviews_path: Path = REVIEWS) -> dict:
         pdf_stamp = re.fullmatch(r"D:(\d{14})\+08'00'", modified)
         modification = datetime.strptime(pdf_stamp.group(1), "%Y%m%d%H%M%S") if pdf_stamp else None
         records.append({"info_code": code, "half": item["half"], "stock_code": item["stock_code"],
+            "printed_stock_code": printed_code, "catalog_code_is_retrospective_alias": printed_code != item["stock_code"],
             "printed_date": printed, "display_date": item["display_date"],
             "production_time": detail["eitime"], "production_after_display_date": production.date().isoformat() > item["display_date"],
             "production_clock_after_1449": production.strftime("%H:%M:%S") > "14:49:00",
@@ -123,6 +151,7 @@ def audit(root: Path = ROOT, reviews_path: Path = REVIEWS) -> dict:
         "production_later_than_printed_date": sum(r["production_after_printed_date"] for r in records),
         "production_clock_after_1449": sum(r["production_clock_after_1449"] for r in records),
         "production_before_pdf_modification": sum(r["production_before_pdf_modification"] is True for r in records),
+        "retrospective_code_aliases_verified": sum(r["catalog_code_is_retrospective_alias"] for r in records),
         "public_times_verified": sum(r["public_time_verified"] for r in records),
         "returns_read": False, "market_data_read": False, "trading_events_created": False}
     save_json(root / "source_audit_report.json", report)

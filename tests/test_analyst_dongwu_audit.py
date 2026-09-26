@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import pytest
 
-from trade_research.analyst_dongwu_audit import profit_table, reported_direction
+from trade_research.analyst_dongwu_audit import printed_security, profit_table, reported_direction
 
 
 def test_fiscal_rollover_does_not_shift_columns_or_read_actuals():
@@ -36,3 +36,14 @@ def test_maintained_without_old_numbers_is_unknown_not_zero_revision():
     assert reported_direction(review) == "down"
     review.update(reported_current_profit_cny_100million="113.21")
     assert reported_direction(review) == "unchanged"
+
+
+def test_retrospective_code_alias_is_limited_to_reviewed_documents():
+    alias = {"reviewed_document_ids": ["fixed"], "stock_code": "920062",
+             "printed_legacy_code": "834062", "entity_name": "科润智控"}
+    assert printed_security("科润智控（834062）", "fixed", "920062", alias) == "834062"
+    for report, canonical, page in [("other", "920062", "科润智控（834062）"),
+                                    ("fixed", "920999", "科润智控（834062）"),
+                                    ("fixed", "920062", "其他公司（834062）")]:
+        with pytest.raises(ValueError):
+            printed_security(page, report, canonical, alias)

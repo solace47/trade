@@ -73,6 +73,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 东吴 2024–2025 年目录运行 `PYTHONPATH=src .venv/bin/python -m trade_research.analyst_catalog`；首次下载需 `--fetch`，已有原响应按请求参数和 SHA 核对，不自动覆盖。目录 SHA 为 `e88551396b05a53aab5c5499fc17d54543d397fd4295d4b3d9e98a8af0c68477`，32 份样本 SHA 为 `d3ecbeea521add585bdaddf56bf1a9b12aa59f10538533ae488b5f9ae2800001`。随后运行 `trade_research.analyst_catalog_sources` 缓存固定原件、`trade_research.analyst_dongwu_audit` 按 `config/analyst_dongwu_source_reviews.json` 核准，均不读取行情文件。原响应、年度数量交叉检查、详情、PDF、页面和独立文本核验在 `analyst_revision_source/dongwu_catalog/`；实际公开时间与旧预测来源仍有单独的未解决标记。
 
+同财年前件依次运行 `trade_research.analyst_predecessors`、`trade_research.analyst_predecessor_values`，仅首次获取缺少的详情或原件时加 `--fetch`。前者从 255 份详情的时间/身份投影冻结 22 个唯一前件，后者按冻结名单核对原件；10 个无前件样本保留。`predecessors/strict_code_v1/` 保存代码映射核准前的初版，`source_audit_before_printed_code_check.json` 保存最初未单列印刷代码核验的样本报告。新旧代码关系仅在两个固定文档中按 `config/analyst_source_identity_alias.json` 使用，交易证券代码和原始目录均不改；官方对照表快照在上级 `source_docs/`。全部输出仍带公开时点未核准标记，不连接收益程序。
+
 依次执行 `trade_research.cash_dividend_catalog freeze`、`fetch`、`assemble`，再执行 `trade_research.cash_dividend_notices collect`、`reconcile` 与 `trade_research.cash_dividend_primary`。均使用 `PYTHONPATH=src .venv/bin/python -m` 前缀。前者冻结 2024–2025 历史主板证券年度键，逐项缓存完整或明确为空的响应；错误不冒充空结果。公告索引只取 2024–2025 披露记录，分页缺口会停止或拆分重取；发行人/日期的补充检索缓存在 `cash_dividend_catalog/notice_gaps/`。
 
 [`cash_dividend_vendor_reviews.json`](../config/cash_dividend_vendor_reviews.json) 保存精确原始记录指纹及同日冲突核准；[`cash_dividend_primary_supplements.json`](../config/cash_dividend_primary_supplements.json) 保存遗漏、字段纠正、重复公告和跨期原件。原件 SHA、现金、日期与差异化参考金额均独立验证；补充结果写入 `events_augmented.parquet`，不覆盖原始接口或原目录。全目录仍不能一概视为原件条款全部核准。

@@ -1,0 +1,13 @@
+{
+  "stock_code": "920062",
+  "printed_legacy_code": "834062",
+  "entity_name": "科润智控",
+  "reviewed_document_ids": [
+    "AP202505061668478568",
+    "AP202508291736490347"
+  ],
+  "mapping_url": "https://www.bse.cn/service/code_mapping.html",
+  "mapping_sha256": "95d43bba3b5ca2d6e5a2654755ea732ef52fa8d2c39fe667b5d4eab533a3b877",
+  "switch_notice_reference_url": "https://www.bse.cn/important_news/200026735.html",
+  "scope": "only_the_two_fixed_source_documents_not_historical_trade_symbols"
+}
