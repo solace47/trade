@@ -1,4 +1,5 @@
 """Rebuild the target-model contrast from independently verified per-trade cash flows."""
+import argparse
 import json
 from pathlib import Path
 
@@ -7,8 +8,15 @@ import pandas as pd
 
 from trade_research.corporate_cash import save_json, sha
 
-root = Path("data/research/short_horizon_target")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--root", type=Path, default=Path("data/research/short_horizon_target"))
+root = parser.parse_args().root
 report = json.loads((root / "comparison_report.json").read_text())
+primary = report["primary_model"]
+comparators = [name for name in report["models"] if name != primary]
+contrasts = [key for key in report if key.startswith("common_date_")]
+assert len(comparators) == len(contrasts) == 1
+comparator, contrast_key = comparators[0], contrasts[0]
 frames = {}
 for model, item in report["models"].items():
     if item.get("no_positive_selections"):
@@ -22,8 +30,8 @@ for model, item in report["models"].items():
     for bps in (5, 15):
         frames[model, bps] = rows.groupby("date")[f"tick_return{bps}"].agg(
             lambda x: np.nan if x.isna().any() else sum(x)/len(x))
-for item in report["common_date_t1_target_minus_t5_target"]:
-    high, low = frames["t1_target", item["bps"]], frames["t5_target", item["bps"]]
+for item in report[contrast_key]:
+    high, low = frames[primary, item["bps"]], frames[comparator, item["bps"]]
     dates = sorted(set(high.index) & set(low.index))
     if item["period"] != "full":
         dates = [d for d in dates if d.startswith(item["period"][:4]) and
@@ -45,7 +53,7 @@ for item in report["common_date_t1_target_minus_t5_target"]:
     ci = np.quantile((weights@sums)/(weights@counts), [.025, .975])
     assert np.max(abs(ci-item["weekly_interval"])) < 1e-12
 result = {"models": list(report["models"]), "same_T1_exit_horizon_verified": True,
-    "common_date_statistics": len(report["common_date_t1_target_minus_t5_target"]),
+    "common_date_statistics": len(report[contrast_key]),
     "comparison_report_sha256": sha(root / "comparison_report.json")}
 save_json(root / "independent_comparison_checks.json", result)
 print(json.dumps(result, indent=2))
