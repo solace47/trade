@@ -150,3 +150,9 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 该模块先复现 `downside_ridge_1449` 的旧参数与全部旧选择，再固定 `relative_ridge_1449/relative/signals.parquet`；已有新执行时拒绝重写。使用 `reference_gain_eval.reprice` 对新名单指纹复价。把原绝对模型的完整输出复制为新目录的 `absolute/`（不覆盖原件），调用 `shallow_tree_eval.summarize`，参数 `model_names=("absolute","relative")`、`rule_commit="6cc751b"`、`list_commit="897dd9a"`。
 
 初始结果与 `continued/` 结果分开保存；绝对对照的续查直接复用 `downside_ridge_1449/continued/downside/`，新模型使用 `shallow_tree_continuation.continue_model`。本次新模型无超期未退仓；续查目录保留相同名单，以便同口径比较。`comparison_report.json` 包含自身、同日配对、共同日期模型差和年度区间，实际未知不由训练评分替代。
+
+## 增加早期训练历史
+
+依次执行 `trade_research.long_history_inputs features`、`catalog_parallel`、`catalog_assemble`，再执行 `trade_research.long_history_labels raw`、`assemble`，最后运行 `trade_research.long_history_ridge_1449`，均使用前述模块命令前缀。只读取 2022–2023 新训练数据及已固定的 2024–2025 输入；分钟前缀按源文件分批缓存，训练成交按证券记录输入／代码指纹，完整旧产物按记录复用。分配查询区分完整空结果与错误，组装标签时按实际十日观察窗口补齐跨年目录。原 2024 标签、公共特征及旧模型选择必须全部复现。
+
+新模型目录 `long_history_ridge_1449/long/` 的名单 SHA256 为 `c047deb1800c88748753be395264d21dedf42338a9ac70cca2ddbd517425e75d`。按此指纹调用 `reference_gain_eval.reprice`，规则提交 `802cc1e`、2 万元；旧模型完整文件复制为 `recent/`。随后调用 `shallow_tree_eval.summarize(path, model_names=("recent","long"), rule_commit="802cc1e", list_commit="104f868")`。旧对照的续查账本来自 `downside_ridge_1449/continued/downside/`；新模型没有超期未退出持仓，`continue_model` 直接复用完成账本，仍在 `continued/` 保存同口径比较。历史训练及测试收益分别有独立 SQL、原始窗口和冻结名单检查，见各 `independent_*_checks.json`。
