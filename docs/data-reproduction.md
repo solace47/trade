@@ -167,6 +167,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 ## 标准因子库与同缩放对照
 
+触跌停后打开的完整候选入口为 `trade_research.limit_down_recovery_1449`，保留旧 `limit_down_reopen/`，新输出 `limit_down_recovery_1449/`。名单双重核准及提交 `7e7b10b` 后，按 `11abacaf66347ac5e868ede2fd25880b555e3eb855bf87bca38d18d91de33112` 调用公共 `reprice`、`continue_model` 和目录核算。随后调用 `risk_removal_eval.evaluate(root / "continued", primary_horizon=1)`；只有主终点标记改为T+1，费用、未知值保留和辅助T+5核算共用既有实现。目录、价格范围及完整观察窗覆盖的独立检查保存在本地输出中。
+
 Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licenses/qlib-MIT.txt`。先运行 `trade_research.alpha158_inputs`，把此前完整日线与当日 14:49 临时K线组合成指标；按证券缓存，源指纹改变时拒绝沿用。随后运行 `PYTHONPATH=src .venv/bin/python scripts/verify_alpha158_features.py` 核准独立逐窗计算，再运行 `trade_research.alpha158_models` 拟合，最后运行 `scripts/verify_alpha158_inputs.py` 核准落盘指标、全部评分和选择。各脚本均在仓库根目录使用相同 Python 前缀。已有成交后不重新生成名单。
 
 输出在 `alpha158_1449/`，两版为 `robust18`／`alpha158`，名单提交 `4d867ee`。按根目录 `input_report.json` 中各自指纹调用公共 `reference_gain_eval.reprice`，再调用 `continue_model(source, root / "continued" / name)`；对每个续查目录依次调用 `reference_gain_accounting.evaluate` 与 `risk_removal_eval.evaluate`。最后运行 `trade_research.alpha158_eval`，从每侧至少半分钱的成本账本比较共同信号日，不以固定比例成本替代主终点。含未知股票的日期仍未知，不能通过分组均值跳过；原实际会计列保留。
