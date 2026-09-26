@@ -18,7 +18,12 @@ RETURN_CALIPERS = {"day_return": .005, "return_last29": .002, "prior20_return": 
 RATIO_FIELDS = ("price_1449", "amount_1449")
 
 
-def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame, *,
+                     ratio_limits: dict[str, float] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ratio_limits = dict(ratio_limits or {feature: 2.0 for feature in RATIO_FIELDS})
+    if set(ratio_limits) != set(RATIO_FIELDS) or any(
+            not np.isfinite(value) or value <= 1 for value in ratio_limits.values()):
+        raise ValueError("Each ratio caliper must be a finite number greater than one")
     if attempts.duplicated(["date", "code"]).any() or controls.duplicated(["date", "code"]).any():
         raise ValueError("Matching requires unique stock days")
     common = attempts[["date", "code"]].merge(controls[["date", "code"]], on=["date", "code"])
@@ -39,14 +44,15 @@ def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame) -> tuple[pd
             for feature, caliper in RETURN_CALIPERS.items():
                 pool = pool.loc[(pool[feature] - row[feature]).abs() <= caliper + 1e-12]
             for feature in RATIO_FIELDS:
-                pool = pool.loc[(row[feature] / pool[feature]).between(.5, 2)]
+                limit = ratio_limits[feature]
+                pool = pool.loc[(row[feature] / pool[feature]).between(1 / limit, limit)]
         if pool is None or pool.empty:
             missed.append({"date": row["date"], "code": row["code"], "half": row["half"],
                            "daily_rank": row["daily_rank"], "reason": "no_unused_control_within_calipers"})
             continue
         distance = sum((pool[feature] - row[feature]).abs() / caliper
                        for feature, caliper in RETURN_CALIPERS.items())
-        distance += sum(np.abs(np.log(row[feature] / pool[feature])) / np.log(2)
+        distance += sum(np.abs(np.log(row[feature] / pool[feature])) / np.log(ratio_limits[feature])
                         for feature in RATIO_FIELDS)
         choice = pool.assign(distance=distance).sort_values(["distance", "code"]).iloc[0]
         used[row["date"]].add(choice.code)

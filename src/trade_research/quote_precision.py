@@ -12,7 +12,6 @@ import pandas as pd
 
 from .corporate_cash import DAILY, MINUTES, save_json, sha
 from .hf_outcomes import Assumptions, _fill, _order_shares
-from .holding_exceptions import load_quotes
 
 
 ROOT = Path("data/research/quote_precision")
@@ -122,6 +121,8 @@ def audit(output: Path = ROOT) -> dict:
 
 
 def entries(output: Path = ROOT) -> dict:
+    from .holding_exceptions import load_quotes
+
     verify(output)
     report = json.loads((output / "input_report.json").read_text())
     if not report["outcome_gate_passed"]:
