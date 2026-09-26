@@ -51,6 +51,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 ## 整数价位输入检验
 
+源字段诊断执行 `PYTHONPATH=src .venv/bin/python -m trade_research.minute_amount_consistency freeze`、同模块 `evaluate`。固定前次异常和哈希参考键，只读取这些日期的分钟与独立日线，并按已锁定下载校验值核对原文件；公开说明亦锁定至原归档提交。输出同日量额对账、逐分钟均价区间、固定偏移及四分钟总额边界，不计算持有收益、不更改源数据。诊断与限制见[研究状态](research-status.md#分钟量额与价格区间固定异常的来源诊断)。
+
 全样本条件关联诊断另行执行 `PYTHONPATH=src .venv/bin/python -m trade_research.round_number_geometry`。源为前版全部 `side_inputs.parquet`，不取其前五名或配对子集；输出所有日期的输入矩阵审计及带符号的条件对比权重，这些权重本身不是可交易组合。输入通过 391 个日期、114,657 条后，再运行 `trade_research.round_number_entry freeze`、`evaluate`，按固定名单提取四根原始入场分钟，保存原条、源文件信息、两档订单与逐分钟压力结果。入场质量门槛失败，因此没有持有收益入口；未知来源行和部分成交数量均保留，不记零或丢弃。
 
 运行 `PYTHONPATH=src .venv/bin/python -m trade_research.round_number_1449`，复用只从 2024 年起计算的基础池及已有 14:49 原条审计分片。报价恢复为整数分后分类，冻结每日名单及同日对照；输出源指纹、分组覆盖和输入平衡。四期覆盖率及距整数距离平衡均未通过，因此没有成交或收益阶段入口。程序与固定规则见[输入检验](input-gates.md#整数价位两侧的尾盘价格位置读取输入分组前冻结)。
