@@ -140,7 +140,8 @@ def run(output: Path = ROOT / "opening_quality") -> dict:
         "by_year": by_year,
         "by_exchange": by_exchange,
         "sensitivity_input_gate_passed": count / len(frame) >= .90,
-        "note": "Input-only recheck; no post-signal prices read",
+        "note": ("Source-quality audit uses full-day bars and daily OHLC; "
+                 "no strategy returns are read and this is not a signal input"),
     }
     output.mkdir(parents=True, exist_ok=True)
     frame.to_parquet(output / "day_classifications.parquet", index=False,

@@ -17,12 +17,14 @@ from .strategy_scan import _stressed_returns
 
 
 def _period_quality(trades: pd.DataFrame, issues_dir: Path,
-                    period_report: Path) -> pd.DataFrame:
+                    period_report: Path,
+                    bad_days: pd.DataFrame | None = None) -> pd.DataFrame:
     """Keep bad-day exclusions but limit whole-symbol flags to 2024–2025."""
     connection = duckdb.connect()
     try:
         connection.register("trades", trades)
-        connection.register("bad_days", _quality_keys(issues_dir))
+        connection.register("bad_days", _quality_keys(issues_dir)
+                            if bad_days is None else bad_days)
         connection.register("bad_symbols", load_period_bad_symbols(
             period_report, "2024-01-01", "2025-12-31"))
         evaluated = connection.execute("""
