@@ -9,6 +9,18 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 机构席位净买入的短线接续
+
+复用上交所历史原档，单日多原因仅金额一致时合并；先核准14:49输入与完整名单，再以同一买单比较T+1／T+3尾盘退出。结果及未知边界见[输入记录](input-gates.md#龙虎榜机构席位净买入的短线接续)。原始缓存和源哈希必须一致，已冻结名单不可覆盖。
+
+```sh
+PYTHONPATH=src .venv/bin/python -m trade_research.lhb_institutional_short
+PYTHONPATH=src .venv/bin/python scripts/verify_lhb_institutional_inputs.py
+PYTHONPATH=src .venv/bin/python -m trade_research.lhb_institutional_short_eval execute
+PYTHONPATH=src .venv/bin/python -m trade_research.lhb_institutional_short_eval compare
+PYTHONPATH=src .venv/bin/python scripts/verify_lhb_institutional_results.py
+```
+
 ## 原始数据与全市场快照
 
 ```bash
