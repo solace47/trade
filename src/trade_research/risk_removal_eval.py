@@ -54,7 +54,9 @@ def add_cost_scenarios(original: pd.DataFrame) -> pd.DataFrame:
     return rows
 
 
-def evaluate(output: Path = ROOT / "continued") -> dict:
+def evaluate(output: Path = ROOT / "continued", *, primary_horizon: int = 5) -> dict:
+    if primary_horizon not in (1, 5):
+        raise ValueError("The supported predeclared horizons are T1 and T5")
     base = json.loads((output / "catalog_scenario_report.json").read_text())
     if sha(output / "catalog_scenario.parquet") != base["output_sha256"]:
         raise ValueError("The fixed catalogue scenario changed")
@@ -90,7 +92,7 @@ def evaluate(output: Path = ROOT / "continued") -> dict:
         pairs.append(paired)
     pd.concat(pairs, ignore_index=True).to_parquet(output / "tick_pairs.parquet", index=False, compression="zstd")
     result = {"interpretation": "catalogue_and_recorded_fill_scenario_not_verified_or_shared_capital_return",
-        "primary": "T5_max_15bps_or_half_cent_per_share_per_leg",
+        "primary": f"T{primary_horizon}_max_15bps_or_half_cent_per_share_per_leg",
         "cost_floor_yuan": .005, "by_half": cells, "contrasts": contrasts, "annual": annual,
         "baseline_report_sha256": sha(output / "catalog_scenario_report.json"),
         "tick_scenario_sha256": sha(output / "tick_cost_scenario.parquet"),
