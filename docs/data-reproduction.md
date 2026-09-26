@@ -71,6 +71,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 分析师旧研报的固定来源核验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.analyst_source_probe`。它按 `config/analyst_source_probe_reviews.json` 锁定五份接口记录、PDF SHA、预测财年和人工审阅值，验证表格及内部日期矛盾；本地原响应、原件、页面、独立 Poppler 提取及核验报告在 `data/research/analyst_revision_source/`。PDF 制作时间和文档编号不当作首次公开证明，当前核验未通过可交易事件来源要求。默认首页的当前研报元数据单独留在 `source_docs/live_page_isolated.html`，不接入策略输入；复算程序只读固定 2024 年原件。
 
+东吴 2024–2025 年目录运行 `PYTHONPATH=src .venv/bin/python -m trade_research.analyst_catalog`；首次下载需 `--fetch`，已有原响应按请求参数和 SHA 核对，不自动覆盖。目录 SHA 为 `e88551396b05a53aab5c5499fc17d54543d397fd4295d4b3d9e98a8af0c68477`，32 份样本 SHA 为 `d3ecbeea521add585bdaddf56bf1a9b12aa59f10538533ae488b5f9ae2800001`。随后运行 `trade_research.analyst_catalog_sources` 缓存固定原件、`trade_research.analyst_dongwu_audit` 按 `config/analyst_dongwu_source_reviews.json` 核准，均不读取行情文件。原响应、年度数量交叉检查、详情、PDF、页面和独立文本核验在 `analyst_revision_source/dongwu_catalog/`；实际公开时间与旧预测来源仍有单独的未解决标记。
+
 依次执行 `trade_research.cash_dividend_catalog freeze`、`fetch`、`assemble`，再执行 `trade_research.cash_dividend_notices collect`、`reconcile` 与 `trade_research.cash_dividend_primary`。均使用 `PYTHONPATH=src .venv/bin/python -m` 前缀。前者冻结 2024–2025 历史主板证券年度键，逐项缓存完整或明确为空的响应；错误不冒充空结果。公告索引只取 2024–2025 披露记录，分页缺口会停止或拆分重取；发行人/日期的补充检索缓存在 `cash_dividend_catalog/notice_gaps/`。
 
 [`cash_dividend_vendor_reviews.json`](../config/cash_dividend_vendor_reviews.json) 保存精确原始记录指纹及同日冲突核准；[`cash_dividend_primary_supplements.json`](../config/cash_dividend_primary_supplements.json) 保存遗漏、字段纠正、重复公告和跨期原件。原件 SHA、现金、日期与差异化参考金额均独立验证；补充结果写入 `events_augmented.parquet`，不覆盖原始接口或原目录。全目录仍不能一概视为原件条款全部核准。
