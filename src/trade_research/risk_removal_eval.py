@@ -96,7 +96,7 @@ def evaluate(output: Path = ROOT / "continued", *, primary_horizon: int = 5) -> 
         "cost_floor_yuan": .005, "by_half": cells, "contrasts": contrasts, "annual": annual,
         "baseline_report_sha256": sha(output / "catalog_scenario_report.json"),
         "tick_scenario_sha256": sha(output / "tick_cost_scenario.parquet"),
-        "original_columns_unchanged": True, "holdout_prices_read": False}
+        "original_columns_unchanged": True, "holdout_prices_read": base.get("holdout_read", False)}
     save_json(output / "tick_report.json", result)
     return result
 

@@ -65,3 +65,16 @@ def test_older_prefix_requires_explicit_training_scope(tmp_path: Path) -> None:
     assert pd.read_parquet(output).date.tolist()==['2022-01-04']
     with pytest.raises(ValueError):
         build_year([str(source)],2026,output,historical_training=True)
+
+
+def test_validation_cutoff_excludes_later_days_and_requires_explicit_scope(tmp_path: Path) -> None:
+    source = tmp_path / 'source.parquet'
+    pd.concat([_day('2025-12-31'), _day('2026-01-05'), _day('2026-07-17'),
+               _day('2026-07-20')], ignore_index=True).to_parquet(source)
+    output = tmp_path / 'validation.parquet'
+    build_year([str(source)], 2026, output, threads=1, validation_last='2026-07-17')
+    assert sorted(pd.read_parquet(output).date) == ['2026-01-05', '2026-07-17']
+    with pytest.raises(ValueError):
+        build_year([str(source)], 2026, output)
+    with pytest.raises(ValueError):
+        build_year([str(source)], 2026, output, validation_last='2027-01-01')

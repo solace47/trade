@@ -33,15 +33,17 @@ def weekly_interval(daily: pd.Series) -> list[float] | None:
     return np.quantile(means, [.025, .975]).tolist()
 
 
-def evaluate(output: Path = ROOT, *, bootstrap: bool = True) -> dict:
+def evaluate(output: Path = ROOT, *, bootstrap: bool = True,
+             catalog_path: Path = Path("data/research/cash_dividend_catalog/events_augmented.parquet"),
+             allow_unsettled_payments: bool = False) -> dict:
     report = json.loads((output / "execution_report.json").read_text())
     for name in ("accounted_initial", "raw_windows", "window_quality"):
         if sha(output / (name + ".parquet")) != report["output_sha256"][name]:
             raise ValueError("Frozen raw execution outputs changed")
     original = pd.read_parquet(output / "accounted_initial.parquet")
     rows = original.copy()
-    catalog_path = Path("data/research/cash_dividend_catalog/events_augmented.parquet")
     catalog = pd.read_parquet(catalog_path)
+    last_date = report.get("last_date", "2025-12-31")
     events = original.loc[original.entry_status.eq("filled"),
         ["date", "code", "horizon", "exit_date"]].merge(catalog, on="code", how="inner")
     events = events.loc[events.dividOperateDate.gt(events.date)
@@ -62,7 +64,8 @@ def evaluate(output: Path = ROOT, *, bootstrap: bool = True) -> dict:
         e = indexed.loc[key]
         if not (row.entry_status == "filled" and row.date <= e.dividRegistDate < row.exit_date
                 and row.date < e.dividOperateDate <= row.exit_date
-                and e.dividOperateDate <= e.dividPayDate <= "2025-12-31"
+                and e.dividOperateDate <= e.dividPayDate
+                and (allow_unsettled_payments or e.dividPayDate <= last_date)
                 and (pd.Timestamp(row.exit_date) - pd.Timestamp(row.date)).days <= 30):
             raise ValueError("Catalogue entitlement needs separate treatment")
         bonus = Decimal(e.dividStocksPs or "0")
@@ -150,7 +153,9 @@ def evaluate(output: Path = ROOT, *, bootstrap: bool = True) -> dict:
         "share_change_rechecked_rows": int(rows.catalog_share_fill_checked.sum()),
         "known_returns_unchanged": True, "bootstrap_requested": bootstrap,
         "by_half": cells, "contrasts": contrasts, "annual": annual,
-        "holdout_read": False, "output_sha256": sha(output / "catalog_scenario.parquet")}
+        "holdout_read": report.get("holdout_read", False),
+        "allow_unsettled_payments": allow_unsettled_payments,
+        "output_sha256": sha(output / "catalog_scenario.parquet")}
     save_json(output / "catalog_scenario_report.json", result)
     return result
 

@@ -78,14 +78,15 @@ def verify_manifest(output: Path) -> dict:
     return manifest
 
 
-def account_rows(trades: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
+def account_rows(trades: pd.DataFrame, calendar: list[str], *,
+                 first_date: str = "2024-01-01", last_date: str = "2025-12-31") -> pd.DataFrame:
     """Keep every actual modeled purchase, including unverifiable proceeds."""
     # DuckDB joins may emit a different row order. Fix summation order too.
     rows = trades.sort_values(KEY).copy().reset_index(drop=True)
     if (rows.empty or rows.duplicated(KEY).any() or not calendar
             or calendar != sorted(set(calendar))
-            or calendar[0] < "2024-01-01" or calendar[-1] > "2025-12-31"
-            or not rows.date.between("2024-01-01", "2025-12-31").all()):
+            or calendar[0] < first_date or calendar[-1] > last_date
+            or not rows.date.between(first_date, last_date).all()):
         raise ValueError("Invalid dates, calendar or trade keys")
     index = {day: i for i, day in enumerate(calendar)}
     for field in ("date", "target_exit_date", "exit_date"):

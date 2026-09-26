@@ -326,5 +326,22 @@
     "source_sha256": "972fa64793d6feb1486d0f88f7d93e4bb2fc93bf335c69ea63fe650bdf66c66a",
     "source_path": "data/research/cash_dividend_catalog/source_conflicts/sz.003001_2025-06-30_1224017153.pdf",
     "reason": "两条接口记录的现金与转增比例不同；现存实施公告对应第二条，且原件每10股派2.816137元、转增3.994521股，比接口每股字段精度更高。按原件登记一次；两种接口版本均有转增，均不进入纯现金候选。此核对不证明原件是否曾在同一URL修订及修订可见时间。"
+  },
+  {
+    "code": "sh.601628",
+    "year": "2026",
+    "action_date": "2026-07-09",
+    "notice_date": "2026-07-03",
+    "record_date": "2026-07-08",
+    "pay_date": "2026-07-09",
+    "cash_per_share": "0.618",
+    "bonus_per_share": "0",
+    "reserve_per_share": "0",
+    "reference_cash_per_share": "0.618",
+    "discard_incomplete_record_sha256": "70e73e9a814bbdf456cabf57dd8eec8a8c26ac1c9ce01625be4a35c7a0468724",
+    "source_url": "https://static.cninfo.com.cn/finalpage/2026-07-03/1225406295.PDF",
+    "source_sha256": "c9040bd5d8b5427a4bbf76010010c69843139ec62193b33c04c66fefa3be3dba",
+    "source_path": "data/research/alpha158_pool_2026/catalog/source_conflicts/sh.601628_2026-07-03_1225406295.pdf",
+    "reason": "2026时间检验的同日重复目录：原件第一页及第三页核准每股0.618元、7月8日登记、7月9日除息和付款及短期20%税率，保留7月3日实施公告的完整记录；不将缺公告日副本重复计入。"
   }
 ]

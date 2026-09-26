@@ -68,6 +68,20 @@ def test_input_row_order_does_not_change_cash_summation():
     assert summarize_cell(first) == summarize_cell(second)
 
 
+def test_validation_calendar_requires_explicit_bounds_and_retains_unknowns():
+    dates = ['2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08']
+    mapping = dict(zip(CALENDAR, dates))
+    source = trades()
+    for column in ('date', 'target_exit_date', 'exit_date'):
+        source[column] = source[column].map(mapping)
+    with pytest.raises(ValueError):
+        account_rows(source, dates)
+    result = account_rows(source, dates, first_date='2026-01-01', last_date='2026-08-06')
+    assert result.category.tolist() == list(CATEGORIES)
+    assert result.unknown_after_buy.sum() == 3
+    assert result.loc[result.unknown_after_buy, 'known_return15'].isna().all()
+
+
 @pytest.mark.parametrize("field,value", [
     ("exit_date", "2026-01-05"), ("exit_delay_sessions", 2),
     ("target_exit_date", "2025-01-06"), ("shares", 0),

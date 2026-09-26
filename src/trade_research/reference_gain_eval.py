@@ -10,7 +10,7 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
-from .absolute_ridge_1449_eval import apply_period_quality
+from .absolute_ridge_1449_eval import PERIOD_QUALITY, apply_period_quality
 from .corporate_cash import save_json, sha
 from .fill_accounting import account_rows
 from .hf_outcomes import Assumptions, outcomes_for_symbol
@@ -24,8 +24,9 @@ SIGNAL_SHA = "c23556798937d28472cb909dc52947cc3f8e41a8771adcef971e134ae6abf214"
 
 
 def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
-                         win: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
-    accounted = account_rows(raw, calendar)
+                         win: pd.DataFrame, calendar: list[str], *,
+                         first_date: str = "2024-01-01", last_date: str = "2025-12-31") -> pd.DataFrame:
+    accounted = account_rows(raw, calendar, first_date=first_date, last_date=last_date)
     accounted = accounted.merge(signals[["date", "code", "arm", "pair_id", "price_1449"]],
         on=["date", "code"], validate="many_to_one")
     for side, key in (("entry", "date"), ("exit", "exit_date")):
@@ -41,7 +42,9 @@ def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
 
 
 def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
-            rule_commit: str = "8c75ac3", notional: float = 20000) -> dict:
+            rule_commit: str = "8c75ac3", notional: float = 20000,
+            first_date: str = "2024-01-01", last_date: str = "2025-12-31",
+            quality_report: Path = PERIOD_QUALITY) -> dict:
     if not isfinite(notional) or notional <= 0:
         raise ValueError("The requested notional must be positive")
     signal_file = output / "signals.parquet"
@@ -50,11 +53,16 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
     signals = pd.read_parquet(signal_file)
     raw_calendar = pd.read_parquet(CALENDAR)
     calendar = sorted(raw_calendar.loc[raw_calendar.is_trading_day.eq("1")
-        & raw_calendar.calendar_date.between("2024-01-01", "2025-12-31"), "calendar_date"].tolist())
+        & raw_calendar.calendar_date.between(first_date, last_date), "calendar_date"].tolist())
     positions = {d: i for i, d in enumerate(calendar)}
+    if (not len(signals) or not set(signals.date).issubset(positions)
+            or any(positions[d] + 10 >= len(calendar) for d in signals.date)):
+        raise ValueError("Every signal needs a complete ten-session observation window")
     manifest = {"rule_commit": rule_commit, "signals_sha256": expected_signal_sha,
         "calendar_sha256": sha(CALENDAR), "notional": notional, "horizons": [1, 5],
-        "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": False,
+        "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": last_date > "2025-12-31",
+        "first_date": first_date, "last_date": last_date,
+        "quality_report": str(quality_report), "quality_report_sha256": sha(quality_report),
         "verified_entry_reference_rows": int(signals.get("entry_reference_verified", pd.Series(False, index=signals.index)).eq(True).sum())}
     save_json(output / "execution_manifest.json", manifest)
 
@@ -113,9 +121,9 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
                 print(f"Repriced raw minutes {i}/{len(grouped)} stocks", flush=True)
     raw = pd.concat(trades, ignore_index=True)
     raw["quality_clean_exit"] = False  # Replaced by the established period-only audit below.
-    raw, _ = apply_period_quality(raw)
+    raw, _ = apply_period_quality(raw, report_path=quality_report, first_date=first_date, last_date=last_date)
     win = pd.concat(windows, ignore_index=True)
-    accounted = account_with_windows(raw, signals, win, calendar)
+    accounted = account_with_windows(raw, signals, win, calendar, first_date=first_date, last_date=last_date)
     for name, table in (("repriced", raw), ("accounted_initial", accounted),
                         ("raw_windows", pd.concat(bars, ignore_index=True)), ("window_quality", win)):
         table.to_parquet(output / f"{name}.parquet", index=False, compression="zstd")

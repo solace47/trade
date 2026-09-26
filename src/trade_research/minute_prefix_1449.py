@@ -8,6 +8,7 @@ under either interpretation, apart from unobserved feed latency.
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import json
 from pathlib import Path
 
@@ -20,10 +21,15 @@ MIN_SNAPSHOT_COVERAGE = 0.999
 
 
 def build_year(minute_paths: list[str], year: int, output: Path,
-               threads: int = 4, *, historical_training: bool = False) -> None:
+               threads: int = 4, *, historical_training: bool = False,
+               validation_last: str | None = None) -> None:
+    if validation_last is not None and (year != 2026 or
+            date.fromisoformat(validation_last).year != year):
+        raise ValueError("An explicit 2026 validation cutoff is required")
     if year not in (DEVELOPMENT_YEAR, VALIDATION_YEAR) and not (
-            historical_training and year in (2022, 2023)):
+            historical_training and year in (2022, 2023)) and validation_last is None:
         raise ValueError("Prefix inputs are restricted to 2024–2025")
+    last_date = validation_last or f"{year}-12-31"
     if not minute_paths or threads < 1:
         raise ValueError("Minute sources and a positive thread count are required")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -45,7 +51,7 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                            open, high, low, close, volume, turnover
                     FROM source_minutes
                     WHERE timestamp >= TIMESTAMP '{year}-01-01'
-                      AND timestamp < TIMESTAMP '{year + 1}-01-01'
+                      AND timestamp < DATE '{last_date}' + INTERVAL 1 DAY
                 ), prefix AS (
                     SELECT *,
                            open IS NOT NULL AND high IS NOT NULL

@@ -82,3 +82,13 @@ def test_cash_shortage_skips_whole_order_without_resizing():
     assert decisions.authorized.tolist() == [False, True]
     assert result['bought'] == 1 and result['capital_rejected'] == 1
     assert result['conditional_capital_return'] == pytest.approx(0.)
+
+
+def test_payment_after_validation_deadline_keeps_terminal_return_unknown():
+    days = ['2026-08-05', '2026-08-06']
+    rows = pd.DataFrame([order(days[0], 'a', days[1], ex=days[1], pay='2026-08-07', dividend=20., tax=4.)])
+    ledger, _, result = cash_book(rows, days, 15, 110.)
+    assert ledger.open_lots_end.iloc[-1] == 0
+    assert ledger.unpaid_dividend_gross.iloc[-1] == 20.
+    assert result['conditional_capital_return'] is None
+    assert not result['complete_conditional_settlement']

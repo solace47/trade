@@ -19,13 +19,14 @@ HALVES = ("2024H2", "2025H1", "2025H2")
 PERIOD_QUALITY = ROOT / "quality_period_2024_2025.json"
 
 
-def apply_period_quality(repriced: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+def apply_period_quality(repriced: pd.DataFrame, *, report_path: Path = PERIOD_QUALITY,
+                         first_date: str = "2024-01-01", last_date: str = "2025-12-31") -> tuple[pd.DataFrame, int]:
     """Use faults in the research years, while retaining every bad stock-day."""
     connection = duckdb.connect()
     connection.register("raw", repriced.drop(columns="quality_clean_exit"))
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
     bad_symbols = load_period_bad_symbols(
-        PERIOD_QUALITY, "2024-01-01", "2025-12-31",
+        report_path, first_date, last_date,
     )
     connection.register("bad_symbols", bad_symbols)
     qualified = connection.execute("""

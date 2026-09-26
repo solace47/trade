@@ -165,6 +165,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
 
+## Alpha158的2026时间留出检验
+
+协议与权重为`config/alpha158_pool_2026_protocol.json`、`config/alpha158_frozen_2026_model.json`，规则提交`47073f3`。依次运行`trade_research.alpha158_pool_2026 prepare`和`features`，然后`scripts/verify_alpha158_validation_features.py`，再运行同模块`freeze`；全程没有拟合函数。执行`trade_research.alpha158_2026_catalog`补齐固定名单的2026分配目录，之后`scripts/verify_alpha158_validation_inputs.py`独立核准全部评分、排序、冷却、匹配与目录覆盖。
+
+输出在`alpha158_pool_2026/`，两版`positive_pool`和`highest_score`，与2024–2025产物完全分开。名单核准并提交后运行`trade_research.alpha158_2026_eval execute`；它使用本次显式日期质量审计、原始分钟、到期未退续查、分配目录和两档费用，不借用2025的目录或审计范围。随后同模块`compare`输出全期及事前固定季度／短7月段、共同日期增量、50万元账簿和数值门槛。原实际未知保持；目录情景和资金收益不能自动变成可发布公式。8月6日后的行情不进入持有追踪，未结清权益阻止完整本金回报。
+
 ## 正分池固定分散选择
 
 运行 `trade_research.positive_pool_1449`，先复现四份原最高分选择，再按固定正分与SHA256顺序生成四份新名单。规则提交`112e710`，名单双重核准提交`4db7029`；输出`positive_pool_1449/`。逐版按`input_report.json`中的名单指纹调用公共`reprice`、`continue_model`、目录会计与半分钱成本评价，原最高分账本只读复用。

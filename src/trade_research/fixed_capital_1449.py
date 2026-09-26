@@ -30,14 +30,16 @@ SOURCES = {
 FIRST, LAST = "2024-07-01", "2025-12-31"
 
 
-def prepare(output: Path = ROOT, *, sources: dict[str, Path] | None = None) -> dict:
+def prepare(output: Path = ROOT, *, sources: dict[str, Path] | None = None,
+            first_date: str = FIRST, last_date: str = LAST,
+            allow_unsettled_payments: bool = False) -> dict:
     if (output / "report.json").exists():
         raise ValueError("Do not replace fixed cash inputs after evaluating allocation")
     output.mkdir(parents=True, exist_ok=True)
     manifests, frames, capacities = {}, [], []
     calendar = pd.read_parquet(CALENDAR)
     allowed = set(calendar.loc[calendar.is_trading_day.eq("1")
-        & calendar.calendar_date.between(FIRST, LAST), "calendar_date"])
+        & calendar.calendar_date.between(first_date, last_date), "calendar_date"])
     for name, folder in (SOURCES if sources is None else sources).items():
         selection = json.loads((folder / "input_report.json").read_text())
         execution = json.loads((folder / "execution_report.json").read_text())
@@ -73,7 +75,7 @@ def prepare(output: Path = ROOT, *, sources: dict[str, Path] | None = None) -> d
         if (event_rows.dividOperateDate.le(event_rows.date).any()
                 or event_rows.dividOperateDate.gt(event_rows.exit_date).any()
                 or event_rows.dividPayDate.lt(event_rows.dividOperateDate).any()
-                or event_rows.dividPayDate.gt(LAST).any()):
+                or (not allow_unsettled_payments and event_rows.dividPayDate.gt(last_date).any())):
             raise ValueError("Distribution dates fall outside their accounted holdings or cash horizon")
         for bps in (5, 15):
             ceiling = cost_price(rows.known_upper / 1.0005, bps, "buy")
@@ -117,10 +119,12 @@ def prepare(output: Path = ROOT, *, sources: dict[str, Path] | None = None) -> d
         frames.append(rows)
     all_rows = pd.concat(frames, ignore_index=True).sort_values(["model", "arm", "date", "daily_rank", "code"])
     all_rows.to_parquet(output / "orders.parquet", index=False, compression="zstd")
-    report = {"rule_commit": RULE_COMMIT, "initial_capital": 500000, "first_date": FIRST, "last_date": LAST,
+    report = {"rule_commit": RULE_COMMIT, "initial_capital": 500000, "first_date": first_date, "last_date": last_date,
         "source_sha256": manifests, "calendar_sha256": sha(CALENDAR), "rows": len(all_rows),
         "capacity": capacities, "orders_sha256": sha(output / "orders.parquet"),
-        "cash_policy_results_read": False, "new_market_prices_read": False, "holdout_prices_read": False}
+        "cash_policy_results_read": False, "new_market_prices_read": False,
+        "allow_unsettled_payments": allow_unsettled_payments,
+        "holdout_prices_read": last_date > "2025-12-31"}
     save_json(output / "manifest.json", report)
     return report
 
@@ -227,7 +231,7 @@ def evaluate(output: Path = ROOT) -> dict:
     if sha(output / "orders.parquet") != manifest["orders_sha256"]:
         raise ValueError("Frozen cash instructions changed")
     rows = pd.read_parquet(output / "orders.parquet")
-    days = pd.date_range(FIRST, LAST).strftime("%Y-%m-%d").tolist()
+    days = pd.date_range(manifest["first_date"], manifest["last_date"]).strftime("%Y-%m-%d").tolist()
     ledgers, orders, summaries = [], [], []
     for (model, arm), group in rows.groupby(["model", "arm"]):
         for bps in (5, 15):
@@ -241,7 +245,7 @@ def evaluate(output: Path = ROOT) -> dict:
         "primary": "T5_500000_yuan_max_15bps_or_half_cent_per_leg", "rule_commit": RULE_COMMIT,
         "manifest_sha256": sha(output / "manifest.json"), "books": summaries,
         "ledger_sha256": sha(output / "cash_ledger.parquet"), "decisions_sha256": sha(output / "order_decisions.parquet"),
-        "new_market_prices_read": False, "holdout_prices_read": False}
+        "new_market_prices_read": False, "holdout_prices_read": manifest.get("holdout_prices_read", False)}
     save_json(output / "report.json", report)
     return report
 

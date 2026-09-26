@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 from pathlib import Path
 
 import duckdb
@@ -18,12 +19,16 @@ OUTPUT = ROOT / "absolute_ridge_1449"
 
 def feature_frame(connection: duckdb.DuckDBPyConnection,
                   main_only: bool = True, *, prefix_pattern: str | None = None,
-                  date_ranges: tuple[tuple[str, str], ...] | None = None) -> pd.DataFrame:
+                  date_ranges: tuple[tuple[str, str], ...] | None = None,
+                  validation_last: str | None = None) -> pd.DataFrame:
     """Keep legacy feature names while replacing each live value with 14:49 data."""
     if not main_only:
         raise ValueError("The predeclared cutoff sensitivity is main-board only")
     ranges = date_ranges or (("2024-01-01", "2024-12-17"), ("2025-01-01", "2025-12-17"))
-    if any(not "2022-01-01" <= first <= last <= "2025-12-31" for first, last in ranges):
+    if validation_last is not None and date.fromisoformat(validation_last).year != 2026:
+        raise ValueError("The explicit validation cutoff must be in 2026")
+    maximum = validation_last or "2025-12-31"
+    if any(not "2022-01-01" <= first <= last <= maximum for first, last in ranges):
         raise ValueError("Feature dates must stay within the explicit 2022–2025 research scope")
     conditions = " OR ".join("p.date BETWEEN ? AND ?" for _ in ranges)
     parameters = [value for interval in ranges for value in interval]
