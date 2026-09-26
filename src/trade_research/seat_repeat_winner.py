@@ -32,12 +32,16 @@ def vector(p):
 def freeze():
     if (ROOT/'input_report.json').exists():raise ValueError('Do not overwrite repeat-seat inputs')
     old=Path('data/research/lhb_institutional_short/input_report.json')
-    prior=json.loads(old.read_text())['source']
+    old_report=json.loads(old.read_text())
+    prior_manifest=Path('data/research/lhb_institutional_short/source_manifest.json')
+    assert old_report['source_manifest_sha256']==sha(prior_manifest)
+    prior_hashes=json.loads(prior_manifest.read_text())['source_sha256']
     calendar=trading_dates(CALENDAR,'2024-01-01','2025-12-31');position={d:i for i,d in enumerate(calendar)}
     decision=dict(zip(calendar[:-11],calendar[1:-10]))
     paths={str(ARCHIVE/('sse_'+date.replace('-','')+'.json')):date for date in decision}
-    assert set(paths)==set(prior['source_sha256']) and len(paths)==474
-    for path,digest in prior['source_sha256'].items():assert sha(Path(path))==digest
+    assert set(paths).issubset(prior_hashes) and len(paths)==old_report['source']['archived_trade_days']==474
+    disclosure_hashes={path:prior_hashes[path] for path in paths}
+    for path,digest in disclosure_hashes.items():assert sha(Path(path))==digest
     float_input=json.loads((FLOAT/'input_report.json').read_text())
     float_check=json.loads((FLOAT/'input_verification.json').read_text())
     assert float_check['passed'] and float_check['input_report_sha256']==sha(FLOAT/'input_report.json')
@@ -134,7 +138,7 @@ def freeze():
     assert len(daily_hashes)==len(codes)
     for name,digest in daily_hashes.items():assert sha(Path(name))==digest
     report={'protocol_sha256':sha(PROTOCOL),'calendar_sha256':sha(CALENDAR),'cohort_sha256':sha(COHORT),
-        'prior_source_report_sha256':sha(old),'disclosure_files_sha256':prior['source_sha256'],
+        'prior_source_report_sha256':sha(old),'prior_source_manifest_sha256':sha(prior_manifest),'disclosure_files_sha256':disclosure_hashes,
         'float_input_report_sha256':sha(FLOAT/'input_report.json'),'float_input_verification_sha256':sha(FLOAT/'input_verification.json'),
         'daily_files_sha256':daily_hashes,'raw_reason_rows':len(records),'source_events':len(events),'visible_rows':len(pool),
         'necessary_tradeable':int(pool.necessary_tradeable.sum()),'event_class_counts':events.seat_class.value_counts().to_dict(),
