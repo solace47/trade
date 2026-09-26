@@ -1,0 +1,28 @@
+{
+  "study": "固定次日目标下的浅层树与线性模型对照",
+  "base_protocol": "config/short_horizon_target_protocol.json",
+  "label_file": "data/research/short_horizon_target/t1_labels.parquet",
+  "label_sha256": "2c55955dc102bd1ad2f99e0b265b054c4210401d5442d7f1f26cdaf512681705",
+  "linear_baseline": "data/research/short_horizon_target/t1_target",
+  "linear_signals_sha256": "362dd57960a7338319fd31bf73face318b46d743e0549ce81a2a154a0cd1200e",
+  "linear_comparison_sha256": "e11013d253e2e8faea5c348b366664d7da82ab0cf661bb8425f508fe0a4450e0",
+  "tree_parameters": {
+    "loss": "squared_error",
+    "learning_rate": 0.05,
+    "max_iter": 100,
+    "max_depth": 3,
+    "max_leaf_nodes": 7,
+    "min_samples_leaf": 500,
+    "l2_regularization": 10,
+    "max_bins": 63,
+    "early_stopping": false,
+    "random_state": 20260926
+  },
+  "new_features_allowed": false,
+  "parameter_search_allowed": false,
+  "test_horizon": 1,
+  "test_exit": "14:52–14:55",
+  "new_2026_prices_allowed": false,
+  "all_other_input_target_and_execution_rules": "沿用已经固定的次日目标协议及同一训练中位数与四分位距；既有线性模型实际成交原样复用",
+  "success_requirement": "跨年正自身与相对证据、可解释的成交来源及后续独立验证；没有通过前不发布公式"
+}
