@@ -64,10 +64,18 @@ def main():
     jobs=jobs_for(folder);assert jobs.year.isin(['2024','2025']).all()
     reviews=reviewed_duplicates();pairs=list(jobs[['code','year']].itertuples(index=False,name=None))
     (folder/'vendor').mkdir(exist_ok=True)
-    with ProcessPoolExecutor(max_workers=4) as pool:
-        results=list(pool.map(worker,[(i,pairs[i::4],reviews) for i in range(4)]))
+    pending=sum(not(folder/'vendor'/(code+'_'+year+'.json')).exists()
+        or(folder/'vendor'/(code+'_'+year+'.error.json')).exists() for code,year in pairs)
+    # Drain sparse retries on one session; concurrent anonymous logouts can invalidate another login.
+    workers=4 if pending>40 else 1
+    prior=folder/'parallel_fetch_report.json'
+    if prior.exists():
+        history=folder/'fetch_attempts';history.mkdir(exist_ok=True)
+        (history/(sha(prior)+'.json')).write_bytes(prior.read_bytes())
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        results=list(pool.map(worker,[(i,pairs[i::workers],reviews) for i in range(workers)]))
     complete=all(r['processed']==r['jobs'] and not r['errors'] for r in results)
-    save_json(folder/'parallel_fetch_report.json',{'workers':4,'complete':complete,'results':results,
+    save_json(folder/'parallel_fetch_report.json',{'workers':workers,'complete':complete,'results':results,
         'jobs_sha256':sha(folder/'jobs.parquet'),'new_2026_prices_read':False})
     if not complete:raise RuntimeError('Some frozen catalog queries remain incomplete; do not label them as no events')
     records=[];queries=[];duplicates=[];hashes={}
