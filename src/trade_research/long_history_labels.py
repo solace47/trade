@@ -30,6 +30,16 @@ def raw_labels(output: Path = ROOT) -> dict:
     signals['price_1449']=signals.price_1449.map(lambda p:quote_cents(p)/100)
     signals['isST'],signals['reference_gap'],signals['listing_age_sessions']=0,False,20
     signals.to_parquet(output/'historical_training_signals.parquet',index=False,compression='zstd')
+    finished=output/'historical_raw_report.json'
+    if finished.exists():
+        saved=json.loads(finished.read_text())
+        for name,key in [('historical_training_signals','signals_sha256'),
+            ('historical_training_repriced','raw_sha256'),('historical_training_windows','windows_sha256')]:
+            if sha(output/(name+'.parquet'))!=saved[key]:
+                raise ValueError('Completed historical raw artifacts changed')
+        if sha(output/'historical_training_sources.json')!=saved['sources_sha256']:
+            raise ValueError('Historical raw provenance changed')
+        return saved  # Reuse the recorded generation, not a new run of changed code.
     table=pd.read_parquet(CALENDAR)
     calendar=sorted(table.loc[table.is_trading_day.eq('1') & table.calendar_date.between('2022-01-01','2024-06-30'),'calendar_date'])
     index={d:i for i,d in enumerate(calendar)}
@@ -112,7 +122,12 @@ def assemble(output: Path = ROOT) -> dict:
     if sha(catalog_folder/'events.parquet')!=cat_report['events_sha256']:
         raise ValueError('Historical catalogue changed')
     old_catalog=Path('data/research/cash_dividend_catalog/events_augmented.parquet')
-    catalog=pd.concat([pd.read_parquet(catalog_folder/'events.parquet'),pd.read_parquet(old_catalog)],ignore_index=True)
+    from .long_history_inputs import supplement_catalog
+    coverage=supplement_catalog(output)
+    parts=[pd.read_parquet(catalog_folder/'events.parquet'),pd.read_parquet(old_catalog)]
+    if coverage['supplementary_code_years']:
+        parts.append(pd.read_parquet(output/'cross_year_catalog/events.parquet'))
+    catalog=pd.concat(parts,ignore_index=True)
     if catalog.duplicated(['code','dividOperateDate']).any():
         raise ValueError('Conflicting historical/recent distributions')
     catalog.to_parquet(output/'training_catalog.parquet',index=False,compression='zstd')
@@ -125,6 +140,7 @@ def assemble(output: Path = ROOT) -> dict:
     result={'rule_commit':RULE_COMMIT,'labels':len(labels),'labels_sha256':sha(output/'historical_training_labels.parquet'),
         'raw_report_sha256':sha(output/'historical_raw_report.json'),'catalog_sha256':sha(output/'training_catalog.parquet'),
         'recent_catalog_source_sha256':sha(old_catalog),'historical_catalog_report_sha256':sha(catalog_folder/'catalog_report.json'),
+        'holding_year_coverage_sha256':sha(output/'holding_year_catalog_coverage.json'),
         'score_origins':labels.score_origin.value_counts().to_dict(),'action_statuses':labels.action_status.value_counts().to_dict(),
         'new_test_returns_read':False,'holdout_read':False}
     save_json(output/'historical_label_report.json',result)

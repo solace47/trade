@@ -130,6 +130,44 @@ def fetch_catalog_parallel(output: Path = ROOT, workers: int = 4) -> dict:
     save_json(root/'fetch_report.json',report);return report
 
 
+def supplement_catalog(output: Path = ROOT) -> dict:
+    """Catalogue coverage follows the holding window, including year boundaries."""
+    from .cash_dividend_catalog import fetch,assemble
+    windows=pd.read_parquet(output/'historical_training_windows.parquet',columns=['date','code'])
+    needed=windows.assign(year=windows.date.str[:4])[['code','year']].drop_duplicates()
+    current=output/'historical_catalog/query_coverage.parquet'
+    recent=Path('data/research/cash_dividend_catalog/query_coverage.parquet')
+    covered=pd.concat([pd.read_parquet(current)[['code','year']],pd.read_parquet(recent)[['code','year']]],ignore_index=True)
+    missing=needed.merge(covered,on=['code','year'],how='left',indicator=True)
+    missing=missing.loc[missing._merge.eq('left_only'),['code','year']].sort_values(['code','year']).reset_index(drop=True)
+    if not missing.empty:
+        folder=output/'cross_year_catalog';folder.mkdir(exist_ok=True)
+        job_file=folder/'jobs.parquet'
+        if job_file.exists():
+            pd.testing.assert_frame_equal(pd.read_parquet(job_file).reset_index(drop=True),missing,check_dtype=False)
+        else:
+            missing.to_parquet(job_file,index=False)
+            save_json(folder/'manifest.json',{'rule_commit':RULE_COMMIT,'jobs_sha256':sha(job_file),
+                'purpose':'Complete actual training holding windows across the calendar year','code_years':len(missing)})
+        if not (folder/'catalog_report.json').exists():
+            fetched=fetch(folder)
+            if not fetched['complete']:
+                raise ValueError('Unqueried cross-year actions must not be treated as no distribution')
+            assemble(folder)
+        catalog_report=json.loads((folder/'catalog_report.json').read_text())
+        if sha(folder/'events.parquet')!=catalog_report['events_sha256']:
+            raise ValueError('The supplementary catalogue changed')
+        covered=pd.concat([covered,pd.read_parquet(folder/'query_coverage.parquet')[['code','year']]],ignore_index=True)
+    check=needed.merge(covered.drop_duplicates(),on=['code','year'],how='left',indicator=True)
+    if check._merge.ne('both').any():
+        raise ValueError('A historical holding year still lacks catalogue coverage')
+    report={'required_code_years':len(needed),'supplementary_code_years':len(missing),'added':missing.to_dict('records'),
+        'complete_holding_year_coverage':True,'source_query_coverage_sha256':{str(p):sha(p) for p in [current,recent]},
+        'new_test_returns_read':False,'holdout_read':False}
+    save_json(output/'holding_year_catalog_coverage.json',report)
+    return report
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage',choices=['features','catalog_fetch','catalog_parallel','catalog_assemble'])
