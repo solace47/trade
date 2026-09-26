@@ -19,9 +19,14 @@ def test_limit_touch_requires_actual_high_and_reopened_cutoff(tmp_path):
         })
     rows.append({**rows[0], "date": "2024-12-25", "code": "sh.600004"})
     rows.append({**rows[0], "date": "2025-12-25", "code": "sh.600005"})
+    # 17.15 × 1.10 = 18.865 must round to 18.87 in decimal cents.
+    rows.append({**rows[0], "code": "sh.600006", "preclose": 17.15,
+                 "high_1450": 18.86, "price_1450": 18.29})
+    rows.append({**rows[0], "code": "sh.600007", "preclose": 17.15,
+                 "high_1450": 18.87, "price_1450": 18.29})
     pd.DataFrame(rows).to_parquet(tmp_path / "sample.parquet", index=False)
     touched = _touches(tmp_path)
-    assert set(touched.code) == {"sh.600001", "sh.600002"}
+    assert set(touched.code) == {"sh.600001", "sh.600002", "sh.600007"}
     assert touched.set_index("code").reopened.to_dict() == {
-        "sh.600001": True, "sh.600002": False,
+        "sh.600001": True, "sh.600002": False, "sh.600007": True,
     }

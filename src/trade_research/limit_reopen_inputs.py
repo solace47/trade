@@ -30,7 +30,8 @@ def _touches(snapshot_dir: Path) -> pd.DataFrame:
         WITH eligible AS (
           SELECT date, code, price_1450, high_1450, preclose,
                  CASE WHEN code LIKE 'sh.68%' OR code LIKE 'sz.30%'
-                      THEN .20 ELSE .10 END AS band
+                      THEN CAST(1.20 AS DECIMAL(4, 2))
+                      ELSE CAST(1.10 AS DECIMAL(4, 2)) END AS up_factor
           FROM read_parquet(?)
           WHERE date BETWEEN '2024-01-01' AND '2025-12-17'
             AND SUBSTR(date, 6) <= '12-17'
@@ -41,7 +42,8 @@ def _touches(snapshot_dir: Path) -> pd.DataFrame:
             AND amount_1450 >= 30000000 AND price_1450 >= 5
             AND preclose > 0 AND open_1450 > 0
         ), limited AS (
-          SELECT *, ROUND(preclose * (1 + band), 2) AS limit_price
+          SELECT *, ROUND(CAST(preclose AS DECIMAL(18, 2))
+                          * up_factor, 2) AS limit_price
           FROM eligible
         )
         SELECT date, code, limit_price, high_1450, price_1450,
