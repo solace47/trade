@@ -165,6 +165,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
 
+## 正分池固定分散选择
+
+运行 `trade_research.positive_pool_1449`，先复现四份原最高分选择，再按固定正分与SHA256顺序生成四份新名单。规则提交`112e710`，名单双重核准提交`4db7029`；输出`positive_pool_1449/`。逐版按`input_report.json`中的名单指纹调用公共`reprice`、`continue_model`、目录会计与半分钱成本评价，原最高分账本只读复用。
+
+然后运行 `trade_research.positive_pool_eval`，保存共同信号日差及周块区间，并以同一50万元政策运行四份新候选／对照资金账簿。`capital/`与原`fixed_capital_1449/`分开，原资金报告必须通过指纹核对；两个成本档、四个模型完整报告。独立选择、经济、价格范围、共同日期比较和现金流重建脚本及结果在本地输出目录，不用新结果重选哈希或覆盖原实验。
+
 ## 同一固定本金的资金政策
 
 依次运行 `trade_research.fixed_capital_1449 prepare` 与 `evaluate`。规则提交 `37cb9c2`，输入／实现提交 `d906dc0`；四组源目录、既存名单／账本指纹以及完整订单合并容量写入 `fixed_capital_1449/manifest.json`。准备阶段以原始价格上限计算14:49预留，再核对原股数、实际费用、分配时点和T+5来源；评价阶段按50万元现金逐日决定整笔授权，不重训、不读新行情、不改变原退出。
