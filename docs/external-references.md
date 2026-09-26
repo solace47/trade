@@ -15,3 +15,8 @@
 | [backtesting-frameworks skill](https://skills.sh/wshobson/agents/backtesting-frameworks) | 前视偏差、成本、滚动验证的指导和示例 | 检索时显示约 1.54 万安装，来源仓库约 4 万星；这些只表示传播度。读过说明和 `references/details.md`：示例市价单按下一根开盘足量成交、按股收费，没有本项目所需的 A 股涨跌停与分钟量约束。方法可作参考，暂不安装或替换现有执行器。 |
 
 当前最直接的收益是确认历史参考价与常见动态均价实现的数学对应，并明确可复用组件的默认假设；尚未从外部项目取得经本地验证的盈利策略。下载来源、内容 SHA 和 DMA 对照保存在本地忽略的 `data/research/external_reuse/`。GitHub 元数据接口遇到限流，使用公开源码页完成查阅，没有把未成功获取的提交信息写成已核验版本。
+
+
+2026-09-27另核对[AKShare资金流源码](https://github.com/akfamily/akshare/blob/main/akshare/stock/stock_fund_em.py)、[同花顺适配器](https://github.com/akfamily/akshare/blob/main/akshare/stock_feature/stock_fund_flow.py)与[快讯适配器](https://github.com/akfamily/akshare/blob/main/akshare/stock_feature/stock_info.py)：前者个股接口注明近期日级数据，同花顺大单追踪无历史日期参数，快讯默认只取最近一页；这不证明上游完全没有历史，但封装本身不能提供已核准的2024–2025盘中快照。源码仅阅读，未整体执行。文件SHA分别`04a4677103fe8faa02515944af8e45e6c6200ef45a6f6f68a4bf8f0c95d049cd`、`d9c658a6c47186f06f1094e127e5aa75284d23cd57a82ca4e9b6d2ccd368a0f0`、`af5222de4c1396b2b1ecc14ff40c13e5cdc32ae8be738523b1c2f7a395bedb90`，保存在本地`news_source_probe/`。
+
+[Tushare资金流](https://tushare.pro/document/2?doc_id=170)按主动单金额分组，不能由此确定机构身份；[THS](https://tushare.pro/document/2?doc_id=348)和[DC](https://tushare.pro/document/2?doc_id=349)历史接口明确盘后更新，当前日不能回填14:49。[历史快讯接口](https://tushare.pro/document/2?doc_id=143)声明有超过六年历史，但需单独权限，尚未取得样本或核准时间字段。公开东财资金流及新浪快讯各一次历史日期探测遇TLS连接失败，未得到数据；不能把传输失败记成无事件或断言历史不存在。下一步需要历史盘中归档或独立时间证据，当前没有购买、安装或增加2026价格检验。
