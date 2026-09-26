@@ -2,6 +2,10 @@
 from __future__ import annotations
 
 import argparse
+import atexit
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import time
+import socket
 import json
 from pathlib import Path
 
@@ -63,12 +67,77 @@ def prepare(output: Path = ROOT) -> dict:
     return result
 
 
+def _catalog_login() -> None:
+    import baostock as bs
+    from .ingest import _login
+    socket.setdefaulttimeout(20)
+    _login()
+    atexit.register(bs.logout)
+
+
+def _catalog_job(job) -> dict:
+    import baostock as bs
+    from .cash_dividend_catalog import checked_response
+    from .ingest import _login,_rows
+    code,year,folder,review=job
+    root=Path(folder);path=root/'vendor'/f'{code}_{year}.json';error_path=path.with_suffix('.error.json')
+    try:
+        if path.exists():
+            checked_response(json.loads(path.read_text()),code,year,review)
+            error_path.unlink(missing_ok=True)
+            return {'cached':True}
+        for attempt in range(3):
+            try:
+                raw=_rows(bs.query_dividend_data(code,year=year,yearType='operate')).to_dict('records')
+                try:
+                    rows=checked_response(raw,code,year,review)
+                except ValueError:
+                    save_json(root/'source_conflicts'/f'{code}_{year}_raw.json',raw)
+                    raise
+                temporary=path.with_suffix('.tmp.json');save_json(temporary,rows);temporary.replace(path)
+                error_path.unlink(missing_ok=True);time.sleep(.05)
+                return {'downloaded':True}
+            except ValueError:
+                raise
+            except Exception:
+                if attempt==2:
+                    raise
+                bs.logout();time.sleep(.5);_login()
+    except Exception as error:
+        record={'code':code,'year':year,'error':str(error)};save_json(error_path,record)
+        return {'error':record}
+
+
+def fetch_catalog_parallel(output: Path = ROOT, workers: int = 4) -> dict:
+    from .cash_dividend_catalog import jobs_for,reviewed_duplicates
+    root=output/'historical_catalog';jobs=jobs_for(root);reviews=reviewed_duplicates()
+    (root/'vendor').mkdir(exist_ok=True);(root/'source_conflicts').mkdir(exist_ok=True)
+    if not jobs.year.isin(['2022','2023']).all() or not 1<=workers<=4:
+        raise ValueError('Parallel collection is bounded to the fixed historical catalogue')
+    items=[(r.code,r.year,str(root),reviews.get((r.code,r.year))) for r in jobs.itertuples()]
+    downloaded=cached=0;errors=[]
+    with ProcessPoolExecutor(max_workers=workers,initializer=_catalog_login) as pool:
+        futures=[pool.submit(_catalog_job,job) for job in items]
+        for count,future in enumerate(as_completed(futures),1):
+            result=future.result();downloaded+=int(result.get('downloaded',False));cached+=int(result.get('cached',False))
+            if 'error' in result:
+                errors.append(result['error'])
+            if count%100==0 or count==len(jobs):
+                progress={'processed':count,'total':len(jobs),'downloaded':downloaded,'cached':cached,'errors':len(errors)}
+                save_json(root/'fetch_progress.json',progress);print(progress,flush=True)
+    report={'jobs':len(jobs),'downloaded':downloaded,'cached':cached,'errors':errors,'complete':not errors,
+        'holdout_read':False,'strategy_returns_read':False,'workers':workers}
+    save_json(root/'fetch_report.json',report);return report
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('stage',choices=['features','catalog_fetch','catalog_assemble'])
+    parser.add_argument('stage',choices=['features','catalog_fetch','catalog_parallel','catalog_assemble'])
     args=parser.parse_args()
     if args.stage=='features':
         result=prepare()
+    elif args.stage=='catalog_parallel':
+        result=fetch_catalog_parallel()
     else:
         from .cash_dividend_catalog import fetch,assemble
         result=(fetch if args.stage=='catalog_fetch' else assemble)(ROOT/'historical_catalog')
