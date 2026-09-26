@@ -1,4 +1,4 @@
-"""Recent-market research periods; older bars may only warm up indicators."""
+"""Default evaluation years; explicit protocols may use older training labels."""
 
 DEVELOPMENT_YEAR = 2024
 VALIDATION_YEAR = 2025
