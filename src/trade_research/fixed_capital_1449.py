@@ -30,7 +30,7 @@ SOURCES = {
 FIRST, LAST = "2024-07-01", "2025-12-31"
 
 
-def prepare(output: Path = ROOT) -> dict:
+def prepare(output: Path = ROOT, *, sources: dict[str, Path] | None = None) -> dict:
     if (output / "report.json").exists():
         raise ValueError("Do not replace fixed cash inputs after evaluating allocation")
     output.mkdir(parents=True, exist_ok=True)
@@ -38,7 +38,7 @@ def prepare(output: Path = ROOT) -> dict:
     calendar = pd.read_parquet(CALENDAR)
     allowed = set(calendar.loc[calendar.is_trading_day.eq("1")
         & calendar.calendar_date.between(FIRST, LAST), "calendar_date"])
-    for name, folder in SOURCES.items():
+    for name, folder in (SOURCES if sources is None else sources).items():
         selection = json.loads((folder / "input_report.json").read_text())
         execution = json.loads((folder / "execution_report.json").read_text())
         accounting = json.loads((folder / "catalog_scenario_report.json").read_text())
