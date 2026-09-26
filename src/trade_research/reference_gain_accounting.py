@@ -33,7 +33,7 @@ def weekly_interval(daily: pd.Series) -> list[float] | None:
     return np.quantile(means, [.025, .975]).tolist()
 
 
-def evaluate(output: Path = ROOT) -> dict:
+def evaluate(output: Path = ROOT, *, bootstrap: bool = True) -> dict:
     report = json.loads((output / "execution_report.json").read_text())
     for name in ("accounted_initial", "raw_windows", "window_quality"):
         if sha(output / (name + ".parquet")) != report["output_sha256"][name]:
@@ -140,14 +140,16 @@ def evaluate(output: Path = ROOT) -> dict:
             for year, p in paired.groupby(paired.date.str[:4]):
                 daily = p.groupby("date").edge.agg(lambda x: x.mean() if x.notna().all() else np.nan)
                 annual.append({"year": year, "horizon": int(horizon), "slip": slip,
-                    "edge": complete_mean(p, "edge"), "weekly_interval": weekly_interval(daily)})
+                    "edge": complete_mean(p, "edge"),
+                    "weekly_interval": weekly_interval(daily) if bootstrap else None})
     result = {"interpretation": "conditional_on_catalogue_actions_and_recorded_fills_not_verified_complete_PnL",
         "catalog_sha256": sha(catalog_path),
         "source_invalid_rows": int((~rows.execution_source_valid).sum()),
         "unresolved_terminal_rows": int(unresolved.sum()),
         "catalogue_action_rows": int(rows.catalog_action_applied.sum()),
         "share_change_rechecked_rows": int(rows.catalog_share_fill_checked.sum()),
-        "known_returns_unchanged": True, "by_half": cells, "contrasts": contrasts, "annual": annual,
+        "known_returns_unchanged": True, "bootstrap_requested": bootstrap,
+        "by_half": cells, "contrasts": contrasts, "annual": annual,
         "holdout_read": False, "output_sha256": sha(output / "catalog_scenario.parquet")}
     save_json(output / "catalog_scenario_report.json", result)
     return result
