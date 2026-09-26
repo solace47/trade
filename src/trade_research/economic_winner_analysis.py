@@ -1,6 +1,8 @@
 """Frozen 29-feature descriptions against actual-window conditional net labels."""
+import argparse
 import json
 import math
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -40,7 +42,7 @@ def summarize(p,identifiers):
     return item
 
 
-def evaluate():
+def evaluate(ROOT:Path=ROOT):
     if (ROOT/'analysis_report.json').exists():raise ValueError('Do not replace economic feature results')
     label_report=json.loads((ROOT/'label_report.json').read_text())
     check=json.loads((ROOT/'label_verification.json').read_text())
@@ -122,4 +124,7 @@ def evaluate():
     return {'baselines':summaries,'distributions':distributions,'features':len(FEATURES)}
 
 
-if __name__=='__main__':print(json.dumps(evaluate(),ensure_ascii=False,indent=2))
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--root',type=Path,default=ROOT)
+    print(json.dumps(evaluate(parser.parse_args().root),ensure_ascii=False,indent=2))
