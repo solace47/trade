@@ -4,7 +4,7 @@
 
 | 来源 | 与本项目有关的内容 | 采用方式及边界 |
 | --- | --- | --- |
-| [Qlib Alpha158 加载器及算子](https://github.com/microsoft/qlib/blob/a7d5a9b500de5df053e32abf00f6a679546636eb/qlib/contrib/data/loader.py) | 固定 158 项表达式、5–60 日滚动窗口及训练期稳健缩放 | 已锁定提交 `a7d5a9b500de5df053e32abf00f6a679546636eb`，同时阅读 `ops.py`、滚动回归与处理器源码，158 项定义和 MIT 许可纳入仓库。正在适配当日截至 14:49 的临时K线并做同缩放18列对照；不使用其默认标签、撮合器或展示收益，不声称运行了完整 Qlib。 |
+| [Qlib Alpha158 加载器及算子](https://github.com/microsoft/qlib/blob/a7d5a9b500de5df053e32abf00f6a679546636eb/qlib/contrib/data/loader.py) | 固定 158 项表达式、5–60 日滚动窗口及训练期稳健缩放 | 已锁定提交 `a7d5a9b500de5df053e32abf00f6a679546636eb`，同时阅读算子、滚动回归与处理器源码，定义和 MIT 许可纳入仓库。14:49 临时K线适配及 100 万行计算完成，64 个实际样本的全部指标独立核准。固定线性模型 2025 年相对同缩放18列 −0.333 个百分点、区间跨零，未支持收益增量；保留指标组件，不使用其默认标签、撮合器或展示收益，不声称运行了完整 Qlib。 |
 | [MyTT 的 DMA/REF 实现](https://github.com/mpquant/MyTT/blob/main/MyTT.py) | 动态均价递推与通达信式指标映射 | 已把同一历史价格换算到固定参考单位，抽取 32 个实际输入与其单倍初始化 DMA 对照，最大误差 `2.84e-14` 元。仅执行审阅过的 DMA 函数；没有验证通达信客户端的实际输出。该实现把缺失平滑权重替换成 1，本项目仍显式处理未知历史；其 `CONST` 取整个传入序列的末值，不能直接放入历史选股输入。 |
 | [RQAlpha 股票持仓源码](https://github.com/ricequant/rqalpha/blob/master/rqalpha/mod/rqalpha_mod_sys_accounts/position_model.py) | T+1 可卖数量、应收股息、实际到账、送转、退市 | 值得作为持仓状态与测试案例的参考。所读版本默认关闭股息税、允许退市按市值返还现金，不能原样用于本研究；应收股息与可用现金分开这一设计与现有记账一致。此次没有运行其完整撮合器；项目主页声明限非商业使用。 |
 | [Qlib 滚动任务生成器](https://github.com/microsoft/qlib/blob/main/qlib/workflow/task/gen.py) | 滑动／扩展训练窗和 `trunc_segments` | 复用其明确训练、验证、测试边界的设计，已在新模型对照中逐条核对训练标签退出早于测试起点。默认 `trunc_days=None` 不会自动消除标签重叠；当前仍用自行实现的固定时段训练，未宣称运行了 Qlib 的滚动任务。 |

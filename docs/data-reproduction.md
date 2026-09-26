@@ -43,7 +43,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 分钟回跳**执行价**检验采用保守 14:49 截止。依次运行 `trade_research.minute_autocovariance --cutoff-label 1449 --output data/research/minute_autocovariance_1449`、`trade_research.minute_bounce_cost freeze` 和 `trade_research.minute_bounce_cost entry`。冻结阶段只处理全市场输入；执行价阶段只读归档的 14:52–14:55 买入状态与价格，不读卖出或持有收益。预设门槛及失败原因见[研究结果](strategy-results.md)与模块开头；2026 年不参与开发。
 
-其他检验由对应模块的默认命令重建输入，只有审计文件中的 `outcome_gate_passed` 为真且 `repricing_signals.parquet` 已生成，才能进入下一步。已完成的专项规则及结果留在各专项文档；本页只维护公共流程。
+旧检验由对应模块重建输入，按该版本 `outcome_gate_passed` 和 `repricing_signals.parquet` 决定是否进入其收益步骤。失败记录保留；研究者可以在读取新结果前登记不同的样本设计，不把旧数量门槛当作当前用户约束。已完成的专项规则及结果留在各专项文档。
 
 ## 固定交易的统计分辨率
 
@@ -164,6 +164,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 新模型目录 `long_history_ridge_1449/long/` 的名单 SHA256 为 `c047deb1800c88748753be395264d21dedf42338a9ac70cca2ddbd517425e75d`。按此指纹调用 `reference_gain_eval.reprice`，规则提交 `802cc1e`、2 万元；旧模型完整文件复制为 `recent/`。随后调用 `shallow_tree_eval.summarize(path, model_names=("recent","long"), rule_commit="802cc1e", list_commit="104f868")`。旧对照的续查账本来自 `downside_ridge_1449/continued/downside/`；新模型没有超期未退出持仓，`continue_model` 直接复用完成账本，仍在 `continued/` 保存同口径比较。历史训练及测试收益分别有独立 SQL、原始窗口和冻结名单检查，见各 `independent_*_checks.json`。
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
+
+## 标准因子库与同缩放对照
+
+Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licenses/qlib-MIT.txt`。先运行 `trade_research.alpha158_inputs`，把此前完整日线与当日 14:49 临时K线组合成指标；按证券缓存，源指纹改变时拒绝沿用。随后运行 `PYTHONPATH=src .venv/bin/python scripts/verify_alpha158_features.py` 核准独立逐窗计算，再运行 `trade_research.alpha158_models` 拟合，最后运行 `scripts/verify_alpha158_inputs.py` 核准落盘指标、全部评分和选择。各脚本均在仓库根目录使用相同 Python 前缀。已有成交后不重新生成名单。
+
+输出在 `alpha158_1449/`，两版为 `robust18`／`alpha158`，名单提交 `4d867ee`。按根目录 `input_report.json` 中各自指纹调用公共 `reference_gain_eval.reprice`，再调用 `continue_model(source, root / "continued" / name)`；对每个续查目录依次调用 `reference_gain_accounting.evaluate` 与 `risk_removal_eval.evaluate`。最后运行 `trade_research.alpha158_eval`，从每侧至少半分钱的成本账本比较共同信号日，不以固定比例成本替代主终点。含未知股票的日期仍未知，不能通过分组均值跳过；原实际会计列保留。
 
 ## 月末跨月持有
 
