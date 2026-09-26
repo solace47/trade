@@ -236,6 +236,8 @@ def freeze(output_dir: Path = OUTPUT, main_only: bool = False,
                 validate="one_to_one",
             )
             if (len(labels) != len(train)
+                    or labels[["target_exit_date", "net_return",
+                               "clean_ontime_exit"]].isna().any().any()
                     or labels.target_exit_date.ge(test_first).any()
                     or labels.exit_date.ge(test_first).any()):
                 raise ValueError("Provided training labels are incomplete or overlap test time")
