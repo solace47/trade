@@ -51,6 +51,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 ## 整数价位输入检验
 
+全样本条件关联诊断另行执行 `PYTHONPATH=src .venv/bin/python -m trade_research.round_number_geometry`。源为前版全部 `side_inputs.parquet`，不取其前五名或配对子集；输出所有日期的输入矩阵审计及带符号的条件对比权重。只有四期输入覆盖和几何门槛全部通过，才能另行冻结分钟入场；这些权重本身不是可交易组合。当前通过 391 个日期、114,657 条，尚未读取响应。
+
 运行 `PYTHONPATH=src .venv/bin/python -m trade_research.round_number_1449`，复用只从 2024 年起计算的基础池及已有 14:49 原条审计分片。报价恢复为整数分后分类，冻结每日名单及同日对照；输出源指纹、分组覆盖和输入平衡。四期覆盖率及距整数距离平衡均未通过，因此没有成交或收益阶段入口。程序与固定规则见[输入检验](input-gates.md#整数价位两侧的尾盘价格位置读取输入分组前冻结)。
 
 ## 纯现金除息事件与输入目录
