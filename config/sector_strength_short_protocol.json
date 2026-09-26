@@ -1,0 +1,23 @@
+{
+  "study": "行业同步走强中的活跃未涨停股",
+  "hypothesis": "同行广泛走强可能比个股孤立上涨更容易延续；这是新的日内至次日适配，不是旧论文已验证结论",
+  "primary_source": "https://sysengi.cjoe.ac.cn/CN/Y2018/V38/I4/817",
+  "first_date": "2024-01-01",
+  "last_source_date": "2025-12-31",
+  "reserve_sessions": 10,
+  "decision_cutoff": "14:49",
+  "peer_universe": "沪深主板非ST、上市20交易日、正常交易、无未知参考价跳变及已知退市整理公告；完整1449前缀、累计金额至少3000万元；历史证监会分类在决策日前更新且不陈旧超过370自然日",
+  "peer_statistics": "排除自身；当日涨幅裁剪正负10%；行业至少10个其他股票；行业均涨幅、上涨家数比例及全池均值均只使用1449前信息",
+  "strong_sector": {"mean_return_min": 0.01, "rising_fraction_min": 0.6, "excess_market_min": 0.005},
+  "stock_pool": {"price_min": 5, "amount_min": 100000000, "amount_max": null, "return_min": 0.02, "return_max": 0.06, "prior20_min": 0, "last29_min": 0, "last29_max": 0.01, "price_at_or_above_day_vwap": true, "stress_price_below_upper_limit": true},
+  "selection": "满足强行业的候选按1449累计成交额降序、代码升序；每日最多5只且每行业最多1只；同股5交易日冷却",
+  "control": "同日同交易所、相同个股条件但不满足强行业；此前20日差<=5个百分点、当日差<=2个百分点、末29分钟差<=0.5个百分点、价格与成交额比0.5至2；五项标准化距离贪心唯一匹配，控制组也5交易日冷却；保留全部未匹配候选",
+  "notional": 20000,
+  "entry_window": "14:52–14:55",
+  "exit_window": "14:52–14:55",
+  "primary_horizon": 1,
+  "secondary_horizon": 2,
+  "execution": "沿用原始分钟10%容量、1449分币价格固定整手、每侧15基点与半分钱取大及5基点诊断；涨跌停排队和来源未知保留；延期、未退出及权益完整核算",
+  "validation": "先核准全部同行输入、剔除自身、排名冷却和所有匹配边，提交后再读取收益；主看T1自身及相似股差、年与半年方向、胜率盈亏比尾部及执行；T2只是预设诊断；无参数搜索，不用2026新行情",
+  "new_2026_prices_allowed": false
+}
