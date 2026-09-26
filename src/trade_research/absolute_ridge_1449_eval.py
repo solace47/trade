@@ -98,6 +98,44 @@ def archive_comparison(repriced: pd.DataFrame) -> dict:
     return result
 
 
+def failure_diagnostics(rows: pd.DataFrame) -> dict:
+    """Describe the already-rejected primary result without changing its gate."""
+    primary = rows.loc[
+        rows.target_notional.eq(20000) & rows.horizon.eq(5)
+        & rows.exit_window.eq("close")
+    ]
+    diagnostics = {}
+    for half in HALVES:
+        period = primary.loc[primary.period.eq(half)]
+        model = period.loc[period.candidate.eq("absolute_model")]
+        control = period.loc[period.candidate.eq("same_day_control")]
+        own_daily = model.groupby("date", sort=True).stress15.mean()
+        pairs = model.merge(control, on=["date", "pair_id"],
+                            suffixes=("_model", "_control"),
+                            validate="one_to_one")
+        if len(pairs) != len(control):
+            raise ValueError("An existing same-day control is unmatched")
+        edge_daily = pairs.assign(
+            edge=pairs.stress15_model - pairs.stress15_control,
+        ).groupby("date", sort=True).edge.mean()
+        quarter = own_daily.index.str[:4] + "Q" + (
+            (own_daily.index.str[5:7].astype(int) - 1) // 3 + 1
+        ).astype(str)
+        diagnostics[half] = {
+            "own_signal_days": len(own_daily),
+            "own_negative_days": int(own_daily.lt(0).sum()),
+            "own_median_stress15": float(own_daily.median()),
+            "own_quarter_means_stress15": {
+                name: float(value) for name, value in
+                own_daily.groupby(quarter).mean().items()
+            },
+            "matched_days": len(edge_daily),
+            "matched_negative_edge_days": int(edge_daily.lt(0).sum()),
+            "matched_median_edge_stress15": float(edge_daily.median()),
+        }
+    return diagnostics
+
+
 def evaluate(output_dir: Path = OUTPUT) -> dict:
     audit = json.loads((output_dir / "input_audit.json").read_text(encoding="utf-8"))
     if (not audit["outcome_gate_passed"] or audit["cutoff_label"] != "1449"
@@ -165,6 +203,11 @@ def evaluate(output_dir: Path = OUTPUT) -> dict:
             per_amount[str(horizon)] = per_horizon
         result["results"][str(notional)] = per_amount
     primary = result["results"]["20000"]["5"]["close"]
+    result["failure_diagnostics"] = failure_diagnostics(rows)
+    for half in HALVES:
+        if (result["failure_diagnostics"][half]["own_signal_days"]
+                != primary[half]["signal_days"]):
+            raise ValueError("Failure diagnostics changed primary signal days")
     result["release_gate_passed"] = bool(
         all(primary[half]["own_all_cash_stress15"] > 0
             and primary[half]["matched_edge_stress15"] > 0
