@@ -71,7 +71,7 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
             rule_commit: str = "8c75ac3", notional: float = 20000,
             first_date: str = "2024-01-01", last_date: str = "2025-12-31",
             quality_report: Path = PERIOD_QUALITY, horizons: tuple[int, ...] = (1, 5),
-            exit_window: str = "close") -> dict:
+            exit_window: str = "close", exact_decision_sizing: bool = False) -> dict:
     if not isfinite(notional) or notional <= 0:
         raise ValueError("The requested notional must be positive")
     if (exit_window not in ("close", "morning") or not horizons
@@ -97,6 +97,8 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         "first_date": first_date, "last_date": last_date,
         "quality_report": str(quality_report), "quality_report_sha256": sha(quality_report),
         "verified_entry_reference_rows": int(signals.get("entry_reference_verified", pd.Series(False, index=signals.index)).eq(True).sum())}
+    if exact_decision_sizing:
+        manifest["exact_decision_sizing"] = True
     save_json(output / "execution_manifest.json", manifest)
 
     def one(item):
@@ -129,7 +131,7 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         minute["code"] = code
         trades = outcomes_for_symbol(group, minute, daily, calendar,
             Assumptions(target_notional=notional), horizons=horizons, exit_labels=exit_labels,
-            sizing_price_column="price_1449")
+            sizing_price_column="price_1449", exact_decision_sizing=exact_decision_sizing)
         trades["target_notional"] = notional
         trades["entry_window"] = "baseline"
         trades["exit_window"] = exit_window

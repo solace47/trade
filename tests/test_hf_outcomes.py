@@ -191,6 +191,26 @@ def test_mainboard_risk_warning_limit_changes_in_july_2026():
         assert _board_limit_rate(code, 1, "2026-07-06") == 0.1
 
 
+@pytest.mark.parametrize("code,price,expected", [("sz.000001", .8, 25000), ("sh.688001", 6.4, 3125)])
+def test_exact_decision_size_preserves_cent_boundary_and_star_integer_lot(code, price, expected):
+    signals, minute, daily = _inputs(entry=price, second=price, third=price)
+    signals["code"], signals["price_1449"], signals["decision_shares"] = code, price, expected
+    daily["preclose"], daily["close"] = price, price
+    assumptions = Assumptions(target_notional=20000)
+    fixed = outcomes_for_symbol(signals, minute, daily, DATES, assumptions, horizons=(1,),
+        sizing_price_column="price_1449", exact_decision_sizing=True).iloc[0]
+    legacy = outcomes_for_symbol(signals, minute, daily, DATES, assumptions, horizons=(1,),
+        sizing_price_column="price_1449").iloc[0]
+    assert fixed.shares == expected
+    assert legacy.shares < expected
+    assert fixed.entry_status == fixed.exit_status == "filled"
+    assert fixed.entry_price == legacy.entry_price
+    signals["decision_shares"] = expected-1
+    with pytest.raises(ValueError, match="Frozen decision shares"):
+        outcomes_for_symbol(signals, minute, daily, DATES, assumptions, horizons=(1,),
+            sizing_price_column="price_1449", exact_decision_sizing=True)
+
+
 def test_new_listing_window_is_excluded_from_estimated_fills():
     signals, minute, daily = _inputs()
     signals["listing_age_sessions"] = 2

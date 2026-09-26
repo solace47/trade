@@ -49,8 +49,8 @@ for code, group in queue.groupby("code"):
         filters=[("date", "in", dates)], columns=["date", "code", "preclose", "isST"]))
 c.register("daily", pd.concat(daily, ignore_index=True)); c.register("queues", queue)
 reproduced = c.sql("""WITH limits AS(SELECT code,date,
- round(preclose::DECIMAL(18,6)*CASE WHEN isST=1 THEN 1.05 ELSE 1.10 END,2) AS upper,
- round(preclose::DECIMAL(18,6)*CASE WHEN isST=1 THEN .95 ELSE .90 END,2) AS lower FROM daily),
+ round(preclose::DECIMAL(18,6)*CASE WHEN code LIKE 'sz.30%' OR code LIKE 'sh.68%' THEN 1.20 WHEN isST=1 THEN 1.05 ELSE 1.10 END,2) AS upper,
+ round(preclose::DECIMAL(18,6)*CASE WHEN code LIKE 'sz.30%' OR code LIKE 'sh.68%' THEN .80 WHEN isST=1 THEN .95 ELSE .90 END,2) AS lower FROM daily),
  touched AS(SELECT b.code,b.date,bool_or(round(b.high,2)>=d.upper) AS buy_touch,
  bool_or(round(b.low,2)<=d.lower) AS sell_touch FROM bars b JOIN limits d USING(code,date)
  WHERE volume>0 AND label IN ('1452','1453','1454','1455') GROUP BY b.code,b.date)

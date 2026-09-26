@@ -67,14 +67,15 @@ def continue_model(source: Path, output: Path) -> dict:
             chosen = signals.loc[signals.code.eq(code) & signals.date.isin(part.date)]
             baseline = outcomes_for_symbol(chosen, minute, daily, calendar,
                 Assumptions(target_notional=notional), horizons=(int(horizon),), exit_labels=exit_labels,
-                sizing_price_column="price_1449")
+                sizing_price_column="price_1449", exact_decision_sizing=baseline_report.get("exact_decision_sizing", False))
             left = baseline.set_index(KEY)[checks].sort_index().astype(object)
             right = part.set_index(KEY)[checks].sort_index().astype(object)
             pd.testing.assert_frame_equal(left.where(left.notna(), None), right.where(right.notna(), None),
                 check_dtype=False, check_exact=False, atol=1e-12, rtol=0)
             extended = outcomes_for_symbol(chosen, minute, daily, calendar,
                 Assumptions(target_notional=notional, maximum_exit_delay_sessions=len(calendar)),
-                horizons=(int(horizon),), exit_labels=exit_labels, sizing_price_column="price_1449")
+                horizons=(int(horizon),), exit_labels=exit_labels, sizing_price_column="price_1449",
+                exact_decision_sizing=baseline_report.get("exact_decision_sizing", False))
             extended["target_notional"], extended["entry_window"], extended["exit_window"] = notional, "baseline", exit_window
             extended["quality_clean_exit"] = False
             extended, _ = apply_period_quality(extended, report_path=quality_report,
@@ -111,6 +112,8 @@ def continue_model(source: Path, output: Path) -> dict:
         "exit_window": exit_window, "exit_labels": list(exit_labels),
         "quality_report_sha256": sha(quality_report),
         "output_sha256": {name: sha(output / (name + ".parquet")) for name in ("repriced", "accounted_initial", "raw_windows", "window_quality")}}
+    if baseline_report.get("exact_decision_sizing", False):
+        result["exact_decision_sizing"] = True
     save_json(output / "execution_report.json", result)
     return result
 

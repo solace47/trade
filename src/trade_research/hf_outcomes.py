@@ -146,6 +146,7 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
                         horizons: tuple[int, ...] = HORIZONS,
                         entry_labels: tuple[str, ...] = EXECUTION_LABELS,
                         sizing_price_column: str | None = None,
+                        exact_decision_sizing: bool = False,
                         ) -> pd.DataFrame:
     if signals.empty:
         return pd.DataFrame()
@@ -157,6 +158,8 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         raise ValueError("Unsupported holding period")
     if sizing_price_column is not None and sizing_price_column not in signals.columns:
         raise ValueError("The decision-time sizing price is missing")
+    if exact_decision_sizing and sizing_price_column is None:
+        raise ValueError("Exact sizing requires a decision-time cent quote")
     code = str(signals["code"].iloc[0])
     daily = daily.sort_values("date").copy()
     active = daily.loc[daily["tradestatus"] == 1].copy()
@@ -183,7 +186,13 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
         if sizing_price_column is not None and (not isfinite(sizing_price)
                                                 or sizing_price <= 0):
             raise ValueError("Invalid decision-time sizing price")
-        shares = _order_shares(code, sizing_price, assumptions.target_notional)
+        if exact_decision_sizing:
+            from .quote_precision import fixed_quote_shares
+            shares = fixed_quote_shares(code, sizing_price, assumptions.target_notional)
+            if hasattr(signal, "decision_shares") and signal.decision_shares != shares:
+                raise ValueError("Frozen decision shares disagree with the cent quote and budget")
+        else:
+            shares = _order_shares(code, sizing_price, assumptions.target_notional)
         if shares == 0:
             entry_price, entry_status = None, "below_minimum_lot"
         elif getattr(signal, "listing_age_sessions", 5) < 5:
