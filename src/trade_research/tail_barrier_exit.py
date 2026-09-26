@@ -199,8 +199,9 @@ def freeze(output: Path = ROOT) -> dict:
     return report
 
 
-def assert_same_execution(left: pd.DataFrame, right: pd.DataFrame) -> None:
-    a, b = (f.set_index(KEY)[CHECKS].sort_index().astype(object) for f in (left, right))
+def assert_same_execution(left: pd.DataFrame, right: pd.DataFrame,
+                          fields: list[str] = CHECKS) -> None:
+    a, b = (f.set_index(KEY)[fields].sort_index().astype(object) for f in (left, right))
     pd.testing.assert_frame_equal(a.where(a.notna(), None), b.where(b.notna(), None),
         check_dtype=False, check_exact=False, atol=1e-12, rtol=0)
 
@@ -253,8 +254,7 @@ def reprice(output: Path = ROOT) -> dict:
         if i % 200 == 0 or i == len(groups):
             print(f"Replayed buys and conditional exits {i}/{len(groups)} stocks", flush=True)
     initial = pd.concat(results, ignore_index=True).sort_values(KEY).reset_index(drop=True)
-    pd.testing.assert_frame_equal(initial.set_index(KEY)[["entry_price", "entry_status", "shares"]].sort_index(),
-        original.set_index(KEY)[["entry_price", "entry_status", "shares"]].sort_index(), check_dtype=False)
+    assert_same_execution(initial, original, ["entry_price", "entry_status", "shares"])
     initial["target_notional"], initial["entry_window"], initial["exit_window"] = 20000, "baseline", "close"
     initial["quality_clean_exit"] = False
     initial, _ = apply_period_quality(initial)

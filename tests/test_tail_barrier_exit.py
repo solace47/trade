@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from trade_research.hf_outcomes import Assumptions, outcomes_for_symbol
-from trade_research.tail_barrier_exit import decision_price, plan_exit, reference_states
+from trade_research.tail_barrier_exit import assert_same_execution, decision_price, plan_exit, reference_states
 
 
 DATES = pd.bdate_range("2025-09-01", periods=11).strftime("%Y-%m-%d").tolist()
@@ -125,3 +125,13 @@ def test_fourth_day_exit_is_supported_without_changing_default_horizons():
     daily = pd.DataFrame({"date": DATES, "tradestatus": 1, "isST": 0, "preclose": 10., "close": 10.})
     result = outcomes_for_symbol(signals, minutes, daily, DATES, horizons=(4,)).iloc[0]
     assert result.exit_date == DATES[4]
+
+
+def test_replay_accepts_missing_representations_but_rejects_a_changed_purchase():
+    left = pd.DataFrame({"date": DATES[:2], "code": "sh.600000",
+                         "entry_price": pd.Series([10., None], dtype=object)})
+    right = left.copy(); right["entry_price"] = [10., float("nan")]
+    assert_same_execution(left, right, ["entry_price"])
+    right.loc[0, "entry_price"] = 10.01
+    with pytest.raises(AssertionError):
+        assert_same_execution(left, right, ["entry_price"])
