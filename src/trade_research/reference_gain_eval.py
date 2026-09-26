@@ -13,7 +13,7 @@ import pandas as pd
 from .absolute_ridge_1449_eval import PERIOD_QUALITY, apply_period_quality
 from .corporate_cash import save_json, sha
 from .fill_accounting import account_rows
-from .hf_outcomes import Assumptions, outcomes_for_symbol
+from .hf_outcomes import Assumptions, outcomes_for_symbol, EXECUTION_LABELS, EXIT_WINDOWS
 from .reference_gain_pairs import ROOT
 from .round_number_entry import validate_window
 from .turnover_reference import CALENDAR
@@ -30,8 +30,10 @@ def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
     accounted = accounted.merge(signals[["date", "code", "arm", "pair_id", "price_1449"]],
         on=["date", "code"], validate="many_to_one")
     for side, key in (("entry", "date"), ("exit", "exit_date")):
-        fields = win.rename(columns={"date": key,
-            **{k: side + "_" + k for k in win.columns if k not in ("date", "code")}})
+        selected = (win.loc[win.window_role.eq(side)].drop(columns="window_role")
+                    if "window_role" in win else win)
+        fields = selected.rename(columns={"date": key,
+            **{k: side + "_" + k for k in selected.columns if k not in ("date", "code")}})
         accounted = accounted.merge(fields, on=[key, "code"], how="left", validate="many_to_one")
     accounted["execution_source_valid"] = accounted.entry_window_status.eq("valid") & (
         accounted.exit_window_status.eq("valid") | accounted.entry_status.ne("filled"))
@@ -41,12 +43,41 @@ def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
     return accounted
 
 
+def quality_windows(minute: pd.DataFrame, dates: list[str],
+                    exit_labels: tuple[str, ...] = EXECUTION_LABELS) -> pd.DataFrame:
+    """Keep morning and afternoon prices/volume separate even on the same date."""
+    separate = exit_labels != EXECUTION_LABELS
+    roles = (("entry", EXECUTION_LABELS), ("exit", exit_labels)) if separate else (("shared", EXECUTION_LABELS),)
+    groups = {date: bars for date, bars in minute.groupby("date")}
+    records = []
+    code = minute.code.iloc[0] if len(minute) else None
+    for date in dates:
+        daily = groups.get(date, minute.iloc[:0])
+        for role, labels in roles:
+            bars = daily.loc[daily.label.isin(labels)]
+            status, _ = validate_window(bars, expected_labels=labels)
+            positive = bars.loc[bars.volume.gt(0)]
+            row = {"date": date, "code": code, "window_status": status,
+                "raw_vwap": float(bars.turnover.sum() / bars.volume.sum()) if bars.volume.sum() > 0 else None,
+                "window_low": float(positive.low.min()) if len(positive) else None,
+                "window_high": float(positive.high.max()) if len(positive) else None}
+            if separate:
+                row["window_role"] = role
+            records.append(row)
+    return pd.DataFrame(records)
+
+
 def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
             rule_commit: str = "8c75ac3", notional: float = 20000,
             first_date: str = "2024-01-01", last_date: str = "2025-12-31",
-            quality_report: Path = PERIOD_QUALITY) -> dict:
+            quality_report: Path = PERIOD_QUALITY, horizons: tuple[int, ...] = (1, 5),
+            exit_window: str = "close") -> dict:
     if not isfinite(notional) or notional <= 0:
         raise ValueError("The requested notional must be positive")
+    if exit_window not in ("close", "morning") or not horizons or any(h not in (1, 5) for h in horizons):
+        raise ValueError("Only explicitly supported holding windows can be repriced")
+    exit_labels = EXIT_WINDOWS[exit_window]
+    needed_labels = sorted(set(EXECUTION_LABELS + exit_labels))
     signal_file = output / "signals.parquet"
     if sha(signal_file) != expected_signal_sha:
         raise ValueError("Frozen execution list changed")
@@ -59,8 +90,9 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
             or any(positions[d] + 10 >= len(calendar) for d in signals.date)):
         raise ValueError("Every signal needs a complete ten-session observation window")
     manifest = {"rule_commit": rule_commit, "signals_sha256": expected_signal_sha,
-        "calendar_sha256": sha(CALENDAR), "notional": notional, "horizons": [1, 5],
+        "calendar_sha256": sha(CALENDAR), "notional": notional, "horizons": list(horizons),
         "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": last_date > "2025-12-31",
+        "exit_window": exit_window, "exit_labels": list(exit_labels),
         "first_date": first_date, "last_date": last_date,
         "quality_report": str(quality_report), "quality_report_sha256": sha(quality_report),
         "verified_entry_reference_rows": int(signals.get("entry_reference_verified", pd.Series(False, index=signals.index)).eq(True).sum())}
@@ -79,9 +111,9 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         c.register("needed", pd.DataFrame({"date": dates}))
         minute = c.execute("""SELECT timestamp,open,high,low,close,volume,turnover
             FROM minute_source WHERE timestamp>=?::TIMESTAMP AND timestamp<?::DATE+INTERVAL 1 DAY
-              AND strftime(timestamp,'%H%M') IN ('1452','1453','1454','1455')
+              AND strftime(timestamp,'%H%M') IN (SELECT unnest(?))
               AND strftime(timestamp,'%Y-%m-%d') IN (SELECT date FROM needed)
-            ORDER BY timestamp""", [dates[0], dates[-1]]).df()
+            ORDER BY timestamp""", [dates[0], dates[-1], needed_labels]).df()
         c.read_parquet(str(daily_path)).create_view("daily_source")
         prior_day = c.execute("""SELECT max(date) FROM daily_source
             WHERE date<? AND tradestatus=1""", [dates[0]]).fetchone()[0]
@@ -95,21 +127,14 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         minute["label"] = minute.timestamp.dt.strftime("%H%M")
         minute["code"] = code
         trades = outcomes_for_symbol(group, minute, daily, calendar,
-            Assumptions(target_notional=notional), horizons=(1, 5), sizing_price_column="price_1449")
+            Assumptions(target_notional=notional), horizons=horizons, exit_labels=exit_labels,
+            sizing_price_column="price_1449")
         trades["target_notional"] = notional
         trades["entry_window"] = "baseline"
-        trades["exit_window"] = "close"
-        groups = {d: p for d, p in minute.groupby("date")}
-        quality = []
-        for date in dates:
-            bars = groups.get(date, minute.iloc[:0])
-            status, quote = validate_window(bars)
-            positive = bars.loc[bars.volume.gt(0)]
-            quality.append({"date": date, "code": code, "window_status": status,
-                "raw_vwap": float(bars.turnover.sum() / bars.volume.sum()) if bars.volume.sum() > 0 else None,
-                "window_low": float(positive.low.min()) if len(positive) else None,
-                "window_high": float(positive.high.max()) if len(positive) else None})
-        return trades, minute, pd.DataFrame(quality), {"code": code,
+        trades["exit_window"] = exit_window
+        quality = quality_windows(minute, dates, exit_labels)
+        quality["code"] = code
+        return trades, minute, quality, {"code": code,
             "minute_sha256": sha(minute_path), "daily_sha256": sha(daily_path)}
 
     grouped = list(signals.groupby("code", sort=True))

@@ -68,12 +68,12 @@ def freeze(output: Path = ROOT) -> dict:
     return manifest
 
 
-def validate_window(bars: pd.DataFrame) -> tuple[str, dict | None]:
+def validate_window(bars: pd.DataFrame, *, expected_labels: tuple[str, ...] = LABELS) -> tuple[str, dict | None]:
     if bars.empty:
         return "missing_window", None
     bars = bars.sort_values("timestamp")
     labels = bars.timestamp.dt.strftime("%H%M").tolist()
-    if (labels != list(LABELS) or bars.timestamp.dt.normalize().nunique() != 1
+    if (labels != list(expected_labels) or bars.timestamp.dt.normalize().nunique() != 1
             or not bars.timestamp.eq(bars.timestamp.dt.floor("min")).all()):
         return "incomplete_or_duplicate_window", None
     values = bars[BAR_COLUMNS[1:]].to_numpy(dtype=float)

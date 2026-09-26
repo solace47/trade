@@ -82,6 +82,8 @@ def evaluate(output: Path = ROOT, *, bootstrap: bool = True,
             day = pd.read_parquet(path, filters=[("date", "==", row.exit_date)]).iloc[0]
             raw = pd.read_parquet(output / "raw_windows.parquet",
                 filters=[("code", "==", row.code), ("date", "==", row.exit_date)])
+            labels = report.get("exit_labels", ["1452", "1453", "1454", "1455"])
+            raw = raw.loc[raw.timestamp.dt.strftime("%H%M").isin(labels)]
             quote = pd.Series({"volume": raw.volume.sum(), "vwap": raw.turnover.sum() / raw.volume.sum()})
             price, status = _fill(quote, day, row.code, "sell", int(quantity), Assumptions(target_notional=row.target_notional))
             if status != "filled" or abs(price - row.exit_price) > 1e-12:
