@@ -165,6 +165,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
 
+## 同一固定本金的资金政策
+
+依次运行 `trade_research.fixed_capital_1449 prepare` 与 `evaluate`。规则提交 `37cb9c2`，输入／实现提交 `d906dc0`；四组源目录、既存名单／账本指纹以及完整订单合并容量写入 `fixed_capital_1449/manifest.json`。准备阶段以原始价格上限计算14:49预留，再核对原股数、实际费用、分配时点和T+5来源；评价阶段按50万元现金逐日决定整笔授权，不重训、不读新行情、不改变原退出。
+
+`orders.parquet` 是全部原始候选及条件会计输入，`order_decisions.parquet` 保存每笔授权前可用现金与所需预留，`cash_ledger.parquet` 逐自然日记账。`report.json` 只有在期末库存、应收股息和税款全部结清时输出完整情景收益；不把现金余额当作带持仓估值的净值。独立输入及历史现金流重建脚本保存在相同本地输出目录。该模块替代不了旧失败版的研究结论，也不修改旧 `portfolio_curve` 的有条件完成样本诊断或事后最低资金需求档案。
+
 ## 触跌停后打开
 
 触跌停后打开的完整候选入口为 `trade_research.limit_down_recovery_1449`，保留旧 `limit_down_reopen/`，新输出 `limit_down_recovery_1449/`。名单双重核准及提交 `7e7b10b` 后，按 `11abacaf66347ac5e868ede2fd25880b555e3eb855bf87bca38d18d91de33112` 调用公共 `reprice`、`continue_model` 和目录核算。随后调用 `risk_removal_eval.evaluate(root / "continued", primary_horizon=1)`；只有主终点标记改为T+1，费用、未知值保留和辅助T+5核算共用既有实现。目录、价格范围及完整观察窗覆盖的独立检查保存在本地输出中。
