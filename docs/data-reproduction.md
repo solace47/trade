@@ -16,7 +16,7 @@ python3.12 -m venv .venv
 - `economic_winner_analysis`与`scripts/verify_economic_winner_analysis.py`：原29项完整画像。
 - `economic_winner_quality`与`scripts/verify_economic_winner_quality.py`：保留原版，在`data/research/economic_winner/period_quality`叠加既有全日质量疑问。
 - 两份画像／核查命令加`--root data/research/economic_winner/period_quality`：完整敏感性复算。
-- `economic_winner_prediction`与`scripts/verify_economic_winner_prediction.py`：复用原39列已核准特征，按固定时期拟合、校准与选股，再独立核准。只有核准后才能连接2025结果。
+- `economic_winner_prediction`与`scripts/verify_economic_winner_prediction.py`：复用原39列已核准特征，按固定时期拟合、校准与选股，再独立核准。只有核准后才能连接2025结果。 随后运行`economic_winner_prediction_analysis`与`scripts/verify_economic_winner_prediction_analysis.py`核准全部预测分组、空仓结果和候选。
 
 ## 次日训练目标与同风险五日目标对照
 
