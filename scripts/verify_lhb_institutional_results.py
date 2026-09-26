@@ -1,5 +1,6 @@
 """Independently verify raw fills, queue flags, fees and short-horizon statistics."""
 from pathlib import Path
+import argparse
 import json
 
 import duckdb
@@ -8,7 +9,9 @@ import pandas as pd
 
 from trade_research.corporate_cash import save_json, sha
 
-root = Path("data/research/lhb_institutional_short")
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--root", type=Path, default=Path("data/research/lhb_institutional_short"))
+root = parser.parse_args().root
 folder = root / "continued"
 comparison = json.loads((root / "comparison_report.json").read_text())
 c = duckdb.connect()
@@ -24,6 +27,8 @@ rows = c.sql("""WITH prices AS(SELECT *,bps,entry_price/1.0005 AS rb,exit_price/
  /(bv+greatest(5.,bv*.0003)+bv*.00001)-1 ELSE NULL END AS computed,
  CASE WHEN bps=5 THEN tick_return5 ELSE tick_return15 END AS stored FROM value""").df()
 assert (rows.computed.isna() == rows.stored.isna()).all()
+assert rows.date.between("2024-01-01", "2025-12-31").all()
+assert rows.exit_date.dropna().between("2024-01-01", "2025-12-31").all()
 assert (rows.computed-rows.stored).abs().max() < 1e-12
 windows = c.sql("""SELECT code,date,count(*) AS n,count(distinct timestamp) AS nu,
  sum(volume) AS volume,sum(turnover)/nullif(sum(volume),0) AS vwap
