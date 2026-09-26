@@ -72,8 +72,10 @@ def evaluate():
             rows=eligible.loc[eligible.board.eq(board)&eligible.half.eq(half)]
             for bps in [5,15]:
                 values=rows[f'net_return{bps}'].dropna();wins=values.loc[values.gt(0)];losses=values.loc[values.lt(0)]
+                cost_daily=rows.groupby('date')[f'net_return{bps}'].mean().sort_index()
                 distributions.append(dict(board=board,half=half,cost_bps=bps,valid_rows=len(values),
                     unknown_rows=int(rows[f'label{bps}'].eq('unknown').sum()),no_trade=int(rows[f'label{bps}'].eq('no_trade').sum()),
+                    mean_signal_day=number(cost_daily.mean()),mean_signal_day_week_interval=weekly_interval(cost_daily),
                     positive_frequency=number(values.gt(0).mean()),median=number(values.median()),
                     mean_positive=number(wins.mean()),mean_negative=number(losses.mean()),
                     payoff_ratio=number(wins.mean()/(-losses.mean())) if len(losses) and len(wins) else None,
@@ -88,7 +90,11 @@ def evaluate():
         p['band']=np.select([p['rank'].isna(),p['rank'].le(.2),p['rank'].ge(.8)],['missing','low20','high20'],default='middle60')
         daily=daily_groups(p,['date','half','board','band'])
         daily=daily.merge(baseline[['date','board',*METRICS]],on=['date','board'],how='left',validate='many_to_one',suffixes=('','_baseline'))
-        for metric in METRICS:daily[metric+'_delta']=daily[metric]-daily[metric+'_baseline']
+        for name in ['winner','loser','positive']:
+            # Conservative difference bounds; missing band and baseline returns need not agree.
+            daily[name+'_lower_delta']=daily[name+'_lower']-daily[name+'_upper_baseline']
+            daily[name+'_upper_delta']=daily[name+'_upper']-daily[name+'_lower_baseline']
+        daily['net_mean_delta']=daily.net_mean-daily.net_mean_baseline
         daily['feature']=feature;tables.append(daily)
         for board in BOARDS:
             for half in HALVES:
