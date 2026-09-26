@@ -1,0 +1,32 @@
+{
+  "study": "同输入同风险口径的次日目标与五日目标训练对照",
+  "features_source": "data/research/long_history_ridge_1449/features.parquet",
+  "features_sha256": "419e7be784baf277e653659f91846c496cb5c78698b97b4e5da9d5660aa32e9e",
+  "features": "原固定18列，训练中位数与四分位距缩放、各列缩放下限0.01、输入裁剪正负5",
+  "training_horizons": [1, 5],
+  "evaluation_horizons": [1],
+  "exit_window": "14:52–14:55",
+  "entry_window": "14:52–14:55",
+  "decision_cutoff": "14:49",
+  "notional": 20000,
+  "maximum_window_volume_fraction": 0.1,
+  "cost_each_leg": "max(15基点,0.005元)，按历史日期计佣金、印花税与过户费",
+  "diagnostic_cost_bps": 5,
+  "unresolved_training_score": -1,
+  "adverse_limit_queue_training_score": -1,
+  "training_target_clip": [-0.15, 0.15],
+  "ridge_penalty": 0.05,
+  "positive_score_only": true,
+  "daily_capacity": 5,
+  "cooldown_market_sessions": 5,
+  "folds": [
+    {"name": "2024", "train_first": "2022-01-01", "train_last": "2023-12-15", "test_first": "2024-01-01", "test_last": "2024-12-17"},
+    {"name": "2025", "train_first": "2022-01-01", "train_last": "2024-12-17", "test_first": "2025-01-01", "test_last": "2025-12-17"}
+  ],
+  "primary_model": "t1_target",
+  "comparison_model": "t5_target",
+  "primary_statistics": "两个模型一律按次日尾盘评价：完整自身、相似股差、共同信号日模型差、年度周块区间；四半年、胜率、盈亏比及亏损尾部",
+  "unknown_policy": "模型训练负惩罚只是学习情景；测试的排队或终值未知不记满亏、不补零、不删样本",
+  "new_2026_holding_prices_allowed": false,
+  "independent_holdout_claim": false
+}
