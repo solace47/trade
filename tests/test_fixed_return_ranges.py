@@ -46,3 +46,22 @@ def test_pair_bounds_use_opposite_control_endpoint_and_preserve_unmatched_model(
     assert paired.lower.iloc[0] == pytest.approx(-.01)
     assert paired.upper.iloc[0] == pytest.approx(.06)
     assert len(frame) == 3
+
+
+def test_historical_fees_use_each_execution_date_across_cutovers():
+    from trade_research.fixed_return_ranges import dated_economic_return
+    # 20,000 buy / 21,000 sale: commission 6 / 6.3; each transfer and sale tax
+    # are determined by that leg's date, even when the holding crosses a reform.
+    values=dated_economic_return([2000]*3,[2000]*3,[10.]*3,[10.5]*3,[0.]*3,[0.]*3,
+        ['2022-04-28','2023-08-24','2023-08-25'],['2022-04-29','2023-08-25','2023-08-28'])
+    np.testing.assert_allclose(values,[(21000-6.3-.21-21)/(20000+6+.4)-1,
+        (21000-6.3-.21-21)/(20000+6+.2)-1,(21000-6.3-.21-10.5)/(20000+6+.2)-1],atol=1e-14,rtol=0)
+
+
+def test_dated_formula_preserves_recent_economics_and_rejects_same_day():
+    from trade_research.fixed_return_ranges import dated_economic_return
+    original=economic_return(1000,1200,10.,9.,100.,20.)
+    current=dated_economic_return(1000,1200,10.,9.,100.,20.,'2024-01-02','2024-01-09')
+    assert current==original
+    with pytest.raises(ValueError):
+        dated_economic_return(1000,1000,10.,10.,0.,0.,'2023-01-03','2023-01-03')

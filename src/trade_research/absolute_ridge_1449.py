@@ -17,22 +17,28 @@ OUTPUT = ROOT / "absolute_ridge_1449"
 
 
 def feature_frame(connection: duckdb.DuckDBPyConnection,
-                  main_only: bool = True) -> pd.DataFrame:
+                  main_only: bool = True, *, prefix_pattern: str | None = None,
+                  date_ranges: tuple[tuple[str, str], ...] | None = None) -> pd.DataFrame:
     """Keep legacy feature names while replacing each live value with 14:49 data."""
     if not main_only:
         raise ValueError("The predeclared cutoff sensitivity is main-board only")
-    connection.read_parquet(str(ROOT / "minute_prefix_1449" / "*" / "*.parquet")
+    ranges = date_ranges or (("2024-01-01", "2024-12-17"), ("2025-01-01", "2025-12-17"))
+    if any(not "2022-01-01" <= first <= last <= "2025-12-31" for first, last in ranges):
+        raise ValueError("Feature dates must stay within the explicit 2022–2025 research scope")
+    conditions = " OR ".join("p.date BETWEEN ? AND ?" for _ in ranges)
+    parameters = [value for interval in ranges for value in interval]
+    connection.read_parquet(prefix_pattern or str(ROOT / "minute_prefix_1449" / "*" / "*.parquet")
                             ).create_view("prefix_1449")
     connection.read_parquet(str(ROOT / "market_snapshots_ci" / "*.parquet")
                             ).create_view("snapshots")
     missing_amount_eligible = connection.execute("""
         SELECT COUNT(*) FROM prefix_1449 p ANTI JOIN snapshots s USING (date, code)
-        WHERE p.date BETWEEN '2024-01-01' AND '2025-12-17'
+        WHERE p.date BETWEEN ? AND ?
           AND p.amount_1449 BETWEEN 100000000 AND 1000000000
-    """).fetchone()[0]
+    """, [min(first for first, _ in ranges), max(last for _, last in ranges)]).fetchone()[0]
     if missing_amount_eligible:
         raise ValueError("A 14:49 amount-eligible stock-day lacks a daily-state join")
-    frame = connection.execute("""
+    frame = connection.execute(f"""
         SELECT p.date, p.code, p.price_1449, p.amount_1449,
                p.volume_1449, p.high_1449, p.low_1449,
                p.volume_last29, p.amount_last29, p.price_1420,
@@ -40,15 +46,14 @@ def feature_frame(connection: duckdb.DuckDBPyConnection,
                s.return5_prior_adjusted, s.return20_prior_adjusted,
                s.ma20_prior_adjusted
         FROM prefix_1449 p JOIN snapshots s USING (date, code)
-        WHERE ((p.date BETWEEN '2024-01-01' AND '2024-12-17')
-            OR (p.date BETWEEN '2025-01-01' AND '2025-12-17'))
+        WHERE ({conditions})
           AND s.isST = 0 AND s.listing_age_sessions >= 20
           AND NOT s.reference_gap AND NOT p.quote_outside_traded_range
           AND p.amount_1449 BETWEEN 100000000 AND 1000000000
           AND p.price_1449 > 0 AND p.price_1420 > 0
           AND p.volume_1449 > 0 AND p.volume_last29 > 0
           AND s.preclose > 0 AND s.volume5_prior > 0
-    """).df()
+    """, parameters).df()
     if ((frame.volume_last29 > frame.volume_1449).any()
             or (frame.amount_last29 > frame.amount_1449 + .01).any()):
         raise ValueError("A last-29-minute aggregate exceeds its 14:49 prefix")

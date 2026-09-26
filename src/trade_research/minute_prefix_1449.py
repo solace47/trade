@@ -20,8 +20,9 @@ MIN_SNAPSHOT_COVERAGE = 0.999
 
 
 def build_year(minute_paths: list[str], year: int, output: Path,
-               threads: int = 4) -> None:
-    if year not in (DEVELOPMENT_YEAR, VALIDATION_YEAR):
+               threads: int = 4, *, historical_training: bool = False) -> None:
+    if year not in (DEVELOPMENT_YEAR, VALIDATION_YEAR) and not (
+            historical_training and year in (2022, 2023)):
         raise ValueError("Prefix inputs are restricted to 2024–2025")
     if not minute_paths or threads < 1:
         raise ValueError("Minute sources and a positive thread count are required")

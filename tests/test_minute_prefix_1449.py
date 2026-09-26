@@ -55,3 +55,13 @@ def test_complete_prefix_excludes_later_bar_and_incomplete_day(tmp_path: Path) -
 def test_prior_year_cannot_be_a_research_period(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="2024–2025"):
         build_year([str(tmp_path / "unused.parquet")], 2023, tmp_path / "out.parquet")
+
+
+def test_older_prefix_requires_explicit_training_scope(tmp_path: Path) -> None:
+    source=tmp_path/'source.parquet'
+    pd.concat([_day('2022-01-04'),_day('2023-01-03'),_day('2024-01-02')],ignore_index=True).to_parquet(source)
+    output=tmp_path/'older.parquet'
+    build_year([str(source)],2022,output,threads=1,historical_training=True)
+    assert pd.read_parquet(output).date.tolist()==['2022-01-04']
+    with pytest.raises(ValueError):
+        build_year([str(source)],2026,output,historical_training=True)

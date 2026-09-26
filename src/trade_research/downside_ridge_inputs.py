@@ -13,7 +13,7 @@ import pandas as pd
 
 from .absolute_ridge_1449_target import TRAINING_TRADES
 from .corporate_cash import save_json, sha
-from .fixed_return_ranges import economic_return
+from .fixed_return_ranges import dated_economic_return
 from .market_study import _quality_keys
 from .reference_gain_eval import MINUTES
 from .shallow_tree_1449 import ROOT as PREVIOUS
@@ -129,8 +129,8 @@ def training_scores(trades: pd.DataFrame, windows: pd.DataFrame, *,
     trades["downside_score"] = -1.
     trades.loc[not_bought, "downside_score"] = 0.
     part = trades.loc[known]
-    values = economic_return(part.shares, part.sold_shares, part.entry_price/1.0005*1.0015,
-        part.exit_price/.9995*.9985, part.dividend_gross, part.dividend_tax)
+    values = dated_economic_return(part.shares, part.sold_shares, part.entry_price/1.0005*1.0015,
+        part.exit_price/.9995*.9985, part.dividend_gross, part.dividend_tax, part.date, part.exit_date)
     trades["economic_scenario15"] = np.nan
     trades.loc[known, "economic_scenario15"] = values
     trades.loc[known, "downside_score"] = values

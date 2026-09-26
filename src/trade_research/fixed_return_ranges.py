@@ -11,6 +11,7 @@ import pandas as pd
 
 from .corporate_cash import save_json, sha
 from .fill_accounting import KEY
+from .hf_outcomes import Assumptions, _fees
 from .fixed_execution_quality import ROOT as QUALITY
 from .orderbook_funding import SOURCE
 from .quote_precision import quote_cents
@@ -53,6 +54,29 @@ def economic_return(buy_quantity, sell_quantity, buy_price, sell_price, dividend
     cost = buy_value + np.maximum(5., buy_value * .0003) + buy_value * .00001
     proceeds = sell_value - np.maximum(5., sell_value * .0003) - sell_value * (.00001 + .0005)
     return (proceeds + dividend - tax) / cost - 1
+
+
+def dated_economic_return(buy_quantity, sell_quantity, buy_price, sell_price,
+                          dividend_gross, dividend_tax, buy_dates, sell_dates):
+    """Same cash model with the existing execution engine's historical fee dates."""
+    # Reuse strict validation, keeping every old caller's 2024--2025 formula intact.
+    modern = economic_return(buy_quantity, sell_quantity, buy_price, sell_price,
+                             dividend_gross, dividend_tax)
+    qb, qs, pb, ps, dividend, tax, bought, sold = np.broadcast_arrays(
+        buy_quantity, sell_quantity, buy_price, sell_price, dividend_gross,
+        dividend_tax, np.asarray(buy_dates, dtype=str), np.asarray(sell_dates, dtype=str))
+    if any(len(day) != 10 or not "2022-01-01" <= day <= "2025-12-31"
+           for day in np.concatenate([bought.ravel(), sold.ravel()])) or np.any(sold <= bought):
+        raise ValueError("Historical economic returns require ordered supported execution dates")
+    if np.all(bought >= "2024-01-01"):
+        return modern
+    terms = Assumptions()
+    buy_value, sell_value = qb.astype(float)*pb.astype(float), qs.astype(float)*ps.astype(float)
+    buy_fees = np.asarray([_fees(float(value), "buy", terms, str(day))
+                          for value, day in zip(buy_value.ravel(), bought.ravel())]).reshape(buy_value.shape)
+    sell_fees = np.asarray([_fees(float(value), "sell", terms, str(day))
+                           for value, day in zip(sell_value.ravel(), sold.ravel())]).reshape(sell_value.shape)
+    return (sell_value-sell_fees+dividend.astype(float)-tax.astype(float))/(buy_value+buy_fees)-1
 
 
 def corner_return_range(buy_quantity, sell_quantity, buy_low, buy_high, sell_low, sell_high,
