@@ -35,6 +35,9 @@ for item in report["common_date_t1_target_minus_t5_target"]:
         continue
     assert abs(values.mean()-item["daily_mean"]) < 1e-12
     weeks = pd.to_datetime(values.index).to_period("W-SUN")
+    if weeks.nunique() < 2:
+        assert item["weekly_interval"] is None
+        continue
     blocks = [g.to_numpy() for _, g in values.groupby(weeks)]
     choices = np.random.default_rng(20260926).integers(len(blocks), size=(10000, len(blocks)))
     weights = np.stack([np.bincount(x, minlength=len(blocks)) for x in choices])

@@ -122,7 +122,7 @@ for item in comparison["metrics"]:
     daily = part.groupby("date").value.agg(lambda x: np.nan if x.isna().any() else sum(x)/len(x))
     assert len(daily) == item["signal_dates"] and int(daily.isna().sum()) == item["unknown_dates"]
     verify_number(np.nan if daily.isna().any() or daily.empty else daily.mean(), item["daily_mean"])
-    if daily.empty or daily.isna().any():
+    if daily.empty or daily.isna().any() or pd.to_datetime(daily.index).to_period("W-SUN").nunique() < 2:
         assert item["weekly_interval"] is None
     else:
         assert np.max(abs(bootstrap(daily)-item["weekly_interval"])) < 1e-12
@@ -135,8 +135,10 @@ for item in comparison["trade_distributions"]:
         assert item["win_rate"] is None
         continue
     positive, negative = values[values > 0], values[values < 0]
-    expected = {"win_rate": len(positive)/len(values), "mean_win": positive.mean(), "mean_loss": negative.mean(),
-        "payoff_ratio": positive.mean()/-negative.mean(), "trade_mean": values.mean(),
+    mean_win = positive.mean() if len(positive) else np.nan
+    mean_loss = negative.mean() if len(negative) else np.nan
+    expected = {"win_rate": len(positive)/len(values), "mean_win": mean_win, "mean_loss": mean_loss,
+        "payoff_ratio": mean_win/-mean_loss, "trade_mean": values.mean(),
         "worst_trade_return": values[0], "worst_five_percent_mean": values[:(len(values)+19)//20].mean()}
     for key, value in expected.items():
         verify_number(value, item[key])

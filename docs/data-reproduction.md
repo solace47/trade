@@ -9,6 +9,25 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 次日训练目标与同风险五日目标对照
+
+固定协议为`config/short_horizon_target_protocol.json`。直接复用既有18列输入和T+5训练原始事实，仅重算T+1训练成交；逐股进度可续传，完成的标签与名单不可覆盖。两种目标最后都按T+1尾盘评价。
+
+```sh
+PYTHONPATH=src .venv/bin/python -m trade_research.short_horizon_labels raw
+PYTHONPATH=src .venv/bin/python -m trade_research.short_horizon_labels assemble
+PYTHONPATH=src .venv/bin/python scripts/verify_short_horizon_labels.py
+PYTHONPATH=src .venv/bin/python -m trade_research.short_horizon_target
+PYTHONPATH=src .venv/bin/python scripts/verify_short_horizon_inputs.py
+PYTHONPATH=src .venv/bin/python -m trade_research.short_horizon_target_eval execute
+PYTHONPATH=src .venv/bin/python -m trade_research.short_horizon_target_eval compare
+PYTHONPATH=src .venv/bin/python scripts/verify_lhb_institutional_results.py --root data/research/short_horizon_target/t1_target
+PYTHONPATH=src .venv/bin/python scripts/verify_lhb_institutional_results.py --root data/research/short_horizon_target/t5_target
+PYTHONPATH=src .venv/bin/python scripts/verify_short_horizon_comparison.py
+```
+
+最后三步独立复核同样的主板尾盘费用、价格范围、排队标记和统计；不足两周的周块区间为未知，训练惩罚不替代测试未知收益。
+
 ## 机构席位净买入的短线接续
 
 复用上交所历史原档，单日多原因仅金额一致时合并；先核准14:49输入与完整名单，再以同一买单比较T+1／T+3尾盘退出。结果及未知边界见[输入记录](input-gates.md#龙虎榜机构席位净买入的短线接续)。原始缓存和源哈希必须一致，已冻结名单不可覆盖。

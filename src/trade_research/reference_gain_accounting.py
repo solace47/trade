@@ -27,6 +27,8 @@ def weekly_interval(daily: pd.Series) -> list[float] | None:
     x = daily.to_frame("value")
     x["week"] = pd.to_datetime(x.index).to_period("W-SUN").astype(str)
     blocks = x.groupby("week").value.agg(["sum", "count"])
+    if len(blocks) < 2:
+        return None  # One observed week cannot estimate between-week uncertainty.
     rng = np.random.default_rng(20260926)
     indices = rng.integers(len(blocks), size=(10000, len(blocks)))
     means = blocks["sum"].to_numpy()[indices].sum(axis=1) / blocks["count"].to_numpy()[indices].sum(axis=1)

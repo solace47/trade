@@ -3,6 +3,7 @@ import pytest
 
 from trade_research.short_horizon_labels import align_risk_scores
 from trade_research.short_horizon_target import training_fold
+from trade_research.reference_gain_accounting import weekly_interval
 
 
 def test_unknown_queue_cannot_provide_a_positive_training_target():
@@ -34,3 +35,9 @@ def test_a_training_dividend_cannot_cross_the_fit_boundary():
     fold["test_first"] = calendar[10]
     with pytest.raises(ValueError, match="overlaps"):
         training_fold(features, labels, fold, calendar, catalog)
+
+
+def test_a_single_week_does_not_produce_a_zero_width_confidence_interval():
+    assert weekly_interval(pd.Series([.03], index=["2024-03-04"])) is None
+    assert weekly_interval(pd.Series([.03, -.02], index=["2024-03-04", "2024-03-05"])) is None
+    assert weekly_interval(pd.Series([.03, -.02], index=["2024-03-04", "2024-03-11"])) is not None
