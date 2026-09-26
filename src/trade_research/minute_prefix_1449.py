@@ -70,6 +70,10 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                                AS amount_1446_1449,
                            SUM(volume) AS volume_1449,
                            SUM(turnover) AS amount_1449,
+                           SUM(volume) FILTER (WHERE label BETWEEN '1421' AND '1449')
+                               AS volume_last29,
+                           SUM(turnover) FILTER (WHERE label BETWEEN '1421' AND '1449')
+                               AS amount_last29,
                            MAX(high) FILTER (WHERE volume > 0) AS high_1449,
                            MIN(low) FILTER (WHERE volume > 0) AS low_1449
                     FROM prefix GROUP BY date, code
@@ -77,7 +81,8 @@ def build_year(minute_paths: list[str], year: int, output: Path,
                 SELECT date, code, price_1420, price_1435, price_1449,
                        amount_1446_1449 / NULLIF(volume_1446_1449, 0)
                            AS vwap_1446_1449,
-                       volume_1449, amount_1449, high_1449, low_1449,
+                       volume_1449, amount_1449, volume_last29, amount_last29,
+                       high_1449, low_1449,
                        price_1449 / price_1420 - 1 AS return_last29,
                        price_1449 / price_1435 - 1 AS return_last14,
                        price_1449 > high_1449 + 0.005
