@@ -87,6 +87,10 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 固定买入名单的每日条件退出依次运行 `trade_research.tail_barrier_exit freeze`、`reprice`、`summarize`，均使用前述模块命令前缀。第一步只固定已有买入和未来各持仓日的 14:49 顺序决策，第二步逐股复现原 T+5 并按固定触发日重算卖出，原第十日以内与续查分别保存。公共核算文件按每笔实际计划退出日分组只是诊断，完整策略比较以 `tail_barrier_exit/policy_report.json` 为准，跨全部计划持有期保留同一分母。第三步报告目录经济情景、同笔增量、持有时长和逐笔亏损尾部；未知收益不补零，2026 年不用。
 
+撤销风险警示研究的状态、目录和 70 份原件保存在 `risk_removal_1449/`：`state_transitions.parquet` 仅由历史实际交易行的 `isST` 前后变化生成；`notice_rows_raw.json` 是 2024／2025 年“撤销”“退市整理”四个完整分页查询，按代码和前 28 个自然日公告连接状态。`formal_source_manifest.json` 锁定原件与 pdfplumber 文本指纹，旁置 pypdf 独立文本；例外只按 `config/risk_removal_source_reviews.json` 的精确原件使用。两种提取需对生效日期、普通简称及 10% 条款给出一致结果。
+
+名单生成入口为 `PYTHONPATH=src .venv/bin/python -m trade_research.risk_removal_1449`，已存在成交后拒绝覆盖。固定名单提交 `e8fb34a`、SHA `ba95f6756abc9b4f1c99d8fc613e51db9fffe43130cd26525cf1d133eb35a924`；按同指纹调用 `reference_gain_eval.reprice`，再调用 `shallow_tree_continuation.continue_model` 保存 `continued/`，以及 `reference_gain_accounting.evaluate` 计算固定比例成本。最后运行 `trade_research.risk_removal_eval`，逐笔按原始均价加减 `max(价格×基点,0.005)`，重算佣金最低值、过户费、卖出印花税和分配。`tick_report.json` 是本项主终点，原 `known_return*` 与目录账本全部保留。独立输入与经济核算脚本和报告也保存在本地目录；它们复现状态、选择、贪心配对、实际持有年度目录覆盖及原始窗口，不把未知当零。
+
 ## 原始分钟复价与验证
 
 季度更新对照依次运行 `trade_research.rolling_ridge_1449 prepare` 和 `freeze`。2024 年训练标签直接核对复用，新增 2025 年标签只读至 09-30；六个季度分别检查最晚可能退出及实际退出早于拟合时点。`rolling_ridge_1449/static/` 复制已经固定的静态账本，只有 `rolling/` 新名单调用公共原始分钟复价，名单提交为 `44dde7d`。之后调用 `shallow_tree_eval.summarize(path, model_names=("static","rolling"), rule_commit="681ad90", list_commit="44dde7d")`；超期追踪同样另存 `continued/`，静态续查账本复用原档。核心方法和失败结论见[季度对照](input-gates.md#固定下行情景评分的季度更新对照)。
