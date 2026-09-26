@@ -85,6 +85,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 用户授权后的除息经济探索先运行 `trade_research.cash_ex_economics`，核准既有原件指纹、实际现金与参考价，冻结原 340 个候选及 283 个对照。然后分别调用 `reference_gain_eval.reprice(Path("data/research/cash_ex_economics") / str(n), expected_signal_sha="f49e816930f0a446edbad1b674576dcdbaac0309c49fa8fb2c1c9a2bcf1cd7b7", rule_commit="05998b5", notional=n)`，其中 `n` 为 20000、100000；使用 Python 入口时导入 `Path` 及对应模块。最后调用 `shallow_tree_eval.summarize(Path("data/research/cash_ex_economics"), model_names=("20000", "100000"), rule_commit="91a07ea", list_commit="05998b5")`。这里两个名称表示订单金额，不是机器学习模型。两档均无剩余未退出持仓，无需续查；当前除息不计给新买家，持有期后续分配单独核算。完整结果与限制见[经济探索](input-gates.md#已核准除息事件保留原名单的经济探索)。
 
+固定买入名单的每日条件退出依次运行 `trade_research.tail_barrier_exit freeze`、`reprice`、`summarize`，均使用前述模块命令前缀。第一步只固定已有买入和未来各持仓日的 14:49 顺序决策，第二步逐股复现原 T+5 并按固定触发日重算卖出，原第十日以内与续查分别保存。公共核算文件按每笔实际计划退出日分组只是诊断，完整策略比较以 `tail_barrier_exit/policy_report.json` 为准，跨全部计划持有期保留同一分母。第三步报告目录经济情景、同笔增量、持有时长和逐笔亏损尾部；未知收益不补零，2026 年不用。
+
 ## 原始分钟复价与验证
 
 季度更新对照依次运行 `trade_research.rolling_ridge_1449 prepare` 和 `freeze`。2024 年训练标签直接核对复用，新增 2025 年标签只读至 09-30；六个季度分别检查最晚可能退出及实际退出早于拟合时点。`rolling_ridge_1449/static/` 复制已经固定的静态账本，只有 `rolling/` 新名单调用公共原始分钟复价，名单提交为 `44dde7d`。之后调用 `shallow_tree_eval.summarize(path, model_names=("static","rolling"), rule_commit="681ad90", list_commit="44dde7d")`；超期追踪同样另存 `continued/`，静态续查账本复用原档。核心方法和失败结论见[季度对照](input-gates.md#固定下行情景评分的季度更新对照)。
