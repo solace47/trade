@@ -91,6 +91,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 名单生成入口为 `PYTHONPATH=src .venv/bin/python -m trade_research.risk_removal_1449`，已存在成交后拒绝覆盖。固定名单提交 `e8fb34a`、SHA `ba95f6756abc9b4f1c99d8fc613e51db9fffe43130cd26525cf1d133eb35a924`；按同指纹调用 `reference_gain_eval.reprice`，再调用 `shallow_tree_continuation.continue_model` 保存 `continued/`，以及 `reference_gain_accounting.evaluate` 计算固定比例成本。最后运行 `trade_research.risk_removal_eval`，逐笔按原始均价加减 `max(价格×基点,0.005)`，重算佣金最低值、过户费、卖出印花税和分配。`tick_report.json` 是本项主终点，原 `known_return*` 与目录账本全部保留。独立输入与经济核算脚本和报告也保存在本地目录；它们复现状态、选择、贪心配对、实际持有年度目录覆盖及原始窗口，不把未知当零。
 
+同行坚挺下个股回落的接续入口为 `PYTHONPATH=src .venv/bin/python -m trade_research.sector_resilience_1449`，保留旧 `late_sector_pressure/`；新输出在 `sector_resilience_1449/`。完整同行池及候选条件在 `peers.parquet`／`features.parquet`，两个基准都扣除自身；历史行业和已公开退市公告按时点连接。名单提交 `2b83c29`、SHA `8b1b74f224ae1a88a47af7ea509cfc862107420d1fbecec28bd3a2f93a2f58c2`。随后按相同公共复价、续查、目录核算流程，并将新 `continued/` 路径传给 `risk_removal_eval.evaluate`，复用逐股成本下限及完整分母计算。该函数虽以最初事件命名，公式不依赖摘帽身份；候选定义仍由各自输入程序决定。`tick_report.json` 保存本项主结果，20 条分钟来源疑问不改变原实际未知字段。
+
 ## 原始分钟复价与验证
 
 季度更新对照依次运行 `trade_research.rolling_ridge_1449 prepare` 和 `freeze`。2024 年训练标签直接核对复用，新增 2025 年标签只读至 09-30；六个季度分别检查最晚可能退出及实际退出早于拟合时点。`rolling_ridge_1449/static/` 复制已经固定的静态账本，只有 `rolling/` 新名单调用公共原始分钟复价，名单提交为 `44dde7d`。之后调用 `shallow_tree_eval.summarize(path, model_names=("static","rolling"), rule_commit="681ad90", list_commit="44dde7d")`；超期追踪同样另存 `continued/`，静态续查账本复用原档。核心方法和失败结论见[季度对照](input-gates.md#固定下行情景评分的季度更新对照)。
