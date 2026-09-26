@@ -58,7 +58,7 @@ for code,part in sample.groupby('code',sort=True):
         ratio=np.divide(amount,v,out=np.zeros(len(v)),where=v>0)
         valid=(np.isfinite(values).all(axis=1)&(values[:,:4].min(axis=1)>0)&(h+.0001>=np.maximum.reduce([o,l,close]))
             &(l-.0001<=np.minimum(o,close))&(np.abs(close-np.round(close,2))<=.0001)&(v>=0)&(amount>=0)
-            &((v==0)==(amount==0))&((v==0)|((ratio>=l-.0101)&(ratio<=h+.0101)))
+            &((v==0)==(amount==0))&((v==0)|((ratio>=l-.0101)&(ratio<=h+.0101))))
         valid &= (p.timestamp==p.timestamp.dt.floor('min')).to_numpy()
         quality=len(p)==229 and len(np.unique(minute))==229 and bool(valid.all())
         assert row.bars==len(p) and row.labels==len(np.unique(minute)) and row.valid_bars==bool(valid.all())
