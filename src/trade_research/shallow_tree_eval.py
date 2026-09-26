@@ -17,11 +17,12 @@ def daily_returns(frame: pd.DataFrame, column: str) -> pd.Series:
         lambda values: values.mean() if values.notna().all() else float("nan"))
 
 
-def summarize(output: Path = ROOT) -> dict:
+def summarize(output: Path = ROOT, *, model_names: tuple[str, str] = ("ridge", "tree"),
+              rule_commit: str = "491a012", list_commit: str = "4f8bb7c") -> dict:
     inputs = json.loads((output / "input_report.json").read_text())
     models, own_annual, comparisons, terminal_stress = {}, [], [], []
     economic = {}
-    for name in ("ridge", "tree"):
+    for name in model_names:
         folder = output / name
         frozen = inputs["models"][name]
         if sha(folder / "signals.parquet") != frozen["signals_sha256"]:
@@ -54,7 +55,7 @@ def summarize(output: Path = ROOT) -> dict:
             series = {name: daily_returns(rows.loc[rows.horizon.eq(horizon)],
                 f"catalog_scenario_return{slip}") for name, rows in economic.items()}
             together = pd.concat(series, axis=1, join="inner")
-            together["difference"] = together.tree - together.ridge
+            together["difference"] = together[model_names[1]] - together[model_names[0]]
             together["half"] = together.index.str[:4] + together.index.map(
                 lambda date: "H1" if date[5:7] <= "06" else "H2")
             groups = list(together.groupby("half")) + list(together.groupby(together.index.str[:4]))
@@ -62,9 +63,9 @@ def summarize(output: Path = ROOT) -> dict:
                 differences = frame.difference
                 comparisons.append({"period": period, "horizon": horizon, "slip": slip,
                     "common_dates": len(frame),
-                    "tree_minus_ridge": None if differences.isna().any() else float(differences.mean()),
+                    f"{model_names[1]}_minus_{model_names[0]}": None if differences.isna().any() else float(differences.mean()),
                     "weekly_interval": weekly_interval(differences)})
-    result = {"rule_commit": "491a012", "list_commit": "4f8bb7c",
+    result = {"rule_commit": rule_commit, "list_commit": list_commit,
         "interpretation": "signal_day_means_conditional_on_catalogue_and_recorded_fills_not_portfolio_returns",
         "models": models, "own_annual": own_annual, "same_date_comparisons": comparisons,
         "accounting_scope": "continued_beyond_original_five_day_exit_delay" if output.name == "continued" else "original_five_day_exit_delay",
