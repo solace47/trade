@@ -26,16 +26,20 @@ RULE_COMMIT = "a2c86cf"
 SUSPENSION_SEMANTICS_COMMIT = "e35421c"
 
 
-def history_states(history: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
+def history_states(history: pd.DataFrame, calendar: list[str], *,
+                   history_start: str = "2024-01-01",
+                   reset_after_unknown: bool = False) -> pd.DataFrame:
     """Record end-of-day states; every signal must join a strictly earlier day.
 
     N is the known, unnormalized price contribution. I is the contribution
-    from an initial reference equal to the first 2024 traded close. The three
+    from an initial reference equal to the first observed traded close. The three
     hypothetical references are N + k*I, k in {0.5, 1, 2}.
     """
     if history.duplicated(["date", "code"]).any():
         raise ValueError("Duplicate history date/code")
-    if not history.date.between("2024-01-01", "2025-12-31").all():
+    if not "2019-01-01" <= history_start <= "2024-01-01":
+        raise ValueError("Unsupported history start")
+    if not history.date.between(history_start, "2025-12-31").all():
         raise ValueError("History outside the permitted years")
     positions = {date: i for i, date in enumerate(calendar)}
     rows = []
@@ -46,6 +50,7 @@ def history_states(history: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
         first_date = None
         valid = True
         traded_count = price_changes = float_changes = missing_sessions = invalid_rows = 0
+        resets = 0
         for row in group.itertuples(index=False):
             position = positions.get(row.date)
             if position is None:
@@ -76,6 +81,14 @@ def history_states(history: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
             if not good:
                 invalid_rows += 1
                 valid = False
+            elif not valid and reset_after_unknown:
+                # A fresh sensitivity scenario starts after an unknown segment;
+                # it does not infer or backfill the missing turnover.
+                n, initial, mass = 0.0, np.nan, 1.0
+                previous_close = previous_float = np.nan
+                first_date = None
+                valid = True
+                resets += 1
             if first_date is None:
                 first_date = row.date
                 initial = float(row.close) if good else np.nan
@@ -104,6 +117,8 @@ def history_states(history: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
                 "source_close": row.close, "price_reference_changes": price_changes,
                 "implied_float_changes_gt2pct": float_changes,
                 "missing_history_sessions": missing_sessions, "invalid_history_rows": invalid_rows})
+            if reset_after_unknown:
+                rows[-1]["history_resets"] = resets
     return pd.DataFrame(rows)
 
 

@@ -51,6 +51,43 @@ def test_full_turnover_removes_initialization():
     assert not out.gain_sign_varies
 
 
+def test_earlier_history_requires_explicit_start_and_preserves_weights():
+    h = history()
+    h.loc[0, "date"] = "2023-12-29"
+    with pytest.raises(ValueError, match="permitted years"):
+        history_states(h, h.date.tolist())
+    s = history_states(h, h.date.tolist(), history_start="2019-01-01").iloc[-1]
+    assert s.initial_mass == pytest.approx(.9 * .8 * .75)
+    assert s.first_history_date == "2023-12-29"
+
+
+def test_unknown_history_restart_is_explicit_and_keeps_missing_count():
+    h = history()
+    calendar = h.date.tolist()
+    gap = h.iloc[[0, 2]].copy()
+    strict = history_states(gap, calendar).iloc[-1]
+    assert not strict.history_valid
+    restart = history_states(gap, calendar, reset_after_unknown=True).iloc[-1]
+    assert restart.history_valid
+    assert restart.history_resets == 1
+    assert restart.missing_history_sessions == 1
+    assert restart.first_history_date == "2024-01-04"
+    assert restart.initial_mass == .75
+    assert restart.known_contribution == pytest.approx(.25 * 6.6)
+    assert restart.initial_contribution == pytest.approx(.75 * 6.6)
+
+
+def test_invalid_row_stays_unknown_until_next_valid_day():
+    h = history()
+    h.loc[1, "turn"] = np.nan
+    s = history_states(h, h.date.tolist(), reset_after_unknown=True)
+    assert not s.iloc[1].history_valid
+    assert np.isnan(s.iloc[1].known_contribution)
+    assert s.iloc[2].history_valid
+    assert s.iloc[2].history_resets == 1
+    assert s.iloc[2].invalid_history_rows == 1
+
+
 def test_unknown_prior_transition_is_not_filled_or_clipped():
     for bad in (np.nan, -1., 101., 0.):
         h = history()
