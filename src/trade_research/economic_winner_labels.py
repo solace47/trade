@@ -1,5 +1,6 @@
 """Strict T1 hypothetical cash labels with explicit no-trade and unknown states."""
 import json
+from pathlib import Path
 
 import duckdb
 import numpy as np
@@ -16,7 +17,7 @@ def evaluate():
     cat=json.loads((ROOT/'catalog/coverage_report.json').read_text())
     assert cat['complete'] and raw['input_manifest_sha256']==sha(ROOT/'input_manifest.json')
     assert sha(BASE)==manifest['base_sha256'] and sha(LABELS)==manifest['labels_sha256'] and sha(PROTOCOL)==manifest['protocol_sha256']
-    for path,digest in raw['parts_sha256'].items():assert sha(__import__('pathlib').Path(path))==digest
+    for path,digest in raw['parts_sha256'].items():assert sha(Path(path))==digest
     for name in ['events','coverage']:assert sha(ROOT/'catalog'/('combined_'+name+'.parquet'))==cat[name+'_sha256']
     c=duckdb.connect();c.execute('SET threads=4');c.execute("SET memory_limit='6GB'")
     c.read_parquet(list(raw['parts_sha256'])).create_view('raw')

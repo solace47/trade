@@ -7,9 +7,21 @@ import time
 
 import pandas as pd
 
-from trade_research.cash_dividend_catalog import checked_response,reviewed_duplicates,assemble,jobs_for
+from trade_research.cash_dividend_catalog import checked_response,reviewed_duplicates,action_type,jobs_for
 from trade_research.corporate_cash import save_json,sha
 from trade_research.economic_winner import ROOT,OLD_EVENTS,OLD_COVERAGE
+
+
+def occurrence_records(records,code,year,review):
+    """Retain conflicting cash terms: this study uses the union of event dates only."""
+    if review:return checked_response(records,code,year,review)
+    if not isinstance(records,list):raise ValueError('A complete response must be a list')
+    for row in records:
+        checked_response([row],code,year)
+        for field in ['dividRegistDate','dividPayDate','dividStockMarketDate']:
+            date=row.get(field,'')
+            if date and pd.Timestamp(date).strftime('%Y-%m-%d')!=date:raise ValueError('Invalid event date')
+    return records
 
 
 def worker(args):
@@ -23,10 +35,12 @@ def worker(args):
             path=cache/(code+'_'+year+'.json');review=reviews.get((code,year))
             try:
                 if path.exists():
-                    checked_response(json.loads(path.read_text()),code,year,review);cached+=1
+                    occurrence_records(json.loads(path.read_text()),code,year,review);cached+=1
                 else:
-                    records=_rows(bs.query_dividend_data(code,year=year,yearType='operate')).to_dict('records')
-                    try:records=checked_response(records,code,year,review)
+                    conflict_path=folder/'source_conflicts'/(code+'_'+year+'_raw.json')
+                    records=(json.loads(conflict_path.read_text()) if conflict_path.exists() else
+                        _rows(bs.query_dividend_data(code,year=year,yearType='operate')).to_dict('records'))
+                    try:records=occurrence_records(records,code,year,review)
                     except ValueError:
                         conflicts=folder/'source_conflicts';conflicts.mkdir(exist_ok=True)
                         save_json(conflicts/(code+'_'+year+'_raw.json'),records);raise
@@ -56,10 +70,25 @@ def main():
     save_json(folder/'parallel_fetch_report.json',{'workers':4,'complete':complete,'results':results,
         'jobs_sha256':sha(folder/'jobs.parquet'),'new_2026_prices_read':False})
     if not complete:raise RuntimeError('Some frozen catalog queries remain incomplete; do not label them as no events')
-    assemble(folder)
+    records=[];queries=[];duplicates=[];hashes={}
+    for code,year in pairs:
+        path=folder/'vendor'/(code+'_'+year+'.json')
+        assert not path.with_suffix('.error.json').exists()
+        rows=occurrence_records(json.loads(path.read_text()),code,year,reviews.get((code,year)))
+        hashes[str(path)]=sha(path);queries.append({'code':code,'year':year,'events':len(rows)})
+        dates=pd.Series([r['dividOperateDate'] for r in rows]).value_counts()
+        for day,n in dates.loc[dates.gt(1)].items():duplicates.append({'code':code,'year':year,'operate_date':day,'records':int(n)})
+        records.extend([dict(r,implementation_year=year,action_type=action_type(r)) for r in rows])
+    new_events=pd.DataFrame(records).sort_values(['code','dividOperateDate'])
+    new_events.to_parquet(folder/'events.parquet',index=False)
+    pd.DataFrame(queries).to_parquet(folder/'query_coverage.parquet',index=False)
+    save_json(folder/'catalog_report.json',{'code_year_queries':len(pairs),'event_rows':len(records),
+        'duplicate_action_dates_retained':duplicates,'sha256':hashes,'events_sha256':sha(folder/'events.parquet'),
+        'method':'date_union_only_all_cash_amount_versions_retained_and_no_event_pnl_assigned',
+        'new_2026_prices_read':False})
     events=pd.concat([pd.read_parquet(OLD_EVENTS),pd.read_parquet(folder/'events.parquet')],ignore_index=True).sort_values(['code','dividOperateDate'])
     coverage=pd.concat([pd.read_parquet(OLD_COVERAGE),pd.read_parquet(folder/'query_coverage.parquet')],ignore_index=True)
-    assert not events.duplicated(['code','dividOperateDate']).any() and not coverage.duplicated(['code','year']).any()
+    assert not coverage.duplicated(['code','year']).any()
     needed=pd.read_parquet(folder/'needed.parquet')
     assert needed.merge(coverage[['code','year']],on=['code','year'],how='left',indicator=True)._merge.eq('both').all()
     events.to_parquet(folder/'combined_events.parquet',index=False);coverage.to_parquet(folder/'combined_coverage.parquet',index=False)
