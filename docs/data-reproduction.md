@@ -140,3 +140,13 @@ PYTHONPATH=src .venv/bin/python -m trade_research.index_rebalance_eval
 ```
 
 已有 `repriced.parquet` 时输入模块拒绝覆盖名单；复核原结果可直接运行汇总模块，不删除冻结产物来重选。`batch_report.json` 同时保存四批主名单、全体合格事件诊断及批次等权结果，未匹配者仍进自身分母。只有四个独立日期，关闭共享核算器的周块区间；不读取 2026 分钟或把目录情景覆盖到已知收益字段。
+
+## 同日相对训练目标
+
+```bash
+PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
+```
+
+该模块先复现 `downside_ridge_1449` 的旧参数与全部旧选择，再固定 `relative_ridge_1449/relative/signals.parquet`；已有新执行时拒绝重写。使用 `reference_gain_eval.reprice` 对新名单指纹复价。把原绝对模型的完整输出复制为新目录的 `absolute/`（不覆盖原件），调用 `shallow_tree_eval.summarize`，参数 `model_names=("absolute","relative")`、`rule_commit="6cc751b"`、`list_commit="897dd9a"`。
+
+初始结果与 `continued/` 结果分开保存；绝对对照的续查直接复用 `downside_ridge_1449/continued/downside/`，新模型使用 `shallow_tree_continuation.continue_model`。本次新模型无超期未退仓；续查目录保留相同名单，以便同口径比较。`comparison_report.json` 包含自身、同日配对、共同日期模型差和年度区间，实际未知不由训练评分替代。
