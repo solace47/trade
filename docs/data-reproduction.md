@@ -158,3 +158,9 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 新模型目录 `long_history_ridge_1449/long/` 的名单 SHA256 为 `c047deb1800c88748753be395264d21dedf42338a9ac70cca2ddbd517425e75d`。按此指纹调用 `reference_gain_eval.reprice`，规则提交 `802cc1e`、2 万元；旧模型完整文件复制为 `recent/`。随后调用 `shallow_tree_eval.summarize(path, model_names=("recent","long"), rule_commit="802cc1e", list_commit="104f868")`。旧对照的续查账本来自 `downside_ridge_1449/continued/downside/`；新模型没有超期未退出持仓，`continue_model` 直接复用完成账本，仍在 `continued/` 保存同口径比较。历史训练及测试收益分别有独立 SQL、原始窗口和冻结名单检查，见各 `independent_*_checks.json`。
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
+
+## 月末跨月持有
+
+先运行 `trade_research.month_turn_1449`，固定 23 个月末及各自提前五交易日的日期和独立选择。2024 年末可跨到 2025 年；2025 年末因需要留出年价格而排除。按 `month_turn_1449/signals.parquet` 指纹调用公共 `reprice`，规则提交 `ef2911a`、名单提交 `6bba4a5`、名义 2 万元。然后执行 `trade_research.month_turn_eval`；它关闭通用按周区间，另按月份与固定五槽位核算，使用连续两个月的循环块区间。
+
+如需统一超期诊断，调用 `continue_model(root, root / "continued")` 并复制 `calendar_schedule.parquet`，再运行 `trade_research.month_turn_eval --output data/research/month_turn_1449/continued`。本次没有超期未退出，未读取额外持仓行情；初始结果保留。两期股票独立按当时输入选择，差值不是同股因果效果，`independent_economic_checks.json` 同时保留独立费用、原始均价、月份均值和抽样区间验证。
