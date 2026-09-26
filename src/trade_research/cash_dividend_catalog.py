@@ -87,14 +87,27 @@ def reviewed_duplicates() -> dict:
         with pdfplumber.open(path) as document:
             primary = re.sub(r"\s+", "", "".join(
                 page.extract_text() or "" for page in document.pages)).replace("Ａ", "A")
-        headline = primary.split("每股分配比例", 1)[1].split("相关日期", 1)[0]
-        if not any(Decimal(value) == Decimal(row["cash_per_share"])
-                   for value in re.findall(r"([0-9]+\.[0-9]+)元", headline)):
-            raise ValueError("Reviewed cash amount is absent from primary headline")
-        dates = [f"{int(d[:4])}/{int(d[5:7])}/{int(d[8:])}" for d in
-                 (row["record_date"], row["action_date"], row["pay_date"])]
-        if f"A股{dates[0]}－{dates[1]}{dates[2]}" not in primary:
-            raise ValueError("Reviewed dates disagree with the primary A-share table")
+        if row["code"].startswith("sh."):
+            headline = primary.split("每股分配比例", 1)[1].split("相关日期", 1)[0]
+            if not any(Decimal(value) == Decimal(row["cash_per_share"])
+                       for value in re.findall(r"([0-9]+\.[0-9]+)元", headline)):
+                raise ValueError("Reviewed cash amount is absent from primary headline")
+            dates = [f"{int(d[:4])}/{int(d[5:7])}/{int(d[8:])}" for d in
+                     (row["record_date"], row["action_date"], row["pay_date"])]
+            if f"A股{dates[0]}－{dates[1]}{dates[2]}" not in primary:
+                raise ValueError("Reviewed dates disagree with the primary A-share table")
+        else:
+            cash10 = Decimal(row["cash_per_share"]) * 10
+            reserve10 = Decimal(row["reserve_per_share"]) * 10
+            if (f"向全体股东每10股派{cash10.normalize():f}元" not in primary
+                    or f"向全体股东每10股转增{reserve10.normalize():f}股" not in primary
+                    or "不送红股" not in primary or Decimal(row["bonus_per_share"]) != 0):
+                raise ValueError("Reviewed Shenzhen distribution disagrees with primary terms")
+            dates = [f"{int(d[:4])}年{int(d[5:7])}月{int(d[8:])}日" for d in
+                     (row["record_date"], row["action_date"], row["pay_date"])]
+            if (f"股权登记日为：{dates[0]}，除权除息日为：{dates[1]}" not in primary
+                    or f"现金红利将于{dates[2]}通过" not in primary):
+                raise ValueError("Reviewed Shenzhen dates disagree with the primary notice")
         if f"/finalpage/{row['notice_date']}/" not in row["source_url"]:
             raise ValueError("Reviewed notice date disagrees with the disclosure URL")
         key = (row["code"], row["year"])
@@ -110,6 +123,17 @@ def record_hash(row: dict) -> str:
 
 
 def apply_review(records: list[dict], review: dict) -> list[dict]:
+    if "replace_record_sha256" in review:
+        group = [r for r in records if r["dividOperateDate"] == review["action_date"]]
+        replacement = review["replacement_record"]
+        if group == [replacement]:
+            return records
+        if sorted(record_hash(r) for r in group) != sorted(review["replace_record_sha256"]):
+            raise ValueError("Replaced distribution differs from the reviewed originals")
+        for field in ("code", "dividOperateDate", "dividRegistDate", "dividPayDate", "dividPlanDate"):
+            if any(r[field] != replacement[field] for r in group):
+                raise ValueError("Replacement must preserve the primary security and dates")
+        return [r for r in records if r["dividOperateDate"] != review["action_date"]] + [replacement]
     if "combine_record_sha256" in review:
         group = [r for r in records if r["dividOperateDate"] == review["action_date"]]
         replacement = review["combined_record"]

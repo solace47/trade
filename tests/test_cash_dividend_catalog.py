@@ -92,3 +92,20 @@ def test_legitimate_same_day_distributions_are_combined_only_with_exact_primary_
     with pytest.raises(ValueError, match="does not equal"):
         checked_response([annual, quarterly], "sh.600001", "2024",
                          [dict(review, combined_record=dict(combined, dividCashPsBeforeTax=".286"))])
+
+
+def test_primary_replacement_keeps_exact_precision_and_rejects_unreviewed_variants():
+    old = event(dividCashPsBeforeTax=".281490", dividReserveToStockPs=".399277",
+                dividPlanDate="2024-05-20", dividRegistDate="2024-05-29", dividPayDate="2024-05-30")
+    newer = dict(old, dividCashPsBeforeTax=".281614", dividReserveToStockPs=".399452")
+    primary = dict(newer, dividCashPsBeforeTax=".2816137", dividReserveToStockPs=".3994521")
+    review = {"code": "sh.600001", "year": "2024", "action_date": "2024-05-30",
+              "notice_date": "2024-05-20", "record_date": "2024-05-29", "pay_date": "2024-05-30",
+              "cash_per_share": ".2816137", "bonus_per_share": "0", "reserve_per_share": ".3994521",
+              "replace_record_sha256": [record_hash(old), record_hash(newer)],
+              "replacement_record": primary}
+    assert checked_response([old, newer], "sh.600001", "2024", [review]) == [primary]
+    assert checked_response([primary], "sh.600001", "2024", [review]) == [primary]
+    assert action_type(primary) == "share_distribution"
+    with pytest.raises(ValueError, match="reviewed originals"):
+        checked_response([newer], "sh.600001", "2024", [review])

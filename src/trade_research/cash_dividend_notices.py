@@ -21,12 +21,19 @@ from .cash_dividend_catalog import ROOT
 from .corporate_cash import API, curl, save_json, sha
 
 
-KEYWORDS = ("权益分派实施公告", "分红派息实施公告", "利润分配实施公告", "分红实施公告", "派息实施公告")
+KEYWORDS = ("权益分派实施公告", "分红派息实施公告", "利润分配实施公告", "分红实施公告", "派息实施公告",
+            "实施公告", "实施的公告", "权益分派公告", "权益分派的公告", "权益分派实施")
 PAGE_SIZE = 30
 MAX_PAGE = 100
 MAINBOARD = re.compile(r"^(?:60|00)\d{4}$")
-TITLE = re.compile(r"(?:权益分派|利润分配|分红|派息).*实施公告(?:[（(].*[）)])?$")
+TITLE = re.compile(
+    r"(?:权益分[派配]|权益派发|利润分[配派]|分红(?:派息)?|派息|股息分派|红利分派|现金红利|资本公积(?:金)?转增股本)"
+    r".*实施(?:方案)?的?公告"
+    r"(?:[（(].*[）)])?(?:\.docx)?(?:V\d+|_\d{4}-\d{2}-\d{2}|\d{4}-\d+)?$"
+    r"|权益分[派配]的?公告$"
+    r"|权益分派实施$")
 REVISION = re.compile(r"更正|修订|补充|已取消|取消|更新|修正")
+NON_IMPLEMENTATION = re.compile(r"提议|拟|推迟|参股公司|不实施")
 
 
 def fetch_page(start: date, end: date, keyword: str, page: int, cache: Path) -> dict:
@@ -52,20 +59,25 @@ def fetch_page(start: date, end: date, keyword: str, page: int, cache: Path) -> 
 
 
 def range_rows(start: date, end: date, keyword: str, cache: Path) -> list[dict]:
+    def split(reason: str) -> list[dict]:
+        if start == end:
+            raise ValueError(f"Single-day search is not complete ({reason}): {start}")
+        middle = start + timedelta(days=(end - start).days // 2)
+        return (range_rows(start, middle, keyword, cache)
+                + range_rows(middle + timedelta(days=1), end, keyword, cache))
+
     first = fetch_page(start, end, keyword, 1, cache)
     # The API's totalpages can be floored; page numbers above 100 can wrap.
     pages = math.ceil(first["totalAnnouncement"] / PAGE_SIZE)
     if pages > MAX_PAGE:
-        if start == end:
-            raise ValueError(f"Single-day search exceeds pagination limit: {start}")
-        middle = start + timedelta(days=(end - start).days // 2)
-        return (range_rows(start, middle, keyword, cache)
-                + range_rows(middle + timedelta(days=1), end, keyword, cache))
+        return split("pagination limit")
     rows = list(first.get("announcements") or [])
     for page in range(2, pages + 1):
         payload = fetch_page(start, end, keyword, page, cache)
         if payload["totalAnnouncement"] != first["totalAnnouncement"]:
-            raise ValueError("Search population changed within pagination")
+            # Preserve both inconsistent parent pages, and rebuild disjoint
+            # smaller ranges. Never accept a short page as a complete index.
+            return split("population changed within pagination")
         rows.extend(payload.get("announcements") or [])
     identities = [(r.get("secCode"), r.get("announcementId"), r.get("adjunctUrl")) for r in rows]
     if len(rows) != first["totalAnnouncement"] or len(set(identities)) != len(rows):
@@ -83,7 +95,8 @@ def notice_rows(rows: list[dict]) -> pd.DataFrame:
     for row in rows:
         code = row.get("secCode", "")
         title = re.sub(r"<[^>]*>", "", row.get("announcementTitle", "")).strip()
-        if not MAINBOARD.fullmatch(code) or not TITLE.search(title):
+        if (not MAINBOARD.fullmatch(code) or NON_IMPLEMENTATION.search(title)
+                or not TITLE.search(re.sub(r"\s+", "", title))):
             continue
         adjunct = row.get("adjunctUrl", "")
         if not adjunct.lower().endswith(".pdf") or not adjunct.startswith("finalpage/"):
@@ -96,9 +109,10 @@ def notice_rows(rows: list[dict]) -> pd.DataFrame:
             "notice_date": timestamp.strftime("%Y-%m-%d"),
             "announcement_id": str(row["announcementId"]), "title": title,
             "pdf_url": "https://static.cninfo.com.cn/" + adjunct,
-            "revision_flag": bool(REVISION.search(title)), "terms_verified": False})
+            "revision_flag": bool(REVISION.search(title)),
+            "reorganization_flag": "重整" in title, "terms_verified": False})
     columns = ["code", "notice_date", "announcement_id", "title", "pdf_url",
-               "revision_flag", "terms_verified"]
+               "revision_flag", "reorganization_flag", "terms_verified"]
     frame = pd.DataFrame(records, columns=columns).drop_duplicates()
     if frame.duplicated(["code", "announcement_id"]).any():
         raise ValueError("The same disclosure identity has conflicting metadata")
@@ -118,6 +132,10 @@ def collect(output: Path = ROOT) -> dict:
                 coverage.append({"start": str(start), "end": str(end),
                                  "keyword": keyword, "search_rows": len(part)})
             print({"through_month": f"{year}-{month:02d}", "search_rows": len(rows)}, flush=True)
+    # Issuer/date queries cover unusual titles found in two-way reconciliation.
+    supplements = output / "notice_gaps" / "gap_announcement_rows.json"
+    if supplements.exists():
+        rows.extend(json.loads(supplements.read_text()))
     notices = notice_rows(rows)
     if notices.empty:
         raise ValueError("No implementation notices found")
@@ -126,6 +144,7 @@ def collect(output: Path = ROOT) -> dict:
               "revisions": int(notices.revision_flag.sum()), "queries": coverage,
               "notices_sha256": sha(output / "notices.parquet"),
               "page_sha256": {str(p): sha(p) for p in sorted(cache.rglob("*.json"))},
+              "issuer_supplement_sha256": sha(supplements) if supplements.exists() else None,
               "all_market_completeness_proven": False, "terms_verified": False,
               "holdout_read": False, "strategy_returns_read": False}
     save_json(output / "notice_index_report.json", result)

@@ -289,5 +289,42 @@
     "source_path": "data/research/cash_dividend_catalog/source_conflicts/sh.601988_2025-01-15_1222332355.pdf",
     "discard_incomplete_record_sha256": "94825975b46bd28ad64c2903b75d444d3b71795c05c75158f743e7c83adf98ff",
     "reason": "原件核准同日单次现金分配的A股日期和金额；删除精确匹配的缺公告日重复记录，保留完整记录。"
+  },
+  {
+    "code": "sz.003001",
+    "year": "2025",
+    "action_date": "2025-07-07",
+    "notice_date": "2025-06-30",
+    "record_date": "2025-07-04",
+    "pay_date": "2025-07-07",
+    "cash_per_share": "0.2816137",
+    "bonus_per_share": "0",
+    "reserve_per_share": "0.3994521",
+    "reference_cash_per_share": "0.2764547",
+    "reference_reserve_per_share": "0.3921344",
+    "replace_record_sha256": [
+      "3cdaa44e97789b8aa28b5e7499976aa5f219f580c361f26a21b56447243154ea",
+      "9c64d596309c9486ad4004a1b06a8e9b0c16c56c58e0b94463cfa4ff7bdc17ff"
+    ],
+    "replacement_record": {
+      "code": "sz.003001",
+      "dividPreNoticeDate": "",
+      "dividAgmPumDate": "2025-05-10",
+      "dividPlanAnnounceDate": "2025-04-18",
+      "dividPlanDate": "2025-06-30",
+      "dividRegistDate": "2025-07-04",
+      "dividOperateDate": "2025-07-07",
+      "dividPayDate": "2025-07-07",
+      "dividStockMarketDate": "2025-07-07",
+      "dividCashPsBeforeTax": "0.2816137",
+      "dividCashPsAfterTax": "0.2534523或0.2816137",
+      "dividStocksPs": "0.000000",
+      "dividCashStock": "10转3.994521派2.816137元（含税，扣税后2.534523或2.816137元）",
+      "dividReserveToStockPs": "0.3994521"
+    },
+    "source_url": "https://static.cninfo.com.cn/finalpage/2025-06-30/1224017153.PDF",
+    "source_sha256": "972fa64793d6feb1486d0f88f7d93e4bb2fc93bf335c69ea63fe650bdf66c66a",
+    "source_path": "data/research/cash_dividend_catalog/source_conflicts/sz.003001_2025-06-30_1224017153.pdf",
+    "reason": "两条接口记录的现金与转增比例不同；现存实施公告对应第二条，且原件每10股派2.816137元、转增3.994521股，比接口每股字段精度更高。按原件登记一次；两种接口版本均有转增，均不进入纯现金候选。此核对不证明原件是否曾在同一URL修订及修订可见时间。"
   }
 ]
