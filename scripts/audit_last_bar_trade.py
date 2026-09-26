@@ -86,7 +86,7 @@ def audit() -> dict:
         frames = []
         for study in STUDIES:
             frame = pd.read_parquet(ROOT / study / "selections.parquet",
-                                    columns=["date", "code"])
+                                    columns=["date", "code", "candidate"])
             frame["study"] = study
             frames.append(frame)
         connection.register("selected", pd.concat(frames, ignore_index=True))
@@ -101,8 +101,17 @@ def audit() -> dict:
         """)
         if any(row["missing_prefix"] for row in by_study):
             raise ValueError("A frozen selection lacks a 14:49 prefix")
+        by_candidate_half = records(connection, """
+            SELECT s.study, s.candidate, a.period,
+                   COUNT(*) AS stock_days,
+                   COUNT(*) FILTER (WHERE a.volume = 0) AS zero_volume_days
+            FROM selected s JOIN audited a USING (date, code)
+            GROUP BY s.study, s.candidate, a.period
+            ORDER BY s.study, s.candidate, a.period
+        """)
         return {"years": [2024, 2025], "integrity": integrity,
                 "by_period_band": by_period_band, "by_study": by_study,
+                "by_candidate_half": by_candidate_half,
                 "outcomes_read": False}
     finally:
         connection.close()
