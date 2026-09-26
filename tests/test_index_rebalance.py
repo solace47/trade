@@ -47,3 +47,28 @@ def test_matching_uses_liquidity_order_and_never_reuses_control():
     assert result.iloc[0].pair_id=='sh.600001'
     assert result.iloc[0].code=='sh.600003'
     assert result.iloc[0].daily_rank==1
+
+
+def test_batch_summary_keeps_unknown_and_does_not_weight_by_stock_count():
+    from trade_research.index_rebalance import BATCHES
+    from trade_research.index_rebalance_eval import summarize
+    rows=[]
+    for n,date in enumerate(BATCHES.values(),1):
+        for j in range(n):
+            for arm in ('high','low'):
+                for horizon in (1,5):
+                    row={'date':date,'code':f'{arm}{j}','arm':arm,'pair_id':str(j),'horizon':horizon,
+                         'primary_top5':True,'entry_status':'filled','exit_price':10.,
+                         'known_return5':.01,'execution_source_valid':True,'catalog_action_applied':False}
+                    for slip in (5,15):
+                        for kind in ('return','lower','upper'):
+                            row[f'catalog_scenario_{kind}{slip}']=n/100 if arm=='high' else 0.
+                    rows.append(row)
+    frame=pd.DataFrame(rows)
+    _,summary=summarize(frame)
+    assert all(abs(r['own_return']-.025)<1e-12 for r in summary)
+    assert all(abs(r['edge_return']-.025)<1e-12 for r in summary)
+    frame.loc[(frame.date.eq('2024-06-14') & frame.arm.eq('high')),'catalog_scenario_return15']=float('nan')
+    cells,summary=summarize(frame)
+    assert all(r['own_return'] is None and r['edge_return'] is None for r in summary if r['slip']==15)
+    assert all(r['own_return'] is not None for r in summary if r['slip']==5)

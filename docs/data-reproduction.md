@@ -119,3 +119,24 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity \
 全市场执行价漂移的输入冻结、成交评估与固定样本原档核验依次运行 `trade_research.execution_drift freeze`、`evaluate`、`verify-raw`。看到主结果后的探索性基准敏感性另运行 `trade_research.minute_prefix_1449 --output-dir data/research/minute_prefix_1449_vwap`，再运行 `trade_research.execution_drift anchor-sensitivity` 与 `verify-raw`；结果和限制见[执行价检验](execution-drift.md)。
 
 均价走势与末价偏离的收益分解依次运行 `trade_research.tail_vwap_decomposition freeze`、`evaluate`；固定样本再由 `trade_research.size_sensitivity` 以 2 万/10 万元、T+1/T+5 重算，最后运行 `trade_research.tail_vwap_decomposition verify-raw` 对账。该项没有通过发布门槛，细节合并在[同一研究记录](execution-drift.md)。
+
+## 中证1000历史调整事件
+
+原公告与附件元数据在 `data/research/index_rebalance/source_docs/`，四个公告标识、日期与解析核对见 `index_rebalance.py`。需保留每份 PDF、pdfplumber 文本和表格 JSON、独立 pypdf 文本 JSON；两种文本的指数／方向／代码／名称／页码及网格代码配对必须一致。实际下载地址与 SHA256 保留，备选表不当作调入。
+
+```bash
+PYTHONPATH=src .venv/bin/python -m trade_research.index_rebalance
+PYTHONPATH=src .venv/bin/python - <<'PYCODE'
+import json
+from pathlib import Path
+from trade_research.reference_gain_eval import reprice
+from trade_research.reference_gain_accounting import evaluate
+p=Path('data/research/index_rebalance')
+r=json.loads((p/'input_report.json').read_text())
+reprice(p, expected_signal_sha=r['signals_sha256'], rule_commit='cf4a922', notional=20000)
+evaluate(p, bootstrap=False)
+PYCODE
+PYTHONPATH=src .venv/bin/python -m trade_research.index_rebalance_eval
+```
+
+已有 `repriced.parquet` 时输入模块拒绝覆盖名单；复核原结果可直接运行汇总模块，不删除冻结产物来重选。`batch_report.json` 同时保存四批主名单、全体合格事件诊断及批次等权结果，未匹配者仍进自身分母。只有四个独立日期，关闭共享核算器的周块区间；不读取 2026 分钟或把目录情景覆盖到已知收益字段。
