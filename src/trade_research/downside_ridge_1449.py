@@ -16,18 +16,20 @@ from .quote_precision import quote_cents
 from .turnover_reference import CALENDAR
 
 
-def fit_score(frame: pd.DataFrame, values: pd.Series) -> tuple[dict, dict]:
+def fit_score(frame: pd.DataFrame, values: pd.Series, *, clip_target: bool = True) -> tuple[dict, dict]:
     if values.isna().any() or not frame.index.equals(values.index):
         raise ValueError("Every training feature needs its aligned risk score")
     median = frame[list(FEATURES)].median()
     scale = (frame[list(FEATURES)].quantile(.75)-frame[list(FEATURES)].quantile(.25)).clip(lower=.01)
     x = ((frame[list(FEATURES)]-median)/scale).clip(-5,5).to_numpy(float)
-    y = values.clip(-.15,.15).to_numpy(float)
+    y = (values.clip(-.15,.15) if clip_target else values).to_numpy(float)
     x_mean, y_mean = x.mean(axis=0), y.mean()
     centered = x-x_mean
     coefficients = np.linalg.solve(centered.T@centered + len(frame)*.05*np.eye(len(FEATURES)), centered.T@(y-y_mean))
     model = {"median": median, "scale": scale, "coefficients": coefficients, "intercept": float(y_mean-x_mean@coefficients)}
-    audit = {"rows": len(frame), "target_clipped_mean": float(y_mean), "intercept": model["intercept"],
+    audit = {"rows": len(frame),
+        "target_clipped_mean" if clip_target else "relative_target_mean": float(y_mean),
+        "intercept": model["intercept"],
         "median": median.to_dict(), "scale": scale.to_dict(), "coefficients": dict(zip(FEATURES,coefficients.tolist()))}
     return model, audit
 
