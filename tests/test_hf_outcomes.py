@@ -1,6 +1,7 @@
 """Execution checks for T+1, estimated limits, and transaction costs."""
 
 import pandas as pd
+import pytest
 
 from trade_research.hf_outcomes import (
     Assumptions, ENTRY_WINDOWS, EXIT_WINDOWS, _board_limit_rate, _fees, _order_shares,
@@ -207,3 +208,44 @@ def test_optional_twenty_session_exit_uses_actual_twentieth_session():
     assert result["target_exit_date"] == calendar[20]
     assert result["exit_date"] == calendar[20]
     assert result["exit_status"] == "filled"
+
+
+@pytest.mark.parametrize("case", ["late_fill", "corporate_action", "no_exit"])
+def test_continuation_preserves_purchase_and_leaves_unknown_proceeds_missing(case):
+    calendar = pd.bdate_range("2025-09-01", periods=12).strftime("%Y-%m-%d").tolist()
+    signals = pd.DataFrame([{
+        "date": calendar[0], "code": "sh.600000", "isST": 0,
+        "reference_gap": False, "price_1449": 10.0,
+    }])
+    quote_dates = [calendar[0]] + ([] if case == "no_exit" else [calendar[8]])
+    minute = pd.DataFrame([{
+        "date": day, "label": label, "volume": 250_000,
+        "turnover": 10.0 * 250_000,
+    } for day in quote_dates for label in ("1452", "1453", "1454", "1455")])
+    daily = pd.DataFrame([{
+        "date": day, "tradestatus": 1, "isST": 0,
+        "preclose": 9.0 if case == "corporate_action" and day == calendar[7] else 10.0,
+        "close": 10.0,
+    } for day in calendar])
+    original = outcomes_for_symbol(
+        signals, minute, daily, calendar, Assumptions(target_notional=20000),
+        horizons=(1,), sizing_price_column="price_1449").iloc[0]
+    extended = outcomes_for_symbol(
+        signals, minute, daily, calendar,
+        Assumptions(target_notional=20000, maximum_exit_delay_sessions=len(calendar)),
+        horizons=(1,), sizing_price_column="price_1449").iloc[0]
+    assert original.entry_status == extended.entry_status == "filled"
+    assert original.shares == extended.shares == 2000
+    assert original.entry_price == extended.entry_price
+    assert pd.isna(original.exit_date) and pd.isna(original.net_return)
+    if case == "no_exit":
+        assert pd.isna(extended.exit_date) and pd.isna(extended.net_return)
+    else:
+        assert extended.exit_date == calendar[8]
+        assert extended.exit_delay_sessions == 7
+        if case == "corporate_action":
+            assert extended.exit_status == "corporate_action_unadjusted"
+            assert pd.isna(extended.net_return)
+        else:
+            assert extended.exit_status == "filled"
+            assert pd.notna(extended.net_return)

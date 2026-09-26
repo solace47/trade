@@ -27,7 +27,7 @@ def apply_period_quality(repriced: pd.DataFrame) -> tuple[pd.DataFrame, int]:
     bad_symbols = load_period_bad_symbols(
         PERIOD_QUALITY, "2024-01-01", "2025-12-31",
     )
-    connection.register("bad_symbols", pd.DataFrame({"code": sorted(bad_symbols)}))
+    connection.register("bad_symbols", bad_symbols)
     qualified = connection.execute("""
         SELECT r.*, r.exit_status = 'filled'
         AND NOT EXISTS (SELECT 1 FROM bad_symbols b WHERE b.code = r.code)
@@ -37,6 +37,7 @@ def apply_period_quality(repriced: pd.DataFrame) -> tuple[pd.DataFrame, int]:
         ) AS quality_clean_exit
         FROM raw r
     """).df()
+    connection.close()
     joined = qualified.merge(
         repriced[["date", "code", "target_notional", "entry_window",
                   "exit_window", "horizon", "quality_clean_exit"]],
