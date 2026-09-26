@@ -191,7 +191,10 @@ def outcomes_for_symbol(signals: pd.DataFrame, minute: pd.DataFrame,
             entry_price, entry_status = None, "new_listing_window"
         elif bool(signal.isST):
             entry_price, entry_status = None, "st_excluded"
-        elif bool(signal.reference_gap):
+        elif (bool(signal.reference_gap)
+              and getattr(signal, "entry_reference_verified", False) is not True):
+            # A caller may explicitly certify a decision-time corporate-action
+            # reference after checking its original terms. Missing markers fail closed.
             entry_price, entry_status = None, "entry_corporate_action"
         elif bool(getattr(signal, "quote_outside_traded_range", False)):
             entry_price, entry_status = None, "source_quote_anomaly"

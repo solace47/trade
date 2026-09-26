@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 import json
+from math import isfinite
 from pathlib import Path
 
 import duckdb
@@ -40,7 +41,9 @@ def account_with_windows(raw: pd.DataFrame, signals: pd.DataFrame,
 
 
 def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
-            rule_commit: str = "8c75ac3") -> dict:
+            rule_commit: str = "8c75ac3", notional: float = 20000) -> dict:
+    if not isfinite(notional) or notional <= 0:
+        raise ValueError("The requested notional must be positive")
     signal_file = output / "signals.parquet"
     if sha(signal_file) != expected_signal_sha:
         raise ValueError("Frozen execution list changed")
@@ -50,8 +53,9 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         & raw_calendar.calendar_date.between("2024-01-01", "2025-12-31"), "calendar_date"].tolist())
     positions = {d: i for i, d in enumerate(calendar)}
     manifest = {"rule_commit": rule_commit, "signals_sha256": expected_signal_sha,
-        "calendar_sha256": sha(CALENDAR), "notional": 20000, "horizons": [1, 5],
-        "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": False}
+        "calendar_sha256": sha(CALENDAR), "notional": notional, "horizons": [1, 5],
+        "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": False,
+        "verified_entry_reference_rows": int(signals.get("entry_reference_verified", pd.Series(False, index=signals.index)).eq(True).sum())}
     save_json(output / "execution_manifest.json", manifest)
 
     def one(item):
@@ -83,8 +87,8 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
         minute["label"] = minute.timestamp.dt.strftime("%H%M")
         minute["code"] = code
         trades = outcomes_for_symbol(group, minute, daily, calendar,
-            Assumptions(target_notional=20000), horizons=(1, 5), sizing_price_column="price_1449")
-        trades["target_notional"] = 20000
+            Assumptions(target_notional=notional), horizons=(1, 5), sizing_price_column="price_1449")
+        trades["target_notional"] = notional
         trades["entry_window"] = "baseline"
         trades["exit_window"] = "close"
         groups = {d: p for d, p in minute.groupby("date")}

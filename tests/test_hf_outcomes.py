@@ -42,6 +42,28 @@ def test_t_plus_one_exit_and_costs():
     assert one["net_return"] < one["gross_return"]
 
 
+def test_verified_entry_reference_keeps_prices_and_does_not_credit_dividends():
+    signals, minute, daily = _inputs()
+    baseline = outcomes_for_symbol(signals, minute, daily, DATES, horizons=(1,)).iloc[0]
+    signals["reference_gap"] = True
+    rejected = outcomes_for_symbol(signals, minute, daily, DATES, horizons=(1,)).iloc[0]
+    assert rejected.entry_status == "entry_corporate_action"
+    signals["entry_reference_verified"] = True
+    admitted = outcomes_for_symbol(signals, minute, daily, DATES, horizons=(1,)).iloc[0]
+    assert admitted.entry_status == "filled"
+    assert admitted.net_return == baseline.net_return
+    assert admitted.shares == baseline.shares
+
+
+@pytest.mark.parametrize("marker", [False, None, float("nan"), pd.NA, "True"])
+def test_uncertain_entry_reference_marker_does_not_authorize_a_fill(marker):
+    signals, minute, daily = _inputs()
+    signals["reference_gap"] = True
+    signals["entry_reference_verified"] = marker
+    result = outcomes_for_symbol(signals, minute, daily, DATES, horizons=(1,)).iloc[0]
+    assert result.entry_status == "entry_corporate_action"
+
+
 def test_next_morning_exit_keeps_same_tail_entry() -> None:
     signals, minute, daily = _inputs()
     morning = pd.DataFrame([{

@@ -80,7 +80,7 @@ def evaluate(output: Path = ROOT) -> dict:
             raw = pd.read_parquet(output / "raw_windows.parquet",
                 filters=[("code", "==", row.code), ("date", "==", row.exit_date)])
             quote = pd.Series({"volume": raw.volume.sum(), "vwap": raw.turnover.sum() / raw.volume.sum()})
-            price, status = _fill(quote, day, row.code, "sell", int(quantity), Assumptions(target_notional=20000))
+            price, status = _fill(quote, day, row.code, "sell", int(quantity), Assumptions(target_notional=row.target_notional))
             if status != "filled" or abs(price - row.exit_price) > 1e-12:
                 raise ValueError("Changed share count changes the planned exit; replay is required")
             rows.loc[i, "catalog_share_fill_checked"] = True

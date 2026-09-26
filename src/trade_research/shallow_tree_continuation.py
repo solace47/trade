@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from math import isfinite
 from pathlib import Path
 import shutil
 
@@ -27,6 +28,10 @@ def continue_model(source: Path, output: Path) -> dict:
             raise ValueError("Original execution changed before continuation")
     signals = pd.read_parquet(source / "signals.parquet")
     original = pd.read_parquet(source / "repriced.parquet")
+    notionals = original.target_notional.unique()
+    if len(notionals) != 1 or not isfinite(notionals[0]) or notionals[0] <= 0:
+        raise ValueError("Continuation requires one positive fixed order size")
+    notional = notionals[0]
     pending = original.loc[original.entry_status.eq("filled") & original.exit_price.isna()]
     table = pd.read_parquet(CALENDAR)
     calendar = sorted(table.loc[table.is_trading_day.eq("1")
@@ -60,15 +65,15 @@ def continue_model(source: Path, output: Path) -> dict:
         for horizon, part in group.groupby("horizon"):
             chosen = signals.loc[signals.code.eq(code) & signals.date.isin(part.date)]
             baseline = outcomes_for_symbol(chosen, minute, daily, calendar,
-                Assumptions(target_notional=20000), horizons=(int(horizon),), sizing_price_column="price_1449")
+                Assumptions(target_notional=notional), horizons=(int(horizon),), sizing_price_column="price_1449")
             left = baseline.set_index(KEY)[checks].sort_index().astype(object)
             right = part.set_index(KEY)[checks].sort_index().astype(object)
             pd.testing.assert_frame_equal(left.where(left.notna(), None), right.where(right.notna(), None),
                 check_dtype=False, check_exact=False, atol=1e-12, rtol=0)
             extended = outcomes_for_symbol(chosen, minute, daily, calendar,
-                Assumptions(target_notional=20000, maximum_exit_delay_sessions=len(calendar)),
+                Assumptions(target_notional=notional, maximum_exit_delay_sessions=len(calendar)),
                 horizons=(int(horizon),), sizing_price_column="price_1449")
-            extended["target_notional"], extended["entry_window"], extended["exit_window"] = 20000, "baseline", "close"
+            extended["target_notional"], extended["entry_window"], extended["exit_window"] = notional, "baseline", "close"
             extended["quality_clean_exit"] = False
             extended, _ = apply_period_quality(extended)
             changed.append(extended)
