@@ -67,6 +67,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 历史换手参考价的初始化诊断运行 `PYTHONPATH=src .venv/bin/python -m trade_research.turnover_reference`。它冻结基础池及日线文件 SHA，只投影各股 2024 年起、最后信号前一正常交易日以前的字段，输出严格滞后的参考状态及三种初始化敏感性，不调用成交或收益程序。数据位于本地忽略的 `data/research/turnover_reference/`；提供方换手定义、固定停牌原接口响应在 `source_docs/`，将停牌空量误作未知的首版在 `strict_volume_v1/`，不能覆盖该历史记录。输入结论见[初始化诊断](input-gates.md#历史换手参考价2024-起点的初始化诊断)。
 
+在这些固定输入上运行 `PYTHONPATH=src .venv/bin/python -m trade_research.reference_gain_inputs`，重建初始化稳定且当日下跌的两组与严格同日配对，输出目录为 `data/research/reference_gain_inputs/`。四期输入门槛全部失败，不能连接到成交或收益程序；匹配器新增的历史换手条件是可选参数，原整数位置的 596 对已逐项验证不变。
+
 依次执行 `trade_research.cash_dividend_catalog freeze`、`fetch`、`assemble`，再执行 `trade_research.cash_dividend_notices collect`、`reconcile` 与 `trade_research.cash_dividend_primary`。均使用 `PYTHONPATH=src .venv/bin/python -m` 前缀。前者冻结 2024–2025 历史主板证券年度键，逐项缓存完整或明确为空的响应；错误不冒充空结果。公告索引只取 2024–2025 披露记录，分页缺口会停止或拆分重取；发行人/日期的补充检索缓存在 `cash_dividend_catalog/notice_gaps/`。
 
 [`cash_dividend_vendor_reviews.json`](../config/cash_dividend_vendor_reviews.json) 保存精确原始记录指纹及同日冲突核准；[`cash_dividend_primary_supplements.json`](../config/cash_dividend_primary_supplements.json) 保存遗漏、字段纠正、重复公告和跨期原件。原件 SHA、现金、日期与差异化参考金额均独立验证；补充结果写入 `events_augmented.parquet`，不覆盖原始接口或原目录。全目录仍不能一概视为原件条款全部核准。

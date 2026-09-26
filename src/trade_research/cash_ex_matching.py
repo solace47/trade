@@ -19,20 +19,27 @@ RATIO_FIELDS = ("price_1449", "amount_1449")
 
 
 def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame, *,
-                     ratio_limits: dict[str, float] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+                     ratio_limits: dict[str, float] | None = None,
+                     extra_ratio_limits: dict[str, float] | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     ratio_limits = dict(ratio_limits or {feature: 2.0 for feature in RATIO_FIELDS})
     if set(ratio_limits) != set(RATIO_FIELDS) or any(
             not np.isfinite(value) or value <= 1 for value in ratio_limits.values()):
         raise ValueError("Each ratio caliper must be a finite number greater than one")
+    extras = dict(extra_ratio_limits or {})
+    if set(extras) & (set(RETURN_CALIPERS) | set(RATIO_FIELDS)) or any(
+            not np.isfinite(value) or value <= 1 for value in extras.values()):
+        raise ValueError("Extra ratio features must be distinct with finite limits greater than one")
+    ratio_limits.update(extras)
+    ratio_fields = tuple(ratio_limits)
     if attempts.duplicated(["date", "code"]).any() or controls.duplicated(["date", "code"]).any():
         raise ValueError("Matching requires unique stock days")
     common = attempts[["date", "code"]].merge(controls[["date", "code"]], on=["date", "code"])
     if len(common):
         raise ValueError("Treatment cannot also appear in its control universe")
-    features = list(RETURN_CALIPERS) + list(RATIO_FIELDS)
+    features = list(RETURN_CALIPERS) + list(ratio_fields)
     if any(not np.isfinite(frame[features].to_numpy()).all() for frame in (attempts, controls)):
         raise ValueError("Nonfinite matching features")
-    if any((frame[list(RATIO_FIELDS)] <= 0).any().any() for frame in (attempts, controls)):
+    if any((frame[list(ratio_fields)] <= 0).any().any() for frame in (attempts, controls)):
         raise ValueError("Price and amount must be positive before logarithmic matching")
     groups = {key: group for key, group in controls.groupby(["date", controls.code.str[:2]], sort=False)}
     matched, missed = [], []
@@ -43,7 +50,7 @@ def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame, *,
             pool = pool.loc[~pool.code.isin(used.setdefault(row["date"], set()))].copy()
             for feature, caliper in RETURN_CALIPERS.items():
                 pool = pool.loc[(pool[feature] - row[feature]).abs() <= caliper + 1e-12]
-            for feature in RATIO_FIELDS:
+            for feature in ratio_fields:
                 limit = ratio_limits[feature]
                 pool = pool.loc[(row[feature] / pool[feature]).between(1 / limit, limit)]
         if pool is None or pool.empty:
@@ -53,7 +60,7 @@ def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame, *,
         distance = sum((pool[feature] - row[feature]).abs() / caliper
                        for feature, caliper in RETURN_CALIPERS.items())
         distance += sum(np.abs(np.log(row[feature] / pool[feature])) / np.log(ratio_limits[feature])
-                        for feature in RATIO_FIELDS)
+                        for feature in ratio_fields)
         choice = pool.assign(distance=distance).sort_values(["distance", "code"]).iloc[0]
         used[row["date"]].add(choice.code)
         matched.append({"date": row["date"], "half": row["half"], "code": row["code"],
@@ -61,11 +68,11 @@ def match_candidates(attempts: pd.DataFrame, controls: pd.DataFrame, *,
             **{feature: row[feature] for feature in features},
             **{"control_" + feature: choice[feature] for feature in features},
             **{feature + "_difference": row[feature] - choice[feature] for feature in RETURN_CALIPERS},
-            **{feature + "_ratio": row[feature] / choice[feature] for feature in RATIO_FIELDS}})
+            **{feature + "_ratio": row[feature] / choice[feature] for feature in ratio_fields}})
     pair_columns = ["date", "half", "code", "control_code", "daily_rank", "distance"] + features
     pair_columns += ["control_" + feature for feature in features]
     pair_columns += [feature + "_difference" for feature in RETURN_CALIPERS]
-    pair_columns += [feature + "_ratio" for feature in RATIO_FIELDS]
+    pair_columns += [feature + "_ratio" for feature in ratio_fields]
     return pd.DataFrame(matched, columns=pair_columns), pd.DataFrame(missed,
         columns=["date", "code", "half", "daily_rank", "reason"])
 
