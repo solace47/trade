@@ -35,6 +35,28 @@ def weekly_interval(daily: pd.Series) -> list[float] | None:
     return np.quantile(means, [.025, .975]).tolist()
 
 
+def distribution_cash(event: pd.Series, *, last_date: str,
+                      allow_unsettled_payments: bool = False) -> Decimal:
+    """No cash payment date is needed for a verified cashless reserve issue."""
+    raw = event.dividCashPsBeforeTax
+    if not raw:
+        if not (event.get("primary_terms_verified") == True
+                and Decimal(str(event.get("primary_reference_cash"))) == 0
+                and Decimal(str(event.get("primary_reference_reserve")))
+                    == Decimal(event.dividReserveToStockPs or "0") > 0
+                and Decimal(event.dividStocksPs or "0") == 0):
+            raise ValueError("Missing cash amount is not evidence of a cashless distribution")
+        cash = Decimal(0)
+    else:
+        cash = Decimal(raw)
+    if not cash.is_finite() or cash < 0:
+        raise ValueError("Invalid cash entitlement")
+    if cash and not (event.dividOperateDate <= event.dividPayDate
+                    and (allow_unsettled_payments or event.dividPayDate <= last_date)):
+        raise ValueError("Cash payment timing needs separate treatment")
+    return cash
+
+
 def evaluate(output: Path = ROOT, *, bootstrap: bool = True,
              catalog_path: Path = Path("data/research/cash_dividend_catalog/events_augmented.parquet"),
              allow_unsettled_payments: bool = False) -> dict:
@@ -64,10 +86,10 @@ def evaluate(output: Path = ROOT, *, bootstrap: bool = True,
         if key not in indexed.index:
             continue
         e = indexed.loc[key]
+        cash = distribution_cash(e, last_date=last_date,
+            allow_unsettled_payments=allow_unsettled_payments)
         if not (row.entry_status == "filled" and row.date <= e.dividRegistDate < row.exit_date
                 and row.date < e.dividOperateDate <= row.exit_date
-                and e.dividOperateDate <= e.dividPayDate
-                and (allow_unsettled_payments or e.dividPayDate <= last_date)
                 and (pd.Timestamp(row.exit_date) - pd.Timestamp(row.date)).days <= 30):
             raise ValueError("Catalogue entitlement needs separate treatment")
         bonus = Decimal(e.dividStocksPs or "0")
@@ -91,7 +113,7 @@ def evaluate(output: Path = ROOT, *, bootstrap: bool = True,
             if status != "filled" or abs(price - row.exit_price) > 1e-12:
                 raise ValueError("Changed share count changes the planned exit; replay is required")
             rows.loc[i, "catalog_share_fill_checked"] = True
-        gross = float(Decimal(int(row.shares)) * Decimal(e.dividCashPsBeforeTax))
+        gross = float(Decimal(int(row.shares)) * cash)
         rows.loc[i, ["catalog_sold_shares", "catalog_dividend_gross", "catalog_dividend_tax"]] = (
             int(quantity), gross, gross * .2)
         rows.loc[i, "catalog_action_applied"] = True

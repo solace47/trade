@@ -2,19 +2,22 @@
 from __future__ import annotations
 
 import argparse
+from decimal import Decimal
 import json
+import re
 import warnings
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pdfplumber
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
 from threadpoolctl import threadpool_limits
 
 from .absolute_ridge import choose,match_controls
 from .cash_dividend_catalog import fetch as fetch_catalog,assemble as assemble_catalog
-from .corporate_cash import save_json,sha
+from .corporate_cash import curl,save_json,sha
 from .next_day_winner import ROOT as PORTRAIT,calendar
 from .next_day_winner_analysis import FEATURES
 from .price_limit_queue_audit import audit
@@ -173,6 +176,7 @@ def execute(output:Path=ROOT) -> dict:
     cat=json.loads((output/"catalog/coverage_report.json").read_text())
     if sha(output/"catalog/combined_events.parquet")!=cat["events_sha256"]:
         raise ValueError("The checked catalogue changed")
+    execution_catalog = reconcile_cashless_catalog(output)
     reports={}
     for name in MODELS:
         if inputs["models"][name]["candidates"]==0:
@@ -186,10 +190,47 @@ def execute(output:Path=ROOT) -> dict:
         continued=folder/"continued"
         if not (continued/"execution_report.json").exists():continue_model(folder,continued)
         if not (continued/"execution_queue_report.json").exists():audit(continued)
-        if not (continued/"catalog_scenario_report.json").exists():account(continued,catalog_path=output/"catalog/combined_events.parquet")
+        if not (continued/"catalog_scenario_report.json").exists():account(continued,catalog_path=execution_catalog)
         if not (continued/"tick_report.json").exists():tick(continued,primary_horizon=1)
         reports[name]=json.loads((continued/"execution_report.json").read_text())
     return reports
+
+
+def reconcile_cashless_catalog(output:Path=ROOT) -> Path:
+    """Preserve the frozen vendor catalogue and attach one primary cashless review."""
+    review_path=Path("config/winner_direction_cashless_review.json")
+    review=json.loads(review_path.read_text());source=Path(review["source_path"])
+    if not source.exists():
+        source.parent.mkdir(parents=True,exist_ok=True)
+        source.write_bytes(curl(review["source_url"]))
+    if sha(source)!=review["source_sha256"]:raise ValueError("The reviewed issuer notice changed")
+    with pdfplumber.open(source) as document:
+        content=re.sub(r"\s+","","".join(page.extract_text() or "" for page in document.pages))
+    required=("证券代码：300803","公告编号：2025-034","每10股转增4.5股，不送红股，不派发现金红利",
+        "股权登记日：2025年3月14日","除权日：2025年3月17日",
+        "本次转增股份于2025年3月17日直接计入股东证券账户",
+        "无限售条件流通股的起始交易日为2025年3月17日")
+    if not all(term in content for term in required):raise ValueError("Primary cashless terms do not match")
+    original=output/"catalog/combined_events.parquet"
+    records=pd.read_parquet(original)
+    mask=records.code.eq(review["code"])&records.dividOperateDate.eq(review["action_date"])
+    if mask.sum()!=1:raise ValueError("The reviewed event is not unique")
+    row=records.loc[mask].iloc[0]
+    if not (row.dividRegistDate==review["record_date"] and row.dividStockMarketDate==review["stock_market_date"]
+        and row.dividCashPsBeforeTax==row.dividPayDate==""
+        and Decimal(row.dividStocksPs)==Decimal(review["bonus_per_share"])
+        and Decimal(row.dividReserveToStockPs)==Decimal(review["reserve_per_share"])):
+        raise ValueError("The frozen vendor event differs from the reviewed terms")
+    for key,value in (("primary_terms_verified",True),("primary_source_url",review["source_url"]),
+        ("primary_reference_cash",review["cash_per_share"]),("primary_reference_reserve",review["reserve_per_share"])):
+        records.loc[mask,key]=value
+    path=output/"catalog/events_reconciled.parquet"
+    if path.exists():pd.testing.assert_frame_equal(pd.read_parquet(path),records)
+    else:records.to_parquet(path,index=False)
+    save_json(output/"catalog/cashless_review_report.json",{"source_catalogue_sha256":sha(original),
+        "execution_catalogue_sha256":sha(path),"primary_pdf_sha256":sha(source),"review_sha256":sha(review_path),
+        "only_primary_review_fields_changed":True,"vendor_blank_cash_and_pay_date_preserved":True})
+    return path
 
 
 def compare(output:Path=ROOT) -> dict:
