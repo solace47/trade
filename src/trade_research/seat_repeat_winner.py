@@ -59,10 +59,11 @@ def freeze():
             for side in ['B','S']:
                 _seat_amount(item,side)
                 lists[side]=[(name.strip(),money_cents(amount)) for name,amount in zip(item['branchName'+side].split(','),item['branchTxAmt'+side].split(','))]
-                assert sum(value for _,value in lists[side])<=total
             signature=json.dumps([total,sorted(lists['B']),sorted(lists['S'])],ensure_ascii=False,separators=(',',':'))
             row={'date':decision[date],'trade_date':date,'code':'sh.'+item['secCode'],'reason':item['refType'],
-                'total_cents':total,'buy_json':json.dumps(lists['B'],ensure_ascii=False),'sell_json':json.dumps(lists['S'],ensure_ascii=False),
+                'total_cents':total,'buy_excess_cents':max(0,sum(value for _,value in lists['B'])-total),
+                'sell_excess_cents':max(0,sum(value for _,value in lists['S'])-total),
+                'buy_json':json.dumps(lists['B'],ensure_ascii=False),'sell_json':json.dumps(lists['S'],ensure_ascii=False),
                 'signature':signature}
             records.append(row);by_key[(date,row['code'])].append(row)
     for key,group in by_key.items():
@@ -72,6 +73,9 @@ def freeze():
         facts[key]={'date':first['date'],'trade_date':key[0],'code':key[1],
             'reasons':','.join(sorted(x['reason'] for x in group)),'reason_rows':len(group),'current_ambiguous':not consistent,
             'total_cents':first['total_cents'] if consistent else None,'buys':buys,'sells':sells,
+            'buy_excess_cents':first['buy_excess_cents'] if consistent else None,
+            'sell_excess_cents':first['sell_excess_cents'] if consistent else None,
+            'amount_totals_consistent':consistent and first['buy_excess_cents']==first['sell_excess_cents']==0,
             'named_buyers':{name for name,_ in buys if named_branch(name)}}
     events=[];evidence=[]
     for (date,code),fact in sorted(facts.items()):
@@ -93,13 +97,15 @@ def freeze():
         elif repeat&sell_names:category='repeat_and_sell'
         else:category='repeat_buy_list_only'
         total=fact['total_cents']
-        events.append({k:fact[k] for k in ['date','trade_date','code','reasons','reason_rows','current_ambiguous','total_cents']}|{
+        amount_ok=bool(total) and fact['amount_totals_consistent']
+        events.append({k:fact[k] for k in ['date','trade_date','code','reasons','reason_rows','current_ambiguous','total_cents',
+            'buy_excess_cents','sell_excess_cents','amount_totals_consistent']}|{
             'seat_class':category,'history_covered':covered,'history_ambiguous':ambiguous,
             'named_buyers':len(fact['named_buyers']),'repeat_buyers':len(repeat),'repeat_also_sell':len(repeat&sell_names),
             'repeat_buy_cents':sum(value for name,value in fact['buys'] if name in repeat) if total else None,
-            'repeat_fraction':sum(value for name,value in fact['buys'] if name in repeat)/total if total else None,
-            'buy_fraction':sum(value for _,value in fact['buys'])/total if total else None,
-            'sell_fraction':sum(value for _,value in fact['sells'])/total if total else None})
+            'repeat_fraction':sum(value for name,value in fact['buys'] if name in repeat)/total if amount_ok else None,
+            'buy_fraction':sum(value for _,value in fact['buys'])/total if amount_ok else None,
+            'sell_fraction':sum(value for _,value in fact['sells'])/total if amount_ok else None})
     events=pd.DataFrame(events);assert len(events)==len(by_key) and not events.duplicated(['date','code']).any()
     c=duckdb.connect();c.execute('SET threads=4');c.execute("SET memory_limit='6GB'")
     c.register('schedule',pd.DataFrame({'date':list(decision.values()),'trade_date':list(decision)}))
@@ -141,7 +147,8 @@ def freeze():
         'prior_source_report_sha256':sha(old),'prior_source_manifest_sha256':sha(prior_manifest),'disclosure_files_sha256':disclosure_hashes,
         'float_input_report_sha256':sha(FLOAT/'input_report.json'),'float_input_verification_sha256':sha(FLOAT/'input_verification.json'),
         'daily_files_sha256':daily_hashes,'raw_reason_rows':len(records),'source_events':len(events),'visible_rows':len(pool),
-        'necessary_tradeable':int(pool.necessary_tradeable.sum()),'event_class_counts':events.seat_class.value_counts().to_dict(),
+        'necessary_tradeable':int(pool.necessary_tradeable.sum()),'amount_inconsistent_events':int((~events.amount_totals_consistent).sum()),
+        'event_class_counts':events.seat_class.value_counts().to_dict(),
         'necessary_class_counts':pool.loc[pool.necessary_tradeable,'seat_class'].value_counts().to_dict(),
         'primary_rows':len(high),'pairs':len(pairs),'unmatched':len(missing),
         'primary_by_half':high.groupby('half').size().to_dict(),'pairs_by_half':pairs.groupby('half').size().to_dict(),
