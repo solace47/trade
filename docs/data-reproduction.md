@@ -66,6 +66,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.size_sensitivity \
 
 共用资金前的诊断依次执行 `trade_research.orderbook_funding freeze`、`quotes`、`evaluate`。原始四分钟切片按固定执行键重读并保存 SHA-256；金额、持有期、模型/对照各自成账，检查合并容量，再以同窗卖出款不预支的顺序统计实际支出与 14:49 候选预留的最低资金需求。逐日账簿和两种成本在本地忽略的 `data/research/orderbook_funding/`；这里不计算以事后最小本金优化的策略收益。
 
+单根决策报价的精度审计依次执行 `trade_research.quote_precision freeze`、`audit`、`entries`。固定 6,324 个订单没有股数差异，`entries` 因而不读取原始成交或新收益；精确分位下单函数与旧浮点复算路径分开，禁止将非分位 VWAP 按此规则取整。
+
 全市场执行价漂移的输入冻结、成交评估与固定样本原档核验依次运行 `trade_research.execution_drift freeze`、`evaluate`、`verify-raw`。看到主结果后的探索性基准敏感性另运行 `trade_research.minute_prefix_1449 --output-dir data/research/minute_prefix_1449_vwap`，再运行 `trade_research.execution_drift anchor-sensitivity` 与 `verify-raw`；结果和限制见[执行价检验](execution-drift.md)。
 
 均价走势与末价偏离的收益分解依次运行 `trade_research.tail_vwap_decomposition freeze`、`evaluate`；固定样本再由 `trade_research.size_sensitivity` 以 2 万/10 万元、T+1/T+5 重算，最后运行 `trade_research.tail_vwap_decomposition verify-raw` 对账。该项没有通过发布门槛，细节合并在[同一研究记录](execution-drift.md)。
