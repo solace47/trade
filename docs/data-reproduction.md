@@ -165,6 +165,12 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
 
+## 首板后尾盘承接与次日兑现
+
+先运行`trade_research.first_limitup_overnight`，再以`PYTHONPATH=src .venv/bin/python scripts/verify_first_limitup_inputs.py`独立核准日历前态、整数分涨停、排序、冷却、全部匹配边和分配目录覆盖。初始规则提交`b33259b`，核准名单、两时段执行及排队未知补充提交`7e53b8f`；输出`first_limitup_overnight/`。已有输入报告会阻止覆盖名单。
+
+核准后依次运行`trade_research.first_limitup_overnight_eval execute`、同模块`compare`，再运行`scripts/verify_first_limitup_results.py`。两种退出的原始分钟、延迟持仓、公司行动、费用及排队诊断分别在`continued/morning/`和`continued/close/`；同一自然日的上午与尾盘价格、成交量不可合并使用。触及不利涨跌停的窗口只标记排队未知，不根据日后是否成交重选股票，条件账本与原实际未知保留。比较报告输出收益、胜率、盈亏比、尾部、强制延期和同股时段差；这是已暴露年份的失败探索，不是可发布公式。
+
 ## Alpha158的2026时间留出检验
 
 协议与权重为`config/alpha158_pool_2026_protocol.json`、`config/alpha158_frozen_2026_model.json`，规则提交`47073f3`。依次运行`trade_research.alpha158_pool_2026 prepare`和`features`，然后`scripts/verify_alpha158_validation_features.py`，再运行同模块`freeze`；全程没有拟合函数。执行`trade_research.alpha158_2026_catalog`补齐固定名单的2026分配目录，之后`scripts/verify_alpha158_validation_inputs.py`独立核准全部评分、排序、冷却、匹配与目录覆盖。
