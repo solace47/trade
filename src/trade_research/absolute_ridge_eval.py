@@ -66,6 +66,10 @@ def summarize(model: pd.DataFrame, controls: pd.DataFrame,
     if primary:
         result["own_intervals"] = _interval(own_daily, 1941)
         result["edge_intervals"] = _interval(paired_daily.edge, 1943)
+        result["own_stress_intervals"] = _interval(own_stress_daily, 1945)
+        result["edge_stress_intervals"] = _interval(
+            paired_daily.stress_edge, 1947,
+        )
     return result
 
 

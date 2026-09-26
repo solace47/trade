@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Callable
 import json
 from pathlib import Path
 
@@ -69,6 +70,8 @@ def feature_frame(connection: duckdb.DuckDBPyConnection,
     frame = frame.loc[frame.board.notna()].copy()
     if main_only:
         frame = frame.loc[frame.board.eq("main")].copy()
+    frame["price_signal"] = frame.price_1450
+    frame["amount_signal"] = frame.amount_1450
     if frame.empty or frame.duplicated(["date", "code"]).any():
         raise ValueError("Invalid 14:50 feature universe")
     return frame
@@ -155,6 +158,10 @@ def choose(scored: pd.DataFrame, calendar: list[str]) -> pd.DataFrame:
 
 def match_controls(chosen: pd.DataFrame,
                    features: pd.DataFrame) -> pd.DataFrame:
+    amount_column = ("amount_signal" if "amount_signal" in features
+                     else "amount_1450")
+    price_column = ("price_signal" if "price_signal" in features
+                    else "price_1450")
     selected_keys = set(zip(chosen.date, chosen.code))
     controls = []
     for date, group in chosen.groupby("date", sort=True):
@@ -166,8 +173,8 @@ def match_controls(chosen: pd.DataFrame,
                                       validate="one_to_one")
         for row in chosen_features.sort_values("daily_rank").itertuples(index=False):
             fresh = available.loc[available.board.eq(row.board)]
-            amount_ratio = fresh.amount_1450 / row.amount_1450
-            price_ratio = fresh.price_1450 / row.price_1450
+            amount_ratio = fresh[amount_column] / getattr(row, amount_column)
+            price_ratio = fresh[price_column] / getattr(row, price_column)
             prior_gap = (fresh.return20_prior_adjusted
                          - row.return20_prior_adjusted).abs()
             day_gap = (fresh.return_1450 - row.return_1450).abs()
@@ -195,12 +202,16 @@ def match_controls(chosen: pd.DataFrame,
     ])
 
 
-def freeze(output_dir: Path = OUTPUT, main_only: bool = False) -> dict:
+def freeze(output_dir: Path = OUTPUT, main_only: bool = False,
+           feature_builder: Callable[[duckdb.DuckDBPyConnection, bool],
+                                     pd.DataFrame] | None = None,
+           decision_price_column: str | None = None,
+           cutoff_label: str = "1450") -> dict:
     if main_only and output_dir == OUTPUT:
         raise ValueError("Main-board retraining needs a separate output directory")
     connection = duckdb.connect()
     connection.execute("SET threads = 4")
-    features = feature_frame(connection, main_only=main_only)
+    features = (feature_builder or feature_frame)(connection, main_only)
     connection.read_parquet(str(ROOT / "market_outcomes_ci" / "*.parquet")
                             ).create_view("outcomes")
     connection.register("bad_days", _quality_keys(ROOT / "market_issues_ci"))
@@ -257,6 +268,8 @@ def freeze(output_dir: Path = OUTPUT, main_only: bool = False) -> dict:
         "capacity": CAPACITY, "cooldown": COOLDOWN,
         "score_threshold": 0.0, "treatment_label": "absolute_model",
         "control_label": "same_day_control",
+        "cutoff_label": cutoff_label,
+        "decision_price_column": decision_price_column,
     }
     audit["outcome_gate_passed"] = (
         len(by_half) == 3
@@ -276,6 +289,17 @@ def freeze(output_dir: Path = OUTPUT, main_only: bool = False) -> dict:
         """).df()
         if len(snapshots) != len(membership):
             raise ValueError("A frozen selection lacks an original snapshot")
+        if decision_price_column is not None:
+            if decision_price_column not in features:
+                raise ValueError("Decision-time price missing from the input features")
+            snapshots = snapshots.merge(
+                features[["date", "code", decision_price_column]],
+                on=["date", "code"], validate="one_to_one",
+            )
+            if cutoff_label == "1449":
+                # The 14:49 builder already required a valid prefix quote.
+                # Do not let the later 14:50 quote veto a selected entry.
+                snapshots["quote_outside_traded_range"] = False
         snapshots.to_parquet(output_dir / "repricing_signals.parquet",
                              index=False, compression="zstd")
     (output_dir / "input_audit.json").write_text(
