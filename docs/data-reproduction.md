@@ -51,7 +51,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 [`cash_dividend_vendor_reviews.json`](../config/cash_dividend_vendor_reviews.json) 保存精确原始记录指纹及同日冲突核准；[`cash_dividend_primary_supplements.json`](../config/cash_dividend_primary_supplements.json) 保存遗漏、字段纠正、重复公告和跨期原件。原件 SHA、现金、日期与差异化参考金额均独立验证；补充结果写入 `events_augmented.parquet`，不覆盖原始接口或原目录。全目录仍不能一概视为原件条款全部核准。
 
-随后执行 `trade_research.cash_ex_inputs build`、`potential`。只用 2024 年起的严格滞后日线指标和 14:49 前缀，输出基础池及候选数量上界，尚不读取策略收益。四期数量通过后还须完成候选原件及同日对照核验，不能直接接到分钟收益程序。冻结规则、进度及必要门槛见[输入检验](input-gates.md#纯现金除息后的价格压力事件数据阶段)。
+随后执行 `trade_research.cash_ex_inputs build`、`potential`。只用 2024 年起的严格滞后日线指标和 14:49 前缀，输出基础池及候选数量上界。再依次执行 `trade_research.cash_ex_notice_sources freeze`、`fetch`，`trade_research.cash_ex_notices` 和 `trade_research.cash_ex_matching`；641 个分配状态原件按指纹缓存，保留原始逐页文本和去页码后的文本，字段歧义对照[核准表](../config/cash_ex_notice_reviews.json)。原件纠正重建的 371 个候选只配成 283 对，其中 2024 下半年 46 对不足门槛，因此不能接到分钟收益程序。冻结规则、源差异及结论见[输入检验](input-gates.md#纯现金除息后的价格压力事件数据阶段)。
 
 ## 原始分钟复价与验证
 

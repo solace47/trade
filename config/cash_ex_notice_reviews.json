@@ -1,0 +1,77 @@
+[
+  {
+    "code": "sh.603456",
+    "expected_action_date": "2024-07-04",
+    "announcement_id": "1220467299",
+    "notice_date": "2024-06-27",
+    "source_url": "https://static.cninfo.com.cn/finalpage/2024-06-27/1220467299.PDF",
+    "source_sha256": "28987aac54ebd9c2d906fdd62f68c0359f199c535c520014eecd8c42bfdf7d9e",
+    "fields": {
+      "reference_cash_per_share": "0.4952"
+    },
+    "resolves": [
+      "multiple_reference_formulas"
+    ],
+    "evidence": [
+      "虚拟分派的现金红利",
+      "890,774,428",
+      "899,435,228",
+      "前收盘价格-0.4952"
+    ],
+    "arithmetic": {
+      "participating_shares": "890774428",
+      "total_shares": "899435228",
+      "cash_per_share": "0.5",
+      "quantum": "0.0001"
+    },
+    "reason": "原件同时列出实际现金和虚拟参考金额；采用虚拟分派公式，按公告股数独立复算。"
+  },
+  {
+    "code": "sh.600989",
+    "expected_action_date": "2024-07-24",
+    "announcement_id": "1220664181",
+    "notice_date": "2024-07-18",
+    "source_url": "https://static.cninfo.com.cn/finalpage/2024-07-18/1220664181.PDF",
+    "source_sha256": "d47db5c0b7d2c9bfc37dbc71cfdd2e34ed299948baaad08e7fadedb6fa2dde86",
+    "fields": {
+      "cash_per_share": "0.3158"
+    },
+    "resolves": [
+      "actual_cash_ambiguous"
+    ],
+    "evidence": [
+      "中小股东每股派发现金红利0.3158元",
+      "大股东每股派发现金红利0.2650元",
+      "平均每股分配金额为0.28元"
+    ],
+    "arithmetic": null,
+    "reason": "按公告对普通中小股东的税前实际现金计量；数据商0.28为全股本平均参考金额，大股东补偿差别不套用给普通公众股东。"
+  },
+  {
+    "code": "sh.600522",
+    "expected_action_date": "2025-07-25",
+    "announcement_id": "1224225177",
+    "notice_date": "2025-07-21",
+    "source_url": "https://static.cninfo.com.cn/finalpage/2025-07-21/1224225177.PDF",
+    "source_sha256": "3c6ff6f17c0b02163758b2d00bf68cc152c0efb66e24ae9bc84b4e3d88e720f0",
+    "fields": {
+      "reference_cash_per_share": "0.29834"
+    },
+    "resolves": [
+      "multiple_reference_formulas"
+    ],
+    "evidence": [
+      "3,394,039,552",
+      "3,412,949,652",
+      "前收盘价格-0.29865",
+      "前收盘价格-0.29834"
+    ],
+    "arithmetic": {
+      "participating_shares": "3394039552",
+      "total_shares": "3412949652",
+      "cash_per_share": "0.30",
+      "quantum": "0.00001"
+    },
+    "reason": "原件同一等式左端写0.29865、右端及上一行摊薄计算写0.29834；按明确股数和每股0.30独立复算得到0.29834，不依据行情挑值。"
+  }
+]
