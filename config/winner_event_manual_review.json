@@ -1,0 +1,103 @@
+{
+  "purpose": "固定病例中有区分度类别的原件回看；事后解释，不是新选股条件或因果证据",
+  "parsed_source_sha256": "aeb10085c68212679c9bf1d7537fca82ea0d5e36e26334f06294a6731473adca",
+  "meeting_title_review": {
+    "rows": [
+      {
+        "date": "2024-04-23",
+        "code": "sz.001212",
+        "arm": "case",
+        "title": "关于举行2023年度网上业绩说明会的公告",
+        "source_date": "2024-04-19",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-04-19/1219671323.PDF"
+      },
+      {
+        "date": "2024-04-25",
+        "code": "sz.301292",
+        "arm": "control",
+        "title": "关于举办2023年度业绩说明会的公告",
+        "source_date": "2024-04-20",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-04-20/1219696227.PDF"
+      },
+      {
+        "date": "2024-04-26",
+        "code": "sz.300424",
+        "arm": "case",
+        "title": "关于举行2023年年度报告网上业绩说明会的公告",
+        "source_date": "2024-04-25",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-04-25/1219792839.PDF"
+      },
+      {
+        "date": "2024-08-26",
+        "code": "sh.688166",
+        "arm": "case",
+        "title": "关于召开2024年半年度业绩说明会的公告",
+        "source_date": "2024-08-21",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-08-21/1220923738.PDF"
+      },
+      {
+        "date": "2024-09-26",
+        "code": "sh.688073",
+        "arm": "case",
+        "title": "关于召开2024年半年度业绩说明会的公告",
+        "source_date": "2024-09-25",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-09-25/1221281640.PDF"
+      },
+      {
+        "date": "2024-09-30",
+        "code": "sh.688700",
+        "arm": "case",
+        "title": "关于召开2024年半年度业绩说明会的公告",
+        "source_date": "2024-09-28",
+        "url": "https://static.cninfo.com.cn/finalpage/2024-09-28/1221311432.PDF"
+      },
+      {
+        "date": "2025-05-06",
+        "code": "sh.688543",
+        "arm": "case",
+        "title": "关于召开2024年度暨2025第一季度业绩说明会的公告",
+        "source_date": "2025-04-24",
+        "url": "https://static.cninfo.com.cn/finalpage/2025-04-24/1223234692.PDF"
+      },
+      {
+        "date": "2025-09-19",
+        "code": "sh.688330",
+        "arm": "case",
+        "title": "宏力达关于举办2025年半年度业绩说明会的公告",
+        "source_date": "2025-09-17",
+        "url": "https://static.cninfo.com.cn/finalpage/2025-09-17/1224663286.PDF"
+      },
+      {
+        "date": "2025-10-22",
+        "code": "sh.603050",
+        "arm": "control",
+        "title": "关于召开2025年半年度业绩说明会的公告",
+        "source_date": "2025-10-16",
+        "url": "https://static.cninfo.com.cn/finalpage/2025-10-16/1224714383.PDF"
+      }
+    ],
+    "finding": "全部9个前件标题为召集业绩说明会；7个病例、2个对照。不是实际机构调研记录，也不提供账户交易或资金身份。仅核验其中一个PDF，其他8项判断限于完整标题。"
+  },
+  "primary_reviews": [
+    {
+      "date": "2024-04-23",
+      "code": "sz.001212",
+      "announcement_id": "1219671323",
+      "url": "https://static.cninfo.com.cn/finalpage/2024-04-19/1219671323.PDF",
+      "pdf_sha256": "5df476de64b54c89932fc3d2e19c911ec4082802a8cc8c4c328554509b61a702",
+      "pages": 1,
+      "facts": "正文邀请投资者参加2024年4月26日15:30至16:30的年度业绩说明会，举办时间晚于本病例的次日标签。末尾落款印为2023年4月19日，与正文及目录年份冲突；保留这一内部日期问题，不据PDF落款推定首次公开时点。"
+    },
+    {
+      "date": "2025-07-29",
+      "code": "sz.002468",
+      "announcement_id": "1224300836",
+      "url": "https://static.cninfo.com.cn/finalpage/2025-07-26/1224300836.PDF",
+      "pdf_sha256": "077601bf25a19bd32480360706a74f4becab623a564bae2b110d618dc0014341",
+      "pages": 15,
+      "facts": "2025年7月25日签署协议，拟现金购买丹鸟物流100%股权，对价36205.02万元，构成关联交易而非重大资产重组；尚有经营者集中审查及整合等风险。能证明已有具体公司事项，不能证明上涨因果或主力进场。"
+    }
+  ],
+  "new_2026_prices_read": false,
+  "monthly_repurchase_pdfs_read": false
+}
