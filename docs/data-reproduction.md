@@ -9,6 +9,15 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 实际尾盘经济赢家与组合预测
+
+原经济画像按`economic_winner`的`freeze`、`raw`准备输入，再用`scripts/fetch_economic_winner_catalog.py`补齐目录；该续传器保留同次分配金额冲突，日期并集只作权益未知标记。依次运行`scripts/verify_economic_winner_labels.py`的`catalog`与`windows`，`economic_winner_labels`，再核准`labels`。所有以下脚本都用`PYTHONPATH=src .venv/bin/python`；模块用同前缀加`-m trade_research.`。完整产物已存在时禁止覆盖。
+
+- `economic_winner_analysis`与`scripts/verify_economic_winner_analysis.py`：原29项完整画像。
+- `economic_winner_quality`与`scripts/verify_economic_winner_quality.py`：保留原版，在`data/research/economic_winner/period_quality`叠加既有全日质量疑问。
+- 两份画像／核查命令加`--root data/research/economic_winner/period_quality`：完整敏感性复算。
+- `economic_winner_prediction`与`scripts/verify_economic_winner_prediction.py`：复用原39列已核准特征，按固定时期拟合、校准与选股，再独立核准。只有核准后才能连接2025结果。
+
 ## 次日训练目标与同风险五日目标对照
 
 固定协议为`config/short_horizon_target_protocol.json`。直接复用既有18列输入和T+5训练原始事实，仅重算T+1训练成交；逐股进度可续传，完成的标签与名单不可覆盖。两种目标最后都按T+1尾盘评价。
