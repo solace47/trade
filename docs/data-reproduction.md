@@ -67,7 +67,7 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 历史换手参考价的初始化诊断运行 `PYTHONPATH=src .venv/bin/python -m trade_research.turnover_reference`。它冻结基础池及日线文件 SHA，只投影各股 2024 年起、最后信号前一正常交易日以前的字段，输出严格滞后的参考状态及三种初始化敏感性，不调用成交或收益程序。数据位于本地忽略的 `data/research/turnover_reference/`；提供方换手定义、固定停牌原接口响应在 `source_docs/`，将停牌空量误作未知的首版在 `strict_volume_v1/`，不能覆盖该历史记录。输入结论见[初始化诊断](input-gates.md#历史换手参考价2024-起点的初始化诊断)。
 
-用户授权恢复历史预热后的新版本依次运行 `trade_research.turnover_reference_long`、`trade_research.reference_gain_pairs`、`trade_research.reference_gain_eval`（同样使用 `PYTHONPATH=src .venv/bin/python -m`）。三步分别重建 2019 年起初始化、冻结先匹配后排序的名单、重算原始分钟执行并保留未知核算。新目录为 `turnover_reference_long/` 与 `reference_gain_pairs/`，不覆盖旧版；初步成交结果还需完成公司行动、来源疑问及完整收益汇总，不能把已知子集当作全部净收益。
+用户授权恢复历史预热后的新版本依次运行 `trade_research.turnover_reference_long`、`trade_research.reference_gain_pairs`、`trade_research.reference_gain_eval`、`trade_research.reference_gain_accounting`（同样使用 `PYTHONPATH=src .venv/bin/python -m`）。四步分别重建 2019 年起初始化、冻结先匹配后排序的名单、重算原始分钟执行并保留未知核算、生成目录条款和固定成交成立条件下的经济情景与周块区间。新目录为 `turnover_reference_long/` 与 `reference_gain_pairs/`，不覆盖旧版；`catalog_scenario` 不是已核准完整收益，`known_return` 的未知行不会被情景覆盖。本版经济结果仍不稳定，详见[记录](input-gates.md#先匹配后排序的收益检验)。
 
 在这些固定输入上运行 `PYTHONPATH=src .venv/bin/python -m trade_research.reference_gain_inputs`，重建初始化稳定且当日下跌的两组与严格同日配对，输出目录为 `data/research/reference_gain_inputs/`。四期输入门槛全部失败，不能连接到成交或收益程序；匹配器新增的历史换手条件是可选参数，原整数位置的 596 对已逐项验证不变。
 
