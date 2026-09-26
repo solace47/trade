@@ -22,16 +22,17 @@ DAILY = Path("data/baostock/market_2020_2026/daily")
 SIGNAL_SHA = "c23556798937d28472cb909dc52947cc3f8e41a8771adcef971e134ae6abf214"
 
 
-def reprice(output: Path = ROOT) -> dict:
+def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
+            rule_commit: str = "8c75ac3") -> dict:
     signal_file = output / "signals.parquet"
-    if sha(signal_file) != SIGNAL_SHA:
+    if sha(signal_file) != expected_signal_sha:
         raise ValueError("Frozen execution list changed")
     signals = pd.read_parquet(signal_file)
     raw_calendar = pd.read_parquet(CALENDAR)
     calendar = sorted(raw_calendar.loc[raw_calendar.is_trading_day.eq("1")
         & raw_calendar.calendar_date.between("2024-01-01", "2025-12-31"), "calendar_date"].tolist())
     positions = {d: i for i, d in enumerate(calendar)}
-    manifest = {"rule_commit": "8c75ac3", "signals_sha256": SIGNAL_SHA,
+    manifest = {"rule_commit": rule_commit, "signals_sha256": expected_signal_sha,
         "calendar_sha256": sha(CALENDAR), "notional": 20000, "horizons": [1, 5],
         "execution_labels": ["1452", "1453", "1454", "1455"], "holdout_read": False}
     save_json(output / "execution_manifest.json", manifest)
@@ -53,8 +54,13 @@ def reprice(output: Path = ROOT) -> dict:
               AND strftime(timestamp,'%Y-%m-%d') IN (SELECT date FROM needed)
             ORDER BY timestamp""", [dates[0], dates[-1]]).df()
         c.read_parquet(str(daily_path)).create_view("daily_source")
+        prior_day = c.execute("""SELECT max(date) FROM daily_source
+            WHERE date<? AND tradestatus=1""", [dates[0]]).fetchone()[0]
+        if prior_day is None:
+            raise ValueError("No historical normal trading day before a selected signal")
+        daily_start = (min(group.previous_traded_date) if "previous_traded_date" in group else prior_day)
         daily = c.execute("""SELECT * FROM daily_source WHERE date BETWEEN ? AND ?
-            ORDER BY date""", [min(group.previous_traded_date), dates[-1]]).df()
+            ORDER BY date""", [daily_start, dates[-1]]).df()
         c.close()
         minute["date"] = minute.timestamp.dt.strftime("%Y-%m-%d")
         minute["label"] = minute.timestamp.dt.strftime("%H%M")
