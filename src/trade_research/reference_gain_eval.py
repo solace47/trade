@@ -74,7 +74,8 @@ def reprice(output: Path = ROOT, *, expected_signal_sha: str = SIGNAL_SHA,
             exit_window: str = "close") -> dict:
     if not isfinite(notional) or notional <= 0:
         raise ValueError("The requested notional must be positive")
-    if exit_window not in ("close", "morning") or not horizons or any(h not in (1, 5) for h in horizons):
+    if (exit_window not in ("close", "morning") or not horizons
+            or len(set(horizons)) != len(horizons) or any(h not in (1, 2, 3, 5) for h in horizons)):
         raise ValueError("Only explicitly supported holding windows can be repriced")
     exit_labels = EXIT_WINDOWS[exit_window]
     needed_labels = sorted(set(EXECUTION_LABELS + exit_labels))
