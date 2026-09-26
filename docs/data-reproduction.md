@@ -165,9 +165,11 @@ PYTHONPATH=src .venv/bin/python -m trade_research.relative_ridge_1449
 
 在上述输入完成后，`trade_research.long_history_tree_1449` 复现同历史线性模型并训练固定浅树；名单、全部分数、两次拟合模型及指纹存于 `long_history_tree_1449/`。按 `tree/signals.parquet` 的指纹调用公共 `reprice`，规则提交 `7ef4059`；复制长历史线性账本为 `linear/`，使用 `summarize(path, model_names=("linear","tree"), rule_commit="7ef4059", list_commit="90f1e03")`。新树的 3 条超期持仓由 `continue_model` 延长核算，线性续查账本直接复用；`continued/` 内再按相同参数汇总。不能用原延期上限处的缺失收益替代完整持有损失，也不覆盖原始版本。
 
-## 标准因子库与同缩放对照
+## 触跌停后打开
 
 触跌停后打开的完整候选入口为 `trade_research.limit_down_recovery_1449`，保留旧 `limit_down_reopen/`，新输出 `limit_down_recovery_1449/`。名单双重核准及提交 `7e7b10b` 后，按 `11abacaf66347ac5e868ede2fd25880b555e3eb855bf87bca38d18d91de33112` 调用公共 `reprice`、`continue_model` 和目录核算。随后调用 `risk_removal_eval.evaluate(root / "continued", primary_horizon=1)`；只有主终点标记改为T+1，费用、未知值保留和辅助T+5核算共用既有实现。目录、价格范围及完整观察窗覆盖的独立检查保存在本地输出中。
+
+## 标准因子库与同缩放对照
 
 Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licenses/qlib-MIT.txt`。先运行 `trade_research.alpha158_inputs`，把此前完整日线与当日 14:49 临时K线组合成指标；按证券缓存，源指纹改变时拒绝沿用。随后运行 `PYTHONPATH=src .venv/bin/python scripts/verify_alpha158_features.py` 核准独立逐窗计算，再运行 `trade_research.alpha158_models` 拟合，最后运行 `scripts/verify_alpha158_inputs.py` 核准落盘指标、全部评分和选择。各脚本均在仓库根目录使用相同 Python 前缀。已有成交后不重新生成名单。
 
