@@ -45,6 +45,10 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 其他检验由对应模块的默认命令重建输入，只有审计文件中的 `outcome_gate_passed` 为真且 `repricing_signals.parquet` 已生成，才能进入下一步。已完成的专项规则及结果留在各专项文档；本页只维护公共流程。
 
+## 固定交易的统计分辨率
+
+依次运行 `PYTHONPATH=src .venv/bin/python -m trade_research.statistical_resolution freeze`、同模块 `evaluate`。只使用已核算旧名单的 2 万元 T+1 结果，核对原同日配对后进行预定的逐日、周块和两周块抽样；存档每日差、180,000 次抽样误差和固定平移情景。它不读取新策略收益，不改变旧策略结论；适用边界及结果见[研究状态](research-status.md#旧固定交易的统计分辨率重抽样前冻结)。
+
 ## 整数价位输入检验
 
 运行 `PYTHONPATH=src .venv/bin/python -m trade_research.round_number_1449`，复用只从 2024 年起计算的基础池及已有 14:49 原条审计分片。报价恢复为整数分后分类，冻结每日名单及同日对照；输出源指纹、分组覆盖和输入平衡。四期覆盖率及距整数距离平衡均未通过，因此没有成交或收益阶段入口。程序与固定规则见[输入检验](input-gates.md#整数价位两侧的尾盘价格位置读取输入分组前冻结)。
