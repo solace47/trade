@@ -85,6 +85,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 ## 原始分钟复价与验证
 
+风险池与下行情景评分先运行 `trade_research.downside_ridge_inputs`，再运行 `trade_research.downside_ridge_1449`，固定原评分／新评分名单。输入步骤只对 2024 年训练持仓读原始四分钟，逐笔保留经济情景与未知标签；已有窗口缓存可在源指纹和完整键核准后，通过 `downside_ridge_inputs.build(reuse_window_cache=True)` 复用。输出在 `downside_ridge_1449/`，两个模型目录为 `old_score` 和 `downside`。按各自名单指纹调用公共 `reference_gain_eval.reprice` 后，使用 `shallow_tree_eval.summarize(path, model_names=("old_score","downside"), rule_commit="123fd1d", list_commit="2e1e400")` 汇总；需要持仓续查时对每版调用 `shallow_tree_continuation.continue_model(source, output)`，另存于 `continued/`，复制固定输入报告后用同一汇总函数评价。均使用 `PYTHONPATH=src .venv/bin/python`；[结论与条件](input-gates.md#事前风险池与下行情景训练评分)不因缓存重算而改变。
+
 可买条件与浅层树对照先运行 `PYTHONPATH=src .venv/bin/python -m trade_research.shallow_tree_1449` 固定名单；已有复价结果时程序拒绝覆盖名单。随后分别对 `data/research/shallow_tree_1449/ridge` 和 `tree` 调用 `reference_gain_eval.reprice(path, expected_signal_sha=该目录输入报告中的指纹, rule_commit="4f8bb7c")`，再运行 `trade_research.shallow_tree_eval` 汇总原五日延迟规则的经济情景。继续运行 `trade_research.shallow_tree_continuation`，将尚未卖出的原持仓追踪至 2025 年末，结果另存 `continued/`；对该目录调用 `shallow_tree_eval.summarize(path)` 生成续查报告。剩余未知终值保留为空，本金全损情景单列，不能当成实际收益。上述模块均使用同一 Python 环境与 `PYTHONPATH=src` 前缀，固定规则与结论见[输入检验](input-gates.md#决策时可买条件与浅层树模型对照)。
 
 `trade_research.size_sensitivity` 按固定名单逐股读取原始分钟，在 14:52–14:55 估算入场，并按指定时段和持有期重算成交、税费、滑点及现金感知结果。以下是**已过输入门槛的历史名单**的复算示例，不应用于上节失败的分钟自相关名单：
