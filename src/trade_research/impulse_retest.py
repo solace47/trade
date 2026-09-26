@@ -46,7 +46,13 @@ def freeze():
 def extract():
     manifest=json.loads((ROOT/'manifest.json').read_text())
     assert sha(PROTOCOL)==manifest['protocol_sha256'] and sha(BASE)==manifest['base_sha256']
-    assert sha(Path(__file__))==manifest['code_sha256']
+    code_hash=sha(Path(__file__))
+    repair_path=ROOT/'extractor_repair.json'
+    repair=json.loads(repair_path.read_text()) if repair_path.exists() else None
+    if repair:
+        assert repair['manifest_sha256']==sha(ROOT/'manifest.json')
+        assert repair['original_code_sha256']==manifest['code_sha256'] and repair['fixed_code_sha256']==code_hash
+    else:assert code_hash==manifest['code_sha256']
     base=pd.read_parquet(BASE,columns=['date','code'])
     codes=sorted(base.code.unique());folder=ROOT/'parts';folder.mkdir(exist_ok=True)
     summaries=[]
@@ -55,6 +61,7 @@ def extract():
         if path.exists() and meta.exists():
             saved=json.loads(meta.read_text())
             assert saved['codes']==subset and saved['sha256']==sha(path) and saved['manifest_sha256']==sha(ROOT/'manifest.json')
+            assert saved['code_sha256']==code_hash
             summaries.append(saved);continue
         sources=[MINUTES/code[:2].upper()/(code[3:]+'.parquet') for code in subset]
         for source in sources:assert sha(source)==manifest['source_sha256'][str(source)]
@@ -107,17 +114,19 @@ def extract():
         frame=frame[[col for col in frame.columns if not col.startswith(('date_','code_'))]]
         valid=frame.bars.eq(229)&frame.labels.eq(229)&frame.valid_bars.fillna(False)
         frame['volume_confirmed']=(frame.retest_mean_volume.lt(frame.pulse_volume/5)&
-            frame.recovery_mean_volume.gt(frame.retest_mean_volume))
-        frame['category']=np.select([~valid,frame.pulse_minute.isna(),frame.retest_minute.isna(),
-            frame.recovery_minute.isna(),frame.last_cents.lt(frame.end_cents),~frame.volume_confirmed],CATEGORIES[:-1],default=CATEGORIES[-1])
+            frame.recovery_mean_volume.gt(frame.retest_mean_volume)).fillna(False)
+        conditions=[~valid,frame.pulse_minute.isna(),frame.retest_minute.isna(),
+            frame.recovery_minute.isna(),frame.last_cents.lt(frame.end_cents),~frame.volume_confirmed]
+        frame['category']=np.select([v.to_numpy(dtype=bool,na_value=False) for v in conditions],CATEGORIES[:-1],default=CATEGORIES[-1])
         frame['pulse_gain']=frame.end_cents/frame.start_cents-1
         frame=frame.sort_values(['date','code']).reset_index(drop=True)
         assert not frame.duplicated(['date','code']).any() and len(frame)==base.code.isin(subset).sum()
         frame.to_parquet(path,index=False,compression='zstd');c.close()
-        saved={'codes':subset,'rows':len(frame),'sha256':sha(path),'manifest_sha256':sha(ROOT/'manifest.json')}
+        saved={'codes':subset,'rows':len(frame),'sha256':sha(path),'manifest_sha256':sha(ROOT/'manifest.json'),'code_sha256':code_hash}
         save_json(meta,saved);summaries.append(saved)
         print(json.dumps({'codes':offset+len(subset),'total':len(codes),'rows':len(frame)}),flush=True)
-    result={'manifest_sha256':sha(ROOT/'manifest.json'),'rows':sum(s['rows'] for s in summaries),
+    result={'manifest_sha256':sha(ROOT/'manifest.json'),'extractor_code_sha256':code_hash,
+        'extractor_repair_sha256':sha(repair_path) if repair else None,'rows':sum(s['rows'] for s in summaries),
         'parts_sha256':{str(p):sha(p) for p in sorted(folder.glob('*.parquet'))},'new_2026_prices_read':False}
     save_json(ROOT/'raw_report.json',result);return result
 
