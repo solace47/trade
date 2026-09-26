@@ -1,0 +1,64 @@
+{
+  "rule_commit": "2e2b09a",
+  "snapshot_sha256": "e77caa3826d47607049e95c88fd88f8f187592c84eabbd4b5314acf2c8b3f20e",
+  "snapshot_current_year": 2026,
+  "issuer_pdf_sha256": "385546f3dfadd421ceea43772cdfb1429d46edeba3f8310b99347b83b6f5d9fb",
+  "records": [
+    {
+      "info_code": "AP202404241631113052",
+      "stock_code": "003006",
+      "pdf_sha256": "45f002a7af77205bc057d9e460c0266fc16c098a4d77ce34757b1d201f84966a",
+      "printed_date": "2024-03-22",
+      "eps_page": 2,
+      "eps_row_label": "摊薄每股收益（元）",
+      "forecast_eps": {"2024": "0.73", "2025": "0.91", "2026": "1.15"},
+      "chronology_conflict": true,
+      "referenced_report_date": "2024-03-26",
+      "public_time_verified": false
+    },
+    {
+      "info_code": "AP202403221627696936",
+      "stock_code": "688337",
+      "pdf_sha256": "670864d72f8fb58d43297b525f8d6fa407abd6b48341e49ea8ea7036625d2b58",
+      "printed_date": "2024-03-22",
+      "eps_page": 1,
+      "eps_row_label": "EPS-最新摊薄（元/股）",
+      "forecast_eps": {"2024": "0.85", "2025": "1.12", "2026": "1.39"},
+      "chronology_conflict": false,
+      "public_time_verified": false
+    },
+    {
+      "info_code": "AP202403221627638918",
+      "stock_code": "600011",
+      "pdf_sha256": "42c0abfbb36c7087988afee7fab04f5136c0ee5e512dda134e6b827bae634cbe",
+      "printed_date": "2024-03-22",
+      "eps_page": 1,
+      "eps_row_label": "EPS-最新摊薄（元/股）",
+      "forecast_eps": {"2024": "0.83", "2025": "1.00", "2026": "1.12"},
+      "chronology_conflict": false,
+      "public_time_verified": false
+    },
+    {
+      "info_code": "AP202403221627634074",
+      "stock_code": "600941",
+      "pdf_sha256": "1e2c2e14d0b6d9cf943080df81b6ed2282d7e3347669d51a06a24fc6428a99b4",
+      "printed_date": "2024-03-22",
+      "eps_page": 2,
+      "eps_row_label": "EPS(摊薄/元)",
+      "forecast_eps": {"2024": "6.62", "2025": "7.10", "2026": "7.59"},
+      "chronology_conflict": false,
+      "public_time_verified": false
+    },
+    {
+      "info_code": "AP202403221627624479",
+      "stock_code": "600223",
+      "pdf_sha256": "eb83013dd2d2bae4c62578f0565a7cfe2a5eed09ff9f4ad3f41d0226cd424b3a",
+      "printed_date": "2024-03-22",
+      "eps_page": 2,
+      "eps_row_label": "EPS(摊薄)(元)",
+      "forecast_eps": {"2024": "0.31", "2025": "0.40", "2026": "0.48"},
+      "chronology_conflict": false,
+      "public_time_verified": false
+    }
+  ]
+}

@@ -69,6 +69,8 @@ PYTHONPATH=src .venv/bin/python -m trade_research.minute_prefix_1449 --threads 4
 
 在这些固定输入上运行 `PYTHONPATH=src .venv/bin/python -m trade_research.reference_gain_inputs`，重建初始化稳定且当日下跌的两组与严格同日配对，输出目录为 `data/research/reference_gain_inputs/`。四期输入门槛全部失败，不能连接到成交或收益程序；匹配器新增的历史换手条件是可选参数，原整数位置的 596 对已逐项验证不变。
 
+分析师旧研报的固定来源核验运行 `PYTHONPATH=src .venv/bin/python -m trade_research.analyst_source_probe`。它按 `config/analyst_source_probe_reviews.json` 锁定五份接口记录、PDF SHA、预测财年和人工审阅值，验证表格及内部日期矛盾；本地原响应、原件、页面、独立 Poppler 提取及核验报告在 `data/research/analyst_revision_source/`。PDF 制作时间和文档编号不当作首次公开证明，当前核验未通过可交易事件来源要求。默认首页的当前研报元数据单独留在 `source_docs/live_page_isolated.html`，不接入策略输入；复算程序只读固定 2024 年原件。
+
 依次执行 `trade_research.cash_dividend_catalog freeze`、`fetch`、`assemble`，再执行 `trade_research.cash_dividend_notices collect`、`reconcile` 与 `trade_research.cash_dividend_primary`。均使用 `PYTHONPATH=src .venv/bin/python -m` 前缀。前者冻结 2024–2025 历史主板证券年度键，逐项缓存完整或明确为空的响应；错误不冒充空结果。公告索引只取 2024–2025 披露记录，分页缺口会停止或拆分重取；发行人/日期的补充检索缓存在 `cash_dividend_catalog/notice_gaps/`。
 
 [`cash_dividend_vendor_reviews.json`](../config/cash_dividend_vendor_reviews.json) 保存精确原始记录指纹及同日冲突核准；[`cash_dividend_primary_supplements.json`](../config/cash_dividend_primary_supplements.json) 保存遗漏、字段纠正、重复公告和跨期原件。原件 SHA、现金、日期与差异化参考金额均独立验证；补充结果写入 `events_augmented.parquet`，不覆盖原始接口或原目录。全目录仍不能一概视为原件条款全部核准。
