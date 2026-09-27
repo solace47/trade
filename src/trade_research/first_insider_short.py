@@ -1,6 +1,7 @@
 """Complete disclosed first insider purchases, with fixed short exits."""
 import argparse
 import bisect
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -57,7 +58,7 @@ def sources():
             stamp = pd.to_datetime(r.announcement_time_ms,unit='ms',utc=True).tz_convert('Asia/Shanghai')
             assert stamp.strftime('%Y-%m-%d')==r.notice_date
             records.append(dict(r._asdict(),**current,pdf_path=str(file),pdf_sha256=hashes[str(file)],
-                normalized_text_sha256=__import__('hashlib').sha256(compact.encode()).hexdigest(),
+                normalized_text_sha256=hashlib.sha256(compact.encode()).hexdigest(),
                 related_actor_title=bool(RELATED.search(r.title)),pages=pages))
     table = pd.DataFrame(records).sort_values(['notice_date','code','pdf_url']).reset_index(drop=True)
     assert not table.pdf_url.duplicated().any()

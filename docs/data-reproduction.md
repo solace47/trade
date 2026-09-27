@@ -273,3 +273,10 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 对`data/research/touch_sequence/morning`依次调用`tick_morning_exit.raw(ROOT=..., PROTOCOL=Path('config/touch_sequence_protocol.json'))`、`scripts/verify_tick_morning_exit.py windows --root ...`、`tick_morning_exit.labels(ROOT=...)`和同一核对脚本的`labels --root ...`。原尾盘66列须先完整复现。然后运行`trade_research.touch_sequence_analysis`及`scripts/verify_touch_sequence_analysis.py`；结果后拆解用`scripts/diagnose_touch_sequence_loss.py`，不能作为选股条件。
 
 `config/touch_sequence_pair_accounting_repair.json`说明初版未配者半年字段缺失导致的分组漏计。原输入和选择保留；当前分析从每条信号日期重建半年，1,846个未配者必须进入4,143个主组分母，原分析归档`invalid_pair_denominator/`。所有原件、输入、未知路径、费用情景、配对和大涨／大亏反向画像保存在该研究目录，本轮不读取新2026价格。
+
+
+## 已披露首次实际增持的短线接续
+
+协议为`config/first_insider_short_protocol.json`。依次运行`PYTHONPATH=src .venv/bin/python -m trade_research.first_insider_short sources`、`inputs`和`scripts/verify_first_insider_short_inputs.py`，再运行同一模块的`exits`。只复用`first_insider_buy`既有109份原件，不下载月度回购PDF；原文重新提取，日历及最近对照独立SQL核对，全部未配者保留。
+
+对`data/research/first_insider_short/morning`依次调用`tick_morning_exit.raw(ROOT=...,PROTOCOL=Path('config/first_insider_short_protocol.json'))`、通用核对脚本`windows --root ...`、`tick_morning_exit.labels(ROOT=...)`和`labels --root ...`。然后运行`first_insider_short analyze`及`scripts/verify_first_insider_short_analysis.py`。两种退出同时固定，空结果类别的比例存为未知，不补零。通用分析器扩展事件字段后，原触板研究全部报告字段及产物哈希回归一致。

@@ -110,7 +110,8 @@ def analyze(ROOT=ROOT, GROUPS=GROUPS, event_column='touched', interpretation=Non
                         count = rows.groupby(['date','group']).size().unstack(fill_value=0).reindex(columns=GROUPS,fill_value=0)
                         fractions = count.div(count.sum(axis=1),axis=0)
                         reverse.append(dict(exit=exit_name,period=period,label=label,rows=len(rows),dates=len(count),
-                            counts=rows.group.value_counts().to_dict(),mean_daily_group_fraction=fractions.mean().to_dict()))
+                            counts=rows.group.value_counts().to_dict(),
+                            mean_daily_group_fraction={k:number(v) for k,v in fractions.mean().items()}))
             print(json.dumps(dict(exit=exit_name,cost_bps=cost,groups=len(groups))),flush=True)
     outputs = {'scenarios':scenarios,'groups_daily':days,'pairs':pair_rows,'pairs_daily':pair_days}
     for name,tables in outputs.items():
