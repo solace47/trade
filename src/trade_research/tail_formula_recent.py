@@ -33,7 +33,7 @@ def freeze():
     out=f[['date','code','half','board','decision_shares']].copy()
     out['selected']=f.date.ge('2025-07-01')&f.formula_input_valid&f.score.gt(cut['threshold'])
     out.to_parquet(ROOT/'selection.parquet',index=False,compression='zstd')
-    (ROOT/'frozen_numeric_core.tdx').write_text(base.native_core(m,cut['threshold'],inputs.EXPRESSIONS,inputs.HEADER))
+    (ROOT/'frozen_numeric_core.tdx').write_text(base.native_core(m,cut['threshold'],base.EXPRESSIONS,base.HEADER))
     r=dict(protocol_sha256=sha(PROTOCOL),model_report_sha256=sha(ROOT/'model_report.json'),
         score_report_sha256=sha(ROOT/'score_report.json'),prior_calibration_report_sha256=sha(inputs.ROOT/'selection_report.json'),
         selection_sha256=sha(ROOT/'selection.parquet'),core_sha256=sha(ROOT/'frozen_numeric_core.tdx'),
