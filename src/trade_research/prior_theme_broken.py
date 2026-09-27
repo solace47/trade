@@ -104,6 +104,7 @@ def fetch():
                 body.write_bytes(pilot.read_bytes())
                 exit_code, http_code, error = 0, "200", ""
             else:
+                request_started = time.monotonic()
                 r = subprocess.run(["curl", "--silent", "--show-error", "--max-time", "25", "--connect-timeout", "10",
                                     "--header", "sdk-key: anonymous", "--user-agent", "trade-research/1.0",
                                     "--output", str(body), "--write-out", "%{http_code}", url],
@@ -121,7 +122,9 @@ def fetch():
                     receipt["status"] = "invalid_json_or_structure"
             save_json(meta, receipt)
             if not reused:
-                time.sleep(3)
+                # Maintain >=3 seconds between request starts. Network latency
+                # already counts toward that interval; do not add it twice.
+                time.sleep(max(0, 3 - (time.monotonic() - request_started)))
         receipts.append(receipt)
         if len(receipts) % 20 == 0 or receipt["status"] != "historical_response_received":
             print(json.dumps(dict(completed=len(receipts), total=len(jobs), source_date=job.source_date,
