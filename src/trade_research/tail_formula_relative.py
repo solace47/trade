@@ -28,15 +28,20 @@ def setup(variant):
 
 
 def training(variant):
-    assert variant in ['relative','risk','absolute']
+    assert variant in ['relative','risk','absolute','margin']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
     # Price opportunities and adverse marks only; no future exit fields.
-    labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15 FROM read_parquet(?)
+    extra=',sustained_return15' if variant=='margin' else ''
+    labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     assert labels.adverse_return15.notna().all()
-    labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
+    if variant=='margin':
+        assert np.isfinite(labels.sustained_return15).all()
+        labels['utility']=labels.sustained_return15.clip(-.01,.01)/.01
+    else:
+        labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
     labels['target']=labels.utility if variant=='absolute' else labels.utility-labels.groupby('date').utility.transform('mean')
     t=t.merge(labels[['date','code','target']],on=['date','code'],validate='one_to_one')
     return t.sort_values(['date','code']).reset_index(drop=True)
@@ -89,6 +94,8 @@ def verify_model(variant):
     assert r['parameters']['max_depth']==depth
     f=base.feature_inputs();c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
+    if variant=='margin':
+        utility='greatest(-1.,least(1.,sustained_return15/.01))'
     target='utility' if variant=='absolute' else 'utility-avg(utility) OVER(PARTITION BY date)'
     c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
         FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
