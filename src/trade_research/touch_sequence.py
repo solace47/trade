@@ -189,7 +189,7 @@ def inputs():
     return report
 
 
-def prepare_exits():
+def prepare_exits(ROOT=ROOT, PROTOCOL=PROTOCOL):
     target = ROOT / 'morning'
     if (target / 'input_report.json').exists():
         raise ValueError('Do not replace fixed exit inputs')

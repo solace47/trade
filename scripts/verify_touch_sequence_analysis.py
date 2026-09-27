@@ -17,7 +17,8 @@ PAIR_VALUES = ['selected_paired_mean','control_paired_mean','net_difference']
 GROUPS = ['early_open_rising','early_open_not_rising','late_first_touch_open','tail_retouch_open','unknown_source']
 
 
-def check():
+def check(ROOT=ROOT, GROUPS=GROUPS, event_column='touched'):
+    assert event_column in ['touched','event']
     report = json.loads((ROOT/'analysis_report.json').read_text())
     assert report['input_report_sha256'] == sha(ROOT/'input_report.json')
     assert report['input_verification_sha256'] == sha(ROOT/'input_verification.json')
@@ -37,7 +38,7 @@ def check():
         UNION ALL BY NAME SELECT 'tail' AS exit,* FROM tail""")
     assert c.sql("""SELECT count(*) FROM features f JOIN exits e USING(date,code)
         WHERE f.decision_shares<>e.decision_shares OR NOT e.necessary_tradeable""").fetchone()[0] == 0
-    c.execute("""CREATE VIEW originals AS SELECT f.date,f.code,f.half,f."group",f.primary,f.touched,f.source_valid,e.exit,k.cost_bps,
+    c.execute(f"""CREATE VIEW originals AS SELECT f.date,f.code,f.half,f."group",f.primary,f.{event_column},f.source_valid,e.exit,k.cost_bps,
         CASE WHEN k.cost_bps=5 THEN label5 ELSE label15 END AS original_label,
         CASE WHEN k.cost_bps=5 THEN net_return5 ELSE net_return15 END AS original_net_return
         FROM features f JOIN exits e USING(date,code) CROSS JOIN (VALUES(5),(15)) k(cost_bps)""")
@@ -52,8 +53,8 @@ def check():
     actual = pd.read_parquet(ROOT/'scenarios.parquet').sort_values(order).reset_index(drop=True)
     pd.testing.assert_frame_equal(actual[expected.columns],expected,check_dtype=False,check_exact=True)
     assert len(expected) == report['rows']*4
-    c.execute("""CREATE VIEW arms AS SELECT * FROM scenarios WHERE touched UNION ALL
-        SELECT * REPLACE('all' AS "group") FROM scenarios WHERE touched""")
+    c.execute(f"""CREATE VIEW arms AS SELECT * FROM scenarios WHERE {event_column} UNION ALL
+        SELECT * REPLACE('all' AS "group") FROM scenarios WHERE {event_column}""")
     c.execute("""CREATE VIEW counts AS SELECT date,half,"group",exit,cost_bps,count(*) AS n,
         count(net_return) AS known,count(*) FILTER(WHERE label='unknown') AS unknown,
         count(*) FILTER(WHERE label='no_trade') AS no_trade,count(*) FILTER(WHERE net_return>=.01) AS winner_count,
@@ -67,7 +68,7 @@ def check():
     pd.testing.assert_frame_equal(actual[daily.columns],daily,check_dtype=False,atol=2e-12,rtol=0)
     for item in report['groups']:
         identity = (item['exit'],item['cost_bps'],item['group'],item['period'])
-        rows = expected.loc[expected.exit.eq(item['exit']) & expected.cost_bps.eq(item['cost_bps']) & expected.touched]
+        rows = expected.loc[expected.exit.eq(item['exit']) & expected.cost_bps.eq(item['cost_bps']) & expected[event_column]]
         if item['group'] != 'all':
             rows = rows.loc[rows.group.eq(item['group'])]
         rows = numeric.period(rows,item['period'])
@@ -124,7 +125,7 @@ def check():
             numeric.eq(item[name],numeric.clean(d[name].mean()),('pair',item['period'],name))
             numeric.eq(item[name+'_week_interval'],numeric.interval(d,name),('pair',item['period'],name,'interval'))
     for item in report['reverse']:
-        rows = numeric.period(expected.loc[expected.touched & expected.exit.eq(item['exit']) & expected.cost_bps.eq(15)],item['period'])
+        rows = numeric.period(expected.loc[expected[event_column] & expected.exit.eq(item['exit']) & expected.cost_bps.eq(15)],item['period'])
         if item['label']=='big_winner':
             rows = rows.loc[rows.net_return.ge(.03)]
         elif item['label']=='big_loser':

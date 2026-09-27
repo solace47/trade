@@ -13,7 +13,8 @@ PAIR_COUNTS = ['no_match', 'both_known', 'selected_only', 'control_only', 'both_
 PAIR_VALUES = ['selected_paired_mean', 'control_paired_mean', 'net_difference']
 
 
-def analyze():
+def analyze(ROOT=ROOT, GROUPS=GROUPS, event_column='touched', interpretation=None):
+    assert event_column in ['touched', 'event']
     if (ROOT / 'analysis_report.json').exists():
         raise ValueError('Do not replace inspected touch results')
     inputs = json.loads((ROOT / 'input_report.json').read_text())
@@ -39,7 +40,7 @@ def analyze():
         f = features.merge(labels, on=['date','code'],validate='one_to_one', suffixes=('','_label'))
         assert len(f) == len(features) and f.decision_shares.eq(f.decision_shares_label).all()
         for cost in [5,15]:
-            p = f[['date','code','half','group','primary','touched','source_valid']].copy()
+            p = f[['date','code','half','group','primary',event_column,'source_valid']].copy()
             p['exit'] = exit_name
             p['cost_bps'] = cost
             p['original_label'] = f[f'label{cost}']
@@ -56,7 +57,7 @@ def analyze():
             p['positive'] = p.net_return.gt(0)
             assert (p.known.astype(int)+p.unknown.astype(int)+p.no_trade.astype(int)).eq(1).all()
             scenarios.append(p)
-            touches = p.loc[p.touched]
+            touches = p.loc[p[event_column]]
             for group in ['all',*GROUPS]:
                 rows = touches if group=='all' else touches.loc[touches.group.eq(group)]
                 day = aggregate(rows,['date','half'])
@@ -117,10 +118,11 @@ def analyze():
     report = dict(input_report_sha256=sha(ROOT/'input_report.json'),input_verification_sha256=sha(ROOT/'input_verification.json'),
         morning_label_verification_sha256=sha(morning/'label_verification.json'),
         morning_labels_sha256=sha(morning/'labels.parquet'),tail_labels_sha256=sha(morning/'old_tail_labels.parquet'),
-        rows=len(features),touched=int(features.touched.sum()),primary=int(features.primary.sum()),
-        interpretation='Exploratory 2024/2025; source-invalid prefix profits unknown; independent cash scenarios, not a portfolio or investor identity',
+        rows=len(features),primary=int(features.primary.sum()),
+        interpretation=interpretation or 'Exploratory 2024/2025; source-invalid prefix profits unknown; independent cash scenarios, not a portfolio or investor identity',
         groups=groups,pair_groups=pair_groups,reverse=reverse,
         output_sha256={n+'.parquet':sha(ROOT/(n+'.parquet')) for n in outputs},new_2026_prices_read=False)
+    report[event_column] = int(features[event_column].sum())
     save_json(ROOT/'analysis_report.json',report)
     return dict(groups=len(groups),pair_groups=len(pair_groups),reverse=len(reverse))
 
