@@ -1,0 +1,12 @@
+{
+  "objective": "核查历史指数分时是否可用于通达信INDEXC的14:49市场输入，暂不连接任何选股结果。",
+  "source": "复用已经通过历史分笔探针的公开行情服务器。历史分时协议参考 https://github.com/rainx/pytdx/blob/master/pytdx/parser/get_history_minute_time_data.py ，只实现只读请求及独立解码，不安装外部交易软件。",
+  "host": "1.202.143.37",
+  "port": 7709,
+  "timeout_seconds": 5,
+  "symbols": ["sh.000001", "sz.399001", "sh.600000"],
+  "dates": ["2024-01-02", "2024-12-02", "2025-12-01"],
+  "validation": "缓存完整请求响应。核对首尾、条数、正价格及日线包络；股票对照另与原始分钟逐位对齐，以辨别240/241根及分钟时标。指数若无历史则记录不可用，不补零或替换成当前日。",
+  "outcomes_read": false,
+  "new_2026_prices_allowed": false
+}
