@@ -145,5 +145,6 @@ if __name__=='__main__':
     p.add_argument('stage',choices=['scores','selection'])
     p.add_argument('--root',type=Path,default=ROOT)
     p.add_argument('--protocol',type=Path,default=PROTOCOL)
-    args=p.parse_args();ROOT=args.root;PROTOCOL=args.protocol
+    p.add_argument('--features-root',type=Path,default=FEATURES)
+    args=p.parse_args();ROOT=args.root;PROTOCOL=args.protocol;FEATURES=args.features_root
     print(json.dumps(globals()[args.stage](),ensure_ascii=False,indent=2))
