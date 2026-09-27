@@ -44,12 +44,14 @@ def summary(daily,rows,identifiers):
     return result
 
 
-def evaluate():
+def evaluate(ROOT=ROOT,FEATURES=FEATURES,BANDS=BANDS,include_inverse=True,group_columns=None):
     if (ROOT/"analysis_report.json").exists():raise ValueError("Do not overwrite inspected direction results")
     gate=json.loads((ROOT/"input_verification.json").read_text())
     assert gate["passed"] and gate["input_report_sha256"]==sha(ROOT/"input_report.json")
     inputs=json.loads((ROOT/"input_report.json").read_text())
-    for name,digest in inputs["output_sha256"].items():assert sha(ROOT/name)==digest
+    output_hashes=inputs.get("output_sha256",{"features.parquet":inputs.get("features_sha256")})
+    for name,digest in output_hashes.items():assert sha(ROOT/name)==digest
+    group_columns=group_columns or {feature:feature+"_group" for feature in FEATURES}
     proof=json.loads((LABELS/"analysis_verification.json").read_text())
     assert proof["passed"] and proof["analysis_report_sha256"]==sha(LABELS/"analysis_report.json")
     assert sha(LABELS/"labels.parquet")==json.loads((LABELS/"label_report.json").read_text())["labels_sha256"]
@@ -82,7 +84,7 @@ def evaluate():
             for period in PERIODS:
                 baselines.append(summary(in_period(base,period),in_period(p,period),dict(quality=quality,cost_bps=cost,period=period)))
             for feature in FEATURES:
-                p["band"]=p[feature+"_group"]
+                p["band"]=p[group_columns[feature]]
                 daily=aggregate(p,["date","half","band"])
                 daily=daily.merge(base[["date",*METRICS]],on="date",validate="many_to_one",suffixes=("","_baseline"))
                 for name in ["winner","loser","positive"]:
@@ -96,7 +98,7 @@ def evaluate():
                         data=in_period(daily,period);raw=in_period(p,period)
                         groups.append(summary(data.loc[data.band.eq(band)],raw.loc[raw.band.eq(band)],
                             dict(quality=quality,cost_bps=cost,feature=feature,period=period,band=band)))
-                if cost==15:
+                if cost==15 and include_inverse:
                     for period in PERIODS:
                         part=in_period(p,period)
                         for label in ["economic_winner","economic_loser","middle","unknown","no_trade"]:

@@ -56,7 +56,8 @@ def period(p,value):
     return p.loc[p.half.eq(value) if "H" in value else p.date.str.startswith(value)]
 
 
-def main():
+def main(ROOT=ROOT,FEATURES=FEATURES,group_columns=None,write_report=True):
+    group_columns=group_columns or {feature:feature+"_group" for feature in FEATURES}
     report=json.loads((ROOT/"analysis_report.json").read_text())
     for name,digest in report["outputs_sha256"].items():assert sha(ROOT/(name+".parquet"))==digest
     c=duckdb.connect()
@@ -83,7 +84,7 @@ def main():
     for name in ["date","code","quality","cost_bps","label","net_return"]:
         pd.testing.assert_series_equal(saved[name],scenario[name],check_dtype=False)
     arms=["select quality,cost_bps,date,half,code,label,net_return,'baseline' as feature,'all' as band from scenario"]
-    arms.extend(f"select quality,cost_bps,date,half,code,label,net_return,'{f}' as feature,{f}_group as band from scenario" for f in FEATURES)
+    arms.extend(f'''select quality,cost_bps,date,half,code,label,net_return,'{f}' as feature,"{group_columns[f]}" as band from scenario''' for f in FEATURES)
     c.execute("create view arms as "+" union all ".join(arms))
     c.execute("""create view grouped as select quality,cost_bps,feature,band,date,half,
         count(*) as n,count(net_return) as known,count(*) filter(where label='unknown') as unknown,
@@ -116,7 +117,7 @@ def main():
                 &daily.feature.eq(identity["feature"])&daily.band.eq(identity["band"])]
             p=period(p,identity["period"])
             raw=scenario.loc[scenario.quality.eq(identity["quality"])&scenario.cost_bps.eq(identity["cost_bps"])]
-            if identity["feature"]!="baseline":raw=raw.loc[raw[identity["feature"]+"_group"].eq(identity["band"])]
+            if identity["feature"]!="baseline":raw=raw.loc[raw[group_columns[identity["feature"]]].eq(identity["band"])]
             raw=period(raw,identity["period"])
             counters={"stock_days":int(p.n.sum()),"dates":len(p),"known":int(p.known.sum()),"unknown":int(p.unknown.sum()),
                 "no_trade":int(p.no_trade.sum()),"winner_cases":int(p.winner_count.sum()),"loser_cases":int(p.loser_count.sum()),
@@ -146,8 +147,9 @@ def main():
         label_joins=len(original),scenario_rows=len(scenario),daily_rows=len(daily),
         group_summaries=len(report["groups"]),inverse_summaries=len(report["inverse"]),statistics_checked=checked,
         prices_2026_read=False)
-    save_json(ROOT/"analysis_verification.json",result)
+    if write_report:save_json(ROOT/"analysis_verification.json",result)
     print(json.dumps(result,ensure_ascii=False,indent=2))
+    return result
 
 
 if __name__=="__main__":main()
