@@ -50,7 +50,9 @@ def model(variant):
     start,end,_=training_scope()
     x=base.encode(train);y=train.target.to_numpy()
     w=1/train.groupby('date').code.transform('size').to_numpy()
-    model=GradientBoostingRegressor(loss='squared_error',n_estimators=64,learning_rate=.05,max_depth=2,
+    depth=json.loads(PROTOCOL.read_text()).get('model_max_depth',2)
+    assert depth in [2,3]
+    model=GradientBoostingRegressor(loss='squared_error',n_estimators=64,learning_rate=.05,max_depth=depth,
         min_samples_leaf=300,subsample=1.,random_state=20260927)
     model.fit(x,y,sample_weight=w)
     trees=[]
@@ -80,6 +82,8 @@ def verify_model(variant):
     assert r['label_report_sha256']==sha(base.SOURCE/'full_label_report.json')
     start,end,where=training_scope()
     assert r.get('training_start')==start and r.get('training_end','2025-01-01')==end
+    depth=json.loads(PROTOCOL.read_text()).get('model_max_depth',2)
+    assert r['parameters']['max_depth']==depth
     f=base.feature_inputs();c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
@@ -98,8 +102,10 @@ def verify_model(variant):
     score=np.full(len(d),r['bias']);checks=0
     assert len(r['trees'])==64 and r['learning_rate']==.05
     for tree in r['trees']:
-        residual=y-score;masks={0:np.ones(len(d),dtype=bool)};terminal=np.empty(len(d))
+        assert len(tree['feature'])<=2**(depth+1)-1
+        residual=y-score;masks={0:np.ones(len(d),dtype=bool)};levels={0:0};terminal=np.empty(len(d))
         for i in range(len(tree['feature'])):
+            assert levels[i]<=depth
             mask=masks[i];weights=w[mask]
             assert int(mask.sum())==tree['n_node_samples'][i]
             mean=np.average(residual[mask],weights=weights)
@@ -114,6 +120,7 @@ def verify_model(variant):
             else:
                 lower=x[:,tree['feature'][i]]<=tree['threshold'][i]
                 masks[left],masks[right]=mask&lower,mask&~lower
+                levels[left]=levels[right]=levels[i]+1
             checks+=1
         score+=.05*terminal
     for q,t in zip(base.QUANTILES,r['thresholds']):

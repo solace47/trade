@@ -60,8 +60,10 @@ def leaf_indices(x,t):
     right=np.asarray(t['children_right'])
     feature=np.asarray(t['feature'])
     threshold=np.asarray(t['threshold'])
-    for _ in range(2):
+    for _ in range(len(left)):
         active=left[node]>=0
+        if not active.any():
+            break
         n=node[active]
         branch=x[active,feature[n]]<=threshold[n]
         node[active]=np.where(branch,left[n],right[n])

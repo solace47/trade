@@ -201,7 +201,8 @@ def analysis_check(ROOT=ROOT):
                 'upper_delta':a.upper-b.lower,'mark1000_delta':a.mean1000-b.mean1000})
             eq(s['days'],len(d),'days')
             for name in d:
-                eq(s[name],d[name].mean(),name)
+                value=d[name].mean()
+                eq(s[name],float(value) if pd.notna(value) else None,name)
                 checks+=1
                 if name!='mark1000_delta':
                     eq(s[name+'_ci'],interval(d.reset_index(),name),name+'_ci')
@@ -211,10 +212,11 @@ def analysis_check(ROOT=ROOT):
             for name in ['rows','known','success','unknown','no_trade']:
                 eq(s[name],d[name].sum(),name);checks+=1
             eq(s['days'],len(d),'days')
-            eq(s['pooled_rate'],d.success.sum()/d.known.sum(),'pooled_rate')
-            eq(s['mean_selected_per_day'],d.rows.mean(),'mean_selected_per_day')
+            eq(s['pooled_rate'],d.success.sum()/d.known.sum() if d.known.sum() else None,'pooled_rate')
+            eq(s['mean_selected_per_day'],float(d.rows.mean()) if len(d) else None,'mean_selected_per_day')
             for name in ['rate','lower','upper','one_percent_rate','any_rate','mean1000','negative1000','adverse_mean','bad3']:
-                eq(s[name],d[name].mean(),name);checks+=1
+                value=d[name].mean()
+                eq(s[name],float(value) if pd.notna(value) else None,name);checks+=1
                 if name in ['rate','lower','upper']:
                     eq(s[name+'_ci'],interval(d,name),name+'_ci');checks+=1
             checks+=3
