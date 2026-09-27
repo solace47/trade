@@ -1,4 +1,5 @@
 """Probe raw minute aggregation against daily context; not a client compilation test."""
+import argparse
 import json
 from pathlib import Path
 
@@ -32,7 +33,8 @@ def main():
         assert json.loads(frozen.read_text())==metadata
     else:
         save_json(frozen,metadata)
-    actual=c.sql('SELECT date,code,A04,D01,D02,D03,D04,C01,C02,C03,C04,C05,C06,C07,C08 FROM features').df().set_index(['date','code'])
+    extra=',V01' if 'V01' in report['expressions'] else ''
+    actual=c.sql('SELECT date,code,A04,D01,D02,D03,D04,C01,C02,C03,C04,C05,C06,C07,C08'+extra+' FROM features').df().set_index(['date','code'])
     rows=[]
     for k in keys.itertuples(index=False):
         dp=DAILY/(k.code.replace('.','_')+'.parquet')
@@ -59,6 +61,10 @@ def main():
                 C02=100*(today.hi-today.lo)/p[0],C03=100*(today.hi-price)/p[0],
                 C04=100*(min(today.op,price)-today.lo)/p[0],C05=today.vol/before.vol.tail(5).mean(),
                 C06=today.amount/1e8,C07=100*(price/before.hi.tail(20).max()-1),C08=100*(price/before.lo.tail(20).min()-1))
+            if extra:
+                previous=before.cl.shift()
+                tr=pd.concat([before.hi-before.lo,(before.hi-previous).abs(),(before.lo-previous).abs()],axis=1).max(axis=1)
+                rebuilt['V01']=100*tr.tail(20).mean()/p[0]
             for field,value in rebuilt.items():
                 original=float(actual.loc[(k.date,k.code),field])
                 if not np.isclose(value,original,rtol=1e-9,atol=2e-6):
@@ -67,6 +73,7 @@ def main():
             row['history_unavailable']=True
         rows.append(row)
     result=dict(keys_sha256=sha(frozen),sampled_windows=len(rows),date_alignment_failures=sum(not r['prior_dates_match'] for r in rows),
+        unavailable_windows=sum(r.get('history_unavailable',False) for r in rows),
         windows_with_field_differences=sum(bool(r['differences']) for r in rows),details=rows,
         software_compilation_verified=False,probe_is_not_full_native_parity=True,outcomes_read=False,new_2026_prices_read=False)
     save_json(ROOT/'native_history_probe.json',result)
@@ -74,4 +81,7 @@ def main():
 
 
 if __name__=='__main__':
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('--root',type=Path,default=ROOT)
+    ROOT=p.parse_args().root
     print(json.dumps(main(),ensure_ascii=False,indent=2))
