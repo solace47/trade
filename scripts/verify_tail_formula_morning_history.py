@@ -1,6 +1,8 @@
 """Independent full-window and historical-alignment checks for morning inputs."""
 import argparse
+import hashlib
 import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -8,7 +10,7 @@ import pandas as pd
 from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_float as previous
 from trade_research import tail_formula_morning_history as study
-from trade_research.corporate_cash import save_json, sha
+from trade_research.corporate_cash import MINUTES, save_json, sha
 
 ROOT = study.ROOT
 KEYS = ['code', 'date']
@@ -141,6 +143,88 @@ def features():
     save_json(ROOT / 'feature_verification.json', report); return report
 
 
+def native():
+    _, manifest, schedule = study.raw.checked()
+    r = json.loads((ROOT / 'feature_report.json').read_text())
+    v = json.loads((ROOT / 'feature_verification.json').read_text())
+    assert v['passed'] and v['feature_report_sha256'] == sha(ROOT / 'feature_report.json')
+    assert r['features_sha256'] == sha(ROOT / 'features.parquet')
+    f = pd.read_parquet(ROOT / 'features.parquet', columns=['date','code','half','formula_input_valid',
+        'morning_history_valid','mh_valid_count','mh_first_reference','mh_last_morning','A04','V01','HM01','HM02'])
+    f['identity'] = [hashlib.sha256(('morning_history_native|' + d + '|' + c).encode()).hexdigest()
+                     for d, c in zip(f.date, f.code)]
+    sample = f.sort_values('identity').groupby(['half','formula_input_valid'], sort=True).head(4)
+    sources = {}; cases = []; total_minutes = 0
+    for row in sample.itertuples(index=False):
+        days = schedule.loc[schedule.code.eq(row.code), 'date'].sort_values().tolist()
+        index = days.index(row.date)
+        # Twenty-one prior stock dates plus the current prefix also preserve the
+        # VALUEWHEN state before the twenty morning observations being tested.
+        wanted = days[max(0,index-21):index+1]
+        path = MINUTES / row.code[:2].upper() / (row.code[3:] + '.parquet')
+        digest = manifest['minute_source_sha256'][str(path)]
+        if str(path) not in sources:
+            assert sha(path) == digest; sources[str(path)] = digest
+        q = pd.read_parquet(path, columns=['timestamp','close','volume'], filters=[
+            ('timestamp','>=',pd.Timestamp(wanted[0])), ('timestamp','<=',pd.Timestamp(row.date + ' 14:49:00'))])
+        q['date'] = q.timestamp.dt.strftime('%Y-%m-%d'); q['clock'] = q.timestamp.dt.strftime('%H%M')
+        q = q.loc[q.date.isin(wanted)].sort_values('timestamp').reset_index(drop=True)
+        assert q.timestamp.max() <= pd.Timestamp(row.date + ' 14:49:00')
+        total_minutes += len(q)
+        q['price'] = q.close.round(2)
+        q['good'] = (q.timestamp.eq(q.timestamp.dt.floor('min')) & np.isfinite(q.close) & q.close.gt(0)
+                     & q.close.sub(q.price).abs().le(.0001) & np.isfinite(q.volume)
+                     & q.volume.ge(0) & q.volume.eq(np.floor(q.volume)))
+        # Replay the declared native series on the full chronological minute
+        # prefix, independently of daily aggregation or SQL partition windows.
+        quote = q.price.where(q.clock.eq('1449')).ffill()
+        low3 = q.price.rolling(3, min_periods=3).min()
+        min_volume3 = q.volume.rolling(3, min_periods=3).min()
+        valid_three_price = low3.where(min_volume3.gt(0), 0.)
+        peak28 = valid_three_price.rolling(28, min_periods=28).max()
+        q['HMR'] = (100*(q.price/quote-1)).where(q.clock.eq('1000')).ffill()
+        q['HMP'] = peak28.gt(quote).astype(float).where(q.clock.eq('1000')).ffill()
+        target_days = days[max(0,index-19):index+1]
+        all_atoms_valid = len(target_days) == 20; values = []; flags = []
+        for day in target_days:
+            j = days.index(day)
+            morning = q.loc[q.date.eq(day) & q.clock.isin(CLOCKS)]
+            prior = q.loc[q.date.eq(days[j-1]) & q.clock.eq('1449')] if j else q.iloc[:0]
+            valid = (len(morning)==30 and morning.clock.tolist()==CLOCKS and morning.good.all()
+                     and len(prior)==1 and prior.good.all())
+            all_atoms_valid &= valid
+            # Native REF(HMR,Bi) refers to the preceding stock date's final bar;
+            # the current lookup uses only the prefix ending at 14:49.
+            end = q.loc[q.date.eq(day)].iloc[-1] if q.date.eq(day).any() else None
+            values.append(float(end.HMR) if end is not None else np.nan)
+            flags.append(float(end.HMP) if end is not None else np.nan)
+        assert all_atoms_valid == bool(row.mh_valid_count == 20)
+        usable = all_atoms_valid and np.isfinite(row.V01) and row.V01 > 0
+        assert usable == row.morning_history_valid
+        if usable:
+            hm1 = float(np.mean(values)/row.V01); hm2 = float(5*np.sum(flags))
+            np.testing.assert_allclose([hm1,hm2],[row.HM01,row.HM02],rtol=0,atol=2e-12)
+            a = np.floor(np.clip(100*np.array([hm1,hm2])+10000+.000001,0,999999)).astype('int32')
+            b = np.floor(np.clip(100*np.array([row.HM01,row.HM02])+10000+.000001,0,999999)).astype('int32')
+            np.testing.assert_array_equal(a,b)
+        else:
+            assert pd.isna(row.HM01) and pd.isna(row.HM02)
+        current = q.loc[q.date.eq(row.date) & q.clock.eq('1449')]
+        assert len(current)==1
+        np.testing.assert_allclose(current.price.iloc[0],row.A04,rtol=0,atol=.0001)
+        cases.append(dict(date=row.date,code=row.code,formula_input_valid=bool(row.formula_input_valid),
+                          morning_history_valid=usable,stock_dates=len(wanted),raw_minutes=len(q)))
+    proof = dict(passed=True,feature_report_sha256=sha(ROOT / 'feature_report.json'),
+                 feature_verification_sha256=sha(ROOT / 'feature_verification.json'),
+                 samples=len(cases),raw_minutes=total_minutes,cases=cases,source_sha256=sources,
+                 full_chronological_VALUEWHEN_and_three_bar_window_series_replayed=True,
+                 previous_verified_V01_normalizer_reused=True,new_indicator_scalars_and_encodings_rebuilt=True,
+                 software_compilation_verified=False,native_client_data_parity_verified=False,
+                 new_selection_outcomes_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    save_json(ROOT / 'native_input_verification.json',proof)
+    return {key:value for key,value in proof.items() if key not in ['cases','source_sha256']}
+
+
 if __name__ == '__main__':
-    p = argparse.ArgumentParser(description=__doc__); p.add_argument('stage', choices=['windows', 'features'])
+    p = argparse.ArgumentParser(description=__doc__); p.add_argument('stage', choices=['windows', 'features', 'native'])
     a = p.parse_args(); print(json.dumps(globals()[a.stage](), ensure_ascii=False, indent=2))
