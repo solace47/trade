@@ -1,7 +1,0 @@
-{仅为基础排除条件，不是经过收益验证的完整选股策略}
-FST:=NOT(NAMEINCLUDE('ST'));
-FCODE:=NOT(CODELIKE('92')) AND NOT(CODELIKE('688'));
-FCYB:=NOT(CODELIKE('30')) AND NOT(INBLOCK('创业板'));
-FTRADE:=DYNAINFO(4)>0 AND DYNAINFO(8)>0;
-XG:FST AND FCODE AND FCYB AND FTRADE;
-{盘中临停还须通过软件交易状态排除；当日曾成交不代表此刻可交易}

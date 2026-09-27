@@ -2,7 +2,7 @@
 
 当前只研究可粘贴到通达信／同花顺的选股条件，卖出规则不扩展。硬过滤为：排除ST（含*ST）、92开头、688开头、创业板（含300/301）及停牌股。历史库当前检验范围是沪深主板，不将未覆盖市场混入公式验证结论。
 
-[通达信基础排除条件](../formulas/通达信_基础排除条件.txt)是可组合的过滤片段，不是完整盈利公式，尚未进行通达信客户端编译。函数依据[官方列表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：`NAMEINCLUDE('ST')`涵盖带ST的名称，`CODELIKE`检查前缀，`INBLOCK('创业板')`补充板块过滤。`DYNAINFO(4)>0`与`DYNAINFO(8)>0`要求当日已开盘且发生交易；当日成交后临停还需软件交易状态排除，不能只凭累计成交量判定此刻可交易。
+基础排除片段已撤出独立公式目录，只作为[内部过滤配置](../config/formula_exclusions.json)保存。它不是选股成果，尚未进行通达信客户端编译。函数依据[官方列表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：`NAMEINCLUDE('ST')`涵盖带ST的名称，`CODELIKE`检查前缀，`INBLOCK('创业板')`补充板块过滤。`DYNAINFO(4)>0`与`DYNAINFO(8)>0`要求当日已开盘且发生交易；当日成交后临停还需软件交易状态排除，不能只凭累计成交量判定此刻可交易。
 
 ## 已完成：直接学习次日十点前机会
 

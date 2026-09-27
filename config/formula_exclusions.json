@@ -1,0 +1,8 @@
+{
+  "purpose": "仅保存内部基础过滤组件，不是选股成果或独立交付公式。",
+  "exclude": ["ST（含*ST）", "92开头", "688开头", "创业板（含300/301）", "停牌"],
+  "tdx_fragment": "NOT(NAMEINCLUDE('ST')) AND NOT(CODELIKE('92')) AND NOT(CODELIKE('688')) AND NOT(CODELIKE('30')) AND NOT(INBLOCK('创业板')) AND DYNAINFO(4)>0 AND DYNAINFO(8)>0",
+  "temporary_halt": "当日曾成交后发生的盘中临停还需交易状态过滤；累计量为正不能证明此刻可交易。",
+  "client_compilation_verified": false,
+  "source": "https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html"
+}
