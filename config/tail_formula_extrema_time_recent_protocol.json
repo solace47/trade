@@ -1,0 +1,14 @@
+{
+  "objective": "原48项有尾盘价格位置与净涨跌，但未直接输入最高和最低分钟收盘出现在何时。相似涨跌、振幅和收盘位置可能由先跌后升或先升后跌形成；新增极值的最近出现位置，检验顺序信息是否补充原模型。",
+  "source": "config/tail_formula_extrema_time_protocol.json",
+  "model_max_depth": 3,
+  "fit": "原48项二元同日相对机会目标，增加两项为50项；64棵深度三，日期等权，min_samples_leaf=300，学习率0.05，无抽样，种子20260927和99.5%训练分位，两段时间不变。",
+  "evaluation": "两半年、全年和同质量旧版共同冻结后读取新组结果，完整报告原机会、风险、未知界、同日基础池、5/15基点与日期集中性。旧名单若逐键不变，直接复用已核准统计。",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

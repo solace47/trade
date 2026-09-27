@@ -1,0 +1,13 @@
+{
+  "objective": "尾盘最高最低收盘最近位置50项两段及全年共同冻结并评价。",
+  "fold_protocols": [
+    "config/tail_formula_extrema_time_2024_protocol.json",
+    "config/tail_formula_extrema_time_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "evaluation": "两半年、全年和同质量旧版共同冻结后读取新组结果，完整报告原机会、风险、未知界、同日基础池、5/15基点与日期集中性。旧名单若逐键不变，直接复用已核准统计。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
