@@ -1,0 +1,15 @@
+{
+  "objective": "检验个股自身反复出现的尾盘到早盘报价表现是否补足原48项当日价量状态；新增历史20次早盘相对前一股交易日14:49的10点均值及持续正报价频率，共50项。",
+  "source": "config/tail_formula_morning_history_protocol.json；两项只是此前已经可见的报价统计，不当实现收益。",
+  "model_max_depth": 3,
+  "fit": "与对应相对版相同64棵深度三、日期等权GradientBoostingRegressor、squared_error、learning_rate=0.05、min_samples_leaf=300、subsample=1、random_state=20260927；保持原相对机会目标，只新增上述三个输入，不增加持有期、止损或卖出规则。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "inputs_protocol_sha256": "0fb99141f16ba3c77d2e4b6a37537267bbd4e18aca9d215420aa5b38a293f871"
+}
