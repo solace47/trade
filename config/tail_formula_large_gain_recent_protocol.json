@@ -1,0 +1,15 @@
+{
+  "objective": "检验此前20个完整股票交易日的原始收盘大涨频次和距最近一次大涨的股票日数，是否补足原48项的累计涨幅与位置。首季交集失败后回到2024—2025，仅新增这类历史行为，不根据2026选参数。",
+  "source": "config/tail_formula_large_gain_protocol.json",
+  "model_max_depth": 3,
+  "fit": "原48项加两项、原一年训练窗、相对机会平方目标、64棵深度3、min_samples_leaf300、lr.05、日期等权、seed20260927、训练99.5%分位。既往首次触板固定退出实验、前日状态52项与历史方向量不同，当前新增20日事件频次与间隔。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "inputs_protocol_sha256": "7623cdb96bd886fdc5394a2675c3868c7bf7255ffd9c6308c16e5e4d992e9b5a"
+}
