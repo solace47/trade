@@ -1,0 +1,21 @@
+{
+  "objective": "回到较好的48项二元相对机会模型，联合补入当天开盘半小时与尾盘的关系。此前同时间放量固定形态已失败，不重试其2倍、1%或固定卖法；本轮只检验新增三项连续输入在次晨机会目标中的联合价值。",
+  "previous_features": "data/research/tail_formula_float",
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "opening_source": "data/research/opening_cash_history/window_parts",
+  "opening_raw_report_sha256": "862977535609b3503c2e94f5f3c7222962b7a6cf40a2b3f47425b787e3d48e76",
+  "opening_feature_verification_sha256": "9a860010656c1b7d777f1eb0e1212f6c62bb227fc75f0c60648c0fae68459b8b",
+  "inputs": {
+    "M01": "100*(当天10:00价/当日开盘价-1)/V01",
+    "M02": "100*(14:49价/当天10:00价-1)/V01",
+    "M03": "100*(09:31至10:00逐分钟成交额四舍五入到分后合计)/截至14:49成交额"
+  },
+  "source_scope": "只把既有09:31—10:00原始窗口按同一股票、同一信号日期接回。使用窗口自身完整30根、非负量额与OHLC合格、10点价和成交量为正；不要求此前20个市场日窗口合格，不使用旧策略主组或收益字段。仅接2024—2025信号日，来源原有2023年12月窗口不产生新标签。",
+  "validity": "原全部键及48项值保留。新增有效要求旧formula_input_valid、当前开盘窗口合格、开盘现金正且不超过截至14:49金额+0.151元、三个新值有限。0.151为30根每根最多半分钱舍入加浮点余量，不是参数搜索。缺失与无效保留NaN和标志，不补零。",
+  "native": "1分钟周期，P10=VALUEWHEN(TIME=1000,C)，OC30=VALUEWHEN(TIME=1000,SUM(INTPART(AMO*100+0.5)/100,30))；三项按定义使用P10、OC30、Q、DYNAINFO(4)、DA和V01。完整选股仍需实时硬过滤和当日锚点完整性；未证明软件逐点一致。",
+  "comparison": "新增开盘质量要求可能改变候选池。另在同一有效交集上固定原48项全年名单作为对照，旧模型不重训、不调阈值；其完整H1/H2/全年统计都报，避免把仅排除坏数据产生的变化当成输入预测增益。该比较仍不是随机化因果实验。",
+  "future_data": "旧48项的14:49截止、前日分母与指数14:48截止不变。新信息仅来自当天10:00及此前；不读取未来原始窗口或新2026价格。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
