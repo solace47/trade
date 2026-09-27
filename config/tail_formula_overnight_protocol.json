@@ -1,0 +1,19 @@
+{
+  "objective": "在原48项二元相对机会公式上加入此前20个股票交易日的隔夜与日内成分。旧极端隔夜组和频率单项研究未形成可用策略；本轮检验联合增量，不重跑旧分组，不使用失败的当天开盘51项版。",
+  "previous_features": "data/research/tail_formula_float",
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "daily_feature_report_sha256": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+  "inputs": {
+    "G01": "100*mean(此前20个股票交易日open/更前一个股票交易日close-1)/V01",
+    "G02": "100*mean(此前20个股票交易日close/open-1)/V01",
+    "G03": "100*mean(此前20个股票交易日open>更前一个交易日close且close<open)"
+  },
+  "source_scope": "既有指纹核准的不复权独立日线，先限制2023-06-01至2025-12-30，再按tradestatus=1的股票交易日顺序。所有新滚动值取严格此前20行，2023只初始化。",
+  "validity": "不先删无效历史行再滚动补齐；此前20行open、close、前一close须有限正数且两日adjustflag=3，窗口完整20行。当前信号日不参与历史计算。保留原全部键和48项值，新无效保留NaN。历史preclose与前一close超过半分钱的次数作诊断，不据此改选，原未复权价缺口不当成含公司行动的真实收益。",
+  "native": "沿用1分钟日边界B0..B20和历史收盘DCP1..DCP21；POi=REF(O,Bi-1)，三项按相同20日代数表达。原档首分钟O与独立日线O将固定抽样检查，未证明客户端逐点一致。",
+  "comparison": "原48项全年固定名单与新formula_input_valid交集为同质量对照，不重训旧模型。H1、H2、全年和对照一起冻结后读取组结果。",
+  "future_data": "所有历史成分来源日严格早于信号日，股票14:49及指数14:48截止保持，2025已暴露探索。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

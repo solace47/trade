@@ -1,0 +1,14 @@
+{
+  "objective": "先冻结历史成分51项二元相对模型的两段、全年，以及同质量旧48项对照，再读新分组结果。2025为已暴露探索。",
+  "fold_protocols": [
+    "config/tail_formula_overnight_2024_protocol.json",
+    "config/tail_formula_overnight_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "all_old_relative_results_retained": true,
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "source_valid_control": "原48项2025选择报告07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5与新formula_input_valid取交集；仅控制新增输入可用性，不重训旧模型。"
+}
