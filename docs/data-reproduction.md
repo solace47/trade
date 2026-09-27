@@ -264,3 +264,12 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 先运行 `trade_research.month_turn_1449`，固定 23 个月末及各自提前五交易日的日期和独立选择。2024 年末可跨到 2025 年；2025 年末因需要留出年价格而排除。按 `month_turn_1449/signals.parquet` 指纹调用公共 `reprice`，规则提交 `ef2911a`、名单提交 `6bba4a5`、名义 2 万元。然后执行 `trade_research.month_turn_eval`；它关闭通用按周区间，另按月份与固定五槽位核算，使用连续两个月的循环块区间。
 
 如需统一超期诊断，调用 `continue_model(root, root / "continued")` 并复制 `calendar_schedule.parquet`，再运行 `trade_research.month_turn_eval --output data/research/month_turn_1449/continued`。本次没有超期未退出，未读取额外持仓行情；初始结果保留。两期股票独立按当时输入选择，差值不是同股因果效果，`independent_economic_checks.json` 同时保留独立费用、原始均价、月份均值和抽样区间验证。
+
+
+## 当日触板先后路径与双退出
+
+`config/touch_sequence_protocol.json`先于收益冻结完整触板池、最近未触板对照、分钟分类和两个退出窗口。执行`PYTHONPATH=src .venv/bin/python -m trade_research.touch_sequence freeze`、`extract`，再运行`scripts/verify_touch_sequence_inputs.py`、模块的`inputs`和`prepare_exits`。原始前缀含09:30，14:20归入尾段；对照先配定再核对同一前缀质量，失败不递补。
+
+对`data/research/touch_sequence/morning`依次调用`tick_morning_exit.raw(ROOT=..., PROTOCOL=Path('config/touch_sequence_protocol.json'))`、`scripts/verify_tick_morning_exit.py windows --root ...`、`tick_morning_exit.labels(ROOT=...)`和同一核对脚本的`labels --root ...`。原尾盘66列须先完整复现。然后运行`trade_research.touch_sequence_analysis`及`scripts/verify_touch_sequence_analysis.py`；结果后拆解用`scripts/diagnose_touch_sequence_loss.py`，不能作为选股条件。
+
+`config/touch_sequence_pair_accounting_repair.json`说明初版未配者半年字段缺失导致的分组漏计。原输入和选择保留；当前分析从每条信号日期重建半年，1,846个未配者必须进入4,143个主组分母，原分析归档`invalid_pair_denominator/`。所有原件、输入、未知路径、费用情景、配对和大涨／大亏反向画像保存在该研究目录，本轮不读取新2026价格。
