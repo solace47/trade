@@ -73,7 +73,7 @@ def inspect_payload(payload, signal_date):
     return "historical_response_received", fields
 
 
-def fetch():
+def fetch(retry_transports=False):
     if (ROOT / "input_report.json").exists():
         raise ValueError("Do not replace source after inputs are frozen")
     manifest = json.loads((ROOT / "manifest.json").read_text())
@@ -84,11 +84,28 @@ def fetch():
     cache.mkdir(exist_ok=True)
     receipts = []
     stopped = None
+    if retry_transports:
+        first = ROOT / "download_report.json"
+        archive = ROOT / "download_report_first_attempt.json"
+        assert json.loads(first.read_text())["all_dates_attempted"]
+        assert not archive.exists(), "Only one uniform retry is allowed"
+        archive.write_bytes(first.read_bytes())
     for job in jobs.itertuples(index=False):
         body = cache / (job.source_date + ".body")
         meta = cache / (job.source_date + ".json")
         date1 = job.source_date.replace("-", "")
         url = URL + "?" + urlencode(dict(date1=date1, limit=100))
+        retry_of = None
+        if meta.exists() and retry_transports:
+            prior = json.loads(meta.read_text())
+            if prior["curl_exit"] == 28 and prior["http_code"] == "200":
+                assert sha(body) == prior["body_sha256"]
+                retry_of = sha(meta)
+                failed = cache / "first_attempt"
+                failed.mkdir(exist_ok=True)
+                assert not (failed / body.name).exists() and not (failed / meta.name).exists()
+                body.rename(failed / body.name)
+                meta.rename(failed / meta.name)
         if meta.exists():
             receipt = json.loads(meta.read_text())
             assert receipt["url"] == url and receipt["signal_date"] == job.date
@@ -105,13 +122,17 @@ def fetch():
                 exit_code, http_code, error = 0, "200", ""
             else:
                 request_started = time.monotonic()
-                r = subprocess.run(["curl", "--silent", "--show-error", "--max-time", "25", "--connect-timeout", "10",
+                request_timeout = 60 if retry_of else 25
+                r = subprocess.run(["curl", "--silent", "--show-error", "--max-time", str(request_timeout), "--connect-timeout", "10",
                                     "--header", "sdk-key: anonymous", "--user-agent", "trade-research/1.0",
                                     "--output", str(body), "--write-out", "%{http_code}", url],
-                                   env=effective_environment(), capture_output=True, text=True, timeout=30)
+                                   env=effective_environment(), capture_output=True, text=True, timeout=request_timeout + 5)
                 exit_code, http_code, error = r.returncode, r.stdout, r.stderr
             receipt = dict(source_date=job.source_date, signal_date=job.date, url=url, curl_exit=exit_code,
                            http_code=http_code, error=error, reused_pilot=reused, body_sha256=sha(body) if body.exists() else None)
+            if retry_of:
+                receipt["retry_of_receipt_sha256"] = retry_of
+                receipt["retry_protocol_sha256"] = sha(Path("config/prior_theme_transport_retry.json"))
             if exit_code or http_code != "200":
                 receipt["status"] = "transport_or_http_error"
             else:
@@ -137,11 +158,15 @@ def fetch():
                   statuses=pd.Series([r["status"] for r in receipts]).value_counts().to_dict(),
                   receipts_sha256={r["source_date"]: sha(cache / (r["source_date"] + ".json")) for r in receipts},
                   outcomes_read=False, requested_2026_prices=False)
+    if retry_transports:
+        result["first_attempt_report_sha256"] = sha(ROOT / "download_report_first_attempt.json")
+        result["retry_protocol_sha256"] = sha(Path("config/prior_theme_transport_retry.json"))
     save_json(ROOT / "download_report.json", result)
     return {k: v for k, v in result.items() if k != "receipts_sha256"}
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("stage", choices=["freeze", "fetch"])
-    print(json.dumps(globals()[parser.parse_args().stage](), ensure_ascii=False, indent=2))
+    parser.add_argument("stage", choices=["freeze", "fetch", "retry-transports"])
+    stage = parser.parse_args().stage
+    print(json.dumps(fetch(retry_transports=True) if stage == "retry-transports" else globals()[stage](), ensure_ascii=False, indent=2))
