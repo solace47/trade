@@ -24,6 +24,8 @@ python3.12 -m venv .venv
 
 当前48项输入由`trade_research.tail_formula_float features`生成，`scripts/verify_tail_formula_float_inputs.py`独立复建；前置45项、原始指数来源和以前输入的核验不可跳过。后续二元机会、软盈利空间、同日百分位三个家族的模块分别为`tail_formula_float`、`tail_formula_margin`、`tail_formula_rank`。前者语法是`<stage> --fold <fold>`，后两者是`<fold> <stage>`。每个家族先对`2024`和`recent`依次运行`model`、`verify_model`、`scores`；分数用`scripts/verify_tail_formula_additive.py scores --root data/research/<本段目录> --features-root data/research/tail_formula_float --protocol config/<本段协议>.json`重建，再运行各段`freeze`、`verify`。两段均核准后，对`combined`运行`freeze`、`verify`，先保存全年名单，才允许三组`analyze`。每份分析以`scripts/verify_tail_formula_1000_analysis.py analysis --root data/research/<目录>`核准；已冻结文件不重拟合或替换。
 
+开盘联合版先执行`trade_research.tail_formula_opening features`与`scripts/verify_tail_formula_opening_inputs.py`；原始窗口复用已核准的`opening_cash_history/window_parts`，不复用其策略标签。该模块采用`<stage> --fold <fold>`，两段模型／分数／名单和全年衔接的核验顺序同上，但`--features-root`改为`data/research/tail_formula_opening`。另外执行`freeze_control`、`verify_control`固定旧48项在同一有效交集的对照；两段和全年名单冻结前不运行`analyze_control`。对照分析也须运行通用`analysis --root data/research/tail_formula_opening_control`核验。
+
 兼容文本用`scripts/export_tail_formula_native_compatible.py --root data/research/tail_formula_float_recent --features-root data/research/tail_formula_float`导出，不覆盖原冻结核心；全部IF路径和数值叶子另行重放，H2选择标记保持。该版本数值核心已在通达信macOS 3.61编译，完整条件选股、硬过滤及客户端逐点数据一致性仍未核准。各版完整条件与结果见[原生公式研究](selection-formula.md)；研究中的浮盈机会不代表按观察价成交或保证收益。
 
 ## 昨日炸板与历史题材支持
