@@ -1,0 +1,28 @@
+{
+  "objective": "独立评价已有原48项绝对二元机会模型。它此前只与同日百分位模型名单相交，本轮取消交集，不重训、只检验固定绝对评分大于0.60的完整名单。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "absolute_score_cut": 0.6,
+  "target": "原opportunity15绝对0/1目标，不减同日均值；不是相对获利超额或百分位目标。",
+  "selection": "formula_input_valid且绝对分数>0.60，位于该段训练截止后的评价区间；取消rank交集，不用99.5%分位，不搜索其他门限。",
+  "score_interpretation": "0.60为原先已冻结的未校准回归评分，不是经验证的六成胜率。",
+  "evaluation": "两半年和预先衔接全年全报：原压力按日正机会率、完整未知界、至少1%空间、10点参考状态、至少3%不利幅度、数量和集中性，两档成本均保留。",
+  "model_refitted": false,
+  "original_rank_gate_outcomes_previously_seen": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "source_root": "data/research/tail_formula_rank_gate_2024",
+  "source_sha256": {
+    "model_report.json": "1d703a697a234df97d92936e43e72d8d72bbbedab4a96a76d81710cb4661bc7e",
+    "score_report.json": "ff302a3debf4bb09f79f4f5924d6a7c38428ce7590696419a2a1a1352b1b3bdb",
+    "model_verification.json": "56769b258a7b54988c9ab3cd3e680f74207996b9249f4d7698ec3674060413aa",
+    "score_verification.json": "e6ec6b1e0c868b7e96695df685ca3552d5defe6e929545f6a8a93813d7bcad8e",
+    "absolute_numeric_core.tdx": "cba2d09d9424006a554cff2b8737f9a197d5c0e1aa4fa08f55b812f7f39fd421",
+    "selection_report.json": "f7efa3c6d2d7974f1f423e5a488cffee40d9115b29dbdb779207e020d4066e19"
+  },
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01"
+}
