@@ -58,7 +58,7 @@ def period(p,value):
 
 def main():
     report=json.loads((ROOT/"analysis_report.json").read_text())
-    for name,digest in report["outputs_sha256"].items():assert sha(ROOT/name)==digest
+    for name,digest in report["outputs_sha256"].items():assert sha(ROOT/(name+".parquet"))==digest
     c=duckdb.connect()
     c.execute(f"create view features as select * from read_parquet('{ROOT}/features.parquet')")
     labels="data/research/economic_winner/period_quality/labels.parquet"
