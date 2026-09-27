@@ -1,0 +1,20 @@
+{
+  "objective": "同日机会百分位版H1机会率70.33%，H2虽分散到51日但只有51.19%，提示相对优选不能代替绝对获利机会。本轮保留原排名模型与常数，在同一输入上增加独立的绝对二元机会评分门，检验是否能排除绝对机会偏弱的候选。",
+  "source": "复用已核准48项输入、相同买入和次晨30根原始分钟观察、已核准full_labels.parquet；不新增原始数据或结果标签定义。",
+  "model_max_depth": 3,
+  "fit": "新增绝对模型使用同一48项、64棵深度三、日期等权、squared_error、learning_rate=0.05、min_samples_leaf=300、subsample=1、random_state=20260927；目标为opportunity15，不按日中心化。原百分位模型不重训。两者训练终点相同。",
+  "threshold": "原同日百分位版完整selected名单与绝对评分>0.60相交。0.60沿用早期研究的六成机会质量标准作固定筛选刻度，不从新评分或2025分组结果中挑选；若稀疏或无候选也完整报告，不降低门槛补选。绝对模型的训练分位不用于本版选择。",
+  "evaluation": "仍以原来次日10点前的压力正机会率为主，同时报告至少1%机会、10点参考估值、至少3%不利幅度、全部未知及两档成本。两半年和预先衔接全年全报，不把空间目标当作实际卖法或投资收益。2025为已暴露探索。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "target": "opportunity15，值为0或1；与已有绝对版算法相同，仅输入为已核准48项。得分属于未校准的回归评分，不等于已经证实的概率。",
+  "known_limitation": "增加门限只能缩减原30/51个信号日，不能增加日期覆盖；它检验绝对机会能否改善较分散名单的质量，不预先声称解决适用范围问题。回归评分0.60不是六成实测胜率。2025仍属已暴露探索，区间不消除多轮尝试偏差。",
+  "absolute_score_cut": 0.6,
+  "rank_root": "data/research/tail_formula_rank_2024",
+  "rank_selection_report_sha256": "38f218378db4c77dd8968b7daeeebdaa5626c7e5d313bd875ccdfc0787a166da"
+}
