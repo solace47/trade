@@ -1240,3 +1240,5 @@ T+5、2 万元、每侧 15 基点的信号日均值如下：
 现有市场输入主要是上证／深成指，尚未直接表示大小盘分化。[中证1000编制方案](https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175402-000852_Index_Methodology_cn.pdf)与[沪深300编制方案](https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000300_Index_Methodology_cn.pdf)支持以两指数作为规模风格代理，但不能把差值解释为主力净流入。[通达信官方跨品种引用](https://help.tdx.com.cn/gspt/docs/markdown/tdxgs-1d1k7biu16p6s/tdxgs-1dm0urbs4fcd8.html)提供报价序列引用方式，实际客户端数据一致性仍须核验。
 
 `tail_formula_size_index_probe_protocol.json`先固定两指数在2024-01-02、2024-12-02、2025-12-01的六个会话，只核查历史代表价、独立日线包络及原响应重放，复用同三日已核准的股票时序对照。没有连接选股和次晨结果，也不扩展2026。来源可用后再冻结完整新增输入及对照规则；这不同于此前失败的中证1000调出事件，不先批量采集或声称有效。
+
+六个固定会话均取得240点，独立原响应重放全部一致，每点均在独立日线包络内，末点与日线收盘最大差0.0044点。探针来源报告 `97e99213066da58723dd2cc46d8e022cc8052cb4bf7b09900aabf617e4a235d5`、核查 `607f4dedf154e138f4104d064258d32c020c7dbefb48d163420f3e3e06608a2a`。只证明六个会话的可用性，未证明完整两年覆盖、软件报价一致或选股优势；未读取股票新结果及2026行情。
