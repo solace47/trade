@@ -1,0 +1,14 @@
+{
+  "objective": "直接学习次晨持续净参考空间的下四分位，检验较差分位仍为正的候选是否优于只预测二元正机会；不把事后空间当实际卖价或新增卖出规则。",
+  "fold_protocols": [
+    "config/tail_formula_quantile48_2024_protocol.json",
+    "config/tail_formula_quantile48_recent_protocol.json"
+  ],
+  "selection_score_cut": 0.0,
+  "alpha": 0.25,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "year_2025_is_exploratory": true,
+  "freeze_both_folds_before_group_outcomes": true
+}
