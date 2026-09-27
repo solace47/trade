@@ -1,0 +1,62 @@
+{
+  "protocol_sha256": "05012c8c9e6f28c68bee88b397fc352eb72d98bd3ef40ec92ac5eae35c8d91b0",
+  "source_selection_report_sha256": "ce19bfb55de9442036131077492079f4fa2e3f44cb77c32f68124656c0536495",
+  "source_analysis_report_sha256": "a1ba53591ac884b7fb8eb891551573d8e838c52180fdce982ecb5ca0a695d728",
+  "chosen_leaf": {
+    "node": 10,
+    "rows": 5901,
+    "days": 88,
+    "daily_rate": 0.5241183699191531,
+    "daily_delta": 0.04688374235164893,
+    "eligible": true
+  },
+  "conditions": [
+    {
+      "feature": "F16",
+      "op": ">",
+      "threshold": 9.14
+    },
+    {
+      "feature": "F12",
+      "op": "<=",
+      "threshold": -11.57
+    },
+    {
+      "feature": "F03",
+      "op": "<=",
+      "threshold": 1.01
+    }
+  ],
+  "numeric_core": "F16:=100*(C/REF(LLV(L,20),1)-1);\nF12:=100*(REF(C,1)/REF(C,21)-1);\nF03:=100*(C/O-1);\nCORE:F16>9.14 AND F12<=-11.57 AND F03<=1.01;\n",
+  "selection_sha256": "0e16cec2e196d2fd599639d8759570b09f218743f19dd7204a7b1f686b5173a3",
+  "core_sha256": "f611df7e30fe56c02927ef1bf650d49f66dfcc11eca739f960fd73c05b4114b3",
+  "selected": 15497,
+  "by_half": [
+    {
+      "half": "2024H1",
+      "size": 292834,
+      "sum": 6140
+    },
+    {
+      "half": "2024H2",
+      "size": 294442,
+      "sum": 544
+    },
+    {
+      "half": "2025H1",
+      "size": 314708,
+      "sum": 8430
+    },
+    {
+      "half": "2025H2",
+      "size": 356101,
+      "sum": 383
+    }
+  ],
+  "new_group_outcomes_read": false,
+  "prior_version_outcomes_seen": true,
+  "tree_refitted": false,
+  "new_2026_prices_read": false,
+  "no_exit_rules": true,
+  "software_compilation_verified": false
+}
