@@ -1,0 +1,16 @@
+{
+  "objective": "完整移除直接指数输入虽减少集中，但使H2机会率降至50.57%；本轮将原八项直接指数输入改为是否大于零的方向，保留其信息但降低直接刻画单日小数值的能力。其余40项、同日二元相对目标、两段时间及模型参数不变。",
+  "source": "原48项输入复用，仅I/J直接输入改为正负方向；协议config/tail_formula_index_direction_protocol.json。",
+  "model_max_depth": 3,
+  "fit": "同日已知基础池opportunity15中心化、64棵深度三、日期等权、learning_rate=.05、min_samples_leaf=300、subsample=1、random_state=20260927；只改变预定输入列表。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "inputs": "原40项个股和相对指数输入加8项MI/MJ方向值，共48项；全部输入质量和标签不变。"
+}
