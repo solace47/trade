@@ -1,0 +1,32 @@
+{
+  "objective": "检验原一年模型与已固定三年模型的等权评分组合是否减少对单一历史窗的依赖；不选择更好的一边、不训练新权重、不叠加其他失败输入或卖出规则。",
+  "construction": "两个同目标、同48项、同观察截止的64树模型各占1/2。两组树的value全部乘1/2、bias取平均，保留learning_rate=.05形成128树等价数值核心。不能宣称新增128树经过一次共同GBR拟合。",
+  "variant": "relative",
+  "model_max_depth": 3,
+  "weight": 0.5,
+  "components": [
+    {
+      "root": "data/research/tail_formula_float_recent",
+      "model_report_sha256": "16a9c57533533d618a2fec1e3f3539e5580434ba76ab1af6a3f5662eb29d52e2",
+      "model_verification_sha256": "f6875dde64da4903ea296b3b2a148a0c8ea671d666029ea40d94c801704e2c25"
+    },
+    {
+      "root": "data/research/tail_formula_long48_recent",
+      "model_report_sha256": "f09ce7249b2cd35addfa5df48cc72032d30f917fa6ab1ac8887774443a6b4e4a",
+      "model_verification_sha256": "d44a8c2afbdd67c13d0ec24599effa5e50883eca72ec844d15789b31e7a96712"
+    }
+  ],
+  "inputs_protocol": "config/tail_formula_long48_inputs_protocol.json",
+  "inputs_protocol_sha256": "5df9c936b6a3e6e1a76a1a43a9dae15a269ea86a10439221d21ad927061ed1e0",
+  "feature_report_sha256": "d398470b1f09c62c4dc6e67176c3ada5f92882ef39b69af4b3dce4f4fe870ca2",
+  "label_report_sha256": "e8b2ddc773dfa3ac4026a48443cac6fc9bc0275b2208c83b304a2a3bf516ec62",
+  "calibration": "阈值保持三年版相同完整known15且有效输入的三年校准范围，对两模型分数的算术平均取固定99.5%分位。较短模型在更早输入上的预测只用于事前阈值，不声称是早年当时可用的交易信号；所有模型和校准观察仍严格早于各自2025评价段。",
+  "evaluation": "两段及全年先冻结名单，再使用原完整2025次晨标签；两档成本、未知完整界、风险、参考空间、集中度全报。各自全样本和共同日期对照均保留，2025已暴露探索。原生核心因树数翻倍需重新验证，不能据研究分数声称客户端可用。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2022-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01"
+}

@@ -1,0 +1,9 @@
+{
+  "objective": "衔接固定近期/长历史等权组合的2025两段；两段共同冻结后才评价。",
+  "fold_protocols": [
+    "config/tail_formula_horizon_blend_2024_protocol.json",
+    "config/tail_formula_horizon_blend_recent_protocol.json"
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
