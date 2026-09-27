@@ -1,5 +1,7 @@
 # 外部项目的复用判断
 
+2026-09-27核对[通达信官方帮助第6页](https://zxfile.tdx.com.cn/zx/201612/3185123/3185123_fj.pdf)：B／S表示软件判定的主动买卖，不能依据报价判定的记录有不明类别；同一分笔可能合并多笔成交。官方说明没有在此确认CNEquity作者所称的精确tick-rule算法，因此本项目只称“供应商方向标记”，不声称已验证其生成算法或资金身份。[官方历史分笔接口](https://help.tdx.com.cn/quant/docs/markdown/mindoc-1hho7blr2j340/mindoc-1hi3n0rqkakt4/mindoc-1hhob7ou94li8.html)也明确区别分笔与K线；函数目录有`ISBUYORDER`不等于已证明普通分钟公式能复现完整方向序列。官方说明已通过网页读取；本地原件下载遇TLS失败，链接及失败记录保存在`tick_source_probe/official/manifest.json`，不能称为已落盘原件。本次未安装客户端或新插件。
+
 2026-09-26 针对当前研究瓶颈阅读源码；优先复用可核对的组件和方法，不以项目声称的收益替代本地检验。检索包括 GitHub、skills.sh 及 `npx skills find backtesting`，未安装新的交易框架或 skill。
 
 | 来源 | 与本项目有关的内容 | 采用方式及边界 |

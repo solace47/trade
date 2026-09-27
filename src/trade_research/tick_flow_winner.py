@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import argparse
 from pathlib import Path
 
 import duckdb
@@ -14,6 +15,32 @@ ROOT = Path("data/research/tick_flow_winner")
 PROTOCOL = Path("config/tick_flow_winner_protocol.json")
 FEATURES = ["morning_net", "afternoon_net", "tail_net", "tail_acceleration",
             "tail_positive_minutes", "tail_flat_net"]
+
+
+def freeze_cohort():
+    ROOT.mkdir(exist_ok=True)
+    if (ROOT / "cohort.parquet").exists():
+        raise ValueError("Do not replace the fixed historical sample")
+    cfg=json.loads(PROTOCOL.read_text())
+    source=Path("data/research/next_day_winner/cohort.parquet")
+    c=duckdb.connect()
+    frame=c.execute("""with eligible as (
+        select date,code,half,board,necessary_tradeable,return_1449,return_tail29,tail_signed_amount,
+        amount_1449,price_1449,decision_shares,
+        sha256(?||'|'||date||'|'||code) as sample_hash,
+        count(*) over (partition by date) as population_count
+        from read_parquet(?) where necessary_tradeable and board='main'
+    ), ordered as (select *,row_number() over (partition by date order by sample_hash,code) as sample_rank from eligible)
+    select *,?::double/population_count as inclusion_probability from ordered where sample_rank<=? order by date,code""",
+        [cfg["sampling_seed"],str(source),cfg["symbols_per_day"],cfg["symbols_per_day"]]).fetchdf()
+    assert frame.groupby("date").size().eq(cfg["symbols_per_day"]).all()
+    assert frame.date.str[:4].isin(["2024","2025"]).all()
+    frame.to_parquet(ROOT/"cohort.parquet",index=False,compression="zstd")
+    report=dict(protocol_sha256=sha(PROTOCOL),source_cohort_sha256=sha(source),cohort_sha256=sha(ROOT/"cohort.parquet"),
+        rows=len(frame),dates=frame.date.nunique(),symbols=frame.code.nunique(),by_half=frame.groupby("half").size().to_dict(),
+        first_date=frame.date.min(),last_date=frame.date.max(),source_or_outcome_values_used_to_select=False)
+    save_json(ROOT/"cohort_report.json",report)
+    return report
 
 
 def prefix_features(ticks):
@@ -146,4 +173,6 @@ def freeze():
 
 
 if __name__ == "__main__":
-    print(json.dumps(freeze(),ensure_ascii=False,indent=2))
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--cohort",action="store_true")
+    print(json.dumps(freeze_cohort() if parser.parse_args().cohort else freeze(),ensure_ascii=False,indent=2))

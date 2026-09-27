@@ -9,6 +9,14 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 历史聚合分笔方向
+
+固定来源样本由`scripts/probe_historical_ticks.py`及其`--sessions`依次取得，`scripts/verify_historical_tick_source.py`独立核准。所有命令使用`PYTHONPATH=src .venv/bin/python`；历史公开接口的当前可达性不保证未来相同。原始协议字节、来源源码以及官方定义链接留存在`data/research/tick_source_probe/`；官方原件的本地下载状态见`official/manifest.json`。
+
+完整研究依次执行模块`trade_research.tick_flow_winner --cohort`、脚本`scripts/collect_tick_flow_sample.py`、模块`trade_research.tick_flow_winner`、脚本`scripts/verify_tick_flow_inputs.py`，再执行模块`trade_research.tick_flow_winner_analysis`与脚本`scripts/verify_tick_flow_analysis.py`。模块命令加`-m`；已冻结输入和结果禁止覆盖，下载仅在输入冻结前可续传。数据保存在`data/research/tick_flow_winner/`，每个股票日保留原始请求／响应、解析序号、来源失败和全日质量标记。
+
+只用至14:48的方向数据，不能把完整日核对状态回填当时选择；原经济标签和新增质量敏感性并列，不把来源缺失、排队未知或未买入记成零收益。
+
 ## 流通规模与尾段换手代理
 
 `float_turnover_winner`生成严格前日分母、三个可见代理及原值／末位精度两情景分组；`scripts/verify_float_turnover_winner_inputs.py`独立复现所有来源连接、排名及原始分钟。输入核准后运行`float_turnover_winner_analysis`与`scripts/verify_float_turnover_winner_analysis.py`，输出所有单变量和联合组。完整数据保存于`data/research/float_turnover_winner/`，协议为`config/float_turnover_winner_protocol.json`；官方前端与文档原件在`source/`，不调用当前全日换手率回填历史盘中输入。
