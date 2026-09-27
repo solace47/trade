@@ -8,12 +8,12 @@ import numpy as np
 import pandas as pd
 
 from trade_research.corporate_cash import save_json, sha
-from trade_research.tail_formula_1000_analysis import daily_summary, number
+from trade_research.tail_formula_1000_analysis import daily_summary, number, period as select_period
 from trade_research.reference_gain_accounting import weekly_interval
 from verify_tick_flow_analysis import eq, interval
 
 
-def main(selected, original, output):
+def main(selected, original, output, protocol=None):
     if output.exists():
         raise ValueError('Do not replace an existing subset diagnosis')
     sources = {}
@@ -35,7 +35,19 @@ def main(selected, original, output):
     assert (~flags.kept | flags.prior).all(), 'Expected a subset, not a changed ranking'
     signal_dates = flags.loc[flags.kept,'date'].unique()
     r = source.merge(flags,on=['date','code'],validate='one_to_one')
-    assert r.date.lt('2026-01-01').all(), 'This diagnosis is confined to exposed 2024-2025'
+    periods = ['2025H1','2025H2','2025']
+    if protocol is None:
+        assert r.date.lt('2026-01-01').all(), 'Default diagnosis is confined to exposed 2024-2025'
+    else:
+        # Explicitly bounded extension; the default historical diagnosis is unchanged.
+        from trade_research import tail_formula_size_agreement_q1 as q1
+        assert protocol.resolve() == q1.PROTOCOL.resolve()
+        p = q1.policy(); q1.checked_model()
+        assert selected.resolve() == (q1.ROOT/'all').resolve()
+        assert original.resolve() == (q1.OLD/'all').resolve()
+        assert not p['new_2026_stock_prices_allowed'] and p['prior_q1_original_outcomes_exposed']
+        assert r.date.between(p['signal_first'],p['signal_last']).all()
+        periods = p['periods']; sources['protocol_sha256'] = sha(protocol)
     r['retained_date'] = r.date.isin(signal_dates)
     groups = dict(kept=r.kept, removed=r.prior & ~r.kept,
                   original_on_retained_dates=r.prior & r.retained_date,
@@ -67,8 +79,8 @@ def main(selected, original, output):
                 d['half'] = d.date.str[:4]+np.where(d.date.str[5:7].le('06'),'H1','H2')
                 tables[arm] = d
                 daily_rows += len(d)
-                for period in ['2025H1','2025H2','2025']:
-                    q = d.loc[d.date.str.startswith('2025')] if period=='2025' else d.loc[d.half.eq(period)]
+                for period in periods:
+                    q = select_period(d,period)
                     s = dict(arm=arm,bps=bps,sensitive=sensitive,period=period,days=len(q),
                         **{k:int(q[k].sum()) for k in ['rows','known','success','unknown','no_trade']})
                     for metric in ['rate','lower','upper','one_percent_rate','mean1000','negative1000','bad3']:
@@ -86,8 +98,8 @@ def main(selected, original, output):
                 delta[metric+'_delta'] = a[metric]-b[metric]
             delta['lower_delta'] = a.lower-b.upper
             delta['upper_delta'] = a.upper-b.lower
-            for period in ['2025H1','2025H2','2025']:
-                q=delta.loc[delta.date.str.startswith('2025')] if period=='2025' else delta.loc[delta.half.eq(period)]
+            for period in periods:
+                q=select_period(delta,period)
                 s=dict(bps=bps,sensitive=sensitive,period=period,days=len(q))
                 for metric in delta.columns[2:]:
                     s[metric]=number(q[metric].mean())
@@ -99,7 +111,8 @@ def main(selected, original, output):
         summaries=rows,kept_minus_original_on_same_dates=paired,passed=True,daily_rows=daily_rows,
         independently_rebuilt_daily_groups=True,summary_checks=checks,
         subset_asserted_for_every_key=True,no_posthoc_subgroup_promoted=True,
-        diagnostic_only=True,year_2025_is_exploratory=True,new_2026_prices_read=False,no_exit_rules=True)
+        diagnostic_only=True,year_2025_is_exploratory=True,new_2026_prices_read=bool(r.date.ge('2026-01-01').any()),
+        new_source_price_reads=False,existing_labels_only=True,no_exit_rules=True)
     save_json(output,report)
     return {k:v for k,v in report.items() if k not in ['summaries','kept_minus_original_on_same_dates']}
 
@@ -109,5 +122,6 @@ if __name__=='__main__':
     p.add_argument('--selected',type=Path,required=True)
     p.add_argument('--original',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--protocol',type=Path,help='Only the explicitly frozen cached Q1 intersection extension is supported')
     a=p.parse_args()
-    print(json.dumps(main(a.selected,a.original,a.output),ensure_ascii=False,indent=2))
+    print(json.dumps(main(a.selected,a.original,a.output,a.protocol),ensure_ascii=False,indent=2))
