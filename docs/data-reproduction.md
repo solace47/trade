@@ -15,6 +15,8 @@ python3.12 -m venv .venv
 
 使用`PYTHONPATH=src .venv/bin/python scripts/verify_prior_theme_inputs.py`核准所有输入后，才执行模块`trade_research.prior_theme_broken_analysis`，随后用同一Python前缀执行`scripts/verify_prior_theme_analysis.py`。经济标签直接复用已有严格T1及分期质量版本，不重新挑样本或改成交规则。全部昨日状态×题材强弱、来源缺失及两档费用完整保留；供应商历史归档不能替代首次发布时间证据。
 
+同一题材名单的早盘接续另存于`data/research/prior_theme_morning/`：模块`trade_research.prior_theme_morning`依次执行`freeze`、`raw`，脚本`scripts/verify_tick_morning_exit.py windows --root data/research/prior_theme_morning`核准窗口，再执行模块的`labels`与同脚本`labels --root data/research/prior_theme_morning`核准会计。最后模块执行`analyze`、`pairs`，脚本`scripts/verify_prior_theme_morning_analysis.py`独立核对所有分组及同买单配对。共用函数只参数化路径，旧分笔样本结果不替换。
+
 ## 历史聚合分笔方向
 
 固定来源样本由`scripts/probe_historical_ticks.py`及其`--sessions`依次取得，`scripts/verify_historical_tick_source.py`独立核准。所有命令使用`PYTHONPATH=src .venv/bin/python`；历史公开接口的当前可达性不保证未来相同。原始协议字节、来源源码以及官方定义链接留存在`data/research/tick_source_probe/`；官方原件的本地下载状态见`official/manifest.json`。
