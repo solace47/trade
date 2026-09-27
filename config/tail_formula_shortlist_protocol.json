@@ -1,0 +1,46 @@
+{
+  "objective": "Evaluate the highest-scoring shortlist inside the frozen original 48-input selections, without refitting or expanding signal dates.",
+  "top_positions": 5,
+  "score_integer_scale": 1000000,
+  "score_integer_rule": "floor(score * 1000000 + 0.5)",
+  "rank_rule": "competition rank within each original-selected date, descending score integer; all boundary ties retained",
+  "do_not_fill_below_original_cut": true,
+  "model_refitted": false,
+  "folds": {
+    "2024": {
+      "source_root": "data/research/tail_formula_float_2024",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01",
+      "source_sha256": {
+        "model_report.json": "35a4a336a3156c52aa8e3df43529e084b09b62c28056e9ca253fbd8343d7fe01",
+        "model_verification.json": "c6a11e39d5980f948833ff2774dc2618c9b4a73b18d2cfea67a15c0461513a75",
+        "score_report.json": "0f7ee89afb815e61fefa9551c59a5323b75c4ed15b05cf33c584788b2f6ec03c",
+        "score_verification.json": "4d19cc56c0094981d12acfbbd5401eca907d64713bd38c781c91107dc83f6190",
+        "selection_report.json": "2e511ffe8f278e0920c8d3bf2268b389b97392d6718a8dd85d2e2365bcaf295a",
+        "selection_verification.json": "27b083029030d1743267ff828b8f6c9c567f8a5d6b8ae45e09ecdba815cefd63",
+        "frozen_numeric_core.tdx": "a58b7c5845cf6df8ca70bb231589896e6679351f1abbc9fa3f6d8f6ccb7378a5"
+      }
+    },
+    "recent": {
+      "source_root": "data/research/tail_formula_float_recent",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01",
+      "source_sha256": {
+        "model_report.json": "16a9c57533533d618a2fec1e3f3539e5580434ba76ab1af6a3f5662eb29d52e2",
+        "model_verification.json": "f6875dde64da4903ea296b3b2a148a0c8ea671d666029ea40d94c801704e2c25",
+        "score_report.json": "c0615739407d0724cf2724007e2a27d42ae64b559e6505cc00767374b40e326e",
+        "score_verification.json": "aa4d346e7c5bf99d5d4ce08aa639d62c7d2126f7abef6ee9d7e290fc183278da",
+        "selection_report.json": "6794a4083d1c756feb98d4b64c3159890a79ad3ee5f97da807ad33fa4089a29c",
+        "selection_verification.json": "6e7dccafceb92663cb3ffcce3132ae5f5dcb77f57b5ca35ec9c6a5a168724606",
+        "frozen_numeric_core.tdx": "ba64451b39b9a4af4875bc3210102af582137061294c845689dbf1f02f2f97fa"
+      }
+    }
+  },
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "evaluation": "Freeze both folds and the combined year before subgroup outcomes. Preserve original opportunity, full unknown bounds, adverse excursion, one-percent opportunity, 10:00 reference value and both cost scenarios.",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "native_ranking_parity_verified": false
+}
