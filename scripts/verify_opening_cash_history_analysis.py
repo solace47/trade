@@ -32,7 +32,7 @@ def strategy_inputs():
     for dest,original in [('features.parquet','strategy_features.parquet'),('primary_pairs.parquet','primary_pairs.parquet')]:
         assert sha(STRATEGY/dest)==sha(ROOT/original)==parent['output_sha256'][original]==report['output_sha256'][dest]
     c=duckdb.connect()
-    rows,primary,invalid=c.execute('SELECT count(*),sum(primary::INT),count(*) FILTER(WHERE NOT source_valid OR event<>primary) FROM read_parquet(?)',
+    rows,primary,invalid=c.execute('SELECT count(*),sum("primary"::INT),count(*) FILTER(WHERE NOT source_valid OR event<>"primary") FROM read_parquet(?)',
         [str(STRATEGY/'features.parquet')]).fetchone()
     assert rows==report['rows'] and primary==report['primary'] and invalid==0
     result=dict(passed=True,input_report_sha256=sha(STRATEGY/'input_report.json'),copied_inputs_unchanged=True,
@@ -95,7 +95,7 @@ def portrait():
     total_scenarios=group_days=0
     for quality in ['original_labels','input_quality_sensitivity']:
         for cost in [5,15]:
-            c.execute(f'''CREATE OR REPLACE VIEW original AS SELECT date,code,half,"group",primary,source_valid,
+            c.execute(f'''CREATE OR REPLACE VIEW original AS SELECT date,code,half,"group","primary",source_valid,
                 label{cost} AS original_label,net_return{cost} AS original_net_return,
                 '{quality}' AS quality,{cost} AS cost_bps FROM joined''')
             c.execute('''CREATE OR REPLACE VIEW masked AS SELECT *,

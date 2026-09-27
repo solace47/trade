@@ -275,6 +275,14 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 `config/touch_sequence_pair_accounting_repair.json`说明初版未配者半年字段缺失导致的分组漏计。原输入和选择保留；当前分析从每条信号日期重建半年，1,846个未配者必须进入4,143个主组分母，原分析归档`invalid_pair_denominator/`。所有原件、输入、未知路径、费用情景、配对和大涨／大亏反向画像保存在该研究目录，本轮不读取新2026价格。
 
 
+## 早盘历史同时间金额与尾盘保持
+
+协议`config/opening_cash_history_protocol.json`与画像合同`config/opening_cash_history_analysis_contract.json`在新结果前固定。依次运行`trade_research.opening_cash_history freeze`、`extract`、`features`，再运行`scripts/verify_opening_cash_history.py features`，随后模块`pair`与核对脚本`pairs`。均使用`PYTHONPATH=src .venv/bin/python -m`运行模块或相同前缀直接运行脚本。历史只读2023-12-04至2025-12-30同一开盘窗口，按完整交易日历位移，不跳过无效窗口。
+
+接着运行`trade_research.opening_cash_history_analysis strategy_inputs`、`scripts/verify_opening_cash_history_analysis.py strategy_inputs`和模块`exits`、`raw`。对`data/research/opening_cash_history/strategy/morning`运行`scripts/verify_tick_morning_exit.py windows --root ...`，再运行新模块`labels`及通用核对脚本`labels --root ...`。这只复制完整主组和原固定对照，不改变选择。
+
+模块`portrait`及其独立核对脚本`portrait`报告完整124.6万输入的原始经济标签和输入质量敏感性；模块`analyze`及核对脚本`analyze`报告主组双退出与配对，并核对主组尾盘和全池画像完全相同。四个精简画像情景文件各保留全部输入，特征未知不等同利润未知；完整匹配分母21,112个，不省去12,123个未配者。原始数据与报告在`opening_cash_history/`，已有报告阻止覆盖。
+
 ## 已披露首次实际增持的短线接续
 
 协议为`config/first_insider_short_protocol.json`。依次运行`PYTHONPATH=src .venv/bin/python -m trade_research.first_insider_short sources`、`inputs`和`scripts/verify_first_insider_short_inputs.py`，再运行同一模块的`exits`。只复用`first_insider_buy`既有109份原件，不下载月度回购PDF；原文重新提取，日历及最近对照独立SQL核对，全部未配者保留。
