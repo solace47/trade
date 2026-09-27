@@ -1,0 +1,18 @@
+{
+  "objective": "原45项相对机会版全年按日机会率63.11%，风险惩罚版降到46.67%。回到相对机会目标，只新增流通规模、当日及尾段绝对换手三个输入，检验量能相对股本的含义与当天指数环境的联合条件。旧单项固定退出研究不替代本次次晨机会检验。",
+  "previous_inputs": "data/research/tail_formula_context/features.parquet",
+  "source": "已有3188只主板日线，读取2023-06-01至2025-12-30；仅用每只股票此前最近一个正常交易日的volume、turn、adjustflag构造分母，当前日及未来值不得进入分母。",
+  "denominator": "流通股数代理=此前正常交易日成交股数*100/换手率百分数。此前turn、volume非正或非有限，或adjustflag不是3时保持未知。不同于旧独立换手研究严格前一市场日，本版对齐原生REF(...,B0)的前一股票交易日，并报告停牌间隔。",
+  "features": {
+    "S01": "ln(1+流通股数代理*14:49股价/1e8)",
+    "S02": "100*截至14:49成交股数/流通股数代理",
+    "S03": "100*14:21至14:49成交股数/流通股数代理"
+  },
+  "native_mapping": "PSH:=REF(FINANCE(7),B0)。CAPITAL是当前流通盘，不能冒称历史序列。FINANCE(7)官方为流通股本的股数序列，但研究代理与客户端该序列尚未逐点核准；保留换手率舍入、股本变动和停牌陈旧性局限。",
+  "native_reference": "https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html",
+  "verification": "生产用逐股lag，独立核准用严格向后的ASOF join；保留旧45项及全部1258085个键，新输入未知只更改输入有效标记，不删除行或补零。",
+  "evaluation": "按既有两段训练、固定模型和99.5%分位，先冻结两段及全年选择后读取分组结果。全部2025、未知界限、同日基础池及两档成本全报，原生兼容性仍待实机核准。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
