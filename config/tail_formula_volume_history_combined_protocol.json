@@ -1,0 +1,14 @@
+{
+  "objective": "原48项量比主要比较当天相邻时段或历史全天量，尚未区分个股一贯的尾盘量能季节性。本轮增加尾29分钟与尾4分钟相对自身此前20个股票交易日同时间量的比值，检验异常尾盘活跃度与原价量环境的联合关系。",
+  "fold_protocols": [
+    "config/tail_formula_volume_history_2024_protocol.json",
+    "config/tail_formula_volume_history_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "evaluation": "两半年、全年及同质量旧版对照先冻结再评；2025已暴露，完整报告原机会、未知界、1%空间、10点参考状态、3%不利幅度、两档成本及来源敏感性，不挑一个好看时期。",
+  "source_valid_control": "原48项2025选择报告07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5与新formula_input_valid取交集；不重训旧模型。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
