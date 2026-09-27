@@ -57,3 +57,16 @@ def test_fixed_choice_rejects_ineligible_and_breaks_exact_ties_by_id():
     candidates = [dict(good, id=3), dict(good, id=1), dict(good, id=0, eligible=False, lower=.99)]
     assert choose(candidates)['id'] == 1
     assert choose([candidates[2]]) is None
+
+
+def test_complete_bounds_can_pass_despite_a_disclosed_unknown_only_day():
+    dates = pd.bdate_range('2024-07-01', periods=41).strftime('%Y-%m-%d')
+    cases = [(day, True, False, float(i < 8), .02 if i < 5 else -.001, -.01, .01)
+             for day in dates[:40] for i in range(10)]
+    cases.append((dates[-1], False, False, np.nan, np.nan, np.nan, np.nan))
+    d = counts(rows(cases)); d['delta'] = d.rate - .5; d['lower_delta'] = d.lower - .5
+    s = summarize(d, policy())
+    assert s['days'] == 41 and s['known'] == 400 and s['unknown'] == 1
+    assert s['conditional_gap_days'] == 1 and not s['gates']['conditional_complete']
+    assert s['bad_upper'] == 1 / 41 and s['lower'] > .55
+    assert s['eligible']  # No unpublished extra veto beyond complete-bound gates.

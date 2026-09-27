@@ -109,7 +109,8 @@ def calibration(root, protocol):
             bad_upper=le('bad_upper', 'maximum_bad3_complete_upper'),
             mean1000=s['mean1000'] is not None and s['mean1000'] > g['minimum_known_mean1000_exclusive'],
             conservative_weekly_increment=s['lower_delta_bootstrap'] is not None and s['lower_delta_bootstrap'] > 0)
-        s['eligible'] = all(s['gates'].values()); summaries.append(s); checks += equal(saved, s)
+        s['eligible'] = all(value for key, value in s['gates'].items() if key != 'conditional_complete')
+        summaries.append(s); checks += equal(saved, s)
     expected = pd.concat(parts, ignore_index=True)
     saved = pd.read_parquet(root / 'calibration_days.parquet')
     pd.testing.assert_frame_equal(saved, expected[saved.columns], check_dtype=False, rtol=0, atol=2e-12)

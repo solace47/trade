@@ -138,7 +138,11 @@ def summarize(d, p):
         value = s[name]
         tests[name] = value is not None and (value >= g[bound] if op == 'ge' else value <= g[bound] if op == 'le' else value > g[bound])
     tests['conservative_weekly_increment'] = s['lower_delta_bootstrap'] is not None and s['lower_delta_bootstrap'] > 0
-    s['gates'] = tests; s['eligible'] = all(tests.values())
+    # Missing conditional daily means are disclosed. The frozen policy uses
+    # complete opportunity/risk bounds; it does not add a separate veto for
+    # a day with only unknown observations.
+    s['gates'] = tests
+    s['eligible'] = all(value for key, value in tests.items() if key != 'conditional_complete')
     return s
 
 
