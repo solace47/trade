@@ -39,6 +39,7 @@ def checked_sources():
     n = json.loads(path.read_text())
     assert n['passed'] and n['feature_report_sha256'] == sha(history.ROOT / 'feature_report.json')
     assert n['feature_verification_sha256'] == sha(history.ROOT / 'feature_verification.json')
+    assert reports['history_feature_report']['history_sha256'] == sha(history.ROOT / 'history.parquet')
     assert p['history_stock_days'] == 20
     assert p['float_denominator'] == 'latest_prior_stock_day_float_shares_proxy'
     return reports, n
@@ -131,7 +132,9 @@ def native():
     f = pd.read_parquet(ROOT / 'features.parquet', columns=['date', 'code', 'HT01',
         'float_shares_proxy', 'hd_first_date', 'hd_last_date', 'hd_reference_date',
         'hd_volume20', 'history_turnover_valid']).set_index(['date', 'code'])
-    cases = []; checked = {}; total = 0; maximum = 0.
+    active = pd.read_parquet(history.ROOT / 'history.parquet', columns=['date', 'code'])
+    active_dates = {code: set(g.date) for code, g in active.groupby('code')}
+    cases = []; checked = {}; total = 0; maximum = 0.; excluded_paused_bars = 0
     for case in prior_native['cases']:
         row = f.loc[(case['date'], case['code'])]
         path = MINUTES / case['code'][:2].upper() / (case['code'][3:] + '.parquet')
@@ -141,7 +144,12 @@ def native():
         q = pd.read_parquet(path, columns=['timestamp', 'volume'], filters=[
             ('timestamp', '>=', pd.Timestamp(row.hd_reference_date)),
             ('timestamp', '<=', pd.Timestamp(case['date'] + ' 14:49:00'))])
-        q = q.sort_values('timestamp').reset_index(drop=True)
+        eligible = q.timestamp.dt.strftime('%Y-%m-%d').isin(active_dates[case['code']])
+        # The minute vendor includes all-zero placeholder days during suspension.
+        # The frozen window is twenty active stock days, as in the reused source proof.
+        assert q.loc[~eligible, 'volume'].eq(0).all()
+        excluded_paused_bars += int((~eligible).sum())
+        q = q.loc[eligible].sort_values('timestamp').reset_index(drop=True)
         dates = q.timestamp.dt.strftime('%Y-%m-%d')
         assert dates.nunique() == 22 and not q.timestamp.duplicated().any()
         b0 = q.groupby(dates).cumcount().to_numpy() + 1
@@ -173,6 +181,8 @@ def native():
         history_native_proof_sha256=sha(history.ROOT / 'native_input_verification.json'),
         samples=len(cases), raw_minutes=total, cases=cases, source_sha256=checked,
         maximum_native_scalar_difference=maximum,
+        excluded_zero_volume_suspension_placeholder_bars=excluded_paused_bars,
+        client_minute_history_must_omit_suspension_placeholders=True,
         sampled_recursive_minute_offsets_and_volume_sum_verified=True,
         float_denominator_is_daily_source_proxy_not_client_verified=True,
         software_compilation_verified=False, native_client_data_parity_verified=False,
