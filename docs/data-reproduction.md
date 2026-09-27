@@ -11,7 +11,7 @@ python3.12 -m venv .venv
 
 ## 昨日炸板与历史题材支持
 
-按`config/prior_theme_broken_protocol.json`和补充的`config/prior_theme_date_proof.json`，先执行模块`trade_research.prior_theme_broken freeze`、`fetch`，再执行`trade_research.prior_theme_broken_inputs history`、`inputs`。下载收据、身份白名单、当日成交额日期证明及不含收益的前日状态保存在`data/research/prior_theme_broken/`；已存在的输入拒绝覆盖，下载可复用核准缓存。请求间隔至少3秒，鉴权或限流错误停止该来源请求。
+按`config/prior_theme_broken_protocol.json`及`prior_theme_date_proof.json`、`prior_theme_amount_semantics.json`，先执行模块`trade_research.prior_theme_broken freeze`、`fetch`，必要时按固定协议执行一次`retry-transports`；再执行`trade_research.prior_theme_broken_inputs history`、`inputs`。下载收据、身份白名单、金额日期锚点及不含收益的前日状态保存在`data/research/prior_theme_broken/`；已存在的输入拒绝覆盖，下载可复用核准缓存。请求间隔至少3秒，鉴权或限流错误停止该来源请求。全部金额均等于日终的旧假设已撤下，原输入保留在superseded_amount_semantics。
 
 使用`PYTHONPATH=src .venv/bin/python scripts/verify_prior_theme_inputs.py`核准所有输入后，才执行模块`trade_research.prior_theme_broken_analysis`，随后用同一Python前缀执行`scripts/verify_prior_theme_analysis.py`。经济标签直接复用已有严格T1及分期质量版本，不重新挑样本或改成交规则。全部昨日状态×题材强弱、来源缺失及两档费用完整保留；供应商历史归档不能替代首次发布时间证据。
 

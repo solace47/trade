@@ -23,10 +23,36 @@ def check(ROOT=ROOT):
     for name, digest in {**hist["source_sha256"], **report["source_sha256"]}.items():
         assert sha(Path(name)) == digest, name
     assert report["date_proof_sha256"] == sha(Path("config/prior_theme_date_proof.json"))
+    assert report["amount_semantics_sha256"] == sha(Path("config/prior_theme_amount_semantics.json"))
     assert sha(Path("config/prior_theme_broken_protocol.json")) == manifest["protocol_sha256"]
     assert sha(ROOT / "source_jobs.parquet") == manifest["jobs_sha256"]
     assert sha(ROOT / "visible_main.parquet") == manifest["main_sha256"]
     assert hist["prior_state_sha256"] == sha(ROOT / "prior_state.parquet")
+    download = json.loads((ROOT / "download_report.json").read_text())
+    assert report["download_report_sha256"] == sha(ROOT / "download_report.json")
+    if "first_attempt_report_sha256" in download:
+        first_path = ROOT / "download_report_first_attempt.json"
+        assert sha(first_path) == download["first_attempt_report_sha256"]
+        assert download["retry_protocol_sha256"] == sha(Path("config/prior_theme_transport_retry.json"))
+        first = json.loads(first_path.read_text())
+        attempted = []
+        eligible = []
+        for day in first["receipts_sha256"]:
+            current_path = ROOT / "source" / (day + ".json")
+            current = json.loads(current_path.read_text())
+            prior_path = current_path.parent / "first_attempt" / current_path.name
+            if prior_path.exists():
+                prior = json.loads(prior_path.read_text())
+                assert sha(prior_path) == first["receipts_sha256"][day] == current["retry_of_receipt_sha256"]
+                assert current["url"] == prior["url"] and current["signal_date"] == prior["signal_date"]
+                assert sha(prior_path.with_suffix(".body")) == prior["body_sha256"]
+                attempted.append(day)
+            else:
+                prior = current
+                assert sha(current_path) == first["receipts_sha256"][day]
+            if prior["curl_exit"] == 28 and prior["http_code"] == "200":
+                eligible.append(day)
+        assert attempted == eligible, "Retry every and only predeclared transport failure"
     jobs = pd.read_parquet(ROOT / "source_jobs.parquet")
     calendar = pd.read_parquet("data/baostock/market_2020_2026/metadata/calendar.parquet")
     dates = sorted(calendar.loc[calendar.is_trading_day.eq("1"), "calendar_date"])
@@ -66,9 +92,9 @@ def check(ROOT=ROOT):
     np.testing.assert_array_equal(actual.upper_cents, upper)
     np.testing.assert_array_equal(actual.lower_cents, lower)
     # Scalar decimal anchors check the actual exchange-cent rounding separately.
-    anchors = actual.assign(order=(actual.source_date + actual.code).map(
+    decimal_anchors = actual.assign(order=(actual.source_date + actual.code).map(
         lambda s: __import__("hashlib").sha256(s.encode()).hexdigest())).sort_values("order").head(96)
-    for a in anchors.itertuples(index=False):
+    for a in decimal_anchors.itertuples(index=False):
         assert int((Decimal(str(a.preclose)) * Decimal("1.1") * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP)) == a.upper_cents
         assert int((Decimal(str(a.preclose)) * Decimal("0.9") * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP)) == a.lower_cents
     state = {(d, code): s for d, code, s in zip(raw.date, raw.code, status)}
@@ -79,6 +105,8 @@ def check(ROOT=ROOT):
         ok = False
         result_status = meta["status"]
         n_amount = n_conflict = n_mismatch = 0
+        anchors = set()
+        n_bound = 0
         if result_status in ["historical_response_received", "date_echo_missing_or_mismatched"]:
             data = json.loads((ROOT / "source" / (job.source_date + ".body")).read_text())["data"]
             assert data["today"] is False
@@ -103,16 +131,21 @@ def check(ROOT=ROOT):
                 for code, values in amt.items():
                     local = cash.get((job.source_date, code))
                     for value in values:
-                        if not value.is_finite() or value <= 0 or local is None or not local.is_finite() or abs(value * 100000000 - local) > Decimal("500000.02"):
+                        full_match = value.is_finite() and value > 0 and local is not None and local.is_finite() and abs(value * 100000000 - local) <= Decimal("500000.02")
+                        if full_match:
+                            anchors.add(code)
+                        else:
                             n_mismatch += 1
-                ok = n_amount >= 5 and n_conflict == 0 and n_mismatch == 0
-                result_status = ("amount_and_echo_verified" if echo else "amount_verified_echo_absent") if ok else "amount_date_proof_failed"
+                        if not value.is_finite() or value < 0 or local is None or not local.is_finite() or value * 100000000 > local + Decimal("500000.02"):
+                            n_bound += 1
+                ok = len(anchors) >= 5 and n_bound == 0
+                result_status = ("five_daily_anchors_and_echo" if echo else "five_daily_anchors_echo_absent") if ok else "insufficient_anchors_or_amount_bound_failed"
             elif len(data["plate"]) >= 100 and not echo:
                 result_status = "possible_topic_limit"
         sources[job.date] = ok
-        audit_counts.append((job.date, ok, result_status, n_amount, n_conflict, n_mismatch))
+        audit_counts.append((job.date, ok, result_status, n_amount, n_conflict, n_mismatch, len(anchors), n_bound))
     audit = pd.read_parquet(ROOT / "source_audit.parquet")
-    observed = list(audit[["date", "source_valid", "proof_status", "amount_stocks", "amount_conflicts", "amount_mismatches"]].itertuples(index=False, name=None))
+    observed = list(audit[["date", "source_valid", "proof_status", "amount_stocks", "amount_conflicts", "amount_mismatches", "amount_anchors", "amount_bound_failures"]].itertuples(index=False, name=None))
     assert observed == audit_counts
     recorded = pd.read_parquet(ROOT / "raw_relations.parquet")
     assert Counter(recorded[["date", "source_date", "code", "plate_id", "source_category"]].itertuples(index=False, name=None)) == raw_relations
@@ -195,7 +228,7 @@ def check(ROOT=ROOT):
                   raw_daily_rows=len(raw), raw_relations=sum(raw_relations.values()), unique_relations=len(relations),
                   source_dates=len(audit_counts), source_valid_dates=sum(sources.values()), primary=int(primary.sum()),
                   prior_state_fields_checked=int(len(raw) * 4), full_context_fields_checked=int(len(actual) * len(columns)),
-                  decimal_rounding_anchors=len(anchors), quarantined_field_mutations=mutations,
+                  decimal_rounding_anchors=len(decimal_anchors), quarantined_field_mutations=mutations,
                   outputs_not_profit=True, prices_2026_read=False)
     save_json(ROOT / "input_verification.json", result)
     return result

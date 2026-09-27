@@ -14,6 +14,7 @@ from .corporate_cash import save_json, sha
 from .prior_theme_broken import ROOT, PROTOCOL, CALENDAR, inspect_payload
 
 DATE_PROOF = Path("config/prior_theme_date_proof.json")
+AMOUNT_SEMANTICS = Path("config/prior_theme_amount_semantics.json")
 DAILY = Path("data/baostock/market_2020_2026/daily")
 BASIC = Path("data/baostock/market_2020_2026/metadata/stock_basic.parquet")
 MAPS = ("plate_stocks", "plate_stocks_zb", "plate_stocks_bx")
@@ -114,6 +115,9 @@ def inputs():
     assert hr["date_proof_sha256"] == sha(DATE_PROOF)
     dr = json.loads((ROOT / "download_report.json").read_text())
     assert dr["all_dates_attempted"], "All original dates must be attempted, without resampling"
+    if "first_attempt_report_sha256" in dr:
+        assert sha(ROOT / "download_report_first_attempt.json") == dr["first_attempt_report_sha256"]
+        assert sha(Path("config/prior_theme_transport_retry.json")) == dr["retry_protocol_sha256"]
     jobs = pd.read_parquet(ROOT / "source_jobs.parquet")
     states = pd.read_parquet(ROOT / "prior_state.parquet")
     daily_amounts = states.set_index(["source_date", "code"]).amount
@@ -125,9 +129,21 @@ def inputs():
         receipt = json.loads(meta.read_text())
         assert receipt["source_date"] == job.source_date and receipt["signal_date"] == job.date
         provenance[str(meta)] = sha(meta)
+        if receipt.get("retry_of_receipt_sha256"):
+            first_meta = meta.parent / "first_attempt" / meta.name
+            first_body = first_meta.with_suffix(".body")
+            assert sha(first_meta) == receipt["retry_of_receipt_sha256"]
+            previous = json.loads(first_meta.read_text())
+            assert previous["curl_exit"] == 28 and previous["http_code"] == "200"
+            assert previous["url"] == receipt["url"] and previous["signal_date"] == job.date
+            assert sha(first_body) == previous["body_sha256"]
+            assert receipt["retry_protocol_sha256"] == dr["retry_protocol_sha256"]
+            provenance[str(first_meta)] = sha(first_meta)
+            provenance[str(first_body)] = sha(first_body)
         row = dict(date=job.date, source_date=job.source_date, original_status=receipt["status"],
                    source_valid=False, proof_status=receipt["status"], amount_stocks=0,
-                   amount_mismatches=0, amount_conflicts=0, max_amount_difference=None)
+                   amount_mismatches=0, amount_conflicts=0, amount_anchors=0,
+                   amount_bound_failures=0, max_amount_difference=None)
         if receipt.get("body_sha256"):
             assert sha(body) == receipt["body_sha256"]
             provenance[str(body)] = sha(body)
@@ -158,15 +174,19 @@ def inputs():
             table["amount_difference"] = table.source_amount_yi * 1e8 - table.local_amount
             table["amount_match"] = (np.isfinite(table.source_amount_yi) & table.source_amount_yi.gt(0)
                                      & table.amount_difference.abs().le(500000.02))
+            table["amount_bounded"] = (np.isfinite(table.source_amount_yi) & table.source_amount_yi.ge(0)
+                                       & np.isfinite(table.local_amount) & table.amount_difference.le(500000.02))
             amounts.extend(table.to_dict("records"))
             row["amount_stocks"] = int(table.code.nunique())
             row["amount_conflicts"] = int(table.code.duplicated().sum())
             row["amount_mismatches"] = int((~table.amount_match).sum())
+            row["amount_anchors"] = int(table.loc[table.amount_match].code.nunique())
+            row["amount_bound_failures"] = int((~table.amount_bounded).sum())
             finite = table.amount_difference.abs().dropna()
             row["max_amount_difference"] = float(finite.max()) if len(finite) else None
-        good = row["amount_stocks"] >= 5 and row["amount_conflicts"] == 0 and row["amount_mismatches"] == 0
+        good = row["amount_anchors"] >= 5 and row["amount_bound_failures"] == 0
         row["source_valid"] = good
-        row["proof_status"] = ("amount_and_echo_verified" if not missing_echo else "amount_verified_echo_absent") if good else "amount_date_proof_failed"
+        row["proof_status"] = ("five_daily_anchors_and_echo" if not missing_echo else "five_daily_anchors_echo_absent") if good else "insufficient_anchors_or_amount_bound_failed"
         audit_rows.append(row)
     audit = pd.DataFrame(audit_rows)
     raw = pd.DataFrame(relations)
@@ -224,6 +244,7 @@ def inputs():
         frame.to_parquet(ROOT / (name + ".parquet"), index=False, compression="zstd")
     report = dict(manifest_sha256=sha(ROOT / "manifest.json"), history_report_sha256=sha(ROOT / "history_report.json"),
                   download_report_sha256=sha(ROOT / "download_report.json"), date_proof_sha256=sha(DATE_PROOF),
+                  amount_semantics_sha256=sha(AMOUNT_SEMANTICS),
                   source_sha256=provenance, rows=len(features), primary=int(features.primary.sum()),
                   source_statuses=audit.proof_status.value_counts().to_dict(),
                   primary_by_half=features.groupby("half").primary.sum().to_dict(),
