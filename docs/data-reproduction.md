@@ -19,6 +19,8 @@ python3.12 -m venv .venv
 4. 固定的选叶修正使用模块`trade_research.tail_formula_1000_daily`依次`freeze`、`verify`、`analyze`，随后核查脚本`analysis --root data/research/tail_formula_1000_daily`。复用已核准标签，明确为探索性接续。
 5. 同日机会差模型使用模块`trade_research.tail_formula_1000_residual`依次`model`、`verify_model`、`freeze`、`verify`、`analyze`，随后核查脚本`analysis --root data/research/tail_formula_1000_residual`。只增加一次固定回归树，不扫描参数。
 6. 午后路径先运行模块`trade_research.tail_formula_intraday features`及脚本`scripts/verify_tail_formula_intraday_inputs.py`；再运行模块`trade_research.tail_formula_intraday_study`依次`model`、`verify_model`、`freeze`、`verify`、`analyze`，最后核查脚本`analysis --root data/research/tail_formula_intraday`。只读13:01–14:49，原始20项输入与固定原档抽样独立重建；原始提取模块哈希也记录在分片收据中。
+7. 少量候选研究使用模块`trade_research.tail_formula_selective`依次`model`、`verify_model`、`calibrate`，再运行`scripts/verify_tail_formula_selective.py`。固定2024H1建树、H2校准及全部质量门槛；只有合格条件才可运行`analyze`并按第3步核准新目录的2025结果，无合格条件禁止补选或展开该分组的2025评价。
+8. 历史处境联合研究使用模块`trade_research.tail_formula_joint`依次`features`、`verify_features`、`model`、`verify_model`、`calibrate`；核查脚本为`scripts/verify_tail_formula_selective.py --root data/research/tail_formula_joint --features-root data/research/tail_formula_joint --protocol config/tail_formula_joint_protocol.json`。仅新增4个此前价格位置特征，其余设计沿用第7步；软件分钟历史与日线字段的对齐尚未确认，不冒充可直接上线。
 
 各版完整条件与结果见[原生公式研究](selection-formula.md)。原生软件编译未核准；研究中的浮盈机会不代表按观察价成交或保证收益。
 
