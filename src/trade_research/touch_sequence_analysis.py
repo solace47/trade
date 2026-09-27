@@ -70,6 +70,9 @@ def analyze():
             q = pairs.merge(p[['date','code','label','net_return']], on=['date','code'],validate='one_to_one')
             q = q.merge(p[['date','code','label','net_return']].rename(columns={'code':'control_code','label':'control_label',
                 'net_return':'control_return'}),on=['date','control_code'],how='left',validate='many_to_one')
+            # Unmatched rows in the original frozen pair table have no copied
+            # pair metadata. Their period still comes from their signal date.
+            q['half'] = q.date.str[:4] + q.date.str[5:7].map(lambda m: 'H1' if m<='06' else 'H2')
             q['no_match'] = q.control_code.isna()
             q['both_known'] = q.net_return.notna() & q.control_return.notna()
             q['selected_only'] = ~q.no_match & q.net_return.notna() & q.control_return.isna()

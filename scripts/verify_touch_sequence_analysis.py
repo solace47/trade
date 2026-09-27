@@ -91,7 +91,9 @@ def check():
             worst_five_percent_mean=numeric.clean(np.sort(values)[:max(1,math.ceil(len(values)*.05))].mean()) if len(values) else None)
         for name,value in stats.items():
             numeric.eq(item[name],value,(identity,name))
-    c.execute("""CREATE VIEW joined_pairs AS SELECT p.*,s.exit,s.cost_bps,s.label,s.net_return,
+    c.execute("""CREATE VIEW joined_pairs AS SELECT p.* EXCLUDE(half),
+        substr(p.date,1,4)||CASE WHEN month(p.date::DATE)<=6 THEN 'H1' ELSE 'H2' END AS half,
+        s.exit,s.cost_bps,s.label,s.net_return,
         b.label AS control_label,b.net_return AS control_return,p.control_code IS NULL AS no_match,
         s.net_return IS NOT NULL AND b.net_return IS NOT NULL AS both_known
         FROM fixed_pairs p JOIN scenarios s ON p.date=s.date AND p.code=s.code
