@@ -257,7 +257,8 @@ def diagnose():
         q=s.loc[s.half.eq(half)&s.selected].merge(f,on=['date','code'],validate='one_to_one')
         counts=q.groupby('date').size().sort_values(ascending=False)
         distributions.append(dict(half=half,rows=len(q),top5_date_fraction=float(counts.head(5).sum()/len(q)) if len(q) else None,
-            top5_dates=counts.head(5).to_dict(),medians=q[['A01','A04','A19','D02']].median().to_dict()))
+            top5_dates=counts.head(5).to_dict(),medians={k:float(v) if pd.notna(v) else None
+                for k,v in q[['A01','A04','A19','D02']].median().items()}))
     gains={name:0. for name in m['feature_names']}
     for t in m['trees']:
         for i,left in enumerate(t['children_left']):
