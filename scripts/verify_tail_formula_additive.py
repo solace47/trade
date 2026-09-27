@@ -143,4 +143,7 @@ def selection():
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('stage',choices=['scores','selection'])
-    print(json.dumps(globals()[p.parse_args().stage](),ensure_ascii=False,indent=2))
+    p.add_argument('--root',type=Path,default=ROOT)
+    p.add_argument('--protocol',type=Path,default=PROTOCOL)
+    args=p.parse_args();ROOT=args.root;PROTOCOL=args.protocol
+    print(json.dumps(globals()[args.stage](),ensure_ascii=False,indent=2))
