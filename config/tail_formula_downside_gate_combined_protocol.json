@@ -1,0 +1,15 @@
+{
+  "objective": "事前固定将独立风险过滤的两段名单按2025上下半年衔接，全量结果保留；原机会模型、门限及风险过滤方法不根据2025或2026结果再次调整。",
+  "folds": [
+    "config/tail_formula_downside_gate_2024_protocol.json",
+    "config/tail_formula_downside_gate_recent_protocol.json"
+  ],
+  "selection": "2025H1使用2024训练且next_date<2025-01-01，2025H2使用2024-07-01起至next_date<2025-07-01；不使用训练期选择。",
+  "freeze_order": "两份模型、独立核准的分数和名单先冻结，衔接全年也冻结，再读取任一新分组结果。",
+  "evaluation": "先冻结两半年及衔接全年，再读新组结果。2025多轮已暴露，仍完整报告按日机会、1%空间、3%不利幅度、10点参考状态、未知界、同日基础池、5/15基点和来源敏感性。保留原名单，不据结果重选风险阈值或损失系数。",
+  "year_2025_is_exploratory": true,
+  "year_2026_q1_previously_exposed": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

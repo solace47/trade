@@ -38,7 +38,7 @@ def duration_source():
 
 
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin','rank','duration']
+    assert variant in ['relative','risk','absolute','margin','rank','duration','downside']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
@@ -67,9 +67,11 @@ def training(variant):
     if variant=='margin':
         assert np.isfinite(labels.sustained_return15).all()
         labels['utility']=labels.sustained_return15.clip(-.01,.01)/.01
+    elif variant=='downside':
+        labels['utility']=labels.adverse_return15.le(-.03).astype(float)
     else:
         labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
-    labels['target']=labels.utility if variant=='absolute' else labels.utility-labels.groupby('date').utility.transform('mean')
+    labels['target']=labels.utility if variant in ['absolute','downside'] else labels.utility-labels.groupby('date').utility.transform('mean')
     t=t.merge(labels[['date','code','target']],on=['date','code'],validate='one_to_one')
     return t.sort_values(['date','code']).reset_index(drop=True)
 
@@ -125,7 +127,9 @@ def verify_model(variant):
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
-    target='utility' if variant=='absolute' else 'utility-avg(utility) OVER(PARTITION BY date)'
+    elif variant=='downside':
+        utility='CAST(adverse_return15<=-.03 AS INTEGER)'
+    target='utility' if variant in ['absolute','downside'] else 'utility-avg(utility) OVER(PARTITION BY date)'
     if variant=='duration':
         source=duration_source()
         assert r['duration_label_report_sha256']==sha(source/'duration_report.json')
