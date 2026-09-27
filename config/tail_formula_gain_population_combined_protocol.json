@@ -1,0 +1,15 @@
+{
+  "objective": "固定只在近期曾发生原价大涨的股票群中训练和选股，检验不同研究范围是否优于给全池模型简单增加两项。已有全池追加结果失败，此项是后续探索，不称独立发现。",
+  "inputs_protocol_sha256": "6ee58b0215854201c301f94aaa7ee2e64763d47fee2b1655a921a9490955a511",
+  "fold_protocols": [
+    "config/tail_formula_gain_population_2024_protocol.json",
+    "config/tail_formula_gain_population_recent_protocol.json"
+  ],
+  "source_48_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "year_2025_is_exploratory": true,
+  "freeze_all_selections_before_group_outcomes": true,
+  "same_quality_control": "原48项与HG01>=1及已验证输入交集：同研究股票群，而不是数据质量损失；另冻结整个研究股票群对照。"
+}

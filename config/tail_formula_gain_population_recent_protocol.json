@@ -1,0 +1,15 @@
+{
+  "objective": "固定只在近期曾发生原价大涨的股票群中训练和选股，检验不同研究范围是否优于给全池模型简单增加两项。已有全池追加结果失败，此项是后续探索，不称独立发现。",
+  "source": "config/tail_formula_gain_population_protocol.json",
+  "model_max_depth": 3,
+  "fit": "同一年窗、64深度3树、最小300例、学习率.05、seed20260927、群内每日期等权。目标仍为机会减当天全部已知基础池均值，保持原相对目标；不改为群内标签基线。不扫描阈值，固定群内训练分数99.5%分位。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "inputs_protocol_sha256": "6ee58b0215854201c301f94aaa7ee2e64763d47fee2b1655a921a9490955a511"
+}
