@@ -1,0 +1,13 @@
+{
+  "objective": "原48项的多轮树模型扩展仍依赖少数日期。本轮只改变学习形式，使用同48项和同日相对二元机会目标的日期等权岭回归，检验更平滑、参数更少的评分是否减少树分段边界的不稳定。不是重跑旧固定卖出收益目标的岭回归。",
+  "fold_protocols": [
+    "config/tail_formula_ridge_2024_protocol.json",
+    "config/tail_formula_ridge_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "evaluation": "两半年及全年共同先冻后评；机会、完整未知界、同日基础池、1%空间、10点参考状态、3%不利幅度、5/15基点、来源敏感性及日期集中性全部保留。原48项树模型结果作为既存对照，不重训它。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
