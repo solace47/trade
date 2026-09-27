@@ -12,22 +12,32 @@ from trade_research.reference_gain_accounting import weekly_interval
 from verify_tick_flow_analysis import eq, interval
 
 
-def compare(left, right, output, periods=None):
+def compare(left, right, output, periods=None, intersection_only=False):
     if output.exists():
         raise ValueError('Do not replace a recorded paired comparison')
     inputs = {}
     frames = []
+    label_hashes = []
     for name, path in [('left', left), ('right', right)]:
         report = json.loads((path / 'analysis_report.json').read_text())
         proof = json.loads((path / 'analysis_verification.json').read_text())
         assert proof['passed'] and proof['analysis_report_sha256'] == sha(path / 'analysis_report.json')
         assert report['daily_summary_sha256'] == sha(path / 'daily_summary.parquet')
         assert report['selection_report_sha256'] == sha(path / 'selection_report.json')
+        label_hashes.append(sha(path / 'full_labels.parquet'))
         inputs[name] = dict(root=str(path), analysis_report_sha256=sha(path / 'analysis_report.json'),
                             daily_summary_sha256=sha(path / 'daily_summary.parquet'))
         f = pd.read_parquet(path / 'daily_summary.parquet')
         frames.append(f.loc[f.arm.eq('formula')].sort_values(['bps', 'sensitive', 'date']).reset_index(drop=True))
     keys = ['bps', 'sensitive', 'date', 'half']
+    assert label_hashes[0] == label_hashes[1], 'Paired marks must come from the same labels'
+    original_dates = [set(f.date) for f in frames]
+    common = original_dates[0] & original_dates[1]
+    coverage = dict(left_signal_days=len(original_dates[0]), right_signal_days=len(original_dates[1]),
+        common_signal_days=len(common), left_only_dates=sorted(original_dates[0]-common),
+        right_only_dates=sorted(original_dates[1]-common))
+    if intersection_only:
+        frames = [f.loc[f.date.isin(common)].reset_index(drop=True) for f in frames]
     pd.testing.assert_frame_equal(frames[0][keys], frames[1][keys], check_exact=True)
     a, b = frames
     result = a[keys].copy()
@@ -66,6 +76,8 @@ def compare(left, right, output, periods=None):
     r = dict(inputs=inputs, summaries=summaries, summary_checks=checks, passed=True,
              all_daily_differences_independently_rebuilt=True, all_intervals_independently_rebuilt=True,
              same_signal_dates_required=True, lower_delta_is_left_lower_minus_right_upper=True,
+             intersection_only=intersection_only, date_coverage=coverage,
+             full_selection_results_not_replaced=True, common_date_differences_do_not_describe_unmatched_dates=True,
              post_result_comparison_not_new_selection=True, year_2025_is_exploratory=True,
              new_2026_prices_read=bool(result.date.ge('2026-01-01').any()), no_exit_rules=True)
     save_json(output, r)
@@ -78,5 +90,6 @@ if __name__ == '__main__':
     p.add_argument('--right', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--periods', nargs='+')
+    p.add_argument('--intersection-only', action='store_true', help='Compare common signal dates and retain unmatched date coverage')
     a = p.parse_args()
-    print(json.dumps(compare(a.left, a.right, a.output, a.periods), ensure_ascii=False, indent=2))
+    print(json.dumps(compare(a.left, a.right, a.output, a.periods, a.intersection_only), ensure_ascii=False, indent=2))
