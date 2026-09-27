@@ -194,7 +194,7 @@ def native_core(model,threshold,expressions=EXPRESSIONS,header=HEADER):
     core=header+'\n'.join(f'{k}:={v};' for k,v in expressions.items())+'\n'
     core+='\n'.join(f'X{i:02d}:=INTPART(MIN(MAX(100*{name}+10000+0.000001,0),999999));' for i,name in enumerate(expressions,1))+'\n'
     core+='\n'.join(f'T{i:02d}:={native_tree(t)};' for i,t in enumerate(model['trees'],1))+'\n'
-    core+='SC:='+format(model['bias'],'.17g')+'+'+'+'.join(f'T{i:02d}' for i in range(1,65))+';\n'
+    core+='SC:='+format(model['bias'],'.17g')+'+'+'+'.join(f'T{i:02d}' for i in range(1,len(model['trees'])+1))+';\n'
     return core+'CORE:SC>'+format(threshold,'.17g')+';\n'
 
 
