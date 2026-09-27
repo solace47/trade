@@ -1,0 +1,13 @@
+{
+  "objective": "直接联合质量目标的两段及全年先冻后评，保留原48项既存对照和所有标准机会指标。",
+  "fold_protocols": [
+    "config/tail_formula_joint_quality_2024_protocol.json",
+    "config/tail_formula_joint_quality_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "evaluation": "完整报告原压力正机会率、至少1%空间、至少3%不利幅度、10点参考状态、未知界、同日基础池、5/15基点及来源敏感性。同时在新名单和既有原48项名单报告联合事件的按日比例、完整未知界、同日基础池差与周块区间；不得只看联合目标而隐藏原机会质量下降。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
