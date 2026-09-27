@@ -1,0 +1,15 @@
+{
+  "objective": "原相对强弱R把个股对指数的敏感度固定为1。本轮在原48项二元相对目标版上，以此前20个股票交易日收盘价格联动系数修正四个R，并把该系数作为一个输入，共49项。检验这种个股差异能否改善次晨选股，不单独追选高贝塔股票。",
+  "source": "原48项输入及已核准股票/指数日线，特征协议config/tail_formula_beta_protocol.json。",
+  "model_max_depth": 3,
+  "fit": "原同日二元相对机会目标、64棵深度三、日期等权、learning_rate=.05、min_samples_leaf=300、subsample=1、random_state=20260927；只改变预定的个股相对指数输入。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "inputs": "原44项加KB01和RB01至RB04，共49项；旧全部键和数值保留，新无效按协议处理。"
+}
