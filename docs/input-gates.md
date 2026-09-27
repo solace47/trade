@@ -1234,3 +1234,9 @@ T+5、2 万元、每侧 15 基点的信号日均值如下：
 2026-09-28查阅[通达信官方函数表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：个股可引用对应指数的 `INDEXADV`／`INDEXDEC`，需要本地相应指数数据；`ADVANCE`／`DECLINE`本身仅对指数有效，分时图数据不适用。存在函数不等于已经取得可靠的2024—2025历史分钟家数。现有 `tail_formula_context/index_points.parquet`只重建指数价格，不能把当前3188股研究池涨跌数冒充软件对应指数的完整家数。
 
 官方[跨平台TdxAiData](https://help.tdx.com.cn/quant/docs/markdown/mindoc-1hjbgqpdhv114.html)已提供macOS数据运行方式，需数据服务Key，且不提供公式执行；[K线接口字段](https://help.tdx.com.cn/quant/docs/markdown/mindoc-1ctuhthaq5qmg/mindoc-1h10g60jt68sc.html)未列出历史涨跌家数。[市场交易数据](https://help.tdx.com.cn/quant/docs/markdown/TdxQuant.md/mindoc-1h10p8op6ia9g.html)含SC31涨跌家数，但尚未证明可取得14:49前历史截面。现阶段只确认原生入口，不把盘后家数或文档中的行情示例用于本轮选股、训练和评价；尚未新增该输入或结果试验。
+
+## 大小盘相对强弱的历史来源探针
+
+现有市场输入主要是上证／深成指，尚未直接表示大小盘分化。[中证1000编制方案](https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175402-000852_Index_Methodology_cn.pdf)与[沪深300编制方案](https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000300_Index_Methodology_cn.pdf)支持以两指数作为规模风格代理，但不能把差值解释为主力净流入。[通达信官方跨品种引用](https://help.tdx.com.cn/gspt/docs/markdown/tdxgs-1d1k7biu16p6s/tdxgs-1dm0urbs4fcd8.html)提供报价序列引用方式，实际客户端数据一致性仍须核验。
+
+`tail_formula_size_index_probe_protocol.json`先固定两指数在2024-01-02、2024-12-02、2025-12-01的六个会话，只核查历史代表价、独立日线包络及原响应重放，复用同三日已核准的股票时序对照。没有连接选股和次晨结果，也不扩展2026。来源可用后再冻结完整新增输入及对照规则；这不同于此前失败的中证1000调出事件，不先批量采集或声称有效。
