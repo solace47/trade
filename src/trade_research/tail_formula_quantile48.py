@@ -53,6 +53,9 @@ def model(fold):
     path.mkdir(parents=True, exist_ok=True)
     t = training(fold); x = base.encode(t); y = t.sustained_return15.to_numpy()
     w = 1 / t.groupby('date').code.transform('size').to_numpy()
+    if 'minimum_leaf_day_weight' in p:
+        assert t.date.nunique() == p['expected_training_days']
+        assert p['parameters']['min_weight_fraction_leaf'] == p['minimum_leaf_day_weight'] / t.date.nunique()
     m = GradientBoostingRegressor(**p['parameters']).fit(x, y, sample_weight=w)
     trees = []
     for estimator in m.estimators_.ravel():
@@ -111,6 +114,10 @@ def verify_model(fold):
     x = d[names].to_numpy(); y = d.target.to_numpy(); w = d.w.to_numpy(); dates = d.date.to_numpy()
     np.testing.assert_allclose(r['bias'], weighted_quartile(y, w), rtol=0, atol=2e-12)
     score = np.full(len(d), r['bias']); checks = 0; minimum_days = len(d); leaf_checks = 0
+    minimum_day_weight = float('inf')
+    if 'minimum_leaf_day_weight' in p:
+        assert d.date.nunique() == p['expected_training_days']
+        assert r['parameters']['min_weight_fraction_leaf'] == p['minimum_leaf_day_weight'] / d.date.nunique()
     assert len(r['trees']) == 64 and r['learning_rate'] == .05
     for tree in r['trees']:
         residual = y - score
@@ -129,6 +136,10 @@ def verify_model(fold):
                 assert mask.sum() >= 300
                 value = weighted_quartile(residual[mask], weights)
                 minimum_days = min(minimum_days, len(np.unique(dates[mask]))); leaf_checks += 1
+                minimum_day_weight = min(minimum_day_weight, float(weights.sum()))
+                if 'minimum_leaf_day_weight' in p:
+                    assert weights.sum() >= p['minimum_leaf_day_weight'] - 1e-9
+                    assert len(np.unique(dates[mask])) >= p['minimum_leaf_day_weight']
                 # Use the exported, already checked value to preserve exact subgradient ties next round.
                 terminal[mask] = tree['value'][node]
             else:
@@ -148,6 +159,10 @@ def verify_model(fold):
              node_checks=checks, weighted_quantile_leaf_checks=leaf_checks, minimum_leaf_days_observed=minimum_days,
              all_training_targets_encodings_weights_pinball_gradients_and_weighted_quantiles_rebuilt=True,
              score_quantiles_are_not_selection_thresholds=True, new_2026_prices_read=False, no_exit_rules=True)
+    if 'minimum_leaf_day_weight' in p:
+        v['minimum_leaf_day_weight_required'] = p['minimum_leaf_day_weight']
+        v['minimum_leaf_day_weight_observed'] = minimum_day_weight
+        v['constraint_applied_during_tree_growth'] = True
     save_json(path / 'model_verification.json', v); return v
 
 
@@ -250,7 +265,10 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('fold', choices=['2024', 'recent', 'combined'])
     p.add_argument('stage', choices=['model', 'verify_model', 'scores', 'freeze', 'verify', 'analyze'])
+    p.add_argument('--day-weight', action='store_true', help='Use the separately frozen 20-date-weight protocols')
     a = p.parse_args()
+    if a.day_weight:
+        STEM = 'tail_formula_quantile_day48'
     if a.stage == 'analyze':
         assert (root('combined') / 'selection_verification.json').exists()
         if json.loads((root(a.fold) / 'selection_report.json').read_text())['selected']:
