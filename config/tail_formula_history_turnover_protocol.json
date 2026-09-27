@@ -1,0 +1,22 @@
+{
+  "objective": "检验此前20个完整股票日累计成交量按最近此前流通股本重标后的比例，能否补足原48项。近期大涨群对照失败后恢复完整股票池，只增加这一输入，不据2026调参。",
+  "history_stock_days": 20,
+  "float_denominator": "latest_prior_stock_day_float_shares_proxy",
+  "feature": {
+    "HT01": "100*此前20完整股票日成交股数总和/最近此前股票日流通股本代理；每一日使用同一分母，非历史每日实际换手之和。"
+  },
+  "native": "10000*REF(SUM(V,B19),B0)/PSH。B19在此前末分钟处覆盖20个股票日，V单位手，PSH单位股；逐分钟重放验证。",
+  "fit": "原48项加HT01、原一年训练窗、相对机会平方目标、64棵深度3树、min_samples_leaf300、lr.05、日期等权、seed20260927、训练99.5%分位。不加大涨、大小盘、广度或卖出条件。",
+  "difference_from_existing": "此前五日量/股本可由原S02和C05推导，不追加；新20日累计量不同于历史方向量占比、量加权价格或当日换手。固定20日，不扫窗口。",
+  "validation": "复用已全量独立核准的历史20日量及原股本代理；原48输入、全部键和有效性逐值核准，独立换手分母代数、原生手股换算和全部整数编码核准，复用32个固定样本重新验证原生递归分钟窗口。先冻结两段、全年和同质量原版，再评价。",
+  "limitations": "分母由此前原价日线成交股数/换手推算，FINANCE7客户端一致尚未证明；不称主力持仓、主力入场或真实历史换手之和。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "previous_feature_verification_sha256": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+  "history_feature_report_sha256": "d641ed70932c04ff47b2b082893f7083afb2960c38970ccc5ea07a0e9b4c3a00",
+  "history_feature_verification_sha256": "9168b2d05ce650847b140978f0a6be1e5fe3b11017b5db8d42772b8e3d971d6b",
+  "history_native_input_verification_sha256": "87cfdb0bd4ba2e69944fce1ee644c8371d12964f7aa5ceb8e5bc6fddec4e1f7d"
+}
