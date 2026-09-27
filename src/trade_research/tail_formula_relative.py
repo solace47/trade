@@ -31,7 +31,9 @@ def duration_source():
     from . import tail_formula_duration_labels as durations
     config=json.loads(PROTOCOL.read_text())
     assert sha(durations.PROTOCOL)==config['duration_labels_protocol_sha256']
-    durations.checked_report()
+    report=durations.checked_report()
+    assert report['full_label_report_sha256']==sha(base.SOURCE/'full_label_report.json')
+    assert report['full_label_verification_sha256']==sha(base.SOURCE/'full_label_verification.json')
     return durations.ROOT
 
 
