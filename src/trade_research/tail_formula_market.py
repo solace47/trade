@@ -113,16 +113,23 @@ def verify_features():
         assert sha(Path(name))==digest
         item=json.loads(Path(name).read_text());d=pd.DataFrame(item['records'])
         indices[item['code']]=d.set_index('date').close.astype(float)
-    rebuilt=[]
+    rebuilt=[];partial_history_rows=0
     for path in stock.source_files():
         d=pd.read_parquet(path,columns=['date','code','tradestatus'],filters=[('date','>=','2023-06-01'),('date','<=','2025-12-30')])
         d=d.loc[d.tradestatus.eq(1)].sort_values('date').copy()
         code=d.code.iloc[0];idx=indices['sh.000001' if code.startswith('sh.') else 'sz.399001']
         ic=d.date.map(idx);p1=ic.shift()
+        # SQL AVG keeps partial histories; validity is checked separately below.
+        # Rebuild those invalid rows too, without silently changing their values.
+        mean20=ic.rolling(20,min_periods=1).mean().shift()
+        complete20=ic.rolling(20,min_periods=20).count().shift().eq(20)
         for field,values in [('I01',100*(p1/ic.shift(2)-1)),('I02',100*(p1/ic.shift(6)-1)),
-            ('I03',100*(p1/ic.shift(21)-1)),('I04',100*(p1/ic.rolling(20,min_periods=20).mean().shift()-1))]:
+            ('I03',100*(p1/ic.shift(21)-1)),('I04',100*(p1/mean20-1))]:
             d[field]=values
-        d['index_history_valid']=ic.rolling(20,min_periods=20).count().shift().eq(20)&ic.shift(21).notna()
+        d['index_history_valid']=complete20&ic.shift(21).notna()
+        partial=mean20.notna()&~complete20&d.date.ge('2024-01-01')
+        assert not d.loc[partial,'index_history_valid'].any()
+        partial_history_rows+=int(partial.sum())
         rebuilt.append(d.loc[d.date.ge('2024-01-01'),['date','code','I01','I02','I03','I04','index_history_valid']])
     expected=pd.concat(rebuilt).sort_values(['date','code']).reset_index(drop=True)
     pd.testing.assert_frame_equal(pd.read_parquet(ROOT/'index_features.parquet'),expected,check_dtype=False,rtol=0,atol=2e-12)
@@ -131,7 +138,9 @@ def verify_features():
     joined=old[['date','code','formula_input_valid']].merge(expected,on=['date','code'],how='left',validate='one_to_one')
     expected_valid=joined.formula_input_valid&joined.index_history_valid.fillna(False)&np.isfinite(actual[list(EXPRESSIONS)]).all(axis=1)
     assert actual.formula_input_valid.equals(expected_valid) and len(actual)==r['rows']
+    assert int(actual.formula_input_valid.sum())==r['valid']
     result=dict(passed=True,feature_report_sha256=sha(ROOT/'feature_report.json'),rows=len(actual),
+        partial_history_rows_invalid=partial_history_rows,valid=int(actual.formula_input_valid.sum()),
         all_raw_index_close_alignments_and_four_features_rebuilt=True,previous_33_fields_unchanged=True,
         new_2026_prices_read=False,outcomes_read=False,no_exit_rules=True,software_compilation_verified=False)
     save_json(ROOT/'feature_verification.json',result)
