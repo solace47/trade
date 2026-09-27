@@ -27,3 +27,7 @@
 [Tushare资金流](https://tushare.pro/document/2?doc_id=170)按主动单金额分组，不能由此确定机构身份；[THS](https://tushare.pro/document/2?doc_id=348)和[DC](https://tushare.pro/document/2?doc_id=349)历史接口明确盘后更新，当前日不能回填14:49。[历史快讯接口](https://tushare.pro/document/2?doc_id=143)声明有超过六年历史，但需单独权限，尚未取得样本或核准时间字段。公开东财资金流及新浪快讯各一次历史日期探测遇TLS连接失败，未得到数据；不能把传输失败记成无事件或断言历史不存在。下一步需要历史盘中归档或独立时间证据，当前没有购买、安装或增加2026价格检验。
 
 2026-09-27为流通规模／绝对换手核对[BaoStock官方日线定义](https://www.baostock.com/mainContent?file=stockKData.md)：`turn`以当日成交股数除以流通股总股数计百分比。本地只用严格前一日的量与换手构造滞后分母，未声称获得精确自由流通股本或当前日实时换手。旧百科地址已重定向到新前端，公开菜单和Markdown端点由官网脚本确认；文档、菜单与前端指纹保存在`float_turnover_winner/source/`。无需安装新框架，也未访问处于用户接管状态的财联社页面。
+
+2026-09-27接续检索历史题材来源：[levistock固定提交](https://github.com/fleetinglife/levistock/tree/09f871a77b6e3241b1249d986e7e8a7cbf9a44fe)提供开盘红历史涨停列表、题材成员和盘面事件的日期参数，只有接口实现，不能仅凭参数确认历史分类未被回填。40,280字节源码包SHA256为`d8dcb5838421dad5a996be47cd090bed1b7100ffd5982f605eb830bdcbcec3ca`，仅审阅并借用匿名请求字段，MIT原文保留。固定四日探测的第一笔2024-01-02请求遇TLS EOF，按协议停止，没有HTTP响应或历史数据，不能结论为来源不存在；没有调用其中财联社接口。
+
+[zzshare固定提交](https://github.com/zzquant/zzshare/tree/49888288f9bb0c6231d92e17142ec5df62d3b17a)明确支持低频匿名查询，其历史涨停原因及题材梯队日期接口值得进一步探测。它的当前板块列表不能冒充历史成员；尚未将供应商归因认定为买入前已知信息。[涨停池skill](https://github.com/quantskills/skill-b6-limitup-pool)的完整分类与来源标记可参考，但依赖PandaData账号，且分钟缺失会降级用日线估计炸板，本研究不能将该代理当真实炸板次数；没有安装或执行它。继续用原固定2024–2025日期核查另一路匿名来源，不下载最新行情或追逐网站宣传胜率。
