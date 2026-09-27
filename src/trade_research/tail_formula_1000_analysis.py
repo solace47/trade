@@ -205,7 +205,7 @@ def daily_summary(frame,bps,sensitive=False):
     return d
 
 
-def analyze():
+def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
     if (ROOT/'analysis_report.json').exists():
         raise ValueError('Do not replace analysis')
     check=json.loads((ROOT/'full_label_verification.json').read_text())

@@ -148,7 +148,7 @@ def selection_check():
     return result
 
 
-def analysis_check():
+def analysis_check(ROOT=ROOT):
     report=json.loads((ROOT/'analysis_report.json').read_text())
     assert report['daily_summary_sha256']==sha(ROOT/'daily_summary.parquet')
     label_report=json.loads((ROOT/'full_label_report.json').read_text())
@@ -227,6 +227,10 @@ def analysis_check():
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage',choices=['training','full','selection','analysis'])
-    stage=parser.parse_args().stage
-    result=label_check(stage) if stage in ['training','full'] else globals()[stage+'_check']()
+    parser.add_argument('--root',type=Path,default=ROOT)
+    args=parser.parse_args()
+    stage=args.stage
+    if args.root!=ROOT and stage!='analysis':
+        parser.error('--root is only supported for unchanged analysis verification')
+    result=label_check(stage) if stage in ['training','full'] else (analysis_check(args.root) if stage=='analysis' else selection_check())
     print(json.dumps(result,ensure_ascii=False,indent=2))
