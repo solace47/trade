@@ -1,7 +1,6 @@
 """Collect the fixed historical index-date grid with one transparent retry."""
 import json
 from pathlib import Path
-import shutil
 
 import pandas as pd
 
@@ -15,6 +14,8 @@ PROTOCOL=Path('config/tail_formula_context_protocol.json')
 
 def main():
     ROOT.mkdir(parents=True,exist_ok=True)
+    (ROOT/'raw').mkdir(exist_ok=True)
+    (ROOT/'attempts').mkdir(exist_ok=True)
     if (ROOT/'source_report.json').exists():
         raise ValueError('Do not replace frozen index sources')
     cfg=json.loads(Path('config/index_minute_probe_protocol.json').read_text())
