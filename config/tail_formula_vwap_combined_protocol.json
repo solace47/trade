@@ -1,0 +1,14 @@
+{
+  "objective": "原48项已有尾29/4分钟均价偏离，但缺少全天成交均价及尾段相对早段成交均价的直接输入。本轮新增两项，检验当天价格与成交重心的关系能否改善严格次晨机会；不是重跑旧独立站均价线上方的规则。",
+  "fold_protocols": [
+    "config/tail_formula_vwap_2024_protocol.json",
+    "config/tail_formula_vwap_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "evaluation": "H1、H2、全年及同质量旧版对照先共同冻结再评新组结果。完整报告原机会、未知界、至少1%空间、10点状态、不利幅度、两档成本及日期集中性。",
+  "source_valid_control": "原48项2025选择报告07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5与新formula_input_valid取交集；不重训旧模型。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
