@@ -1,0 +1,15 @@
+{
+  "objective": "在历史完整日方向量版的新结果前固定两段及全年衔接，原48项加DN01/DN02；原一年窗、相对目标及99.5%分位不变。",
+  "inputs_protocol_sha256": "8c3af24bef8e15aaffd61becc2d6b57b0fbccae6e13c301ac0d63493d998cbe5",
+  "fold_protocols": [
+    "config/tail_formula_history_direction_2024_protocol.json",
+    "config/tail_formula_history_direction_recent_protocol.json"
+  ],
+  "source_48_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "year_2025_is_exploratory": true,
+  "freeze_all_selections_before_group_outcomes": true,
+  "same_quality_control": "原48项既定两段名单与新增输入有效范围交集；相同名单直接复用旧核准统计。"
+}
