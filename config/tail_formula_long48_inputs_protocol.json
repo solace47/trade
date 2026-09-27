@@ -1,0 +1,84 @@
+{
+  "objective": "仅扩展原48项次晨模型的训练日期。原2024—2025输入及评价标签逐值不变，新建2022—2023同口径输入和按当时税费计算的次晨标签；不复用旧T+5目标。",
+  "authorization": "用户已授权自行改变不合适的历史范围；2024年前数据可用于训练，2025仍是已暴露探索。",
+  "signal_first": "2022-01-01",
+  "signal_last": "2023-12-29",
+  "warmup_first": "2021-06-01",
+  "observation_last": "2024-01-02",
+  "index_symbols": [
+    "sh.000001",
+    "sz.399001"
+  ],
+  "host": "1.202.143.37",
+  "port": 7709,
+  "timeout_seconds": 5,
+  "attempts": 2,
+  "probe_reuse": "复用四个固定日期的8个指数原响应及已核准日线，其余两指数×484日按日归档，只读b40f，每会话最多2次；失败与缺失保留，不按股票表现补数据。",
+  "notices": {
+    "years": [
+      2021,
+      2022,
+      2023
+    ],
+    "keywords": [
+      "退市整理"
+    ],
+    "title_filter": "进入退市整理|退市整理期交易",
+    "available": "公告日严格早于信号日；仅查询元数据，不下载PDF",
+    "limitation": "查询完整分页不证明全市场公告历史完备；不拿未来退市日删除过去样本。"
+  },
+  "pool": "与原48项相同：沪深主板、当时非ST且正常交易、上市至少60交易日、14:49价为合法分报价且不高于200元、累计额至少3000万元、参考价连续、无此前已知退市整理公告、2万元整数100股、压力买价低于估算涨停价。",
+  "features": "复用已独立核准tail_formula_replay48适配器，48项及有效性不变；当日股票截止14:49、指数保守14:48，2021数据只预热。原48项2024—2025文件不改写；全输入独立SQL复核，固定每月有效/无效各4个原始前缀复读。",
+  "labels": "完整早期合格基础池均生成标签，不以特征有效或最终入选缩小；原始买入14:52—14:55，次一市场日09:31—10:00，沿用三连正成交分钟机会、1%空间、10点参考估值和不利幅度。公司行动或来源/排队未知不补零，未买入单列。",
+  "costs": {
+    "budget": 20000,
+    "entry_participation": 0.1,
+    "bps_each_side": [
+      5,
+      15
+    ],
+    "minimum_price_cost": 0.005,
+    "commission_rate": 0.0003,
+    "minimum_commission": 5,
+    "transfer_rate_before_2022_04_29": 2e-05,
+    "transfer_rate_since_2022_04_29": 1e-05,
+    "sell_stamp_before_2023_08_28": 0.001,
+    "sell_stamp_since_2023_08_28": 0.0005,
+    "date_assignment": "买入按信号日，出售参考现金按next_date；历史两次费率边界单独核查。"
+  },
+  "model": "原64棵深度3 GBR、min_samples_leaf=300、learning_rate=.05、subsample=1、squared_error、random_state=20260927；日期等权，相对同日全known基础池的正机会标签，先减日均再取有效特征交集；固定训练分数99.5%分位。",
+  "folds": [
+    {
+      "id": "2024",
+      "training_start": "2022-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    {
+      "id": "recent",
+      "training_start": "2022-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  ],
+  "training_cutoff": "date>=training_start AND next_date<training_end，3年滚动；H2扩展中亦含原H2一年窗未含的2024H1。两折均先核准训练和分数，冻结完整两段与全年名单后统一看2025新分组结果。",
+  "evaluation": "原2025两段与全年全部成本、按日机会、未知完整界、相对同日基础池、1%空间、10点参考估值、不利幅度、日期集中及周块区间全部报告；保留原版对照，不只看新目标或逐股平均。",
+  "catalog": "复用已有2022/2023/2024公司行动原查询及核准修订，只补新基础池缺失code-year；只用于结果未知标记，不能进入选股。",
+  "source_sha256": {
+    "config/tail_formula_long48_probe_protocol.json": "c21b8949ad8e70f9a828ecd30485c3eea1bf72de28542f491e064d5b912ccb87",
+    "data/research/tail_formula_long48_probe/verification.json": "4b7183b14a8a7172476864e6bc07ef5a0ebaaef10ca4aeaaf1b640afeda24925",
+    "data/research/tail_formula_long48_probe/index_daily.parquet": "518ef0388fe46e843606f9f99421f0a73ef9056a9e3045c026c418809cddbaab",
+    "data/research/long_history_ridge_1449/feature_report.json": "13f33dfaca653efcf2a700e520f58e70f1ee4938d2c6d2cf8c126643425913d6",
+    "data/research/long_history_ridge_1449/prefix_manifest.json": "dd5c5394ff5ecb0e04e3d921791f383a49070a726fdc1d9a931b69bc18d2eaee",
+    "data/research/tail_formula_forward_2026q1/legacy_replay_verification.json": "fdf218aadb205b5abbe8d19741642852cc0d5bbe6816523e90e94a05e896e77c",
+    "src/trade_research/tail_formula_replay48.py": "6253a44e6c67a15f668133923b37d5ff2bc022b3559b9dca3a30ee3847779932",
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_1000/full_label_report.json": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+    "data/research/tail_formula_1000/full_label_verification.json": "df520221b3bd4127a0c26d7dc7be129af2823c94c780fb82e46aecdc308208be"
+  },
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

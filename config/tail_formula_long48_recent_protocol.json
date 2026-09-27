@@ -1,0 +1,16 @@
+{
+  "objective": "仅扩展原48项次晨模型的训练日期。原2024—2025输入及评价标签逐值不变，新建2022—2023同口径输入和按当时税费计算的次晨标签；不复用旧T+5目标。",
+  "inputs_protocol": "config/tail_formula_long48_inputs_protocol.json",
+  "inputs_protocol_sha256": "5df9c936b6a3e6e1a76a1a43a9dae15a269ea86a10439221d21ad927061ed1e0",
+  "fit": "原64棵深度3 GBR、min_samples_leaf=300、learning_rate=.05、subsample=1、squared_error、random_state=20260927；日期等权，相对同日全known基础池的正机会标签，先减日均再取有效特征交集；固定训练分数99.5%分位。",
+  "model_max_depth": 3,
+  "variant": "relative",
+  "threshold": "训练分数固定99.5%分位，不搜索新门限",
+  "evaluation": "原2025两段与全年全部成本、按日机会、未知完整界、相对同日基础池、1%空间、10点参考估值、不利幅度、日期集中及周块区间全部报告；保留原版对照，不只看新目标或逐股平均。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "training_start": "2022-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01"
+}
