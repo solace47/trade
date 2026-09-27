@@ -104,7 +104,7 @@ def verify_model(variant):
     np.testing.assert_array_equal(x,base.encode(original))
     np.testing.assert_allclose(r['bias'],np.average(y,weights=w),rtol=0,atol=2e-12)
     score=np.full(len(d),r['bias']);checks=0;minimum_observed_days=len(d)
-    dates=d.date.to_numpy()
+    dates=np.unique(d.date.to_numpy(),return_inverse=True)[1] if minimum_days else None
     assert len(r['trees'])==64 and r['learning_rate']==.05
     for tree in r['trees']:
         assert len(tree['feature'])<=2**(depth+1)-1

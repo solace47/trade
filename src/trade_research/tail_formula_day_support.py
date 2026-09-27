@@ -73,13 +73,14 @@ def verify_reference(fold):
     v=json.loads((root/'model_verification.json').read_text())
     assert v['passed'] and v['model_report_sha256']==sha(root/'model_report.json')
     t=relative.training('relative');x=base.encode(t);y=t.target.to_numpy()
+    date_codes=np.unique(t.date.to_numpy(),return_inverse=True)[1]
     w=1/t.groupby('date').code.transform('size').to_numpy()
     score=np.full(len(t),np.average(y,weights=w));random=np.random.RandomState(20260927)
     np.testing.assert_allclose(score[0],r['bias'],rtol=0,atol=2e-12)
     checks=0
     for expected in r['trees'][:3]:
         estimator=make_estimator(random).fit(x,y-score,sample_weight=w)
-        tree,_=compact_tree(estimator,x,t.date.to_numpy(),0)
+        tree,_=compact_tree(estimator,x,date_codes,0)
         for key in ['feature','threshold','children_left','children_right','n_node_samples']:
             np.testing.assert_array_equal(tree[key],expected[key])
         for key in ['weighted_n_node_samples','value','impurity']:
@@ -101,7 +102,8 @@ def model():
     assert reference['passed'] and reference['protocol_sha256']==sha(base.PROTOCOL)
     config=json.loads(base.PROTOCOL.read_text());minimum_days=config['minimum_leaf_training_days']
     assert minimum_days==20 and config['model_max_depth']==3
-    t=relative.training('relative');x=base.encode(t);y=t.target.to_numpy();dates=t.date.to_numpy()
+    t=relative.training('relative');x=base.encode(t);y=t.target.to_numpy()
+    dates=np.unique(t.date.to_numpy(),return_inverse=True)[1]
     w=1/t.groupby('date').code.transform('size').to_numpy()
     bias=float(np.average(y,weights=w));score=np.full(len(t),bias)
     random=np.random.RandomState(20260927);trees=[];collapsed=[]
