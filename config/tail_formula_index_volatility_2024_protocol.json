@@ -1,0 +1,14 @@
+{
+  "objective": "原48项以个股ATR归一化部分输入，但直接指数涨跌没有指数自身的波动尺度。固定新增此前20次指数收盘变化的均方根及四个当日指数涨跌相对该尺度的比值，检验同样跌幅在不同市场波动背景下的区别。",
+  "source": "config/tail_formula_index_volatility_protocol.json",
+  "model_max_depth": 3,
+  "fit": "回到原48项二元同日相对目标，增加五项共53项，保持两段时间、64棵深度三、日期等权、min_samples_leaf=300、学习率.05、subsample=1、种子20260927和99.5%训练分位；不叠加新历史量比或风险过滤。",
+  "evaluation": "两半年、全年和同质量旧版对照共同冻结后才读新组结果；原机会、风险、完整未知界、同日基础池、5/15基点及日期集中性全报。2025已暴露，2026首季结果也已见，此轮只在2024—2025探索，不用首季回调。",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
