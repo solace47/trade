@@ -83,7 +83,9 @@ def verify_model(variant):
     assert r['label_report_sha256']==sha(base.SOURCE/'full_label_report.json')
     start,end,where=training_scope()
     assert r.get('training_start')==start and r.get('training_end','2025-01-01')==end
-    depth=json.loads(PROTOCOL.read_text()).get('model_max_depth',2)
+    config=json.loads(PROTOCOL.read_text())
+    depth=config.get('model_max_depth',2)
+    minimum_days=config.get('minimum_leaf_training_days',0)
     assert r['parameters']['max_depth']==depth
     f=base.feature_inputs();c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
@@ -101,7 +103,8 @@ def verify_model(variant):
     x=d[names].to_numpy(dtype='int32');y=d.target.to_numpy();w=d.w.to_numpy()
     np.testing.assert_array_equal(x,base.encode(original))
     np.testing.assert_allclose(r['bias'],np.average(y,weights=w),rtol=0,atol=2e-12)
-    score=np.full(len(d),r['bias']);checks=0
+    score=np.full(len(d),r['bias']);checks=0;minimum_observed_days=len(d)
+    dates=d.date.to_numpy()
     assert len(r['trees'])==64 and r['learning_rate']==.05
     for tree in r['trees']:
         assert len(tree['feature'])<=2**(depth+1)-1
@@ -109,6 +112,9 @@ def verify_model(variant):
         for i in range(len(tree['feature'])):
             assert levels[i]<=depth
             mask=masks[i];weights=w[mask]
+            if minimum_days:
+                observed_days=len(np.unique(dates[mask]))
+                assert tree['training_days'][i]==observed_days
             assert int(mask.sum())==tree['n_node_samples'][i]
             mean=np.average(residual[mask],weights=weights)
             variance=np.average((residual[mask]-mean)**2,weights=weights)
@@ -118,6 +124,9 @@ def verify_model(variant):
             left,right=tree['children_left'][i],tree['children_right'][i]
             if left<0:
                 assert mask.sum()>=300
+                if minimum_days:
+                    assert observed_days>=minimum_days
+                    minimum_observed_days=min(minimum_observed_days,observed_days)
                 terminal[mask]=mean
             else:
                 lower=x[:,tree['feature'][i]]<=tree['threshold'][i]
@@ -132,6 +141,9 @@ def verify_model(variant):
         all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt=True,
         training_start=start,training_end=end,new_2025_score_groups_read=bool(original.date.ge('2025-01-01').any()),
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    if minimum_days:
+        proof.update(minimum_leaf_training_days_required=minimum_days,
+            minimum_leaf_training_days_observed=minimum_observed_days,all_node_date_support_rebuilt=True)
     save_json(root/'model_verification.json',proof)
     return proof
 

@@ -1,0 +1,17 @@
+{
+  "objective": "48项流通换手版改善到全年70.37%机会，但训练叶子中分别有63/77个不足20个不同交易日，最少2/1日。固定仅增加跨日支持约束，检验弱分支是否造成集中和跨期不稳；不把股票数量冒充独立行情天数。",
+  "source": "复用已核准data/research/tail_formula_float/features.parquet，48项数值、有效标记和原生输入局限不变。",
+  "model_max_depth": 3,
+  "fit": "仍64棵深度三、日期等权、平方误差、learning_rate=0.05、min_samples_leaf=300、random_state=20260927。逐棵拟合残差后，自根向下检查；任一子节点训练日期不足20日，则合并为当前父叶，其值是该父节点加权残差均值；后续树使用剪枝后预测重新计算残差。只计算当前训练区间日期支持，不看评价日期或结果。",
+  "threshold": "保持99.5%训练分位；在两段新分组结果前共同冻结两段及全年名单。剪枝或少选本身不视为成功，原48项版本保留。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "minimum_leaf_training_days": 20,
+  "verification": "先以不剪枝的前三棵树逐节点复现原48项GradientBoostingRegressor，确认残差拟合和随机序列；新64棵全部节点均独立核准日期支持、人数、权重、加权残差和方差，每个终端至少20个不同训练日。20日为固定约一个交易月的研究选择，不搜索其他天数。"
+}
