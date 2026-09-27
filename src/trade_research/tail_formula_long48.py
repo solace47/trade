@@ -3,6 +3,7 @@ import argparse
 import importlib.util
 import json
 from pathlib import Path
+import sys
 
 from . import tail_formula_additive as base
 from . import tail_formula_context_2024 as linkage
@@ -108,7 +109,13 @@ def setup(fold):
 
 def verify_scores():
     spec = importlib.util.spec_from_file_location('independent_score_check',Path('scripts/verify_tail_formula_additive.py'))
-    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    module = importlib.util.module_from_spec(spec)
+    previous = sys.path.copy()
+    try:
+        sys.path.insert(0,str(Path('scripts').resolve()))
+        spec.loader.exec_module(module)
+    finally:
+        sys.path[:] = previous
     module.ROOT = base.ROOT; module.PROTOCOL = base.PROTOCOL; module.FEATURES = ROOT; module.SOURCE = ROOT
     return module.scores()
 
