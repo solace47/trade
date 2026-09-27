@@ -1,4 +1,4 @@
-"""Two fixed additive objectives: same-day opportunity and risk-adjusted opportunity."""
+"""Fixed additive objectives with optional same-day centering."""
 import argparse
 import json
 from pathlib import Path
@@ -28,6 +28,7 @@ def setup(variant):
 
 
 def training(variant):
+    assert variant in ['relative','risk','absolute']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
@@ -36,7 +37,7 @@ def training(variant):
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     assert labels.adverse_return15.notna().all()
     labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
-    labels['target']=labels.utility-labels.groupby('date').utility.transform('mean')
+    labels['target']=labels.utility if variant=='absolute' else labels.utility-labels.groupby('date').utility.transform('mean')
     t=t.merge(labels[['date','code','target']],on=['date','code'],validate='one_to_one')
     return t.sort_values(['date','code']).reset_index(drop=True)
 
@@ -86,9 +87,10 @@ def verify_model(variant):
     assert r['parameters']['max_depth']==depth
     f=base.feature_inputs();c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
+    target='utility' if variant=='absolute' else 'utility-avg(utility) OVER(PARTITION BY date)'
     c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
         FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
-        SELECT date,code,utility-avg(utility) OVER(PARTITION BY date) AS target FROM l''')
+        SELECT date,code,{target} AS target FROM l''')
     names=list(base.EXPRESSIONS)
     encoded=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in names)
     d=c.sql('''SELECT date,code,target,1./count(*) OVER(PARTITION BY date) AS w,'''+encoded+'''
