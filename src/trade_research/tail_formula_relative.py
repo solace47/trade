@@ -28,15 +28,23 @@ def setup(variant):
 
 
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin']
+    assert variant in ['relative','risk','absolute','margin','rank']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
     # Price opportunities and adverse marks only; no future exit fields.
-    extra=',sustained_return15' if variant=='margin' else ''
+    extra=',sustained_return15' if variant in ['margin','rank'] else ''
     labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     assert labels.adverse_return15.notna().all()
+    if variant=='rank':
+        # Rank only the exact training intersection, not rows excluded by input quality.
+        t=t.merge(labels[['date','code','sustained_return15']],on=['date','code'],validate='one_to_one')
+        assert np.isfinite(t.sustained_return15).all()
+        grouped=t.groupby('date').sustained_return15
+        t['target']=(grouped.rank(method='average')-.5)/grouped.transform('size')-.5
+        np.testing.assert_allclose(t.groupby('date').target.mean(),0,rtol=0,atol=2e-12)
+        return t.sort_values(['date','code']).reset_index(drop=True)
     if variant=='margin':
         assert np.isfinite(labels.sustained_return15).all()
         labels['utility']=labels.sustained_return15.clip(-.01,.01)/.01
@@ -97,9 +105,20 @@ def verify_model(variant):
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
     target='utility' if variant=='absolute' else 'utility-avg(utility) OVER(PARTITION BY date)'
-    c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
-        FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
-        SELECT date,code,{target} AS target FROM l''')
+    if variant=='rank':
+        c.execute(f'''CREATE VIEW targets AS WITH l AS (
+            SELECT l.date,l.code,l.sustained_return15 AS outcome
+            FROM read_parquet('{base.SOURCE}/full_labels.parquet') l
+            JOIN features f USING(date,code)
+            WHERE {where} AND known15 AND formula_input_valid), ranked AS (
+            SELECT *,rank() OVER(PARTITION BY date ORDER BY outcome) AS first_rank,
+                count(*) OVER(PARTITION BY date,outcome) AS tied,
+                count(*) OVER(PARTITION BY date) AS n FROM l)
+            SELECT date,code,(first_rank+(tied-1)/2.-.5)/n-.5 AS target FROM ranked''')
+    else:
+        c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
+            FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
+            SELECT date,code,{target} AS target FROM l''')
     names=list(base.EXPRESSIONS)
     encoded=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in names)
     d=c.sql('''SELECT date,code,target,1./count(*) OVER(PARTITION BY date) AS w,'''+encoded+'''
@@ -107,6 +126,10 @@ def verify_model(variant):
     original=training(variant)
     assert original.next_date.lt(end).all() and (start is None or original.date.ge(start).all())
     np.testing.assert_allclose(d.target,original.target,rtol=0,atol=2e-12)
+    assert d[['date','code']].equals(original[['date','code']])
+    if variant=='rank':
+        assert np.isfinite(d.target).all() and d.target.between(-.5,.5,inclusive='neither').all()
+        np.testing.assert_allclose(d.groupby('date').target.mean(),0,rtol=0,atol=2e-12)
     x=d[names].to_numpy(dtype='int32');y=d.target.to_numpy();w=d.w.to_numpy()
     np.testing.assert_array_equal(x,base.encode(original))
     np.testing.assert_allclose(r['bias'],np.average(y,weights=w),rtol=0,atol=2e-12)
@@ -151,6 +174,9 @@ def verify_model(variant):
     if minimum_days:
         proof.update(minimum_leaf_training_days_required=minimum_days,
             minimum_leaf_training_days_observed=minimum_observed_days,all_node_date_support_rebuilt=True)
+    if variant=='rank':
+        proof.update(all_tied_ranks_and_training_intersection_rebuilt=True,
+            maximum_absolute_daily_target_mean=float(d.groupby('date').target.mean().abs().max()))
     save_json(root/'model_verification.json',proof)
     return proof
 

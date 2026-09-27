@@ -1,6 +1,6 @@
 # 数据复算
 
-Python 3.12；原始行情、锁定版本、审计表和研究输出均放在被 Git 忽略的 `data/`。旧实验的 2023 年及以前仅供指标预热；最新固定研究增加 2022–2023 年训练标签，策略评价仍用 2024 年以后。2025 年非盲测，2026 年尽量留给事前冻结验证。
+Python 3.12；原始行情、锁定版本、审计表和研究输出均放在被 Git 忽略的 `data/`。各历史实验按对应协议限定训练年代；当前次晨公式用2024全年或2024H2—2025H1训练，更早行情只初始化指标。策略评价从2024年开始，2025年非盲测，2026年尽量留给事前冻结验证。
 
 ```bash
 python3.12 -m venv .venv
@@ -22,7 +22,9 @@ python3.12 -m venv .venv
 7. 少量候选研究使用模块`trade_research.tail_formula_selective`依次`model`、`verify_model`、`calibrate`，再运行`scripts/verify_tail_formula_selective.py`。固定2024H1建树、H2校准及全部质量门槛；只有合格条件才可运行`analyze`并按第3步核准新目录的2025结果，无合格条件禁止补选或展开该分组的2025评价。
 8. 历史处境联合研究使用模块`trade_research.tail_formula_joint`依次`features`、`verify_features`、`model`、`verify_model`、`calibrate`；核查脚本为`scripts/verify_tail_formula_selective.py --root data/research/tail_formula_joint --features-root data/research/tail_formula_joint --protocol config/tail_formula_joint_protocol.json`。仅新增4个此前价格位置特征，其余设计沿用第7步；软件分钟历史与日线字段的对齐尚未确认，不冒充可直接上线。
 
-各版完整条件与结果见[原生公式研究](selection-formula.md)。原生软件编译未核准；研究中的浮盈机会不代表按观察价成交或保证收益。
+当前48项输入由`trade_research.tail_formula_float features`生成，`scripts/verify_tail_formula_float_inputs.py`独立复建；前置45项、原始指数来源和以前输入的核验不可跳过。后续二元机会、软盈利空间、同日百分位三个家族的模块分别为`tail_formula_float`、`tail_formula_margin`、`tail_formula_rank`。前者语法是`<stage> --fold <fold>`，后两者是`<fold> <stage>`。每个家族先对`2024`和`recent`依次运行`model`、`verify_model`、`scores`；分数用`scripts/verify_tail_formula_additive.py scores --root data/research/<本段目录> --features-root data/research/tail_formula_float --protocol config/<本段协议>.json`重建，再运行各段`freeze`、`verify`。两段均核准后，对`combined`运行`freeze`、`verify`，先保存全年名单，才允许三组`analyze`。每份分析以`scripts/verify_tail_formula_1000_analysis.py analysis --root data/research/<目录>`核准；已冻结文件不重拟合或替换。
+
+兼容文本用`scripts/export_tail_formula_native_compatible.py --root data/research/tail_formula_float_recent --features-root data/research/tail_formula_float`导出，不覆盖原冻结核心；全部IF路径和数值叶子另行重放，H2选择标记保持。该版本数值核心已在通达信macOS 3.61编译，完整条件选股、硬过滤及客户端逐点数据一致性仍未核准。各版完整条件与结果见[原生公式研究](selection-formula.md)；研究中的浮盈机会不代表按观察价成交或保证收益。
 
 ## 昨日炸板与历史题材支持
 
