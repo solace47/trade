@@ -1,0 +1,13 @@
+{
+  "objective": "先冻结同日机会幅度百分位目标的两个模型及全年衔接；H1用2024训练，H2用2024H2至2025H1训练。两段99.5%训练分位，主评价仍为原压力正机会率，不在结果后改评价指标或选择某段。",
+  "fold_protocols": [
+    "config/tail_formula_rank_2024_protocol.json",
+    "config/tail_formula_rank_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "all_old_relative_results_retained": true,
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
