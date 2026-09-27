@@ -15,6 +15,11 @@ ROOT = Path("data/research/tick_flow_winner")
 PROTOCOL = Path("config/tick_flow_winner_protocol.json")
 FEATURES = ["morning_net", "afternoon_net", "tail_net", "tail_acceleration",
             "tail_positive_minutes", "tail_flat_net"]
+CUTOFF = 14 * 60 + 48
+TAIL_START = 14 * 60 + 20
+AFTERNOON_START = 13 * 60
+MORNING_START = 9 * 60 + 30
+MORNING_END = 11 * 60 + 30
 
 
 def freeze_cohort():
@@ -45,7 +50,7 @@ def freeze_cohort():
 
 def prefix_features(ticks):
     """Use <=14:48 only. Full-day reconciliation is a separate output."""
-    p = ticks.loc[ticks.minute.le(868)].copy()
+    p = ticks.loc[ticks.minute.le(CUTOFF)].copy()
     missing = {name:np.nan for name in FEATURES}
     if not len(p):
         return dict(missing, input_valid=False, input_reason="no_prefix", prefix_rows=0)
@@ -53,7 +58,7 @@ def prefix_features(ticks):
     v = p.volume_raw.to_numpy(dtype="float64")
     direction = p.direction_raw.to_numpy()
     price = p.price_raw.to_numpy()
-    legal = (t == 565) | ((t >= 570) & (t <= 690)) | ((t >= 780) & (t <= 868))
+    legal = (t == 9 * 60 + 25) | ((t >= MORNING_START) & (t <= MORNING_END)) | ((t >= AFTERNOON_START) & (t <= CUTOFF))
     if not (legal.all() and (np.diff(t) >= 0).all() and (v >= 0).all()
             and (price > 0).all() and np.isin(direction, [0,1,2]).all()):
         return dict(missing, input_valid=False, input_reason="invalid_prefix_fields", prefix_rows=len(p))
@@ -64,14 +69,14 @@ def prefix_features(ticks):
         denominator = v[mask].sum()
         return float(signed[mask].sum() / denominator) if denominator > 0 else np.nan
 
-    tail = (t >= 840) & (t <= 868)
+    tail = (t >= TAIL_START) & (t <= CUTOFF)
     total_tail = v[tail].sum()
     previous_price = np.r_[np.nan, price[:-1]]
     previous_time = np.r_[0, t[:-1]]
-    flat = tail & (previous_time >= 780) & (price == previous_price)
-    positive_minutes = sum(signed[t == minute].sum() > 0 for minute in range(840,869))
-    result = dict(morning_net=net(570,690), afternoon_net=net(780,868),
-        tail_net=net(840,868), tail_acceleration=net(840,868)-net(780,839),
+    flat = tail & (previous_time >= AFTERNOON_START) & (price == previous_price)
+    positive_minutes = sum(signed[t == minute].sum() > 0 for minute in range(TAIL_START,CUTOFF+1))
+    result = dict(morning_net=net(MORNING_START,MORNING_END), afternoon_net=net(AFTERNOON_START,CUTOFF),
+        tail_net=net(TAIL_START,CUTOFF), tail_acceleration=net(TAIL_START,CUTOFF)-net(AFTERNOON_START,TAIL_START-1),
         tail_positive_minutes=positive_minutes/29 if total_tail > 0 else np.nan,
         tail_flat_net=float(signed[flat].sum()/total_tail) if total_tail > 0 else np.nan,
         input_valid=True, input_reason="valid_prefix", prefix_rows=len(p),

@@ -20,30 +20,33 @@ FEATURES = ["morning_net","afternoon_net","tail_net","tail_acceleration","tail_p
 
 
 def scalar_features(records):
-    p = [x for x in records if x["minute"] <= 868]
+    def clock(x):
+        hour,minute=divmod(x["minute"],60)
+        return f"{hour:02d}:{minute:02d}"
+    p = [x for x in records if clock(x) <= "14:48"]
     missing = dict.fromkeys(FEATURES,math.nan)
     if not p:
         return missing
     previous = -1
     for x in p:
         t=x["minute"]
-        if not (t>=previous and (t==565 or 570<=t<=690 or 780<=t<=868)
+        if not (t>=previous and (clock(x)=="09:25" or "09:30"<=clock(x)<="11:30" or "13:00"<=clock(x)<="14:48")
                 and x["price_raw"]>0 and x["volume_raw"]>=0 and x["direction_raw"] in (0,1,2)):
             return missing
         previous=t
     sums={"morning":[0,0],"afternoon":[0,0],"before_tail":[0,0],"tail":[0,0]}
-    minutes=dict.fromkeys(range(840,869),0)
+    minutes=dict.fromkeys([f"14:{m:02d}" for m in range(20,49)],0)
     flat=0
     prior=None
     for x in p:
         t=x["minute"];v=x["volume_raw"]
         signed=v*({0:1,1:-1,2:0}[x["direction_raw"]])
-        for key,lo,hi in [("morning",570,690),("afternoon",780,868),("before_tail",780,839),("tail",840,868)]:
-            if lo<=t<=hi:
+        for key,lo,hi in [("morning","09:30","11:30"),("afternoon","13:00","14:48"),("before_tail","13:00","14:19"),("tail","14:20","14:48")]:
+            if lo<=clock(x)<=hi:
                 sums[key][0]+=signed;sums[key][1]+=v
-        if 840<=t<=868:
-            minutes[t]+=signed
-            if prior and prior["minute"]>=780 and prior["price_raw"]==x["price_raw"]:
+        if "14:20"<=clock(x)<="14:48":
+            minutes[clock(x)]+=signed
+            if prior and clock(prior)>="13:00" and prior["price_raw"]==x["price_raw"]:
                 flat+=signed
         prior=x
     ratios={name:a/b if b else math.nan for name,(a,b) in sums.items()}
@@ -103,6 +106,11 @@ def main():
         assert ticks.drop(columns="tick_seq").to_dict("records")==assembled
         records_count+=len(assembled)
         features=scalar_features(assembled)
+        prefix=[x for x in assembled if f"{x['minute']//60:02d}:{x['minute']%60:02d}"<="14:48"]
+        assert int(actual.prefix_rows)==len(prefix)
+        if actual.input_valid:
+            assert int(actual.last_input_minute)==prefix[-1]["minute"]
+            assert f"{int(actual.last_input_minute)//60:02d}:{int(actual.last_input_minute)%60:02d}"<="14:48"
         for name in FEATURES:
             value=features[name];other=actual[name]
             assert (math.isnan(value) and pd.isna(other)) or abs(value-other)<2e-12,(key,name,value,other)
