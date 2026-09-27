@@ -27,11 +27,28 @@ def setup(variant):
     base.PROTOCOL=PROTOCOL
 
 
+def duration_source():
+    from . import tail_formula_duration_labels as durations
+    config=json.loads(PROTOCOL.read_text())
+    assert sha(durations.PROTOCOL)==config['duration_labels_protocol_sha256']
+    durations.checked_report()
+    return durations.ROOT
+
+
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin','rank']
+    assert variant in ['relative','risk','absolute','margin','rank','duration']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
+    if variant=='duration':
+        source=duration_source()
+        labels=c.execute(f'''SELECT date,code,profitable_fraction15 AS utility
+            FROM read_parquet(?) WHERE {where}''',[str(source/'duration_labels.parquet')]).df()
+        assert np.isfinite(labels.utility).all() and labels.utility.between(0,1).all()
+        labels['target']=labels.utility-labels.groupby('date').utility.transform('mean')
+        out=t.merge(labels[['date','code','target']],on=['date','code'],validate='one_to_one')
+        assert len(out)==len(t)
+        return out.sort_values(['date','code']).reset_index(drop=True)
     # Price opportunities and adverse marks only; no future exit fields.
     extra=',sustained_return15' if variant in ['margin','rank'] else ''
     labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
@@ -81,6 +98,8 @@ def model(variant):
         variant=variant,learning_rate=.05,bias=float(np.ravel(model.init_.constant_)[0]),trees=trees,
         training_start=start,training_end=end,new_2025_score_groups_read=bool(train.date.ge('2025-01-01').any()),
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    if variant=='duration':
+        r['duration_label_report_sha256']=sha(duration_source()/'duration_report.json')
     manual=base.predict(x,r)
     np.testing.assert_allclose(manual,model.predict(x),rtol=0,atol=2e-12)
     r['thresholds']=[dict(id=i,training_quantile=q,threshold=float(np.quantile(manual,q))) for i,q in enumerate(base.QUANTILES)]
@@ -105,7 +124,14 @@ def verify_model(variant):
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
     target='utility' if variant=='absolute' else 'utility-avg(utility) OVER(PARTITION BY date)'
-    if variant=='rank':
+    if variant=='duration':
+        source=duration_source()
+        assert r['duration_label_report_sha256']==sha(source/'duration_report.json')
+        c.execute(f'''CREATE VIEW targets AS WITH l AS(
+            SELECT date,code,bit_count(profitable_mask15)/30. AS utility
+            FROM read_parquet('{source}/duration_labels.parquet') WHERE {where})
+            SELECT date,code,utility-avg(utility) OVER(PARTITION BY date) AS target FROM l''')
+    elif variant=='rank':
         c.execute(f'''CREATE VIEW targets AS WITH l AS (
             SELECT l.date,l.code,l.sustained_return15 AS outcome
             FROM read_parquet('{base.SOURCE}/full_labels.parquet') l
@@ -177,6 +203,9 @@ def verify_model(variant):
     if variant=='rank':
         proof.update(all_tied_ranks_and_training_intersection_rebuilt=True,
             maximum_absolute_daily_target_mean=float(d.groupby('date').target.mean().abs().max()))
+    if variant=='duration':
+        proof.update(duration_label_report_sha256=sha(duration_source()/'duration_report.json'),
+            all_duration_targets_rebuilt_from_masks=True)
     save_json(root/'model_verification.json',proof)
     return proof
 
