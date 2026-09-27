@@ -1,0 +1,16 @@
+{
+  "objective": "45项当天指数相对机会版在2025H2出现较强价格机会，但只有8个信号日且大量候选集中一天。保持同一公式学习方法与99.5%分位，补上2025H1的严格时间外检验，以分清稀少行情线索是否能跨期成立。",
+  "source": "只复用data/research/tail_formula_context已独立核准的45项输入；股票14:49、指数分时14:48，全部排除条件与来源局限保持。",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "fit": "相对机会目标、按日等权、64棵深度三GradientBoostingRegressor、squared_error、learning_rate=0.05、min_samples_leaf=300、subsample=1、random_state=20260927。只更新训练到2024全年，不读取2025标签拟合或选阈值。",
+  "threshold": "沿用固定99.5%训练分位，对应新模型自己的数值常数，不再校准或试其他分位。先核准分数与完整H1名单再看新分组结果。",
+  "whole_2025": "全年衔接在H1新分组结果前固定：2025H1采用本版，2025H2采用已有context_relative模型9818e066a849bf5d715aa395745cb4d210e817bfaa11f882bf490ef4ead886bf及选择报告ea8befa79a78b46f1fb5a542f647a855d2149852fcf726e192f5bd26c46c71ca，不按新结果换模型。属于半年更新一次的公式方法，不冒称整年用了同一组系数。",
+  "evaluation": "严格次日10点前原有机会、成本、买入、未知、风险指标全部不变，报告H1、H2及衔接全年。2025已经多轮暴露，时间外预测不等于真正盲测，8天的较高数字不单独构成好公式。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

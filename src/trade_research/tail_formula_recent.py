@@ -28,10 +28,15 @@ def freeze():
     assert sha(inputs.ROOT/'selection_report.json')=='341c0d40b5c28de3513fdda2968499fb66adef937ae693365de0f23478c90d35'
     assert old['chosen_threshold']['id']==3 and old['chosen_threshold']['training_quantile']==.995
     m=json.loads((ROOT/'model_report.json').read_text());cut=m['thresholds'][3]
-    assert cut['training_quantile']==.995 and m['last_observation']<'2025-07-01'
+    config=json.loads(PROTOCOL.read_text())
+    start,end=config.get('evaluation_start','2025-07-01'),config.get('evaluation_end')
+    assert start>=m['training_end'] and (end is None or end>start)
+    assert cut['training_quantile']==.995 and m['last_observation']<start
     f=pd.read_parquet(ROOT/'scores.parquet')
     out=f[['date','code','half','board','decision_shares']].copy()
-    out['selected']=f.date.ge('2025-07-01')&f.formula_input_valid&f.score.gt(cut['threshold'])
+    out['selected']=f.date.ge(start)&f.formula_input_valid&f.score.gt(cut['threshold'])
+    if end is not None:
+        out['selected'] &= f.date.lt(end)
     out.to_parquet(ROOT/'selection.parquet',index=False,compression='zstd')
     (ROOT/'frozen_numeric_core.tdx').write_text(base.native_core(m,cut['threshold'],base.EXPRESSIONS,base.HEADER))
     r=dict(protocol_sha256=sha(PROTOCOL),model_report_sha256=sha(ROOT/'model_report.json'),
@@ -39,8 +44,10 @@ def freeze():
         selection_sha256=sha(ROOT/'selection.parquet'),core_sha256=sha(ROOT/'frozen_numeric_core.tdx'),
         chosen_threshold=cut,selected=int(out.selected.sum()),
         by_half=out.groupby('half').selected.agg(['size','sum']).reset_index().to_dict('records'),
-        evaluation_start='2025-07-01',training_includes_2025H1=True,year_2025_is_exploratory=True,
+        evaluation_start=start,training_includes_2025H1=m.get('new_2025_score_groups_read',False),year_2025_is_exploratory=True,
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True,software_compilation_verified=False)
+    if end is not None:
+        r['evaluation_end']=end
     save_json(ROOT/'selection_report.json',r)
     return r
 
@@ -52,10 +59,14 @@ def verify():
                      ('core_sha256',ROOT/'frozen_numeric_core.tdx'),('prior_calibration_report_sha256',inputs.ROOT/'selection_report.json')]:
         assert r[key]==sha(path)
     m=json.loads((ROOT/'model_report.json').read_text())
-    assert m['training_start']=='2024-07-01' and m['training_end']=='2025-07-01'
+    config=json.loads(PROTOCOL.read_text())
+    assert m['training_start']==config['training_start'] and m['training_end']==config['training_end']
+    start,end=config.get('evaluation_start','2025-07-01'),config.get('evaluation_end')
+    assert r['evaluation_start']==start and r.get('evaluation_end')==end and start>=m['training_end']
     cut=m['thresholds'][3];assert cut==r['chosen_threshold'] and cut['training_quantile']==.995
     c=base.conn();c.read_parquet(str(ROOT/'scores.parquet')).create_view('scores')
-    expected=c.sql("SELECT date,code,half,board,decision_shares,date>='2025-07-01' AND formula_input_valid AND score>"+
+    time_condition=f"date>='{start}'"+(f" AND date<'{end}'" if end else '')
+    expected=c.sql('SELECT date,code,half,board,decision_shares,'+time_condition+' AND formula_input_valid AND score>'+
         format(cut['threshold'],'.17e')+' AS selected FROM scores ORDER BY date,code').df()
     pd.testing.assert_frame_equal(pd.read_parquet(ROOT/'selection.parquet'),expected,check_exact=True,check_dtype=False)
     assert expected.loc[expected.selected,'date'].ge(m['training_end']).all()
