@@ -1,0 +1,13 @@
+{
+  "objective": "在两个风险目标模型新分组结果前冻结全年衔接。2025H1采用2024全年训练的风险目标版；2025H2采用2024H2至2025H1训练的同版。两段均固定99.5%训练分位，不根据评价结果改选版本。",
+  "fold_protocols": [
+    "config/tail_formula_context_risk_2024_protocol.json",
+    "config/tail_formula_context_risk_recent_protocol.json"
+  ],
+  "whole_year_is_same_method_not_identical_coefficients": true,
+  "all_old_relative_results_retained": true,
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

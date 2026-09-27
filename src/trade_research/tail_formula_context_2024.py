@@ -16,6 +16,9 @@ ROOT=Path('data/research/tail_formula_context_2024')
 PROTOCOL=Path('config/tail_formula_context_2024_protocol.json')
 COMBINED=Path('data/research/tail_formula_context_2025')
 H2=Path('data/research/tail_formula_context_relative')
+H2_SELECTION_SHA='ea8befa79a78b46f1fb5a542f647a855d2149852fcf726e192f5bd26c46c71ca'
+H2_MODEL_SHA='9818e066a849bf5d715aa395745cb4d210e817bfaa11f882bf490ef4ead886bf'
+H2_OUTCOMES_PREVIOUSLY_SEEN=True
 
 
 def setup():
@@ -29,13 +32,18 @@ def combine():
         raise ValueError('Do not replace the predeclared whole-year selection')
     assert not (ROOT/'analysis_report.json').exists(),'Freeze the whole-year linkage before H1 group outcomes'
     COMBINED.mkdir(parents=True,exist_ok=True)
-    assert sha(H2/'selection_report.json')=='ea8befa79a78b46f1fb5a542f647a855d2149852fcf726e192f5bd26c46c71ca'
-    assert sha(H2/'model_report.json')=='9818e066a849bf5d715aa395745cb4d210e817bfaa11f882bf490ef4ead886bf'
+    if H2_SELECTION_SHA is not None:
+        assert sha(H2/'selection_report.json')==H2_SELECTION_SHA
+    if H2_MODEL_SHA is not None:
+        assert sha(H2/'model_report.json')==H2_MODEL_SHA
+    if not H2_OUTCOMES_PREVIOUSLY_SEEN:
+        assert not (H2/'analysis_report.json').exists()
     folds=[];frames=[]
     for path,half,start,end in [(ROOT,'2025H1','2025-01-01','2025-07-01'),(H2,'2025H2','2025-07-01','2026-01-01')]:
         s=json.loads((path/'selection_report.json').read_text());p=json.loads((path/'selection_verification.json').read_text())
         m=json.loads((path/'model_report.json').read_text())
         assert p['passed'] and p['selection_report_sha256']==sha(path/'selection_report.json')
+        assert s['model_report_sha256']==sha(path/'model_report.json') and s['core_sha256']==sha(path/'frozen_numeric_core.tdx')
         assert s['selection_sha256']==sha(path/'selection.parquet') and m['last_observation']<start
         assert s['chosen_threshold']['training_quantile']==.995
         f=pd.read_parquet(path/'selection.parquet')
@@ -50,7 +58,7 @@ def combine():
     r=dict(protocol_sha256=sha(PROTOCOL),folds=folds,selection_sha256=sha(COMBINED/'selection.parquet'),
         selected=int(out.selected.sum()),by_half=out.groupby('half').selected.agg(['size','sum']).reset_index().to_dict('records'),
         formula_method_updates_twice_per_year=True,identical_coefficients_all_year=False,H1_new_group_outcomes_read=False,
-        H2_new_group_outcomes_previously_seen=True,year_2025_is_exploratory=True,new_2026_prices_read=False,
+        H2_new_group_outcomes_previously_seen=H2_OUTCOMES_PREVIOUSLY_SEEN,year_2025_is_exploratory=True,new_2026_prices_read=False,
         no_exit_rules=True,software_compilation_verified=False)
     save_json(COMBINED/'selection_report.json',r)
     return r
