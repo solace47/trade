@@ -1,0 +1,33 @@
+{
+  "objective": "在原下四分位空间方法中，于建树寻找分裂时限制每叶至少20个完整交易日的样本权重质量，避免单日大量股票决定局部条件；这不同于原相对模型的事后20日叶剪枝。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+  "features": "沿用原48项及完整有效性，不新增市场过滤、长历史、昨日状态或其他失败特征。",
+  "target": "原known15且原48项有效的sustained_return15，保留原始连续值，不截尾、不作同日中心化；日期权重1/N日。所有训练观察严格早于评价段。",
+  "parameters": {
+    "loss": "quantile",
+    "alpha": 0.25,
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "min_weight_fraction_leaf": 0.08298755186721991
+  },
+  "selection_score_cut": 0.0,
+  "selection": "仅预测下四分位严格大于0的有效输入；不再用训练99.5%分位，不扫描分位alpha或门限。不存在候选亦报告，不事后放宽。该值不是经外部校准的收益保证。",
+  "validation": "两段及全年完整名单先冻后评；原二元机会、1%空间、10点参考、3%不利变化、集中度、未知界及两档成本全报，并与原版完整和共同日期结果比较。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "minimum_leaf_day_weight": 20,
+  "expected_training_days": 241,
+  "growth_constraint": "每日所有训练股票总权重为1，min_weight_fraction_leaf=20/241使每叶总权重至少20，因此至少覆盖20个不同日期；不宣称这些日期互相独立。约束在树生长期间生效，不先拟合后剪枝。",
+  "independent_comparison": "在原分位版新分组结果之前固定；除建树权重约束，其余目标、输入、参数、零门限、两段评价不变，不扫描日期权重。"
+}
