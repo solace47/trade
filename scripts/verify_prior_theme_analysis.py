@@ -15,12 +15,18 @@ LABELS = Path("data/research/economic_winner/period_quality")
 METRICS = ["winner_lower", "winner_upper", "loser_lower", "loser_upper", "positive_lower", "positive_upper", "net_mean"]
 
 
-def check():
+def check(ROOT=ROOT, LABELS=LABELS):
     report = json.loads((ROOT / "analysis_report.json").read_text())
     assert report["input_report_sha256"] == sha(ROOT / "input_report.json")
     assert report["input_verification_sha256"] == sha(ROOT / "input_verification.json")
     assert report["label_report_sha256"] == sha(LABELS / "label_report.json")
-    assert report["label_analysis_verification_sha256"] == sha(LABELS / "analysis_verification.json")
+    proof = report.get("label_proof", "analysis")
+    assert proof in ["analysis", "label"]
+    proof_file = LABELS / (proof + "_verification.json")
+    proof_key = "label_analysis_verification_sha256" if proof == "analysis" else "label_verification_sha256"
+    assert report[proof_key] == sha(proof_file)
+    label_check = json.loads(proof_file.read_text())
+    assert label_check["passed"] and label_check[proof + "_report_sha256"] == sha(LABELS / (proof + "_report.json"))
     assert json.loads((ROOT / "input_verification.json").read_text())["passed"]
     assert sha(LABELS / "labels.parquet") == json.loads((LABELS / "label_report.json").read_text())["labels_sha256"]
     for name, digest in report["output_sha256"].items():

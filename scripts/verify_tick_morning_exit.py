@@ -16,7 +16,7 @@ from trade_research.corporate_cash import MINUTES, save_json, sha
 ROOT = Path("data/research/tick_morning_exit")
 
 
-def windows():
+def windows(ROOT=ROOT):
     report = json.loads((ROOT / "raw_report.json").read_text())
     for path, digest in report["parts_sha256"].items():
         assert sha(Path(path)) == digest
@@ -176,7 +176,7 @@ def account(r):
     return out
 
 
-def labels():
+def labels(ROOT=ROOT):
     report = json.loads((ROOT / "label_report.json").read_text())
     assert report["labels_sha256"] == sha(ROOT / "labels.parquet")
     morning = pd.read_parquet(ROOT / "labels.parquet")
@@ -220,4 +220,6 @@ def labels():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("stage", choices=["windows", "labels"])
-    print(json.dumps(globals()[parser.parse_args().stage](), ensure_ascii=False, indent=2))
+    parser.add_argument("--root", type=Path, default=ROOT)
+    args = parser.parse_args()
+    print(json.dumps(globals()[args.stage](ROOT=args.root), ensure_ascii=False, indent=2))

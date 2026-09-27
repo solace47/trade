@@ -15,7 +15,7 @@ STATES = ["broken_limit", "closed_limit", "other", "unknown"]
 CONTEXTS = ["strong", "neutral", "weak", "unknown"]
 
 
-def evaluate():
+def evaluate(ROOT=ROOT, LABELS=LABELS, states=STATES, label_proof="analysis"):
     if (ROOT / "analysis_report.json").exists():
         raise ValueError("Do not overwrite inspected theme results")
     check = json.loads((ROOT / "input_verification.json").read_text())
@@ -23,8 +23,10 @@ def evaluate():
     inputs = json.loads((ROOT / "input_report.json").read_text())
     for name, digest in inputs["output_sha256"].items():
         assert sha(ROOT / name) == digest
-    proof = json.loads((LABELS / "analysis_verification.json").read_text())
-    assert proof["passed"] and proof["analysis_report_sha256"] == sha(LABELS / "analysis_report.json")
+    assert label_proof in ["analysis", "label"]
+    proof_file = LABELS / (label_proof + "_verification.json")
+    proof = json.loads(proof_file.read_text())
+    assert proof["passed"] and proof[label_proof + "_report_sha256"] == sha(LABELS / (label_proof + "_report.json"))
     labels = json.loads((LABELS / "label_report.json").read_text())
     assert labels["labels_sha256"] == sha(LABELS / "labels.parquet")
     c = duckdb.connect()
@@ -71,7 +73,7 @@ def evaluate():
         for period in PERIODS:
             daily_period = in_period(pd.concat([baseline, grouped], ignore_index=True), period)
             rows = in_period(p, period)
-            for state in STATES:
+            for state in states:
                 for context in ["all", *CONTEXTS]:
                     days = daily_period.loc[daily_period.prior_status.eq(state) & daily_period.context.eq(context)]
                     raw = rows.loc[rows.prior_status.eq(state)]
@@ -101,10 +103,11 @@ def evaluate():
                   input_report_sha256=sha(ROOT / "input_report.json"),
                   input_verification_sha256=sha(ROOT / "input_verification.json"),
                   label_report_sha256=sha(LABELS / "label_report.json"),
-                  label_analysis_verification_sha256=sha(LABELS / "analysis_verification.json"),
+                  label_proof=label_proof,
                   rows=len(frame), primary=int(frame.primary.sum()), groups=summaries, reverse=reverse,
                   output_sha256={name: sha(ROOT / name) for name in outputs},
                   prices_2026_read=False, precise_first_publication_verified=False, new_strategy_selected=False)
+    report["label_analysis_verification_sha256" if label_proof == "analysis" else "label_verification_sha256"] = sha(proof_file)
     save_json(ROOT / "analysis_report.json", report)
     return dict(rows=len(frame), summaries=len(summaries), primary=int(frame.primary.sum()))
 

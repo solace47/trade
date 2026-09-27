@@ -129,7 +129,7 @@ def freeze():
     return report
 
 
-def raw():
+def raw(ROOT=ROOT, PROTOCOL=PROTOCOL):
     if (ROOT/"raw_report.json").exists():raise ValueError("Do not replace morning bars")
     inputs=json.loads((ROOT/"input_report.json").read_text())
     assert inputs["protocol_sha256"]==sha(PROTOCOL)
@@ -192,7 +192,7 @@ def raw():
     return {k:v for k,v in report.items() if k!="parts_sha256"}
 
 
-def labels():
+def labels(ROOT=ROOT):
     if (ROOT/"label_report.json").exists():raise ValueError("Do not replace new morning labels")
     check=json.loads((ROOT/"window_verification.json").read_text())
     assert check["passed"] and check["raw_report_sha256"]==sha(ROOT/"raw_report.json")
