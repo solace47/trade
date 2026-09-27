@@ -1,0 +1,63 @@
+{
+  "protocol_sha256": "d2814b9e25221acd3c15364ff183acd203e031184e645cf4ecab6b75a06174db",
+  "source_selection_report_sha256": "ce19bfb55de9442036131077492079f4fa2e3f44cb77c32f68124656c0536495",
+  "source_analysis_report_sha256": "a1ba53591ac884b7fb8eb891551573d8e838c52180fdce982ecb5ca0a695d728",
+  "model_report_sha256": "c42812159ac4e269f65863c07206d9246339eab3de63a48294e231cfeceac361",
+  "chosen_leaf": {
+    "node": 11,
+    "rows": 45557,
+    "days": 116,
+    "daily_rate": 0.5043035249149873,
+    "daily_delta": 0.03442497661890481,
+    "eligible": true
+  },
+  "conditions": [
+    {
+      "feature": "F05",
+      "op": ">",
+      "threshold": 1.65
+    },
+    {
+      "feature": "F13",
+      "op": ">",
+      "threshold": -16.4
+    },
+    {
+      "feature": "F12",
+      "op": "<=",
+      "threshold": -12.95
+    }
+  ],
+  "numeric_core": "F05:=100*(H-L)/REF(C,1);\nF13:=100*(C/REF(MA(C,5),1)-1);\nF12:=100*(REF(C,1)/REF(C,21)-1);\nCORE:F05>1.65 AND F13>-16.40 AND F12<=-12.95;\n",
+  "selection_sha256": "ec19d08eba3131a644aa12d52ba9d8052c9729335ca2b374339264a7a799eb55",
+  "core_sha256": "95614d999659c475294b35f5febf0627c102b64d4d5b8ceae4338876033d2fd1",
+  "selected": 105056,
+  "by_half": [
+    {
+      "half": "2024H1",
+      "size": 292834,
+      "sum": 48164
+    },
+    {
+      "half": "2024H2",
+      "size": 294442,
+      "sum": 15814
+    },
+    {
+      "half": "2025H1",
+      "size": 314708,
+      "sum": 30619
+    },
+    {
+      "half": "2025H2",
+      "size": 356101,
+      "sum": 10459
+    }
+  ],
+  "new_group_outcomes_read": false,
+  "prior_version_outcomes_seen": true,
+  "tree_refitted": true,
+  "new_2026_prices_read": false,
+  "no_exit_rules": true,
+  "software_compilation_verified": false
+}
