@@ -56,13 +56,13 @@ def period(p,value):
     return p.loc[p.half.eq(value) if "H" in value else p.date.str.startswith(value)]
 
 
-def main(ROOT=ROOT,FEATURES=FEATURES,group_columns=None,write_report=True):
+def main(ROOT=ROOT,FEATURES=FEATURES,group_columns=None,write_report=True,
+         labels="data/research/economic_winner/period_quality/labels.parquet"):
     group_columns=group_columns or {feature:feature+"_group" for feature in FEATURES}
     report=json.loads((ROOT/"analysis_report.json").read_text())
     for name,digest in report["outputs_sha256"].items():assert sha(ROOT/(name+".parquet"))==digest
     c=duckdb.connect()
     c.execute(f"create view features as select * from read_parquet('{ROOT}/features.parquet')")
-    labels="data/research/economic_winner/period_quality/labels.parquet"
     c.execute(f"""create view joined as select f.*,l.label5,l.label15,l.net_return5,l.net_return15 from features f
         join read_parquet('{labels}') l on f.date=l.date and f.code=l.code""")
     original=pd.read_parquet(ROOT/"joined_original.parquet").sort_values(["date","code"]).reset_index(drop=True)

@@ -44,7 +44,8 @@ def summary(daily,rows,identifiers):
     return result
 
 
-def evaluate(ROOT=ROOT,FEATURES=FEATURES,BANDS=BANDS,include_inverse=True,group_columns=None):
+def evaluate(ROOT=ROOT,FEATURES=FEATURES,BANDS=BANDS,include_inverse=True,group_columns=None,
+             LABELS=LABELS,label_proof="analysis",bands_by_feature=None):
     if (ROOT/"analysis_report.json").exists():raise ValueError("Do not overwrite inspected direction results")
     gate=json.loads((ROOT/"input_verification.json").read_text())
     assert gate["passed"] and gate["input_report_sha256"]==sha(ROOT/"input_report.json")
@@ -52,8 +53,9 @@ def evaluate(ROOT=ROOT,FEATURES=FEATURES,BANDS=BANDS,include_inverse=True,group_
     output_hashes=inputs.get("output_sha256",{"features.parquet":inputs.get("features_sha256")})
     for name,digest in output_hashes.items():assert sha(ROOT/name)==digest
     group_columns=group_columns or {feature:feature+"_group" for feature in FEATURES}
-    proof=json.loads((LABELS/"analysis_verification.json").read_text())
-    assert proof["passed"] and proof["analysis_report_sha256"]==sha(LABELS/"analysis_report.json")
+    assert label_proof in ["analysis","label"]
+    proof=json.loads((LABELS/(label_proof+"_verification.json")).read_text())
+    assert proof["passed"] and proof[label_proof+"_report_sha256"]==sha(LABELS/(label_proof+"_report.json"))
     assert sha(LABELS/"labels.parquet")==json.loads((LABELS/"label_report.json").read_text())["labels_sha256"]
     features=pd.read_parquet(ROOT/"features.parquet")
     c=duckdb.connect();c.register("selected",features[["date","code"]])
@@ -94,7 +96,7 @@ def evaluate(ROOT=ROOT,FEATURES=FEATURES,BANDS=BANDS,include_inverse=True,group_
                 daily["quality"]=quality;daily["cost_bps"]=cost;daily["feature"]=feature
                 day_tables.append(daily)
                 for period in PERIODS:
-                    for band in BANDS:
+                    for band in (bands_by_feature[feature] if bands_by_feature else BANDS):
                         data=in_period(daily,period);raw=in_period(p,period)
                         groups.append(summary(data.loc[data.band.eq(band)],raw.loc[raw.band.eq(band)],
                             dict(quality=quality,cost_bps=cost,feature=feature,period=period,band=band)))
