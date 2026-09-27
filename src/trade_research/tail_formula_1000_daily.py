@@ -46,12 +46,14 @@ def inputs():
     return source_report,f,train
 
 
-def freeze():
+def freeze(ROOT=ROOT, PROTOCOL=PROTOCOL, model_report_path=None):
     if (ROOT/'selection_report.json').exists():
         raise ValueError('Do not replace frozen daily-relative choice')
     ROOT.mkdir(parents=True,exist_ok=True)
     source_report,f,train=inputs()
-    paths=leaf_paths(source_report['tree'])
+    model=json.loads(model_report_path.read_text()) if model_report_path else None
+    tree=model['tree'] if model else source_report['tree']
+    paths=leaf_paths(tree)
     base=train.groupby('date').opportunity15.mean()
     scores=[]
     daily=[]
@@ -83,20 +85,26 @@ def freeze():
         conditions=conditions,numeric_core=core,selection_sha256=sha(ROOT/'selection.parquet'),
         training_leaf_days_sha256=sha(ROOT/'training_leaf_days.parquet'),core_sha256=sha(ROOT/'frozen_numeric_core.tdx'),
         selected=int(selection.selected.sum()),by_half=selection.groupby('half').selected.agg(['size','sum']).reset_index().to_dict('records'),
-        new_group_outcomes_read=False,prior_version_outcomes_seen=True,tree_refitted=False,
+        new_group_outcomes_read=False,prior_version_outcomes_seen=True,tree_refitted=bool(model),
         new_2026_prices_read=False,no_exit_rules=True,software_compilation_verified=False)
+    if model:
+        report['model_report_sha256']=sha(model_report_path)
+        report['tree']=tree
     save_json(ROOT/'selection_report.json',report)
     return {k:v for k,v in report.items() if k!='training_scores'}
 
 
-def verify():
+def verify(ROOT=ROOT, PROTOCOL=PROTOCOL):
     report=json.loads((ROOT/'selection_report.json').read_text())
     assert report['protocol_sha256']==sha(PROTOCOL)
     assert report['selection_sha256']==sha(ROOT/'selection.parquet')
     assert report['training_leaf_days_sha256']==sha(ROOT/'training_leaf_days.parquet')
     source_report,f,train=inputs()
     assert report['source_selection_report_sha256']==sha(SOURCE/'selection_report.json')
-    tree=source_report['tree']
+    tree=report.get('tree',source_report['tree'])
+    if report['tree_refitted']:
+        check=json.loads((ROOT/'model_verification.json').read_text())
+        assert check['passed'] and check['model_report_sha256']==sha(ROOT/'model_report.json')==report['model_report_sha256']
     names=list(EXPRESSIONS)
     # Reconstruct each path from parent pointers, independently of leaf_paths.
     paths={}
@@ -149,7 +157,7 @@ def verify():
     return result
 
 
-def analyze():
+def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
     check=json.loads((ROOT/'selection_verification.json').read_text())
     assert check['passed'] and check['selection_report_sha256']==sha(ROOT/'selection_report.json')
     for name in ['full_labels.parquet','full_label_report.json','full_label_verification.json']:
