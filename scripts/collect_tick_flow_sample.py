@@ -16,6 +16,8 @@ PROTOCOL = Path("config/tick_flow_winner_protocol.json")
 
 
 def main():
+    if (ROOT / "input_report.json").exists():
+        raise ValueError("Do not change downloads after input features have been frozen")
     cfg = json.loads(PROTOCOL.read_text())
     frozen = json.loads((ROOT / "cohort_report.json").read_text())
     assert sha(PROTOCOL) == frozen["protocol_sha256"]
@@ -44,13 +46,15 @@ def main():
         for index, row in enumerate(cohort.itertuples(index=False), start=1):
             leaf = ROOT / "sessions" / row.date / row.code.replace(".", "_")
             receipt_path = leaf / "receipt.json"
+            prior_attempts = []
             if receipt_path.exists():
                 cached = json.loads(receipt_path.read_text())
                 if cached["status"] == "downloaded":
                     assert sha(leaf / "ticks.parquet") == cached["ticks_sha256"]
                     receipts.append(cached)
                     continue
-            receipt = dict(date=row.date, code=row.code, status="source_unknown", attempts=[])
+                prior_attempts = cached["attempts"]
+            receipt = dict(date=row.date, code=row.code, status="source_unknown", attempts=prior_attempts)
             for host in hosts:
                 stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
                 attempt_path = leaf / "wire" / stamp

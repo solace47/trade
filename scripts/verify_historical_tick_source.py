@@ -23,7 +23,10 @@ def independent_decode(raw):
     compressed, expanded = struct.unpack_from("<HH", raw, 12)
     assert len(raw) == 16 + compressed
     payload = raw[16:] if compressed == expanded else zlib.decompress(raw[16:])
-    assert len(payload) == expanded and expanded >= 6
+    assert len(payload) == expanded
+    if payload == bytes(2):
+        return []
+    assert expanded >= 6
     count = int.from_bytes(payload[:2], "little")
     cursor, accumulated, result = 6, 0, []
     for _ in range(count):

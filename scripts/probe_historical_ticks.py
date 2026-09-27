@@ -64,6 +64,10 @@ def exchange(sock, packet, prefix):
 
 
 def decode_history(body, requested):
+    # An unavailable session (or the page beyond an exact multiple) may carry
+    # just the zero count, without the four normal filler bytes.
+    if body == b"\x00\x00":
+        return []
     if len(body) < 6:
         raise ValueError("history body shorter than count plus filler")
     count = struct.unpack_from("<H", body)[0]
