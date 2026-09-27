@@ -1,0 +1,69 @@
+{
+  "objective": "大小盘联合模型已有风险降低但整体机会较低；探索它与原48项高分的固定交集，能否保留原版机会同时减小次晨不利幅度。不同于此前日期权重交集，本项追加规模风格信息，不重训或改门槛。",
+  "status": "数据驱动的后续假设；两组件结果均已见。新交集的两段及全年和原版删去子集须先固定，再读交集分组。2025不是独立盲测。",
+  "selection": "两组件各自原99.5%训练分位、严格大于关系及原输入有效性全部不变；仅按相同date/code求AND。原两段时间边界不变，2026不读取。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "full_label_report_sha256": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+  "folds": {
+    "2024": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01",
+      "components": [
+        {
+          "root": "data/research/tail_formula_float_2024",
+          "model_report_sha256": "35a4a336a3156c52aa8e3df43529e084b09b62c28056e9ca253fbd8343d7fe01",
+          "model_verification_sha256": "c6a11e39d5980f948833ff2774dc2618c9b4a73b18d2cfea67a15c0461513a75",
+          "score_report_sha256": "0f7ee89afb815e61fefa9551c59a5323b75c4ed15b05cf33c584788b2f6ec03c",
+          "score_verification_sha256": "4d19cc56c0094981d12acfbbd5401eca907d64713bd38c781c91107dc83f6190",
+          "selection_report_sha256": "2e511ffe8f278e0920c8d3bf2268b389b97392d6718a8dd85d2e2365bcaf295a",
+          "selection_verification_sha256": "27b083029030d1743267ff828b8f6c9c567f8a5d6b8ae45e09ecdba815cefd63"
+        },
+        {
+          "root": "data/research/tail_formula_size_context_2024",
+          "model_report_sha256": "9e3ea6271eda4739d2d154e9dea9c101d577d1b5efd87241dda9f93a0c085f5d",
+          "model_verification_sha256": "9645fdcbe1d0c55a68042737e4c202138d8fed6e510a9c5a551be72fb27be435",
+          "score_report_sha256": "847fe3500b13477c826d917a3b8ab82a35351dcecd647e32e18b62a0d4854011",
+          "score_verification_sha256": "63152705ae24fadf8cf64356e2fb0e1308422d39b106ec343e06cba845ed8a7a",
+          "selection_report_sha256": "07d1ae8b33d4cda35145fa6c0ab15492993a9da2c888591ddabfc9d6e2f909b0",
+          "selection_verification_sha256": "f355d2fafcaebc20b526b615c1cfd071ef418e6e53396fb758f3c50c661ab2b7"
+        }
+      ]
+    },
+    "recent": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01",
+      "components": [
+        {
+          "root": "data/research/tail_formula_float_recent",
+          "model_report_sha256": "16a9c57533533d618a2fec1e3f3539e5580434ba76ab1af6a3f5662eb29d52e2",
+          "model_verification_sha256": "f6875dde64da4903ea296b3b2a148a0c8ea671d666029ea40d94c801704e2c25",
+          "score_report_sha256": "c0615739407d0724cf2724007e2a27d42ae64b559e6505cc00767374b40e326e",
+          "score_verification_sha256": "aa4d346e7c5bf99d5d4ce08aa639d62c7d2126f7abef6ee9d7e290fc183278da",
+          "selection_report_sha256": "6794a4083d1c756feb98d4b64c3159890a79ad3ee5f97da807ad33fa4089a29c",
+          "selection_verification_sha256": "6e7dccafceb92663cb3ffcce3132ae5f5dcb77f57b5ca35ec9c6a5a168724606"
+        },
+        {
+          "root": "data/research/tail_formula_size_context_recent",
+          "model_report_sha256": "c9e8e9774c69287e4de847aeaf89c30998315e704a8bd2a8a96d26bad148aad1",
+          "model_verification_sha256": "c3dcce3d194decb36eaeb43613da49f2a11c4a2de946ec8a002c7cfd0ecd0a85",
+          "score_report_sha256": "9c1b20e3923baf851fb82e167a4c507dc6c05ff14d24fba2b73af401c0aa51b7",
+          "score_verification_sha256": "9e611c8056566dc8d7b7f6b941237e87f851994f18865f3adca30f1a4fe71e2a",
+          "selection_report_sha256": "82c382acc43d0b6b3671473d9e9b1662895b884da80c688cc9633a7df7257481",
+          "selection_verification_sha256": "1f41296cf48343894db7ca6cc600200c91286cb28388407ab3bcfec0f6faefc0"
+        }
+      ]
+    }
+  },
+  "verification": "逐键核准两组件及全量原始分数的双门限选择；新50项包含原48项且逐值一致，两数值核心共享扩展50项头，两个64树正文保留原常数及加总顺序，拆回原始输入头后必须逐字复现两份原核心。",
+  "evaluation": "全报两半年和全年原机会、1%空间、10点参考、至少3%不利幅度、未知界、5/15基点；与两个原组件共同日期比较，保留全部删去候选和整日删除的表现。改善须同时检查自身和共同日期，不仅用过滤后全年均值。",
+  "software": "共享50项及128树，原48项引用编号不变；只证数学表达，不宣称完整条件选股、客户端编译或实际数据一致。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "additional_feature_report_sha256": "f3f0aa8c9466a12fefca4f8081e5fbd357151c4c3897583744e1373e463e02ca"
+}
