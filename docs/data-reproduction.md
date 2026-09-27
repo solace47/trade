@@ -1,5 +1,15 @@
 # 数据复算
 
+## 原48项的2026首季接续
+
+协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
+
+模型固定后运行 `trade_research.tail_formula_forward_inputs prepare`，`scripts/collect_tail_formula_forward_indices.py daily` 和 `minutes`，然后输入模块的 `features`、`scripts/verify_tail_formula_forward_inputs.py`、`scripts/freeze_tail_formula_forward_selections.py`。原完整名单与同分保留的前五位短名单共同冻结，在读取股票买入／次晨结果前提交 `f1f95d6`。
+
+接着运行 `trade_research.tail_formula_forward_observations prepare` 和 `catalog`；供应商同日多条分配四股保留原错误与原始记录，`catalog_dates` 仅核准完整日期覆盖，不声称现金条款核准。运行 `scripts/verify_tail_formula_forward_catalog.py`。原始买入和次晨窗口由 `trade_research.tail_formula_forward_raw` 的 `raw`、`windows`、`quality` 生成，之后 `scripts/verify_tail_formula_forward_windows.py` 独立重建。质量审计限制首季，4月只新增3月31日必要的09:31—10:00原始价格。
+
+最后运行 `trade_research.tail_formula_forward_labels`、`scripts/verify_tail_formula_forward_labels.py`，再分别运行 `scripts/analyze_tail_formula_forward.py all` 和 `shortlist`，同时生成及核准每月和首季统计。`scripts/compare_tail_formula_same_dates.py --left data/research/tail_formula_forward_2026q1/shortlist --right data/research/tail_formula_forward_2026q1/all --output data/research/tail_formula_forward_2026q1/same_dates_comparison.json --periods 2026-01 2026-02 2026-03 2026Q1` 比较同日两份名单。未知独占日期不删除，不把价格机会或10点参考估值当作执行卖出的收益。
+
 Python 3.12；原始行情、锁定版本、审计表和研究输出均放在被 Git 忽略的 `data/`。各历史实验按对应协议限定训练年代；当前次晨公式用2024全年或2024H2—2025H1训练，更早行情只初始化指标。策略评价从2024年开始，2025年非盲测，2026年尽量留给事前冻结验证。
 
 ```bash

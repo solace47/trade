@@ -189,6 +189,9 @@ def analysis_check(ROOT=ROOT):
         f=expected.loc[expected.bps.eq(s['bps'])&expected.sensitive.eq(s['sensitive'])]
         if p=='2024H2_2025':
             f=f.loc[f.date.ge('2024-07-01')]
+        elif len(p)==6 and p[4]=='Q' and p[5] in '1234':
+            dates=pd.to_datetime(f.date)
+            f=f.loc[dates.dt.year.eq(int(p[:4]))&dates.dt.quarter.eq(int(p[5]))]
         elif 'H' in p:
             f=f.loc[f.half.eq(p)]
         else:
@@ -221,7 +224,7 @@ def analysis_check(ROOT=ROOT):
                     eq(s[name+'_ci'],interval(d,name),name+'_ci');checks+=1
             checks+=3
     result=dict(passed=True,analysis_report_sha256=sha(ROOT/'analysis_report.json'),daily_rows=len(expected),
-        all_daily_statistics_rebuilt=True,summary_checks=checks,new_2026_prices_read=False,no_exit_rules=True)
+        all_daily_statistics_rebuilt=True,summary_checks=checks,new_2026_prices_read=bool(expected.date.ge('2026-01-01').any()),no_exit_rules=True)
     save_json(ROOT/'analysis_verification.json',result)
     return result
 

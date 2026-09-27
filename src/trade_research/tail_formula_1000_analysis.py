@@ -178,6 +178,9 @@ def freeze():
 def period(frame,p):
     if p=='2024H2_2025':
         return frame.loc[frame.date.ge('2024-07-01')]
+    if len(p)==6 and p[4]=='Q' and p[5] in '1234':
+        first=3*(int(p[5])-1)+1
+        return frame.loc[frame.date.str.startswith(p[:4])&frame.date.str[5:7].between(f'{first:02d}',f'{first+2:02d}')]
     return frame.loc[frame.half.eq(p)] if 'H' in p else frame.loc[frame.date.str.startswith(p)]
 
 
@@ -213,6 +216,7 @@ def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
     selection=json.loads((ROOT/'selection_report.json').read_text())
     assert selection['selection_sha256']==sha(ROOT/'selection.parquet')
     labels=pd.read_parquet(ROOT/'full_labels.parquet')
+    periods=json.loads(PROTOCOL.read_text()).get('periods',PERIODS)
     chosen=pd.read_parquet(ROOT/'selection.parquet',columns=['date','code','selected'])
     r=labels.merge(chosen,on=['date','code'],validate='one_to_one')
     summaries=[]
@@ -229,7 +233,7 @@ def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
                 d=df.reset_index().assign(half=lambda x:x.date.str[:4]+np.where(x.date.str[5:7].le('06'),'H1','H2'))
                 d['arm']=arm;d['bps']=bps;d['sensitive']=sensitive
                 daily.append(d)
-                for p in PERIODS:
+                for p in periods:
                     q=period(d,p).set_index('date')
                     values={name:number(q[name].mean()) for name in ['rate','lower','upper','one_percent_rate','any_rate',
                         'mean1000','negative1000','adverse_mean','bad3']}
@@ -242,7 +246,7 @@ def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
                 'lower_delta':(a.lower-b.upper).values,'upper_delta':(a.upper-b.lower).values,
                 'mark1000_delta':(a.mean1000-b.mean1000).values})
             delta['half']=delta.date.str[:4]+np.where(delta.date.str[5:7].le('06'),'H1','H2')
-            for p in PERIODS:
+            for p in periods:
                 q=period(delta,p).set_index('date')
                 summaries.append(dict(arm='same_day_difference',bps=bps,sensitive=sensitive,period=p,days=len(q),
                     **{k:number(q[k].mean()) for k in ['rate_delta','lower_delta','upper_delta','mark1000_delta']},
@@ -251,7 +255,7 @@ def analyze(ROOT=ROOT, PROTOCOL=PROTOCOL):
     pd.concat(daily,ignore_index=True).to_parquet(ROOT/'daily_summary.parquet',index=False,compression='zstd')
     report=dict(protocol_sha256=sha(PROTOCOL),selection_report_sha256=sha(ROOT/'selection_report.json'),
         full_label_verification_sha256=sha(ROOT/'full_label_verification.json'),summaries=summaries,
-        daily_summary_sha256=sha(ROOT/'daily_summary.parquet'),no_exit_rules=True,new_2026_prices_read=False,
+        daily_summary_sha256=sha(ROOT/'daily_summary.parquet'),no_exit_rules=True,new_2026_prices_read=bool(r.date.ge('2026-01-01').any()),
         opportunity_is_not_realized_profit=True,year_2025_is_exploratory=True,software_compilation_verified=False)
     save_json(ROOT/'analysis_report.json',report)
     return {k:v for k,v in report.items() if k!='summaries'}
