@@ -70,6 +70,11 @@ def scores():
         np.testing.assert_array_equal(actual.score.gt(t['threshold']),expected.score.gt(t['threshold']))
         checks+=len(actual)
     protocol=json.loads(PROTOCOL.read_text())
+    if 'selection_score_cut' in m:
+        assert m['selection_score_cut']==protocol['selection_score_cut']
+        np.testing.assert_array_equal(actual.score.gt(m['selection_score_cut']),
+                                      expected.score.gt(m['selection_score_cut']))
+        checks+=len(actual)
     start,end=m.get('training_start'),m.get('training_end','2025-01-01')
     assert start==protocol.get('training_start') and end==protocol.get('training_end','2025-01-01')
     from datetime import date
@@ -85,6 +90,8 @@ def scores():
         threshold_flag_checks=checks,all_integer_encodings_tree_scores_and_training_quantiles_rebuilt=True,
         training_start=start,training_end=end,new_2025_score_groups_read=m.get('new_2025_score_groups_read',False),
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    if 'selection_score_cut' in m:
+        result['fixed_selection_score_cut_verified']=m['selection_score_cut']
     save_json(ROOT/'score_verification.json',result)
     return result
 
