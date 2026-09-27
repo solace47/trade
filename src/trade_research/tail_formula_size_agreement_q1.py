@@ -70,6 +70,20 @@ def checked_model():
                       ('component_core_sha256', MODEL / 'frozen_numeric_core.tdx'),
                       ('core_sha256', ROOT / 'frozen_numeric_core.tdx')]:
         assert r[key] == sha(path)
+    from .tail_formula_forward import checked_model as original_model
+    old = original_model()
+    m = json.loads((MODEL / 'model_report.json').read_text())
+    v = json.loads((MODEL / 'model_verification.json').read_text())
+    assert v['passed'] and v['model_report_sha256'] == r['model_report_sha256']
+    assert r['original_model_report_sha256'] == old['model_report_sha256']
+    assert r['score_cuts'] == [old['chosen_threshold']['threshold'], m['thresholds'][3]['threshold']]
+    core = base.native_core(m, r['score_cuts'][1], extended.EXPRESSIONS, extended.HEADER)
+    assert (MODEL / 'frozen_numeric_core.tdx').read_text() == core
+    sources = [(OLD / 'model/frozen_numeric_core.tdx').read_text(), core]
+    prefixes, bodies = intersection.prefixes_and_bodies(sources)
+    second = re.sub(r'\bT(\d{2})\b', r'U\1', bodies[1]); second = re.sub(r'\bSC\b', 'SSC', second)
+    clause = f'CORE:(SC>{r["score_cuts"][0]:.17g}) AND (SSC>{r["score_cuts"][1]:.17g});\n'
+    assert (ROOT / 'frozen_numeric_core.tdx').read_text() == prefixes[1] + bodies[0] + second + clause
     return r
 
 
