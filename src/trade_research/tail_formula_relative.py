@@ -99,7 +99,7 @@ def model(variant):
         last_observation=train.next_date.max(),parameters=model.get_params(),feature_names=list(base.EXPRESSIONS),
         variant=variant,learning_rate=.05,bias=float(np.ravel(model.init_.constant_)[0]),trees=trees,
         training_start=start,training_end=end,new_2025_score_groups_read=bool(train.date.ge('2025-01-01').any()),
-        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        new_2025H2_score_groups_read=bool(train.date.ge('2025-07-01').any()),new_2026_prices_read=False,no_exit_rules=True)
     if variant=='duration':
         r['duration_label_report_sha256']=sha(duration_source()/'duration_report.json')
     manual=base.predict(x,r)
@@ -153,6 +153,7 @@ def verify_model(variant):
         FROM features JOIN targets USING(date,code) WHERE formula_input_valid ORDER BY date,code''').df()
     original=training(variant)
     assert original.next_date.lt(end).all() and (start is None or original.date.ge(start).all())
+    assert r['new_2025H2_score_groups_read']==bool(original.date.ge('2025-07-01').any())
     np.testing.assert_allclose(d.target,original.target,rtol=0,atol=2e-12)
     assert d[['date','code']].equals(original[['date','code']])
     if variant=='rank':
@@ -198,7 +199,7 @@ def verify_model(variant):
     proof=dict(passed=True,model_report_sha256=sha(root/'model_report.json'),variant=variant,rows=len(d),node_checks=checks,
         all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt=True,
         training_start=start,training_end=end,new_2025_score_groups_read=bool(original.date.ge('2025-01-01').any()),
-        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        new_2025H2_score_groups_read=bool(original.date.ge('2025-07-01').any()),new_2026_prices_read=False,no_exit_rules=True)
     if minimum_days:
         proof.update(minimum_leaf_training_days_required=minimum_days,
             minimum_leaf_training_days_observed=minimum_observed_days,all_node_date_support_rebuilt=True)
