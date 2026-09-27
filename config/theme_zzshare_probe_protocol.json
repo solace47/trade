@@ -1,8 +1,17 @@
 {
   "purpose": "开盘红历史端点传输失败后，另核对公开的zzshare匿名只读接口；不是切换身份重试原服务。仅来源探测，不选择股票或计算收益。",
   "reference": "zzquant/zzshare固定提交49888288f9bb0c6231d92e17142ec5df62d3b17a，MIT，源码公开规定sdk-key=anonymous支持低频匿名查询。不安装或执行SDK。",
-  "dates": ["20240102", "20240701", "20250102", "20250701"],
-  "endpoints": ["https://api.zizizaizai.com/v3/open/review/uplimit/reason", "https://api.zizizaizai.com/v3/open/review/uplimit/hot"],
+  "dates": [
+    "20240102",
+    "20240701",
+    "20250102",
+    "20250701"
+  ],
+  "endpoints": [
+    "https://api.zizizaizai.com/v3/open/review/uplimit/reason",
+    "https://api.zizizaizai.com/v3/open/review/uplimit/hot"
+  ],
   "requests": "每日期依次查询两端点，参数date1，hot另限定limit=100；每三秒至多一次，不自动改变日期或追最新数据。HTTP401/403/429或业务权限错误及连接失败即停止，原响应原样留存，不登记账户或购买。",
-  "checks": "核对响应业务状态、日期、分页与真实字段；若返回空，保持空响应未知，不认定当天无涨停。不使用事后题材标签作历史输入；历史归因、可见时间与成员必须另有证据。先保留全部返回，不读取2026结果或按未来结果选板块。"
+  "checks": "核对响应业务状态、日期、分页与真实字段；若返回空，保持空响应未知，不认定当天无涨停。不使用事后题材标签作历史输入；历史归因、可见时间与成员必须另有证据。先保留全部返回，不读取2026结果或按未来结果选板块。",
+  "transport_followup": "Python requests在TLS阶段无HTTP响应后，同日期、同匿名请求用系统curl且保持证书验证，返回20000成功与2024-01-02日期。原失败原样保留；后续仅替换传输实现，继续原四日和两端点，不改变身份、不添加付费凭证或取消TLS验证。"
 }

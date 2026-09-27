@@ -6,8 +6,10 @@ Request field meanings from fleetinglife/levistock at
 import json
 import os
 from pathlib import Path
+import subprocess
 import time
 import uuid
+from urllib.parse import urlencode
 
 import requests
 
@@ -19,8 +21,9 @@ PROTOCOL = Path("config/theme_source_probe_protocol.json")
 URL = "https://apphis.kaipanhong.com/w1/api/index.php"
 
 
-def run():
-    if (ROOT / "probe_report.json").exists():
+def run(transport="requests"):
+    report_file = ROOT / ("probe_report.json" if transport == "requests" else "curl_probe_report.json")
+    if report_file.exists():
         raise ValueError("Preserve inspected probe responses")
     config = json.loads(PROTOCOL.read_text())
     manifest = ROOT / "probe_manifest.json"
@@ -41,9 +44,25 @@ def run():
     os.environ.update(effective_environment())
     session = requests.Session()
     session.headers.update({"User-Agent": "trade-research/1.0", "Accept": "application/json"})
+    if transport == "curl":
+        def curl_post(url, data, timeout):
+            temporary = ROOT / "curl_pending.body"
+            result = subprocess.run(["curl", "--silent", "--show-error", "--max-time", "25", "--connect-timeout", "10",
+                                     "--header", "Content-Type: application/x-www-form-urlencoded", "--user-agent", "trade-research/1.0",
+                                     "--data-binary", "@-", "--output", str(temporary), "--write-out", "%{http_code}", url],
+                                    input=urlencode(data), env=effective_environment(), capture_output=True, text=True, timeout=30)
+            if result.returncode:
+                raise requests.ConnectionError("System curl: " + result.stderr)
+            response = requests.Response()
+            response.status_code = int(result.stdout)
+            response._content = temporary.read_bytes()
+            response.headers["Content-Type"] = "unverified; retained body"
+            temporary.unlink()
+            return response
+        session.post = curl_post
     outcomes = []
     stop = None
-    folder = ROOT / "initial"
+    folder = ROOT / ("initial" if transport == "requests" else "curl_initial")
     folder.mkdir(exist_ok=True)
     for day in config["dates"]:
         for kind, fields in templates.items():
@@ -89,12 +108,15 @@ def run():
                 break
         if stop:
             break
-    result = dict(protocol_sha256=sha(PROTOCOL), probe_manifest_sha256=sha(manifest),
+    result = dict(protocol_sha256=sha(PROTOCOL), probe_manifest_sha256=sha(manifest), transport=transport,
                   responses=outcomes, stopped_on=stop, historical_source_verified=False,
                   new_2026_prices_read=False, outcomes_used=False)
-    save_json(ROOT / "probe_report.json", result)
+    save_json(report_file, result)
     return dict(requests=len(outcomes), stopped_on=stop, historical_source_verified=False)
 
 
 if __name__ == "__main__":
-    print(json.dumps(run(), ensure_ascii=False, indent=2))
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--transport", choices=["requests", "curl"], default="requests")
+    print(json.dumps(run(parser.parse_args().transport), ensure_ascii=False, indent=2))
