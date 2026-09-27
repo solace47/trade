@@ -1,0 +1,19 @@
+{
+  "objective": "原相对机会模型只在初始标签中扣一次同日基础池均值，后续浅树仍可用日期共同波动拟合残差。本轮在有效训练交集内构造同日相对二元机会，并在每次拟合前去除残差的同日平均，让学习更专注同一天不同股票之间的区别。它不保证未来名单分散，必须完整检验。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+  "input": "完全复用原48项及整数编码，不增加分钟波动输入、联合质量目标、风险门限或短名单。",
+  "fit": "有效且known15的训练交集内，y=opportunity15-同日交集均值；初始score=0。每轮先e=y-score，再e=e-同日e均值，用日期等权DecisionTreeRegressor拟合e，再score+=0.05*tree。共64轮，criterion=friedman_mse，max_depth=3，min_samples_leaf=300，无抽样；共享RandomState(20260927)。不增加日期虚拟变量或逐日输出常数。",
+  "prediction": "新日期只计算64棵树之和，无需当日股票横截面排名、未来日期效应或已知标签。训练评分99.5%分位常数，严格大于；最终评分的同日平均不必为0，不能声称已经消除集中性。",
+  "verification": "独立SQL从特征有效交集重建目标；每一轮同日残差均值由SQL另算，逐节点样本数、日期权重、残差均值和方差核准，再核全部分数、门限及原生核心。",
+  "evaluation": "两半年和全年共同先冻后评，原压力机会、1%空间、3%不利幅度、10点参考状态、全部未知界、同日基础池、5/15基点及集中性完整保留；原48项既存分析直接作对照。只在2024—2025探索，不重读2026。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "software_compilation_verified": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01"
+}
