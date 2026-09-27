@@ -38,7 +38,7 @@ def duration_source():
 
 
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin','rank','duration','downside']
+    assert variant in ['relative','risk','absolute','margin','rank','duration','downside','quality']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
@@ -52,7 +52,7 @@ def training(variant):
         assert len(out)==len(t)
         return out.sort_values(['date','code']).reset_index(drop=True)
     # Price opportunities and adverse marks only; no future exit fields.
-    extra=',sustained_return15' if variant in ['margin','rank'] else ''
+    extra=',sustained_return15' if variant in ['margin','rank','quality'] else ''
     labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     assert labels.adverse_return15.notna().all()
@@ -69,6 +69,9 @@ def training(variant):
         labels['utility']=labels.sustained_return15.clip(-.01,.01)/.01
     elif variant=='downside':
         labels['utility']=labels.adverse_return15.le(-.03).astype(float)
+    elif variant=='quality':
+        assert np.isfinite(labels.sustained_return15).all()
+        labels['utility']=(labels.sustained_return15.ge(.01)&labels.adverse_return15.gt(-.03)).astype(float)
     else:
         labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
     labels['target']=labels.utility if variant in ['absolute','downside'] else labels.utility-labels.groupby('date').utility.transform('mean')
@@ -129,6 +132,8 @@ def verify_model(variant):
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
     elif variant=='downside':
         utility='CAST(adverse_return15<=-.03 AS INTEGER)'
+    elif variant=='quality':
+        utility='CAST(sustained_return15>=.01 AND adverse_return15>-.03 AS INTEGER)'
     target='utility' if variant in ['absolute','downside'] else 'utility-avg(utility) OVER(PARTITION BY date)'
     if variant=='duration':
         source=duration_source()
