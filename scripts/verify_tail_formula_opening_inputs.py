@@ -17,6 +17,8 @@ def main():
         ('opening_raw_report_sha256',study.OPENING/'raw_report.json'),
         ('opening_feature_verification_sha256',study.OPENING/'feature_verification.json'),('features_sha256',root/'features.parquet')]:
         assert r[key]==sha(path)
+    assert list(r['native_expressions'].items())==list(study.EXPRESSIONS.items())
+    assert r['native_header']==study.HEADER
     old=pd.read_parquet(study.previous.ROOT/'features.parquet');f=pd.read_parquet(root/'features.parquet')
     pd.testing.assert_frame_equal(f[old.columns.drop('formula_input_valid')],old.drop(columns='formula_input_valid'),check_exact=True)
     assert f.prior_formula_input_valid.equals(old.formula_input_valid)

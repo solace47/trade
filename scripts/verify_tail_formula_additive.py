@@ -48,7 +48,11 @@ def scores():
         assert r[key]==sha(path)
     fr=json.loads((FEATURES/'feature_report.json').read_text())
     assert fr['features_sha256']==sha(FEATURES/'features.parquet')
-    assert m['feature_names']==list(fr['expressions'])
+    expressions=fr.get('expressions',fr.get('native_expressions'))
+    assert isinstance(expressions,dict) and expressions
+    if 'expressions' in fr and 'native_expressions' in fr:
+        assert list(fr['expressions'].items())==list(fr['native_expressions'].items())
+    assert m['feature_names']==list(expressions)
     c=connection()
     enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}'
                  for i,n in enumerate(m['feature_names'],1))
