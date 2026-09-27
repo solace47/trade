@@ -1228,3 +1228,9 @@ T+5、2 万元、每侧 15 基点的信号日均值如下：
 ## 降低累计成交额门槛的新增输入与观察
 
 固定原48项、两模型和99.5%门限，只撤除研究者自设3,000万元限制。2025新增48,473键、37,487个有效输入，全部48项与编码独立复建，96个固定前缀、22,080根分钟另核对。新增85候选与原名单并集1,526候选在新组结果前共同冻结。只补51个信号日的13,765个新增基础池次晨标签，原标签全保留；412,950根原始分钟全量重建，128个原档窗口另复读，成交容量、排队未知及44.048万项现金／状态核对通过。源与完整选择覆盖证明见 `tail_formula_liquidity/labels`，2026未读取。本轮失败，未改金额门槛追结果。
+
+## 市场涨跌家数的原生入口查证
+
+2026-09-28查阅[通达信官方函数表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：个股可引用对应指数的 `INDEXADV`／`INDEXDEC`，需要本地相应指数数据；`ADVANCE`／`DECLINE`本身仅对指数有效，分时图数据不适用。存在函数不等于已经取得可靠的2024—2025历史分钟家数。现有 `tail_formula_context/index_points.parquet`只重建指数价格，不能把当前3188股研究池涨跌数冒充软件对应指数的完整家数。
+
+官方[跨平台TdxAiData](https://help.tdx.com.cn/quant/docs/markdown/mindoc-1hjbgqpdhv114.html)已提供macOS数据运行方式，需数据服务Key，且不提供公式执行；[K线接口字段](https://help.tdx.com.cn/quant/docs/markdown/mindoc-1ctuhthaq5qmg/mindoc-1h10g60jt68sc.html)未列出历史涨跌家数。[市场交易数据](https://help.tdx.com.cn/quant/docs/markdown/TdxQuant.md/mindoc-1h10p8op6ia9g.html)含SC31涨跌家数，但尚未证明可取得14:49前历史截面。现阶段只确认原生入口，不把盘后家数或文档中的行情示例用于本轮选股、训练和评价；尚未新增该输入或结果试验。
