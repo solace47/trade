@@ -1,0 +1,15 @@
+{
+  "objective": "大小盘分化单独降低次晨不利幅度，历史广度单独在共同日期略改善机会，固定检验两类市场信息同时加入原48项的52项模型；不依据正在计算的交集结果改设计。",
+  "inputs_protocol_sha256": "eef5b4c0b158dab331aac732a8f645fe5bbe5deef02f9ab98bf92992c2de5507",
+  "model_max_depth": 3,
+  "fit": "只联合两组已核准原生输入，原48项及全部键逐值保留；有效域取两组严格交集。原模型目标、训练一年窗、64深度3树、最少300、日期等权、学习率0.05、无抽样、种子20260927及99.5%门限保持，不调权重或新增名额。",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "evaluation": "两段和全年先冻后评；完整机会、1%空间、3%不利幅度、10点参考、未知界、集中性、5/15基点及同日基础池。与原版同质量控制及共同日期比较。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

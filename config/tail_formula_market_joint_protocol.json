@@ -1,0 +1,32 @@
+{
+  "objective": "大小盘分化单独降低次晨不利幅度，历史广度单独在共同日期略改善机会，固定检验两类市场信息同时加入原48项的52项模型；不依据正在计算的交集结果改设计。",
+  "components": [
+    {
+      "root": "data/research/tail_formula_size_context",
+      "feature_report_sha256": "f3f0aa8c9466a12fefca4f8081e5fbd357151c4c3897583744e1373e463e02ca",
+      "feature_verification_sha256": "f57d39691cf56c9808c58c60deb7f14111e170a40e644b8cfc5ad60538fe467a"
+    },
+    {
+      "root": "data/research/tail_formula_prior_breadth",
+      "feature_report_sha256": "d830c4f3788ef88fc4b0d78a99ee27cc1d9ed4d71c4accb6a567ca1e9bf870a7",
+      "feature_verification_sha256": "af65b619e47d295162e27113387d98d3eabeff61319aa159744788ead275dc8b"
+    }
+  ],
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "daily_feature_report_sha256": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+  "features": [
+    "SZ01",
+    "SZ02",
+    "BR01",
+    "BR02"
+  ],
+  "selection": "只联合两组已核准原生输入，原48项及全部键逐值保留；有效域取两组严格交集。原模型目标、训练一年窗、64深度3树、最少300、日期等权、学习率0.05、无抽样、种子20260927及99.5%门限保持，不调权重或新增名额。",
+  "verification": "原始两组来源和全部输入核准直接引用，不重复采集；Pandas拼接与独立SQL逐键重建全部52项、有效域及整数编码，共享头逐变量核准且两个新增片段不覆盖原48项定义。独立逐节点核对模型及所有分数，先固定两段、全年、同质量原版，再评价。",
+  "scope": "大小盘是规模风格代理，历史广度是指数附带家数字段；均不冒称主力流入。新信息此前结果已见，2025始终探索，实际客户端来源一致仍未证明。",
+  "source_prices_recollected": false,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "software_compilation_verified": false
+}
