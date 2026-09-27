@@ -9,6 +9,18 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 原生公式与次日十点前机会
+
+本节所有命令使用`PYTHONPATH=src .venv/bin/python`，模块前加`-m`。原始数据复用已有SHA256清单，不重复下载；已有冻结结果禁止覆盖。当前范围包含沪深主板，按用户补充排除创业板；旧含创业板输入仅保留在`tail_formula_1000_superseded_chinext/`。
+
+1. 模块`trade_research.tail_formula_1000 features`，脚本`scripts/verify_tail_formula_1000_inputs.py`，再运行模块的`observation_keys`、`observations`及脚本`scripts/verify_tail_formula_1000_observations.py`。
+2. 模块`trade_research.tail_formula_1000_analysis training`，脚本`scripts/verify_tail_formula_1000_analysis.py training`；随后模块`freeze`与脚本`selection`，仅训练2024H1已完成标签并固定所有时期名单。
+3. 同一分析模块的`full`与核查脚本`full`，再运行`analyze`与核查脚本`analysis`。产物在`data/research/tail_formula_1000/`。
+4. 固定的选叶修正使用模块`trade_research.tail_formula_1000_daily`依次`freeze`、`verify`、`analyze`，随后核查脚本`analysis --root data/research/tail_formula_1000_daily`。复用已核准标签，明确为探索性接续。
+5. 同日机会差模型使用模块`trade_research.tail_formula_1000_residual`依次`model`、`verify_model`、`freeze`、`verify`、`analyze`，随后核查脚本`analysis --root data/research/tail_formula_1000_residual`。只增加一次固定回归树，不扫描参数。
+
+三版完整条件与结果见[原生公式研究](selection-formula.md)。原生软件编译未核准；研究中的浮盈机会不代表按观察价成交或保证收益。
+
 ## 昨日炸板与历史题材支持
 
 按`config/prior_theme_broken_protocol.json`及`prior_theme_date_proof.json`、`prior_theme_amount_semantics.json`，先执行模块`trade_research.prior_theme_broken freeze`、`fetch`，必要时按固定协议执行一次`retry-transports`；再执行`trade_research.prior_theme_broken_inputs history`、`inputs`。下载收据、身份白名单、金额日期锚点及不含收益的前日状态保存在`data/research/prior_theme_broken/`；已存在的输入拒绝覆盖，下载可复用核准缓存。请求间隔至少3秒，鉴权或限流错误停止该来源请求。全部金额均等于日终的旧假设已撤下，原输入保留在superseded_amount_semantics。
