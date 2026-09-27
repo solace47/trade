@@ -68,6 +68,8 @@ def daily():
 def minutes():
     checked_model(); p = policy()
     OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / 'raw').mkdir(exist_ok=True)
+    (OUT / 'attempts').mkdir(exist_ok=True)
     if (OUT / 'minute_report.json').exists():
         raise ValueError('Do not replace frozen forward index minutes')
     probe = Path('data/research/index_minute_probe/verification.json')
@@ -82,6 +84,19 @@ def minutes():
                 assert p['signal_first'] <= date <= p['signal_last']
                 path = OUT / 'raw' / f'{symbol}_{date}.json'
                 attempts = []
+                # A local output error must not discard an already received wire
+                # response or cause the source data to be requested again.
+                if not path.exists():
+                    for response in sorted((OUT / 'wire' / f'{symbol}_{date}').glob('*/history.response.bin')):
+                        try:
+                            rows = replay(response.read_bytes())
+                            save_json(path, rows)
+                            attempts.append(dict(status='recovered_archived_response', response=str(response), rows=len(rows)))
+                            break
+                        except (ValueError, AssertionError, IndexError, struct.error):
+                            continue
+                    if attempts:
+                        save_json(OUT / 'attempts' / f'{symbol}_{date}.json', attempts)
                 if not path.exists():
                     for attempt in range(2):
                         folder = OUT / 'wire' / f'{symbol}_{date}' / str(attempt)
