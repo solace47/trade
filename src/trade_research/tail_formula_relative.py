@@ -55,7 +55,13 @@ def training(variant):
     extra=',sustained_return15' if variant in ['margin','rank','quality','space'] else ''
     labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
-    assert labels.adverse_return15.notna().all()
+    # A fully observed morning with no positive-volume minute has no profit
+    # opportunity, while its reference-price marks remain unavailable. Only
+    # objectives using downside need a finite adverse mark; do not fabricate
+    # one or drop the known zero opportunity from the same-day base mean.
+    assert np.isfinite(labels.opportunity15).all() and labels.opportunity15.isin([0,1]).all()
+    if variant in ['risk','downside','quality']:
+        assert np.isfinite(labels.adverse_return15).all()
     if variant=='rank':
         # Rank only the exact training intersection, not rows excluded by input quality.
         t=t.merge(labels[['date','code','sustained_return15']],on=['date','code'],validate='one_to_one')
