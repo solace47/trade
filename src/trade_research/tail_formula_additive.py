@@ -36,10 +36,14 @@ def labels(where):
         FROM read_parquet(?) WHERE {where}''',[str(SOURCE/'full_labels.parquet')]).df()
 
 
-def training(f=None):
+def training(f=None,start=None,end='2025-01-01'):
     f=feature_inputs() if f is None else f
-    l=labels("next_date<'2025-01-01'")
-    assert l.next_date.lt('2025-01-01').all()
+    from datetime import date
+    assert date.fromisoformat(end).isoformat()==end
+    assert start is None or date.fromisoformat(start).isoformat()==start
+    where=f"next_date<'{end}'"+(f" AND date>='{start}'" if start else '')
+    l=labels(where)
+    assert l.next_date.lt(end).all() and (start is None or l.date.ge(start).all())
     t=f.loc[f.formula_input_valid].merge(l.loc[l.known15],on=['date','code'],validate='one_to_one')
     return t.sort_values(['date','code']).reset_index(drop=True)
 
@@ -170,7 +174,8 @@ def scores():
     out.to_parquet(ROOT/'scores.parquet',index=False,compression='zstd')
     report=dict(protocol_sha256=sha(PROTOCOL),model_report_sha256=sha(ROOT/'model_report.json'),
         feature_report_sha256=sha(FEATURES/'feature_report.json'),scores_sha256=sha(ROOT/'scores.parquet'),
-        rows=len(out),valid=int(valid.sum()),new_2025_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        rows=len(out),valid=int(valid.sum()),new_2025_score_groups_read=r.get('new_2025_score_groups_read',False),
+        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     save_json(ROOT/'score_report.json',report)
     return report
 

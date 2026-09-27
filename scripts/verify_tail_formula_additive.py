@@ -65,15 +65,22 @@ def scores():
     for t in m['thresholds']:
         np.testing.assert_array_equal(actual.score.gt(t['threshold']),expected.score.gt(t['threshold']))
         checks+=len(actual)
+    protocol=json.loads(PROTOCOL.read_text())
+    start,end=m.get('training_start'),m.get('training_end','2025-01-01')
+    assert start==protocol.get('training_start') and end==protocol.get('training_end','2025-01-01')
+    from datetime import date
+    assert date.fromisoformat(end).isoformat()==end and (start is None or date.fromisoformat(start).isoformat()==start)
+    where=f"next_date<'{end}'"+(f" AND date>='{start}'" if start else '')
     c.execute(f'''CREATE VIEW training_keys AS SELECT date,code FROM read_parquet('{SOURCE}/full_labels.parquet')
-        WHERE next_date<'2025-01-01' AND known15''')
+        WHERE {where} AND known15''')
     train=c.sql('SELECT rebuilt_score FROM rebuilt JOIN training_keys USING(date,code) ORDER BY date,code').df()
     for t in m['thresholds']:
         np.testing.assert_allclose(np.quantile(train.rebuilt_score,t['training_quantile']),t['threshold'],rtol=0,atol=2e-11)
     result=dict(passed=True,score_report_sha256=sha(ROOT/'score_report.json'),rows=len(actual),
         valid=int(actual.formula_input_valid.sum()),max_score_difference=float((actual.score-expected.score).abs().max()),
         threshold_flag_checks=checks,all_integer_encodings_tree_scores_and_training_quantiles_rebuilt=True,
-        new_2025_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        training_start=start,training_end=end,new_2025_score_groups_read=m.get('new_2025_score_groups_read',False),
+        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     save_json(ROOT/'score_verification.json',result)
     return result
 

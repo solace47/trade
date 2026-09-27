@@ -12,17 +12,28 @@ from .corporate_cash import save_json,sha
 PROTOCOL=Path('config/tail_formula_relative_protocol.json')
 
 
+def training_scope():
+    from datetime import date
+    r=json.loads(PROTOCOL.read_text())
+    start,end=r.get('training_start'),r.get('training_end','2025-01-01')
+    assert date.fromisoformat(end).isoformat()==end
+    assert start is None or date.fromisoformat(start).isoformat()==start
+    where=f"next_date<'{end}'"+(f" AND date>='{start}'" if start else '')
+    return start,end,where
+
+
 def setup(variant):
     base.ROOT=Path('data/research/tail_formula_'+variant)
     base.PROTOCOL=PROTOCOL
 
 
 def training(variant):
-    t=base.training()
+    start,end,where=training_scope()
+    t=base.training(start=start,end=end)
     c=base.conn()
     # Price opportunities and adverse marks only; no future exit fields.
-    labels=c.execute('''SELECT date,code,opportunity15,adverse_return15 FROM read_parquet(?)
-        WHERE next_date<'2025-01-01' AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
+    labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15 FROM read_parquet(?)
+        WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     assert labels.adverse_return15.notna().all()
     labels['utility']=labels.opportunity15-(labels.adverse_return15.le(-.03) if variant=='risk' else 0)
     labels['target']=labels.utility-labels.groupby('date').utility.transform('mean')
@@ -36,6 +47,7 @@ def model(variant):
         raise ValueError('Do not refit the frozen relative model')
     root.mkdir(parents=True,exist_ok=True)
     train=training(variant)
+    start,end,_=training_scope()
     x=base.encode(train);y=train.target.to_numpy()
     w=1/train.groupby('date').code.transform('size').to_numpy()
     model=GradientBoostingRegressor(loss='squared_error',n_estimators=64,learning_rate=.05,max_depth=2,
@@ -51,7 +63,8 @@ def model(variant):
         label_report_sha256=sha(base.SOURCE/'full_label_report.json'),rows=len(train),days=train.date.nunique(),
         last_observation=train.next_date.max(),parameters=model.get_params(),feature_names=list(base.EXPRESSIONS),
         variant=variant,learning_rate=.05,bias=float(np.ravel(model.init_.constant_)[0]),trees=trees,
-        new_2025_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        training_start=start,training_end=end,new_2025_score_groups_read=bool(train.date.ge('2025-01-01').any()),
+        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     manual=base.predict(x,r)
     np.testing.assert_allclose(manual,model.predict(x),rtol=0,atol=2e-12)
     r['thresholds']=[dict(id=i,training_quantile=q,threshold=float(np.quantile(manual,q))) for i,q in enumerate(base.QUANTILES)]
@@ -65,16 +78,19 @@ def verify_model(variant):
     assert r['protocol_sha256']==sha(PROTOCOL) and r['variant']==variant
     assert r['feature_report_sha256']==sha(base.FEATURES/'feature_report.json')
     assert r['label_report_sha256']==sha(base.SOURCE/'full_label_report.json')
+    start,end,where=training_scope()
+    assert r.get('training_start')==start and r.get('training_end','2025-01-01')==end
     f=base.feature_inputs();c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     c.execute(f'''CREATE VIEW targets AS WITH l AS(SELECT date,code,{utility} AS utility
-        FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE next_date<'2025-01-01' AND known15)
+        FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
         SELECT date,code,utility-avg(utility) OVER(PARTITION BY date) AS target FROM l''')
     names=list(base.EXPRESSIONS)
     encoded=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in names)
     d=c.sql('''SELECT date,code,target,1./count(*) OVER(PARTITION BY date) AS w,'''+encoded+'''
         FROM features JOIN targets USING(date,code) WHERE formula_input_valid ORDER BY date,code''').df()
     original=training(variant)
+    assert original.next_date.lt(end).all() and (start is None or original.date.ge(start).all())
     np.testing.assert_allclose(d.target,original.target,rtol=0,atol=2e-12)
     x=d[names].to_numpy(dtype='int32');y=d.target.to_numpy();w=d.w.to_numpy()
     np.testing.assert_array_equal(x,base.encode(original))
@@ -105,7 +121,8 @@ def verify_model(variant):
         np.testing.assert_allclose(np.quantile(score,q),t['threshold'],rtol=0,atol=2e-10)
     proof=dict(passed=True,model_report_sha256=sha(root/'model_report.json'),variant=variant,rows=len(d),node_checks=checks,
         all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt=True,
-        new_2025_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+        training_start=start,training_end=end,new_2025_score_groups_read=bool(original.date.ge('2025-01-01').any()),
+        new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     save_json(root/'model_verification.json',proof)
     return proof
 
