@@ -1,0 +1,61 @@
+{
+  "protocol_sha256": "f4d694756a25fc367875cc9e4bc5079b2c110aef67b1b7ea378ede885691cb95",
+  "training_last_signal": "2024-06-27",
+  "training_last_observation": "2024-06-28",
+  "conditions": [
+    {
+      "feature": "F16",
+      "op": ">",
+      "raw_threshold": 9.134139060974121,
+      "threshold": 9.14
+    },
+    {
+      "feature": "F12",
+      "op": "<=",
+      "raw_threshold": -11.568698406219482,
+      "threshold": -11.57
+    },
+    {
+      "feature": "F03",
+      "op": ">",
+      "raw_threshold": 1.0124446749687195,
+      "threshold": 1.02
+    }
+  ],
+  "expressions": {
+    "F16": "100*(C/REF(LLV(L,20),1)-1)",
+    "F12": "100*(REF(C,1)/REF(C,21)-1)",
+    "F03": "100*(C/O-1)"
+  },
+  "numeric_core": "F16:=100*(C/REF(LLV(L,20),1)-1);\nF12:=100*(REF(C,1)/REF(C,21)-1);\nF03:=100*(C/O-1);\nCORE:F16>9.14 AND F12<=-11.57 AND F03>1.02;\n",
+  "selection_sha256": "790db096e4d3ae3c2328cd02962590d0c3e6a81210c8b8ab84c2b4c24c7fc5db",
+  "core_sha256": "83cf2b54cb25a17a42195eb321e95c8f5a16603ea36975de903cbb3bc24ce7b1",
+  "selected": 20917,
+  "by_half": [
+    {
+      "half": "2024H1",
+      "size": 292834,
+      "sum": 12804
+    },
+    {
+      "half": "2024H2",
+      "size": 294442,
+      "sum": 1062
+    },
+    {
+      "half": "2025H1",
+      "size": 314708,
+      "sum": 6487
+    },
+    {
+      "half": "2025H2",
+      "size": 356101,
+      "sum": 564
+    }
+  ],
+  "evaluation_labels_read": false,
+  "software_compilation_verified": false,
+  "new_2026_prices_read": false,
+  "no_exit_rules": true,
+  "note": "仅冻结待检验条件，不作为验证通过的公式发布。先固定完整条件及名单，再计算2024H2与2025的新早盘机会标签。"
+}
