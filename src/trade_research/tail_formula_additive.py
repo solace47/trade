@@ -183,6 +183,14 @@ def native_tree(t,index=0):
     return f"IF({name}<={threshold},{native_tree(t,t['children_left'][index])},{native_tree(t,t['children_right'][index])})"
 
 
+def native_core(model,threshold,expressions=EXPRESSIONS,header=HEADER):
+    core=header+'\n'.join(f'{k}:={v};' for k,v in expressions.items())+'\n'
+    core+='\n'.join(f'X{i:02d}:=INTPART(MIN(MAX(100*{name}+10000+0.000001,0),999999));' for i,name in enumerate(expressions,1))+'\n'
+    core+='\n'.join(f'T{i:02d}:={native_tree(t)};' for i,t in enumerate(model['trees'],1))+'\n'
+    core+='SC:='+format(model['bias'],'.17g')+'+'+'+'.join(f'T{i:02d}' for i in range(1,65))+';\n'
+    return core+'CORE:SC>'+format(threshold,'.17g')+';\n'
+
+
 def calibrate():
     if (ROOT/'selection_report.json').exists():
         raise ValueError('Do not replace the H1-selected threshold')
@@ -219,11 +227,7 @@ def calibrate():
         admission_is_diagnostic_only=True,calibration_period='2025H1',new_2025H2_score_groups_read=False,
         new_2026_prices_read=False,no_exit_rules=True,multi_day_holding_study=False,software_compilation_verified=False)
     if best:
-        core=HEADER+'\n'.join(f'{k}:={v};' for k,v in EXPRESSIONS.items())+'\n'
-        core+='\n'.join(f'X{i:02d}:=INTPART(MIN(MAX(100*{name}+10000+0.000001,0),999999));' for i,name in enumerate(EXPRESSIONS,1))+'\n'
-        core+='\n'.join(f'T{i:02d}:={native_tree(t)};' for i,t in enumerate(model['trees'],1))+'\n'
-        core+='SC:='+format(model['bias'],'.17g')+'+'+'+'.join(f'T{i:02d}' for i in range(1,65))+';\n'
-        core+='CORE:SC>'+format(best['threshold'],'.17g')+';\n'
+        core=native_core(model,best['threshold'],EXPRESSIONS,HEADER)
         (ROOT/'frozen_numeric_core.tdx').write_text(core)
         report['core_sha256']=sha(ROOT/'frozen_numeric_core.tdx')
     save_json(ROOT/'selection_report.json',report)

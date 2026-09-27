@@ -1,0 +1,13 @@
+{
+  "reason": "32项完整输入的relative阈值3在2025H1已有526已知例、33日、61.07%机会，平均每日16.67只，只有95分位64只高于内部50只标准；risk阈值3亦仅被95分位72.6只挡住。数量标准是研究设定，不是用户硬约束。保留原未入选结果，另开诊断而不因此停止。",
+  "fixed_candidates": {
+    "relative": {"source": "data/research/tail_formula_complete_relative", "cut_id": 3, "threshold": 0.05921068331463821},
+    "risk": {"source": "data/research/tail_formula_complete_risk", "cut_id": 3, "threshold": 0.06637419660551605}
+  },
+  "selection": "两版本均不重训、不改树、不改分数阈值。阈值3分别是原七候选中满足>=30日、>=100已知例、平均<=20只后，按完整机会率下界排序选中的既有阈值。撤除95分位的自动拒绝仅用于后续诊断，仍完整报告名单规模、集中度和风险，不视为公式质量通过。",
+  "verification": "新H2组结果前固定两个版本完整名单、原模型／分数／校准报告及数值核心哈希；独立SQL复建所有选择标记。之后两版2025H2结果均报告，不挑好者隐去另一版。2025已暴露、H1参与选择，H2不称盲测。",
+  "evaluation": "沿用严格次日09:31-10:00机会、原始14:52-14:55买入、5/15基点与费用、未知及来源敏感性、同日差、至少1%机会、10点估值和3%不利幅度。仅研究选股，不选择退出规则。",
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "new_2026_prices_allowed": false
+}
