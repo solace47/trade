@@ -96,10 +96,10 @@ def verify_model():
     return result
 
 
-def paths(tree):
+def paths(tree,names=None):
     all_paths={0:[]}
     leaves={}
-    names=list(EXPRESSIONS)
+    names=list(EXPRESSIONS) if names is None else names
     for i,feature in enumerate(tree['feature']):
         left=tree['children_left'][i]
         if left<0:
