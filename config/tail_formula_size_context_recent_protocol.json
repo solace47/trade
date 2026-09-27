@@ -1,0 +1,15 @@
+{
+  "objective": "检验中证1000相对沪深300的当日及尾段强弱差，能否补足原48项只有上证深成指的市场状态。只表示规模风格，不声称资金流或全市场涨跌家数。",
+  "inputs_protocol_sha256": "9de490e835fb1f84e970ee910e335e35a38f8c4a6e0380318efd9b51c408ee73",
+  "model_max_depth": 3,
+  "fit": "只增加SZ01/SZ02，原相对机会平方目标、原一年窗、64棵深度3、最小300例、日期等权、学习率0.05、无抽样、种子20260927、训练99.5%门槛；不叠加刚研究的概率损失。",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "evaluation": "两段和全年先冻后评；完整机会、1%空间、3%不利幅度、10点参考、未知界、集中性、5/15基点及同日基础池。与原版同质量控制及共同日期比较。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

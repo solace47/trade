@@ -1,0 +1,30 @@
+{
+  "objective": "检验中证1000相对沪深300的当日及尾段强弱差，能否补足原48项只有上证深成指的市场状态。只表示规模风格，不声称资金流或全市场涨跌家数。",
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "daily_feature_report_sha256": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+  "probe_protocol_sha256": "7d4b8a95fb9f8acfae1c802d66ff8d6c34d207702d7933aaa3b1bc7186e4c71b",
+  "probe_source_report_sha256": "97e99213066da58723dd2cc46d8e022cc8052cb4bf7b09900aabf617e4a235d5",
+  "probe_verification_sha256": "607f4dedf154e138f4104d064258d32c020c7dbefb48d163420f3e3e06608a2a",
+  "calendar_sha256": "25d81e17d9e32f25fc7f61cda244f2ea2df818e6a1c1669d0e8bfcf1c1696400",
+  "symbols": [
+    "sh.000852",
+    "sh.000300"
+  ],
+  "history_first": "2023-06-01",
+  "history_last": "2025-12-30",
+  "features": {
+    "SZ01": "100*(中证1000的14:48价/此前股票交易日该指数收盘-沪深300的14:48价/此前股票交易日该指数收盘)",
+    "SZ02": "100*(中证1000的14:48价/14:20价-沪深300的14:48价/14:20价)"
+  },
+  "alignment": "跨品种序列在股票分钟网格上的历史引用，前收沿用原版此前股票交易日，不悄悄替换成前一市场日；停牌后间隔完整计数。指数均用前228个分时代表点，股票输入仍14:49。",
+  "collection": "两指数2024—2025原有特征日期的完整固定网格，复用六个探针原响应，其余每会话最多两次只读b40f请求。日线仅2023-06-01至2025-12-30，缺失和失败保留，不访问最新数据。",
+  "quality": "新输入有效须双指数前228点位置连续且价正，前收日期严格早于信号且价格有限为正；前缀之外的日线包络和收盘审计仅作来源核查，不加入选股。来源冲突先解决，不按表现删日。",
+  "verification": "独立重放全部原响应及代码日期；原48项逐值不变。SQL lag生产前收，独立严格向后ASOF按股票日期重建；另一代数形式重算两项及所有整数编码。逐日扰动14:48之后的点，输入必须不变。核查原生变量无重名，客户端价格一致仍不宣称。",
+  "source_cutoff": "14:48",
+  "stock_cutoff": "14:49",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "software_compilation_verified": false
+}
