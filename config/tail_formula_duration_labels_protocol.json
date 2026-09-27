@@ -1,0 +1,14 @@
+{
+  "objective": "原48项在2025有70.37%的次晨三连盈利机会，但10点参考估值仍负46.66%；近期更改指数输入未提高质量。本轮仅把训练效用改为09:31—10:00有成交且含费估值为正的分钟数/30，偏向有较长可观察盈利时间的股票，不优化任何卖出时点。原三连机会及风险仍为主评价。",
+  "full_label_report_sha256": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+  "full_label_verification_sha256": "df520221b3bd4127a0c26d7dc7be129af2823c94c780fb82e46aecdc308208be",
+  "raw_manifest_sha256": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+  "source": "只复读既有指纹锁定原始分钟的相同次晨09:31—10:00窗口。训练新标签仅取信号日>=2024-01-01且next_date<2025-07-01的原known15基础池全部键；不只抽原公式选中者，不把原未知或未买入计零。",
+  "target": "每分钟沿用原15基点或至少半分钱的压力估值、原股数、原含费buy_cash15：mark_value=shares*(close-max(close*0.0015,0.005))；net_value=mark_value-max(mark_value*0.0003,5)-mark_value*0.00051；有成交且net_value/buy_cash15-1>0才记1。总和固定除30，零成交分钟不算可观察盈利。随后减同日全部原已知基础池的效用均值。",
+  "minute_state": "原known15已经包含原始30分钟来源核验、买入排队及公司行动状态；必须完整复现30根唯一分钟标签，不扩大已知范围。保存30位盈利掩码、计数和原source keys，未知不补造。",
+  "verification": "逐源指纹、键与时间界限核准。全体掩码独立重数，恢复任一正机会和三连正机会，必须与原any_opportunity15/opportunity15全量一致；固定三个训练半年每段8个日期代码哈希样本，原始30分钟逐条以另一实现复算状态及现金阈值。",
+  "scope": "2025H1结果已暴露，按原时间切分只允许进入H2训练。新H2盈利时长不提前读取；本轮评估复用原已知的主指标和风险，不按新增时长重新定义成功。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
