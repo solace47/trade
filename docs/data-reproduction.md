@@ -9,6 +9,12 @@ python3.12 -m venv .venv
 
 以下模块命令均在仓库根目录运行，前缀为 `PYTHONPATH=src .venv/bin/python -m`；各模块的 `--help` 列出输入、输出和可选参数。研究结果及门槛见[策略结果](strategy-results.md)和[输入停止记录](input-gates.md)，数据验收见[研究状态](research-status.md)。历史上已结束的逐项命令仍可在 Git 历史中查阅，不继续累加到本页。
 
+## 昨日炸板与历史题材支持
+
+按`config/prior_theme_broken_protocol.json`和补充的`config/prior_theme_date_proof.json`，先执行模块`trade_research.prior_theme_broken freeze`、`fetch`，再执行`trade_research.prior_theme_broken_inputs history`、`inputs`。下载收据、身份白名单、当日成交额日期证明及不含收益的前日状态保存在`data/research/prior_theme_broken/`；已存在的输入拒绝覆盖，下载可复用核准缓存。请求间隔至少3秒，鉴权或限流错误停止该来源请求。
+
+使用`PYTHONPATH=src .venv/bin/python scripts/verify_prior_theme_inputs.py`核准所有输入后，才执行模块`trade_research.prior_theme_broken_analysis`，随后用同一Python前缀执行`scripts/verify_prior_theme_analysis.py`。经济标签直接复用已有严格T1及分期质量版本，不重新挑样本或改成交规则。全部昨日状态×题材强弱、来源缺失及两档费用完整保留；供应商历史归档不能替代首次发布时间证据。
+
 ## 历史聚合分笔方向
 
 固定来源样本由`scripts/probe_historical_ticks.py`及其`--sessions`依次取得，`scripts/verify_historical_tick_source.py`独立核准。所有命令使用`PYTHONPATH=src .venv/bin/python`；历史公开接口的当前可达性不保证未来相同。原始协议字节、来源源码以及官方定义链接留存在`data/research/tick_source_probe/`；官方原件的本地下载状态见`official/manifest.json`。
