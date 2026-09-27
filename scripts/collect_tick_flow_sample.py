@@ -49,7 +49,7 @@ def main():
             prior_attempts = []
             if receipt_path.exists():
                 cached = json.loads(receipt_path.read_text())
-                if cached["status"] == "downloaded":
+                if cached["status"] == "downloaded" and cached.get("rows", 0) > 0:
                     assert sha(leaf / "ticks.parquet") == cached["ticks_sha256"]
                     receipts.append(cached)
                     continue
@@ -75,6 +75,11 @@ def main():
                             break
                     else:
                         raise ValueError("earliest session boundary was not reached")
+                    if not rows:
+                        # These fixed names traded that day in the independent
+                        # source. A valid empty response is missing history,
+                        # so try the other already-verified server once.
+                        raise ValueError("empty historical session for fixed active stock-day")
                     if any(b["minute"] < a["minute"] for a, b in zip(rows, rows[1:])):
                         raise ValueError("nonchronological historical records")
                     frame = pd.DataFrame(rows, columns=["minute", "price_raw", "volume_raw", "direction_raw", "reserved_raw"])
