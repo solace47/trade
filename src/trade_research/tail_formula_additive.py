@@ -237,7 +237,34 @@ def analyze():
     return common_analysis(ROOT,PROTOCOL)
 
 
+def diagnose():
+    """Describe concentration after evaluation without retuning the model."""
+    s=pd.read_parquet(ROOT/'selection.parquet')
+    f=feature_inputs()[['date','code','A01','A04','A19','D02']]
+    m=json.loads((ROOT/'model_report.json').read_text())
+    distributions=[]
+    for half in ['2024H1','2024H2','2025H1','2025H2']:
+        q=s.loc[s.half.eq(half)&s.selected].merge(f,on=['date','code'],validate='one_to_one')
+        counts=q.groupby('date').size().sort_values(ascending=False)
+        distributions.append(dict(half=half,rows=len(q),top5_date_fraction=float(counts.head(5).sum()/len(q)) if len(q) else None,
+            top5_dates=counts.head(5).to_dict(),medians=q[['A01','A04','A19','D02']].median().to_dict()))
+    gains={name:0. for name in m['feature_names']}
+    for t in m['trees']:
+        for i,left in enumerate(t['children_left']):
+            if left<0:
+                continue
+            right=t['children_right'][i];imp=t['impurity'];w=t['weighted_n_node_samples']
+            gains[m['feature_names'][t['feature'][i]]]+=w[i]*imp[i]-w[left]*imp[left]-w[right]*imp[right]
+    total=sum(gains.values())
+    gains={key:value/total for key,value in sorted(gains.items(),key=lambda kv:-kv[1])}
+    report=dict(selection_report_sha256=sha(ROOT/'selection_report.json'),model_report_sha256=sha(ROOT/'model_report.json'),
+        source_feature_report_sha256=sha(FEATURES/'feature_report.json'),training_split_importance=gains,
+        selected_distributions=distributions,posthoc_diagnostic_only=True)
+    save_json(ROOT/'diagnostic_report.json',report)
+    return report
+
+
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage',choices=['model','verify_model','scores','calibrate','analyze'])
+    p.add_argument('stage',choices=['model','verify_model','scores','calibrate','analyze','diagnose'])
     print(json.dumps(globals()[p.parse_args().stage](),ensure_ascii=False,indent=2))
