@@ -191,7 +191,7 @@ def native_core(model,threshold,expressions=EXPRESSIONS,header=HEADER):
     return core+'CORE:SC>'+format(threshold,'.17g')+';\n'
 
 
-def calibrate():
+def calibrate(max_p95=50):
     if (ROOT/'selection_report.json').exists():
         raise ValueError('Do not replace the H1-selected threshold')
     check=json.loads((ROOT/'score_verification.json').read_text())
@@ -211,7 +211,8 @@ def calibrate():
         d['base_rate']=d.date.map(base);d['delta']=d.rate-d.base_rate;d['cut_id']=cut['id']
         days.append(d)
         s=dict(**cut,**statistics(d))
-        s['admitted']=bool(s['days']>=30 and s['known']>=100 and s['mean_selected_per_day']<=20 and s['p95_selected']<=50)
+        s['admitted']=bool(s['days']>=30 and s['known']>=100 and s['mean_selected_per_day']<=20
+            and (max_p95 is None or s['p95_selected']<=max_p95))
         scores.append(s)
     admitted=[s for s in scores if s['admitted']]
     best=sorted(admitted,key=lambda s:(-s['lower'],-s['delta'],-s['known'],s['threshold']))[0] if admitted else None
@@ -222,7 +223,7 @@ def calibrate():
     report=dict(protocol_sha256=sha(PROTOCOL),model_report_sha256=sha(ROOT/'model_report.json'),
         score_report_sha256=sha(ROOT/'score_report.json'),calibration_label_report_sha256=sha(SOURCE/'full_label_report.json'),
         calibration_days_sha256=sha(ROOT/'calibration_days.parquet'),selection_sha256=sha(ROOT/'selection.parquet'),
-        thresholds=scores,chosen_threshold=best,admitted_thresholds=len(admitted),
+        thresholds=scores,chosen_threshold=best,admitted_thresholds=len(admitted),calibration_max_p95=max_p95,
         selected=int(out.selected.sum()),by_half=out.groupby('half').selected.agg(['size','sum']).reset_index().to_dict('records'),
         admission_is_diagnostic_only=True,calibration_period='2025H1',new_2025H2_score_groups_read=False,
         new_2026_prices_read=False,no_exit_rules=True,multi_day_holding_study=False,software_compilation_verified=False)

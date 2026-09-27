@@ -80,6 +80,8 @@ def scores():
 
 def selection():
     r=load('selection_report.json');m=load('model_report.json');v=load('score_verification.json')
+    max_p95=json.loads(PROTOCOL.read_text()).get('calibration_max_p95',50)
+    assert r.get('calibration_max_p95',50)==max_p95
     assert v['passed'] and v['score_report_sha256']==sha(ROOT/'score_report.json')
     for key,path in [('protocol_sha256',PROTOCOL),('model_report_sha256',ROOT/'model_report.json'),
                      ('score_report_sha256',ROOT/'score_report.json'),('calibration_label_report_sha256',SOURCE/'full_label_report.json'),
@@ -113,7 +115,7 @@ def selection():
             else:
                 np.testing.assert_allclose(value,s[key],atol=2e-12,rtol=0)
             checks+=1
-        eligible=values['days']>=30 and values['known']>=100 and values['mean_selected_per_day']<=20 and values['p95_selected']<=50
+        eligible=values['days']>=30 and values['known']>=100 and values['mean_selected_per_day']<=20 and (max_p95 is None or values['p95_selected']<=max_p95)
         assert eligible==s['admitted']
         if eligible:
             admitted.append(dict(**t,**values))
