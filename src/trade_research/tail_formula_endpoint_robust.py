@@ -37,9 +37,16 @@ def huber_leaf(residual,weight,delta):
     return median+np.average(np.clip(residual-median,-delta,delta),weights=weight)
 
 
+def positive_reference_target(marks):
+    values=np.asarray(marks,dtype=float)
+    assert np.isfinite(values).all(), 'Missing reference is not a known negative event'
+    return (values>0).astype(float)
+
+
 def sources():
     p=json.loads(PROTOCOL.read_text());assert sklearn.__version__=='1.7.2'
     assert p['alpha']==.9 and not p['new_2026_prices_allowed']
+    if p.get('target_event')=='positive_reference':assert p['arms']==['binary']
     if 'supersedes_before_any_fit_sha256' in p:
         assert p['supersedes_before_any_fit_sha256']==sha(Path('config')/(STEM+'_protocol.json'))
     for file,digest in p['source_hashes'].items():assert sha(Path(file))==digest
@@ -68,6 +75,7 @@ def setup(arm,fold):
         assert q['expected_features']==48 and q['loss_arm']==arm
         assert q['training_reference_required']=='mark_0959_return15'
         assert q.get('center_target',True)==master.get('center_target',True)
+        assert q.get('target_event')==master.get('target_event')
 
 
 def training():
@@ -80,10 +88,11 @@ def training():
     assert int((~finite).sum())==p['expected_reference_missing_known_rows']
     assert len(t)==p['original_training_rows']
     l=l.loc[finite].copy()
-    l['target']=100*l.mark_0959_return15
+    positive=p.get('target_event')=='positive_reference'
+    l['target']=positive_reference_target(l.mark_0959_return15) if positive else 100*l.mark_0959_return15
     if p.get('center_target',True):l['target']-=l.groupby('date').target.transform('mean')
     l['binary_target']=l.opportunity15-l.groupby('date').opportunity15.transform('mean')
-    if p['loss_arm']=='binary':l['target']=l.binary_target
+    if p['loss_arm']=='binary' and not positive:l['target']=l.binary_target
     out=t.merge(l[['date','code','target','binary_target']],on=['date','code'],validate='one_to_one')
     assert len(out)==p['expected_training_rows'] and out.date.nunique()==p['expected_training_days']==241
     return out.sort_values(['date','code']).reset_index(drop=True)
@@ -102,10 +111,12 @@ def independent_training():
         SELECT count(*) AS rows,count(*) FILTER(WHERE NOT isfinite(mark_0959_return15) OR mark_0959_return15 IS NULL) AS missing,
         max(abs(buy-buy_cash15)) AS buy_error,max(abs(sell/buy-1-mark_0959_return15)) AS mark_error FROM y''').df().iloc[0]
     assert checks.missing==p['expected_reference_missing_known_rows'] and checks.buy_error<1e-7 and checks.mark_error<2e-12
-    endpoint='100*mark_0959_return15'
-    if p.get('center_target',True):endpoint+='-avg(100*mark_0959_return15) OVER(PARTITION BY date)'
+    positive=p.get('target_event')=='positive_reference'
+    utility='CAST(mark_0959_return15>0 AS INT)' if positive else '100*mark_0959_return15'
+    endpoint=utility
+    if p.get('center_target',True):endpoint+=f'-avg({utility}) OVER(PARTITION BY date)'
     binary='opportunity15-avg(opportunity15) OVER(PARTITION BY date)'
-    target=binary if p['loss_arm']=='binary' else endpoint
+    target=binary if p['loss_arm']=='binary' and not positive else endpoint
     c.sql(f'''SELECT date,code,{target} AS target,{binary} AS binary_target
         FROM raw_labels WHERE isfinite(mark_0959_return15)''').create_view('targets')
     names=list(base.EXPRESSIONS)
@@ -133,6 +144,9 @@ def verify_inputs(fold):
     if not json.loads(base.PROTOCOL.read_text()).get('center_target',True):
         proof.pop('same_finite_reference_training_intersection_for_all_three_arms')
         proof.update(target_is_date_centered=False,same_training_intersection_as_relative_reference=True)
+    if json.loads(base.PROTOCOL.read_text()).get('target_event')=='positive_reference':
+        proof.pop('same_finite_reference_training_intersection_for_all_three_arms')
+        proof.update(positive_reference_event_rebuilt=True,same_training_intersection_as_original_opportunity_control=True)
     save_json(ROOT/('training_'+fold+'_verification.json'),proof);return proof
 
 
@@ -156,6 +170,7 @@ def model(arm,fold):
         training_reference_required=p['training_reference_required'],
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     if not p.get('center_target',True):report['target_is_date_centered']=False
+    if p.get('target_event'):report['target_event']=p['target_event']
     score=base.predict(x,report);np.testing.assert_allclose(score,estimator.predict(x),rtol=0,atol=2e-12)
     report['thresholds']=[dict(id=i,training_quantile=q,threshold=float(np.quantile(score,q))) for i,q in enumerate(base.QUANTILES)]
     root.mkdir(parents=True,exist_ok=True);save_json(root/'model_report.json',report)
@@ -170,6 +185,7 @@ def verify_model(arm,fold):
     assert all(r['parameters'][key]==value for key,value in p['parameters'].items())
     assert r['variant']==VARIANT+'_'+arm and r['feature_names']==list(inputs.EXPRESSIONS)
     assert r.get('target_is_date_centered',True)==p.get('center_target',True)
+    assert r.get('target_event')==p.get('target_event')
     d,t,checks=independent_training();x=d[list(inputs.EXPRESSIONS)].to_numpy(dtype='int32');y=d.target.to_numpy();w=d.weight.to_numpy()
     bias=weighted_quantile(y,w,.5) if arm=='huber' else np.average(y,weights=w)
     np.testing.assert_allclose(r['bias'],bias,rtol=0,atol=2e-12)
@@ -209,7 +225,7 @@ def main():
     from .tail_formula_offset_logit48 import verify_scores
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage',choices=['verify_inputs','model','verify_model','scores','verify_scores','freeze','verify','analyze'])
-    parser.add_argument('--arm',choices=['squared','huber','binary'],default='squared')
+    parser.add_argument('--arm',choices=['squared','huber','binary'],default=sources()['arms'][0])
     parser.add_argument('--fold',choices=['2024','recent','combined'],default='2024')
     args=parser.parse_args();setup(args.arm,args.fold)
     if args.stage=='analyze':

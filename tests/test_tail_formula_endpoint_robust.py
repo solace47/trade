@@ -1,6 +1,7 @@
 import numpy as np
+import pytest
 
-from trade_research.tail_formula_endpoint_robust import huber_leaf, weighted_quantile
+from trade_research.tail_formula_endpoint_robust import huber_leaf, positive_reference_target, weighted_quantile
 
 
 def test_weighted_quantile_uses_lower_value_at_exact_boundary():
@@ -19,3 +20,9 @@ def test_clipped_residual_matches_negative_gradient_of_huber_loss():
     loss=lambda r:np.where(np.abs(r)<=delta,r*r/2,delta*(np.abs(r)-delta/2))
     derivative=(loss(residual+eps)-loss(residual-eps))/(2*eps)
     np.testing.assert_allclose(derivative,np.clip(residual,-delta,delta),rtol=0,atol=1e-9)
+
+
+def test_positive_reference_event_excludes_zero_and_rejects_missing():
+    np.testing.assert_array_equal(positive_reference_target([-1e-12,0.,1e-12]),[0.,0.,1.])
+    with pytest.raises(AssertionError,match='Missing reference'):
+        positive_reference_target([.01,np.nan])
