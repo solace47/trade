@@ -392,3 +392,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 季度训练权重入口为`trade_research.tail_formula_quarter_robust`；每折先`verify_inputs`，再依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，均由独立进程调用并指定`--fold 2024`或`recent`。`--fold combined`固定及核准年度名单，三名单共同提交后才`analyze`。兼容通用分析器的模块为`tail_formula_quarter_robust_model`，原48控制不重训；权重温度只按已固定训练初始损失一次计算，不是评价期调参。
 
 双重确认用`scripts/evaluate_tail_formula_rotation_agreement.py freeze`共同固定交集及两个独有组，并从四份原评分独立核准、反向恢复两份原生核。共同记录提交后依次`analyze`、`finish`：只聚合三个年度完整名单，其两半年随同输出，不另重复半年度分析；主组与两个父版及旧固定48的三组比较、三套参考覆盖全部保留。
+
+可见费用／容量与价格曲线分别使用`trade_research.tail_formula_entry_friction`、`trade_research.tail_formula_price_curve`的`features`、`verify_features`、`native`，对应模型模块加`_model`。两折各依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，均用新进程和原配置；`--fold combined`固定全年。共同收据和三名单提交后用`analyze_tail_formula_input_study.py --stem ... --annual-only`，再`finish_tail_formula_input_study.py --stem ...`核准两套48对照和参考缺口。每份年度报告已含两半年，不重复聚合；已成功阶段不得覆盖原件。
