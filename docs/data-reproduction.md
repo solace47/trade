@@ -380,3 +380,7 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 对`data/research/first_insider_short/morning`依次调用`tick_morning_exit.raw(ROOT=...,PROTOCOL=Path('config/first_insider_short_protocol.json'))`、通用核对脚本`windows --root ...`、`tick_morning_exit.labels(ROOT=...)`和`labels --root ...`。然后运行`first_insider_short analyze`及`scripts/verify_first_insider_short_analysis.py`。两种退出同时固定，空结果类别的比例存为未知，不补零。通用分析器扩展事件字段后，原触板研究全部报告字段及产物哈希回归一致。
 
 新原生单组输入接续（如`tail_formula_vwap_path`）在全部模型和三名单共同提交后，可用`PYTHONPATH=src .venv/bin/python scripts/analyze_tail_formula_input_study.py --stem tail_formula_vwap_path`。入口先比较完整选择字段；相同名单绑定原统计并独立核准，已完成入口再次运行只核对现有收据。此入口不替代输入、模型及名单的先冻后评顺序，也不替代不同名单的全部对照／参考覆盖核准。
+
+日历频率比较用`run_tail_formula_update_cadence.py --months 2 3 4 5 6 8 9 10 11 12`完成固定新增模型，一月／七月原模型直接复用。随后`evaluate_tail_formula_update_cadence.py freeze`共同生成全部12月、4季、2年度名单；共同记录提交后，依次`analyze`、`finish`完成18组统计及5组对照，不能只挑部分月份。每一模型阶段由独立子进程运行，避免共享模块根路径污染。
+
+历史日级收盘位置入口为`trade_research.tail_formula_daily_pressure`的`features`、`verify_features`、`native`，模型入口为`trade_research.tail_formula_daily_pressure_model`。原始量精确一致探针失败及32组诊断保留，`config/tail_formula_daily_pressure_source_boundary.json`明确了日线数值核准与分钟来源对照的区别；禁止把`raw_daily_volume_all_equal=false`当来源通过。固定两折全部模型、评分和名单后共同生成全年，并使用已有单组分析入口先检查完整名单是否可复用。
