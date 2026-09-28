@@ -1,0 +1,37 @@
+{
+  "objective": "原48项与保守次晨正机会不变，直接学习同一天成功股相对失败股的评分差；不用首季结果调门槛。",
+  "parameters": {
+    "loss": "within_date_pairwise_binary_logistic",
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "criterion": "friedman_mse",
+    "pair_passes": 8,
+    "sigmoid_scale": 1.0,
+    "newton_leaf_clip": 2.0
+  },
+  "pairing": "每个训练日正负类各按固定随机序列排列，短列循环到长列长度，共8遍；每对权重1/(8*长列长度)，每日对权重总和1。完整保留同标签日期，其配对数及梯度为0。",
+  "loss": "sum_day mean_fixed_pairs log(1+exp(score_negative-score_positive)); sigmoid scale 1",
+  "tree_fit": "每记录负梯度除以原1/n_date权重，按该权重拟合浅树；叶更新使用配对损失的一阶和二阶导数，叶内两端同时平移的配对不贡献曲率，牛顿更新截断±2，每轮0.05。",
+  "leaf_updates": "同时更新各叶，采用对角牛顿近似而非求解全部交叉二阶项；记录每轮损失，不声称全局最优。",
+  "differences_from_old": "此前百分位目标为独立逐记录平方误差，逐轮去均值仍是平方损失，日期偏置对数损失为逐记录分类；本轮为同日两记录分差的对数损失。",
+  "inference": "单股原48项固定IF树之和及训练99.5%分位，无当日未来基线、其他股票标签、INSORT或实时配对依赖。排名分差并非绝对胜率，最终仍检查绝对机会与完整风险。",
+  "validation": "SQL独立重建训练键与编码；重建固定配对及每日权重；逐轮独立梯度、叶曲率、节点均值方差、数值核心与阈值核准；两段及全年名单共同固定后评价。",
+  "control": "同29根窗口的原48项固定名单与同参数重训48项，均复用已核准结果；完整报告各半年及全年和共同日期。",
+  "training_quantile": 0.995,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "prior_q1_failure_not_used_as_training_data": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "references": [
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2005/08/icml_ranking.pdf",
+    "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/MSR-TR-2010-82.pdf"
+  ],
+  "not_a_reproduction_of_paper_search_engine_experiments": true,
+  "no_claim_of_financial_alpha_from_paper": true
+}

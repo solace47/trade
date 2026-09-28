@@ -1516,3 +1516,11 @@ H1／H2／全年选择报告依次 `265afdf56ac983138ec3f55fc61770642c1c4b45ea25
 - path_vs_full_control_coupled.json：`2f2e23c0ca2eedf22e0a70c90fc959fedf54e2e0e5b50b150ce8a40a4ee1d468`。
 
 完整标签`10dc48761c6ea48cc1658ce07b94c1799043af71ef520b7a780573ad40bb58c4`、复核`932c6505f78fc6847c94c809ffb7f67ca884815c5fbea6ffc17459544b783526`。两份同质量控制名单与完整控制一致，均保存复用证明，不重复回测。复算入口为`tail_formula_q1_candidate_observations`、`tail_formula_q1_candidate_boundary`、`scripts/verify_tail_formula_q1_observations.py`、`scripts/verify_tail_formula_q1_boundary.py`与`scripts/analyze_tail_formula_q1_candidates.py`。首季此前已暴露；本轮没有读取第二季度以后信号，4月1日只作为3月31日必要的次晨观察。
+
+## 同日成功与失败股票的直接配对学习
+
+首季追加输入未带来足够绝对质量，下一项回到原48项与2024—2025，不继续消耗2026。固定[`tail_formula_pairwise_protocol.json`](../config/tail_formula_pairwise_protocol.json)：用保守29根、15基点的原二元机会标签，只在同一天配对成功和失败股票，学习两者评分差的对数损失。它与旧百分位目标平方回归、逐轮去均值平方回归、日期偏置逐记录分类不同；也没有把“相对较好”冒充“绝对赚钱”。
+
+每个训练日两类各作固定随机排列，短列循环到长列长度，共8遍，确保每个有对照的股票每遍都出现。每对权重为该日配对数倒数，各日总权重为1；全同类日期保留但无配对、梯度为零。固定64棵深度3、最小300例、学习率0.05、种子20260927；逐股票负梯度除以原日期等权权重后拟合浅树，叶更新用配对损失的方向曲率，配对两端在同叶时不贡献曲率，更新截断±2。同步叶更新是对角牛顿近似，不声称全局最优，逐轮损失完整记录。
+
+推断仍为原48项固定IF树及训练99.5%分位，不依赖当天未来标签或INSORT。原两段一年训练范围保持，两段及全年名单共同固定后评价，同29根的原固定48项与同参数重训对照均复用。模型分数不是胜率；半年、全年、未知完整界、参考均值、较大不利和共同日期结果全部保留。方法参考与适配限制见[外部资料](external-references.md#同日配对排序的可复用方法)。

@@ -47,3 +47,7 @@
 
 
 2026-09-28核对[通达信官方函数列表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：HYBLOCK使用客户端设置的行业体系，未说明等同本库证监会历史分类，不能直接混接。INSUM支持辅助指标输出的板块求和／均值，可表达本轮等权主板参考；语法能力不证明客户端成员、历史行情和本库逐点一致。INSORT虽提供横向排序，文档未明确同值排名方式，本轮不据此另造未经核准的历史百分位输入。
+
+### 同日配对排序的可复用方法
+
+微软原作者的[RankNet论文](https://www.microsoft.com/en-us/research/wp-content/uploads/2005/08/icml_ranking.pdf)及[树模型综述](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/MSR-TR-2010-82.pdf)使用同组对象的评分差与对数损失学习排序，并说明如何将成对导数汇总为逐对象梯度。可复用的是这种训练形式；论文研究搜索排序，没有证明A股次晨收益。项目另作固定浅树、日期等权、8遍覆盖式配对与叶位移曲率实现，不声称复现论文实验或使用完整LambdaMART。其部署只计算单股固定树，可沿用既有公式导出，无需实时横向排名。代码中的有限差分测试核对梯度、叶内配对抵消和同日常数偏移不改变训练损失；实际选股仍必须通过独立时期的绝对机会与风险检查。
