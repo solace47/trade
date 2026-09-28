@@ -1,0 +1,29 @@
+{
+  "objective": "在保守29根标签下，只追加IP01/IP02分钟涨跌幅与量的共同变化，与相同条件原48项比较。",
+  "feature_report_sha256": "336582714b7fa4bf9c7465a39ea6b92ed6a0e275839f95a91d2ffa2b8b1f0173",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "ea6fabcd7847de064a29947bdac2da56a56f2eabc27fd12fc5cf31f02c2c68c3"
+}
