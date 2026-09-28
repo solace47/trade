@@ -1,0 +1,10 @@
+{
+  "master_protocol_sha256": "6395694d568108540489ad712c5a9a57998c9b45c4097e845580380e27a5ba62",
+  "fold_protocols": [
+    "config/tail_formula_symmetric_tree_asymmetric_2024_protocol.json",
+    "config/tail_formula_symmetric_tree_asymmetric_recent_protocol.json"
+  ],
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
