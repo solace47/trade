@@ -388,3 +388,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 跨股票金额集中程度入口为`trade_research.tail_formula_amount_concentration`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_amount_concentration_model`。复用旧成员和金额，新增`YJAC20.tdx`辅助输出；同组协议与输入收据保持，先共同固定两折及全年再评价，不把原生代数核准当客户端覆盖核准。
 
 同日强弱关系与尾段残差入口为`trade_research.tail_formula_cross_rotation`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_cross_rotation_model`。原成员和三个整数分报价复用，`YJXR20.tdx`汇总六项；全量中心矩／原始矩及矩阵最小二乘独立对照。先固定两模型、两折及全年，再调用通用单组分析器和两套48项对照，不按结果回改相关或残差定义。
+
+季度训练权重入口为`trade_research.tail_formula_quarter_robust`；每折先`verify_inputs`，再依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，均由独立进程调用并指定`--fold 2024`或`recent`。`--fold combined`固定及核准年度名单，三名单共同提交后才`analyze`。兼容通用分析器的模块为`tail_formula_quarter_robust_model`，原48控制不重训；权重温度只按已固定训练初始损失一次计算，不是评价期调参。
