@@ -1,0 +1,50 @@
+{
+  "objective": "原48项追加星期一至星期五五个固定0/1标记，检验同一尾盘价量状态与周内日期的交互是否改善次晨选股；并不预设某一日更好。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_before1000_model_2025/selection_report.json": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+    "data/research/tail_formula_before1000_model_2025/selection_verification.json": "09274f27eaf6afc3464230de60a1a1886fffe2559787f9ad555bbd6bf4a2ce5f",
+    "data/research/tail_formula_before1000_model_2025/analysis_report.json": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+    "data/research/tail_formula_before1000_model_2025/analysis_verification.json": "bbe5a614d68bfc709730f1364eaaa5d50072b8977d621098ec54dc56735d41e8",
+    "data/research/tail_formula_weekday/source/tdx_calendar.json": "91e983a0baa6b3cbcfbfdd6619d980e081d568a11c79c578ef7d6194524a3ba5"
+  },
+  "weekdays": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "expressions": {
+    "WD01": "IF(MOD(DATETODAY(DATE)+3,7)=1,1,0)",
+    "WD02": "IF(MOD(DATETODAY(DATE)+3,7)=2,1,0)",
+    "WD03": "IF(MOD(DATETODAY(DATE)+3,7)=3,1,0)",
+    "WD04": "IF(MOD(DATETODAY(DATE)+3,7)=4,1,0)",
+    "WD05": "IF(MOD(DATETODAY(DATE)+3,7)=5,1,0)"
+  },
+  "definition": "信号日中国本地日期，星期一=1至星期五=5，五个标记恰有一个为1。不加入具体日期编号、年份、未来市场日、周后收益或月内阈值。",
+  "rationale": "不同工作日相同尾盘形态可能有不同次晨条件关系，但这仅是假设。日期标签不是下一次开市的实际间隔，节假日不由星期猜测；不改次晨窗口或持有规则。",
+  "native": "官方DATETODAY(date)在1990-12-19为0，该日为星期三；以MOD(DATETODAY(DATE)+3,7)表示0为周日至6为周六，避免仅凭WEEKDAY取值序列推断对应。对全部信号日期与编码独立核验。DATE按官方从1900起年码输入，不使用当前系统日期代替历史信号日。",
+  "native_source_url": "https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html",
+  "scope": "只追加五个类别标志，与原48项共同训练53项；日期内目标、日期等权、两段一年、64深度3和q995保持，不叠加整日抽样或绝对目标。",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "expected_features": 53,
+  "expected_keys": 1258085,
+  "expected_valid": 1117397,
+  "controls": "若原有效输入逐键保持，首要直接复用保守标签同参数48项控制；另复用旧固定48项。全部被排除日期、未知与质量口径保持。",
+  "verification": "Pandas日期映射、独立SQL isodow、从原生DATE拆年月日并与1990-12-19作天差的数值表达全量一致；原48项与全部有效标志逐值保持。输入及原生数学核准后拟合，两折及全年共同固定后评价。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
