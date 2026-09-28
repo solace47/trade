@@ -17,6 +17,7 @@ def run(stem):
     root=Path('data/research')/stem
     joint=json.loads((root/'joint_selection_freeze.json').read_text())
     assert joint['passed'] and joint['protocol_sha256']==sha(Path('config')/(stem+'_protocol.json'))
+    master=json.loads((Path('config')/(stem+'_protocol.json')).read_text())
     assert len(joint['selections'])==3
     path=root/'analysis_dispatch_verification.json'
     if path.exists():
@@ -36,6 +37,7 @@ def run(stem):
         selected=pd.read_parquet(target/'selection.parquet')
         controls=[Path('data/research')/('tail_formula_before1000_model_'+fold),
             Path('data/research/tail_formula_before1000/evaluation')/('tail_formula_float_'+fold)]
+        controls += [Path(path) for path in master.get('analysis_reuse_controls',{}).get(fold,[])]
         same=None
         for control in controls:
             if (control/'selection.parquet').exists() and selected.equals(pd.read_parquet(control/'selection.parquet')):
