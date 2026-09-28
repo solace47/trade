@@ -1,0 +1,45 @@
+{
+  "objective": "把原48项中的规模、波动和两类换手四项改为当天可见股票群中的标准分，检验跨期绝对水平变化是否影响选股。保持48项容量，其余44项原值不变；不叠加成交额加权、季度平均或跨半年估值。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_float/features.parquet": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+    "data/research/tail_formula_market_turnover/feature_report.json": "f173ff423c1f65435f7a980189589aaf39a7dd044bf78694f42e5c9fc43da0cf",
+    "data/research/tail_formula_market_turnover/feature_verification.json": "e3c54393cf8296acbf459507474f1d6d29de0bb60be42c9fb130d8ac5822dde6",
+    "data/research/tail_formula_market_turnover/native_input_verification.json": "9c3a9f324caafd2e5cdd00d88599fc02cc39d1a16fe7fc10564c79349d3e7333",
+    "data/research/tail_formula_market_turnover/market_reference.parquet": "3259ccbd571abb9ac8c45018a5f40c7577f45d5df88a2427e527073d5e9a344d"
+  },
+  "fields": [
+    "V01",
+    "S01",
+    "S02",
+    "S03"
+  ],
+  "new_names": [
+    "ZV01",
+    "ZS01",
+    "ZS02",
+    "ZS03"
+  ],
+  "members": "每天原formula_input_valid为真的全部可见股票，同market_turnover已核准集合。保留自身，不根据未来known、成交、收益或候选名单选成员。",
+  "normalization": "每项减当日成员等权均值，再除总体标准差sqrt(mean((x-mean)^2))，ddof=0。生产中心化算法、独立SQL原字段复算和原生和/平方和三路核对；不去极值、不调整倍数。",
+  "minimum_members": 2,
+  "minimum_variance": 1e-12,
+  "invalid": "任一四项总体方差不有限或<=1e-12，该日新输入无效，原键不删。若原有效交集变化，记录输入失败并另固定同交集控制后才允许模型比较。保护分母sqrt(MAX(var,1e-12))不能使不合格日期变成合格。",
+  "original_fields": "保留原48字段追溯，仅模型表达用四个Z字段替换四个原字段。其余依赖原V01的价差/ATR与R指标继续用原V01，不误用标准分作为波幅分母。",
+  "native": "两份五输出辅助接口分别给成员数及两字段的和/平方和，INSUM求四个均值和总体方差；成员数一致且>=2、四方差>1e-12。完整客户端原48有效成员识别及历史FINANCE7一致性未核准，只标数学接口，不当作已交付公式。",
+  "native_samples": "复用market_turnover已冻结32例样本及原价量核准，只重放四原变量的单位、两组辅助输出、均值/方差和Z编码，不重新抽取原档或按效果换样本。",
+  "model": "原两段一年、64棵深度3、最小叶300、lr.05、seed20260927、日期等权、原known15同日中心化目标与q995。2024和2025前后半年时点规则及29根次晨评价完全保持。",
+  "controls": "主要比较同参数同容量原48项，另完整比较旧固定48项及此前两项相对均值换手50项；先两折/全年共同固定，再全部评价和共同日期/共享未知核准。",
+  "not_duplicate": "此前CZ只对当日/尾段涨幅作截面标准化；MT只追加S02/S03相对当日均值的比。此前同市值组只是标签基线。这次替换四种规模/风险/流动性原始模型输入，不重复上述版本。",
+  "all_keys_expected": 1258085,
+  "all_members_count_expected": 1117397,
+  "expected_features": 48,
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "no_feature_subset_window_or_scale_search": true
+}
