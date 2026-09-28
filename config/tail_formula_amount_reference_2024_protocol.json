@@ -1,0 +1,31 @@
+{
+  "objective": "固定检验个股相对成交额加权群体的当日及尾段强弱，与同成员同容量等权50项优先对照。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "965e045eaedf370c2fd80a44d0640a7b4e7c63864db4a5e2b60e854dc34655c2",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "38da0f9820a57f2e6ea05455283e26c8e19058d3eeef16f15451020ce36a176b",
+  "native_input_verification_sha256": "bb934cf07b0bcea3d953b1b1b23133c41a01b47d27fabfb090c173e284e6ab60"
+}
