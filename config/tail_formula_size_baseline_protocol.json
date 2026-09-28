@@ -1,0 +1,18 @@
+{
+  "objective": "检验同日市值群的整体机会是否混入原选股条件。只在训练目标中扣除同日同规模组机会均值，与同记录同日基线对照。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "size_groups": {
+    "daily": 1,
+    "size": 5
+  },
+  "membership": "训练范围内每个日期，先对全部原48项有效可见股票的S01流通规模对数值取平均并列秩；bucket=floor(G*(rank_avg-0.5)/n_visible)。不按代码拆开同值，不在已知结果子集重新排名。",
+  "labels": "组别确定后与原known15训练标签相交，next_date严格早于各段训练结束；目标opportunity15减同date+bucket内已知均值。两版训练行及每日期总权重1完全相同。",
+  "model": "原48项、64棵深度3树、min_samples_leaf300、learning_rate0.05、固定种子20260927、平方损失、训练99.5%分位，两段一年训练。基线只定义训练标签，实时预测不读取当日结果、组均值或横向排名。",
+  "difference_from_previous": "此前within_day每轮投影日期残差，本轮保持原标准GB训练，只改变一次性目标基线；原修正48项先用全已知基础池再相交有效输入，本轮另配同记录日均基线，避免把这个样本口径差异冒充市值分组贡献。",
+  "comparison": "两方法两段及全年先共同冻结，再以同29根窗口完整评价；市值版分别与同记录日均版、修正48项、旧固定48项作同日对照。没有先验认定中性化一定更好。",
+  "no_group_count_or_parameter_scan": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}

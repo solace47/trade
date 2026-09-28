@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
 
 from . import tail_formula_additive as base
@@ -37,11 +38,33 @@ def duration_source():
     return durations.ROOT
 
 
+def training_size_buckets(frame, groups):
+    """Rank the visible universe before any next-morning label intersection."""
+    assert groups in [1,5]
+    assert not frame.duplicated(['date','code']).any() and np.isfinite(frame.S01).all()
+    ranks=frame.groupby('date').S01.rank(method='average')
+    counts=frame.groupby('date').code.transform('size')
+    out=frame[['date','code']].copy()
+    out['size_bucket']=np.floor(groups*(ranks-.5)/counts).astype('int8')
+    assert out.size_bucket.between(0,groups-1).all()
+    return out
+
+
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin','rank','duration','downside','quality','space']
+    assert variant in ['relative','risk','absolute','margin','rank','duration','downside','quality','space','group_relative']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
+    if variant=='group_relative':
+        groups=json.loads(PROTOCOL.read_text())['training_size_groups']
+        f=base.feature_inputs()[['date','code','S01','formula_input_valid']]
+        visible=f.loc[f.formula_input_valid & f.date.lt(end) & (True if start is None else f.date.ge(start))]
+        buckets=training_size_buckets(visible,groups)
+        t=t.merge(buckets,on=['date','code'],validate='one_to_one')
+        assert len(t)>0
+        t['target']=t.opportunity15-t.groupby(['date','size_bucket']).opportunity15.transform('mean')
+        c.close()
+        return t.sort_values(['date','code']).reset_index(drop=True)
     if variant=='duration':
         source=duration_source()
         labels=c.execute(f'''SELECT date,code,profitable_fraction15 AS utility
@@ -151,7 +174,22 @@ def verify_model(variant):
     elif variant=='space':
         utility='CAST(sustained_return15>=.01 AS INTEGER)'
     target='utility' if variant in ['absolute','downside'] else 'utility-avg(utility) OVER(PARTITION BY date)'
-    if variant=='duration':
+    if variant=='group_relative':
+        groups=config['training_size_groups'];assert groups in [1,5]
+        visible_where=f"formula_input_valid AND date<'{end}'"+(f" AND date>='{start}'" if start else '')
+        # Compute membership using all valid visible rows, then join only
+        # labels known strictly before the training boundary.
+        c.execute(f'''CREATE VIEW targets AS WITH visible AS(
+            SELECT date,code,rank() OVER(PARTITION BY date ORDER BY S01) AS first_rank,
+                count(*) OVER(PARTITION BY date,S01) AS tied,
+                count(*) OVER(PARTITION BY date) AS n
+            FROM features WHERE {visible_where}), members AS(
+            SELECT date,code,floor({groups}*(first_rank+(tied-1)/2.-.5)/n)::INT AS size_bucket FROM visible),
+            known AS(SELECT date,code,size_bucket,opportunity15 AS utility
+                FROM members JOIN read_parquet('{base.SOURCE}/full_labels.parquet') USING(date,code)
+                WHERE {where} AND known15)
+            SELECT date,code,size_bucket,utility-avg(utility) OVER(PARTITION BY date,size_bucket) AS target FROM known''')
+    elif variant=='duration':
         source=duration_source()
         assert r['duration_label_report_sha256']==sha(source/'duration_report.json')
         c.execute(f'''CREATE VIEW targets AS WITH l AS(
@@ -181,6 +219,11 @@ def verify_model(variant):
     assert r['new_2025H2_score_groups_read']==bool(original.date.ge('2025-07-01').any())
     np.testing.assert_allclose(d.target,original.target,rtol=0,atol=2e-12)
     assert d[['date','code']].equals(original[['date','code']])
+    if variant=='group_relative':
+        membership=c.sql('SELECT date,code,size_bucket FROM targets ORDER BY date,code').df()
+        pd.testing.assert_frame_equal(membership,original[['date','code','size_bucket']],check_exact=True,check_dtype=False)
+        group_means=original.groupby(['date','size_bucket']).target.mean()
+        assert group_means.abs().max()<2e-12
     if variant=='rank':
         assert np.isfinite(d.target).all() and d.target.between(-.5,.5,inclusive='neither').all()
         np.testing.assert_allclose(d.groupby('date').target.mean(),0,rtol=0,atol=2e-12)
@@ -234,6 +277,10 @@ def verify_model(variant):
     if variant=='duration':
         proof.update(duration_label_report_sha256=sha(duration_source()/'duration_report.json'),
             all_duration_targets_rebuilt_from_masks=True)
+    if variant=='group_relative':
+        proof.update(training_size_groups=config['training_size_groups'],
+            all_visible_memberships_before_label_intersection_rebuilt=True,
+            observed_date_groups=len(group_means),maximum_absolute_group_target_mean=float(group_means.abs().max()))
     save_json(root/'model_verification.json',proof)
     return proof
 
