@@ -1,0 +1,52 @@
+{
+  "objective": "多数逐项新增仍无法提升跨期质量，固定平滑二阶组合与同预处理线性控制，检验原48项的联合非线性而非再增加行情来源。原岭回归为未截尾48线性、旧30根标签，不能当本轮严格29根及同预处理控制，也不重跑旧版本。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_before1000_model_2025/selection_report.json": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+    "data/research/tail_formula_before1000_model_2025/selection_verification.json": "09274f27eaf6afc3464230de60a1a1886fffe2559787f9ad555bbd6bf4a2ce5f",
+    "data/research/tail_formula_before1000_model_2025/analysis_report.json": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+    "data/research/tail_formula_before1000_model_2025/analysis_verification.json": "bbe5a614d68bfc709730f1364eaaa5d50072b8977d621098ec54dc56735d41e8"
+  },
+  "inputs": "原48项、原1,258,085键/1,117,397有效行与原整数编码不变；只用各自训练交集、日期等权统计。先按训练加权均值/总体标准差标准化，标准差<=1e-12置1，再固定截到[-5,5]。两臂共享完全相同的这48个变换，评价期不估计任何均值、尺度或截尾点。",
+  "arms": {
+    "linear": "48个截尾标准化输入",
+    "quadratic": "同48一次项以及所有i<=j的二次项，包含48平方和1128交互，共1224项，固定完整字典，不按结果挑项"
+  },
+  "fit": "每个基函数再用训练日期等权均值和总体标准差标准化，<=1e-12的尺度置1。权重1/(训练日期数*当日有效已知记录数)，归一为总和1。最小化加权均方误差+1*系数平方和，截距不惩罚。唯一固定ridge_alpha=1，不搜索维数、强度或截尾范围。生产分块累积均值/方差/Gram并解正规方程；模型均使用严格29根同日相对机会目标。",
+  "ridge_alpha": 1,
+  "standardized_clip": 5,
+  "scale_floor": 1e-12,
+  "expected_inputs": 48,
+  "expected_terms": {
+    "linear": 48,
+    "quadratic": 1224
+  },
+  "training": [
+    {
+      "fold": "2024",
+      "start": "2024-01-01",
+      "end": "2025-01-01",
+      "rows": 502747,
+      "days": 241
+    },
+    {
+      "fold": "recent",
+      "start": "2024-07-01",
+      "end": "2025-07-01",
+      "rows": 522653,
+      "days": 241
+    }
+  ],
+  "threshold": "各臂各折训练分数99.5%分位，严格大于，不当概率，不新增绝对概率门、排名前N或风险门限。",
+  "training_quantile": 0.995,
+  "verification": "原48整数输入、基于完整已知池的日期基线、交集/日期权重和统计由独立SQL核准。独立分块按冻结有序字典生成全部48/1224列，验证所有列均值方差、加权正规方程最优性、截距梯度、全部训练分数与阈值。全量评分另用SQL按实际原生表达式重建，所有选择标记相同；原生文本只含原输入、冻结常数、MIN/MAX、加乘，分组求和控制表达式深度，逐项核对系数/变换/名称，数学核准不冒称客户端编译。",
+  "freeze_order": "四个模型、两臂各H1/H2/全年共六份完整名单共同核准并提交后才评价新分组；先检查真实完整选择相等，相同则复用核准统计，不重复跑已有实验。",
+  "controls": "quadratic相对同样本同预处理linear为主要比较，两臂分别对保守标签同参数48树和旧固定48树，共五组。所有固定方案、未知、未买入、共同/独有日和参考缺口完整报告。",
+  "evaluation": "不变更14:49前可见截止、14:52—55原始分钟模拟入场、2万元固定整手/10%容量/排队与权益未知/5和15基点；只评价09:31—09:59机会/至少1%空间/参考均值/至少3%不利，完整两半年/全年和日期等权/逐股、共享未知界与周块区间。不新增卖法和持有天数。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
