@@ -1,0 +1,13 @@
+{
+  "inputs_protocol_sha256": "a4af396c2fdf643b7ac8a2918bd2bfc5e6febbfaffb6ce98b456089b6630b57b",
+  "fold_protocols": [
+    "config/tail_formula_training_support_rejected_2024_protocol.json",
+    "config/tail_formula_training_support_rejected_recent_protocol.json"
+  ],
+  "arm": "rejected",
+  "control": "data/research/tail_formula_before1000_model_2025",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
