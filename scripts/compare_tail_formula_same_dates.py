@@ -18,8 +18,10 @@ def compare(left, right, output, periods=None, intersection_only=False):
     inputs = {}
     frames = []
     label_hashes = []
+    reference_labels = []
     for name, path in [('left', left), ('right', right)]:
         report = json.loads((path / 'analysis_report.json').read_text())
+        reference_labels.append(report.get('reference_label', '10:00'))
         proof = json.loads((path / 'analysis_verification.json').read_text())
         assert proof['passed'] and proof['analysis_report_sha256'] == sha(path / 'analysis_report.json')
         assert report['daily_summary_sha256'] == sha(path / 'daily_summary.parquet')
@@ -31,6 +33,11 @@ def compare(left, right, output, periods=None, intersection_only=False):
         frames.append(f.loc[f.arm.eq('formula')].sort_values(['bps', 'sensitive', 'date']).reset_index(drop=True))
     keys = ['bps', 'sensitive', 'date', 'half']
     assert label_hashes[0] == label_hashes[1], 'Paired marks must come from the same labels'
+    assert reference_labels[0] == reference_labels[1], 'Reference minutes must agree'
+    assert reference_labels[0] in ['10:00', '09:59']
+    reference_fields = (['mean_reference', 'negative_reference'] if reference_labels[0] == '09:59'
+                        else ['mean1000', 'negative1000'])
+    metrics = ['rate', 'one_percent_rate', *reference_fields, 'bad3']
     original_dates = [set(f.date) for f in frames]
     common = original_dates[0] & original_dates[1]
     coverage = dict(left_signal_days=len(original_dates[0]), right_signal_days=len(original_dates[1]),
@@ -41,12 +48,12 @@ def compare(left, right, output, periods=None, intersection_only=False):
     pd.testing.assert_frame_equal(frames[0][keys], frames[1][keys], check_exact=True)
     a, b = frames
     result = a[keys].copy()
-    for name in ['rate', 'one_percent_rate', 'mean1000', 'negative1000', 'bad3']:
+    for name in metrics:
         result[name + '_delta'] = a[name] - b[name]
     result['lower_delta'] = a.lower - b.upper
     result['upper_delta'] = a.upper - b.lower
     c = duckdb.connect(); c.register('a', a); c.register('b', b)
-    fields = [f'a.{k}-b.{k} AS {k}_delta' for k in ['rate', 'one_percent_rate', 'mean1000', 'negative1000', 'bad3']]
+    fields = [f'a.{k}-b.{k} AS {k}_delta' for k in metrics]
     sql = ('SELECT a.bps,a.sensitive,a.date,a.half,' + ','.join(fields) +
            ',a.lower-b.upper AS lower_delta,a.upper-b.lower AS upper_delta FROM a JOIN b USING(bps,sensitive,date,half) ORDER BY bps,sensitive,date')
     expected = c.sql(sql).df(); c.close()
@@ -80,6 +87,8 @@ def compare(left, right, output, periods=None, intersection_only=False):
              full_selection_results_not_replaced=True, common_date_differences_do_not_describe_unmatched_dates=True,
              post_result_comparison_not_new_selection=True, year_2025_is_exploratory=True,
              new_2026_prices_read=bool(result.date.ge('2026-01-01').any()), no_exit_rules=True)
+    if reference_labels[0] == '09:59':
+        r['reference_label'] = '09:59'
     save_json(output, r)
     return r
 
