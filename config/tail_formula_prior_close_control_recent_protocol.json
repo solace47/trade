@@ -1,0 +1,33 @@
+{
+  "objective": "前日收盘末段量价50项与完全相同输入有效范围的48项控制。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "e7f99898314396261941648d5df0bafbf10596a0e9e6e3984bd59aa53adac524",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "ac16217485f684ffeb0fa47eb83a220e0b76e1f88efbee1c1aac199036d23bde",
+  "feature_verification_sha256": "ac0b425064be473690f52be33d676779f95ccf82fae9c4dded51d7504cc8d700",
+  "native_input_verification_sha256": "d2fe8d7efca099cf5a59d25f5701c9bfcf4647366580849203a5b9b639789147",
+  "expected_rows": 522649
+}

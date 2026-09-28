@@ -1,0 +1,15 @@
+{
+  "objective": "全部四模型与六名单共同冻结，仅聚合两年度组自带两半年。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "fold_protocols": [
+    "config/tail_formula_prior_close_control_2024_protocol.json",
+    "config/tail_formula_prior_close_control_recent_protocol.json"
+  ],
+  "control": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "ac16217485f684ffeb0fa47eb83a220e0b76e1f88efbee1c1aac199036d23bde",
+  "no_duplicate_half_year_aggregation": true
+}
