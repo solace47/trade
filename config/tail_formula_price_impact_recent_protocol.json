@@ -1,0 +1,31 @@
+{
+  "objective": "在原48项中只增加尾29分钟绝对收益除成交额的活动分钟均值；其余训练、阈值和控制完全保持。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "bba8885c24964422ad383c7be87a871d3971b7bba8bf7c079f19bfa6bb691d6e",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 49,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "c431e1af7ebca31b7787e2cdf0e171b7e15b0f8ce4cfe4ac36bc59e7f090e5f7",
+  "native_input_verification_sha256": "343de528c73a005e374916aee1c0886d85d3fb3ba2dd3e0921974a68b3063a83"
+}
