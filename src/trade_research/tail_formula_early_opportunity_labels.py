@@ -18,6 +18,10 @@ def source_keys():
     p = json.loads(PROTOCOL.read_text())
     for path, digest in p['source_hashes'].items():
         assert sha(Path(path)) == digest
+    report = json.loads((source.ROOT / 'full_label_report.json').read_text())
+    proof = json.loads((source.ROOT / 'full_label_verification.json').read_text())
+    assert proof['passed'] and proof['label_report_sha256'] == sha(source.ROOT / 'full_label_report.json')
+    assert report['labels_sha256'] == sha(source.ROOT / 'full_labels.parquet')
     assert p['target_window_bars'] == 15 and p['target_window'] == ['09:31', '09:45']
     c = base.conn()
     keys = c.execute('''SELECT date,code,next_date,half,known15,known_no_trade,
@@ -92,11 +96,19 @@ def verify():
         SELECT date,code,count(*) AS observed_labels,
             max(close_three) FILTER(WHERE active_three=3 AND bars_three=3) AS early_close,
             max((positive_three=3 AND bars_three=3)::INT)::DOUBLE AS early_opportunity
-        FROM windows GROUP BY date,code ORDER BY date,code''').df(); c.close()
+        FROM windows GROUP BY date,code ORDER BY date,code''').df()
     pd.testing.assert_frame_equal(got[['date', 'code']], ex[['date', 'code']], check_exact=True)
     assert ex.observed_labels.eq(15).all()
     np.testing.assert_allclose(got.early_sustained_close, ex.early_close, rtol=0, atol=0, equal_nan=True)
     np.testing.assert_array_equal(got.opportunity15, ex.early_opportunity)
+    c.register('expected', ex)
+    returns = c.sql('''WITH v AS(SELECT e.date,e.code,k.buy_cash15,
+        k.decision_shares*(e.early_close-greatest(.005,e.early_close*.0015)) AS value
+        FROM expected e JOIN keys k USING(date,code))
+        SELECT (value-greatest(5,value*.0003)-value*.00051)/buy_cash15-1 AS early_return
+        FROM v ORDER BY date,code''').df()
+    c.close()
+    np.testing.assert_allclose(got.early_sustained_return15, returns.early_return, rtol=0, atol=2e-10, equal_nan=True)
     assert got.opportunity15.le(keys.original_opportunity15).all()
     for row in report['by_half']:
         q = got.loc[got.half.eq(row['half'])]
@@ -105,6 +117,7 @@ def verify():
     r = dict(passed=True, label_report_sha256=sha(ROOT / 'full_label_report.json'), rows=len(got),
         training_minute_labels=len(got) * 15, all_positive_minute_cost_flags_and_rolling_triples_independently_rebuilt=True,
         all_buy_cash_and_original_known_keys_unchanged=True, scope='training_target_only', not_for_evaluation=True,
+        all_saved_early_marks_independently_rebuilt=True, source_label_parquet_digest_checked=True,
         target_window_end='09:45', evaluation_window_end_remains='09:59',
         new_2025H2_early_groups_read=False, new_2026_prices_read=False, no_exit_rules=True)
     save_json(ROOT / 'full_label_verification.json', r); return r
