@@ -1,0 +1,48 @@
+{
+  "objective": "平滑二阶未改善且原输入支持范围只移除两条，另检验浅树切点选择是否过度贴合训练。复用整周自助独立树的训练样本、目标、日期权重、抽周序列、树数量/深度/叶数及种子，只把每节点最优候选切点换成随机候选切点后比较。不是重复旧整周自助版，其核准模型和结果作为严格匹配控制。",
+  "references": {
+    "config/tail_formula_week_bagging_protocol.json": "6ff27cd32beee999d73bb7dfae859856d40ebd64a04fa10bc4017937b42adcb2",
+    "src/trade_research/tail_formula_week_bagging.py": "3aecc79ec2f4b2f7987f7d29de4c9e285ace91f4c5c5af65fd5b42dda7ac92dd",
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_week_bagging_2024/selection_report.json": "a85b46c9b4d851c0b40d8e880f3647939642fd29319c84d1963fcb5e8ad65bc5",
+    "data/research/tail_formula_week_bagging_2024/selection_verification.json": "f0354825259d8b9adc2e016ce7ca6fb023fee019c727c77b1b34c7fd05ce809b",
+    "data/research/tail_formula_week_bagging_2024/model_report.json": "fa91f62d64caa1f75025e5969a84ab97fe10587c3ee379890de8114088ab87b5",
+    "data/research/tail_formula_week_bagging_2024/model_verification.json": "e0a255018b334a6aaf043c966bba3d91eb11c7c00c2f060abd5e021416c721f0",
+    "data/research/tail_formula_week_bagging_recent/selection_report.json": "9ff827de75ae2190f1962788c44c77f05a122a7d61ca0cf2f42dbedb5ccf3c96",
+    "data/research/tail_formula_week_bagging_recent/selection_verification.json": "a2738829c27b17a52c1262ead7cc83b0d5d46c94ee719c4de7a7fa6eaafba602",
+    "data/research/tail_formula_week_bagging_recent/model_report.json": "38335311e44246edf4a861ddca9cd124697c33f257130fcde26598fd91cb6cec",
+    "data/research/tail_formula_week_bagging_recent/model_verification.json": "42908b6815d6d4a28cd98850b96af61d57b702e9482367496d0843a394a5d229",
+    "data/research/tail_formula_week_bagging_2025/selection_report.json": "edd2ccf60ead17e03450c3960a288bfc96ad0999e76f16cbeded0ca903c48ed9",
+    "data/research/tail_formula_week_bagging_2025/selection_verification.json": "92abfef79ef58fefdb19d0b6c419aeee130450b40546fce96d064098579f98db",
+    "data/research/tail_formula_week_bagging_2025/analysis_report.json": "d9dd8e153daba16b83ab64f87ea0d19a61f2181ab4e999239fa1703092fa28ba",
+    "data/research/tail_formula_week_bagging_2025/analysis_verification.json": "fe4d7b79660b88a83aa9843c83e3cdc6a6696316af7f3c1d9c9da7c245ec3994"
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "random_state": 20260927,
+    "criterion": "friedman_mse",
+    "bootstrap_unit": "calendar_week",
+    "bootstrap_with_replacement": true,
+    "aggregation": "equal_tree_mean",
+    "splitter": "random"
+  },
+  "fit": "每棵仍独立拟合原严格29根同日相对机会，不拟合前树残差。DecisionTreeRegressor(splitter=random)，每节点每个候选特征随机取切点，再按既定损失选择；其他与旧greedy版本相同。64树等权平均，原0.05导出比例只是代数重标，q995由原生运算顺序的训练分数给出。",
+  "verification": "完整SQL输入/全已知日期目标/权重、52周抽样与所有节点权重/均值/方差重建，抽周清单与旧匹配版逐值相同。随机实数切点必须在原整数编码上与向下取整后的原生IF逐行等价，全部分数、q995与选择核准；不要求软件随机训练，只导出冻结常量。",
+  "controls": "新版本先对同整周自助greedy固定版，再对原同参数48树及旧固定48树。三个同日及共享未知比较，独有日、未知/未买入/参考缺口完整保留。匹配版已有全年报告含两半年分期，直接复用，不重复原训练或汇总。",
+  "freeze": "两模型与H1/H2/全年三完整名单共同核准并提交后才看新组结果；相同名单直接复用，不更换种子或切点追结果。",
+  "analysis_reuse_controls": {
+    "2025": [
+      "data/research/tail_formula_week_bagging_2025"
+    ]
+  },
+  "new_fields": [],
+  "evaluation": "原14:49/14:52—55、2万元固定股数/10%容量/费用/未知及保守09:31—09:59评价保持，报告5/15基点与质量敏感性，机会/1%空间/参考/3%不利。只研究次日筛选，不扩大持有日或2026。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
