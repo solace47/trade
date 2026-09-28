@@ -1,0 +1,26 @@
+{
+  "objective": "检验尾段分钟涨跌的先后排列是否提供原净涨跌、方向次数及波动总量没有表达的信息。只增加一个相邻变化指标。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_path_variance/feature_report.json": "f7708e59415d4aed68f03cf40e07c1d1769c3dc3d66e325c0d97517fe026276a",
+    "data/research/tail_formula_path_variance/feature_verification.json": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "window_first": "1420",
+  "window_last": "1449",
+  "input": "用14:20—14:49的30个收盘形成29个r=100*ln(C/前分钟C)。SP01=100*sum(r[t]*r[t-1],t=2..29)/max(sqrt(sum(r[t]^2,t=2..29)*sum(r[t-1]^2,t=2..29)),1e-12)。全平为0；正值偏向相邻同向、负值偏向交替。它是未去均值的相邻变化余弦，不称通常的去均值自相关。",
+  "differences_from_old": "原尾段净变化、上涨分钟数、路径效率和平方波动大多不依赖涨跌的完整先后排列；本次保留固定28对相邻变化乘积。不同于价变与量共同变化，不使用成交方向或主力身份断言。",
+  "source": "复用已核准path_variance的30个原始收盘宽表和源质量标记，不重新下载分钟，不叠加原Z三项。原48项、全部键及原有效范围须逐值核准。",
+  "validity": "原全部有效条件与源30根价格完整性保持，缺失不能补零；零波动只是已观测路径，固定分母下限仅处理0/0，不搜索。",
+  "native": "一分钟SSR=100*LN(C/REF(C,1))；SUM(SSR*REF(SSR,1),28)，两段平方和为SUM(SSR*SSR,28)及REF(...,1)，最后用VALUEWHEN(TIME=1449,...)固定。",
+  "verification": "全量独立SQL逐项相邻乘积、两侧平方和、有效标志及整数编码；四半年各8例按SHA256(date|code|serial-price-v1)固定抽样，从原始分钟逐根重放30个价格，客户端完整编译和来源一致性仍单列。",
+  "model": "原48项加SP01共49项，原29根相对二元机会、64深度3、最小叶300、lr.05、seed20260927、日期等权、两段一年和q995。与整段净价格目标和单指标结构独立检验。",
+  "control": "若原有效交集完全不变，复用同参数29根48项控制；否则在读取新组结果前固定同交集48项控制。两半年及全年共同先冻后评，原旧固定48项为辅助。",
+  "evaluation": "完整两半年与全年、5/15基点、日期等权和逐股、未知界、正机会、1%空间、09:59参考估值、3%不利、共同日期及共享未知；不删独有日期。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
