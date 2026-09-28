@@ -20,6 +20,9 @@ def number(x):
 
 
 def period(f, name):
+    if len(name) == 6 and name[4] == 'Q' and name[5] in '1234':
+        dates = pd.to_datetime(f.date)
+        return f.loc[dates.dt.year.eq(int(name[:4])) & dates.dt.quarter.eq(int(name[5]))]
     return f.loc[f.half.eq(name)] if 'H' in name else f.loc[f.date.str.startswith(name)]
 
 
@@ -135,7 +138,7 @@ def analyze(root, protocol=source.PROTOCOL):
              label_report_sha256=sha(root / 'full_label_report.json'), daily_summary_sha256=sha(root / 'daily_summary.parquet'),
              reference_label='09:59', window_start='09:31', window_end='09:59', summaries=summaries,
              year_2025_is_exploratory=True, opportunity_is_not_realized_profit=True,
-             new_2026_prices_read=False, no_exit_rules=True)
+             new_2026_prices_read=bool(rows.date.ge('2026-01-01').any()), no_exit_rules=True)
     save_json(root / 'analysis_report.json', r)
     return {k: v for k, v in r.items() if k != 'summaries'}
 

@@ -9,12 +9,19 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from verify_tail_formula_before1000 import array_observations
-from trade_research.tail_formula_boundary_evaluation import daily_summary
+from trade_research.tail_formula_boundary_evaluation import daily_summary, period
 from trade_research.corporate_cash import save_json, sha
 from compare_tail_formula_same_dates import compare
 
 
 class BeforeTenBoundaryTests(unittest.TestCase):
+    def test_quarter_contains_march_but_never_april_or_other_year(self):
+        dates = ['2025-01-02', '2026-01-05', '2026-03-31', '2026-04-01']
+        frame = pd.DataFrame(dict(date=dates, half=['2025H1','2026H1','2026H1','2026H1']))
+        self.assertEqual(period(frame, '2026Q1').date.tolist(), dates[1:3])
+        self.assertEqual(period(frame, '2026-03').date.tolist(), dates[2:3])
+        self.assertEqual(period(frame, '2025H1').date.tolist(), dates[:1])
+
     def test_triple_only_completed_at_ambiguous_last_bar_is_excluded(self):
         close = np.ones((1, 30)) * 9
         close[0, 27:] = 11

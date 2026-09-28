@@ -36,7 +36,7 @@ def daily_bounds(rows):
     return result
 
 
-def checked_selection(root, expected_analysis_sha):
+def checked_selection(root, expected_analysis_sha, signal_range=None):
     report = json.loads((root/'analysis_report.json').read_text())
     proof = json.loads((root/'analysis_verification.json').read_text())
     assert sha(root/'analysis_report.json') == expected_analysis_sha
@@ -49,15 +49,19 @@ def checked_selection(root, expected_analysis_sha):
     assert selection['selection_sha256'] == sha(root/'selection.parquet')
     frame = pd.read_parquet(root/'selection.parquet')
     assert not frame.duplicated(['date', 'code']).any()
-    assert not frame.loc[frame.selected, 'date'].ge('2026-01-01').any()
+    if signal_range is None:
+        assert not frame.loc[frame.selected, 'date'].ge('2026-01-01').any()
+    else:
+        assert signal_range == ['2026-01-01', '2026-03-31']
+        assert frame.loc[frame.selected, 'date'].between(*signal_range).all()
     return frame.loc[frame.selected, ['date', 'code', 'half', 'decision_shares']].copy()
 
 
 def compare(spec, protocol):
     left, right, output = [Path(spec[k]) for k in ['left', 'right', 'output']]
     assert not output.exists(), 'Do not replace a recorded diagnostic'
-    a = checked_selection(left, spec['left_analysis_sha256'])
-    b = checked_selection(right, spec['right_analysis_sha256'])
+    a = checked_selection(left, spec['left_analysis_sha256'], protocol.get('signal_range'))
+    b = checked_selection(right, spec['right_analysis_sha256'], protocol.get('signal_range'))
     assert sha(left/'full_labels.parquet') == sha(right/'full_labels.parquet') == protocol['labels_sha256']
     original_dates = [set(f.date) for f in [a, b]]; common = original_dates[0] & original_dates[1]
     a = a[a.date.isin(common)].rename(columns={'decision_shares': 'left_shares'})
@@ -95,8 +99,12 @@ def compare(spec, protocol):
             # Old arm-wise envelopes remain valid outer bounds, but permit
             # incompatible outcomes for the same shared unknown stock-day.
             d['bps'] = bps; d['sensitive'] = sensitive; daily_records.extend(d.to_dict('records'))
-            for period in ['2025H1', '2025H2', '2025']:
-                q = d.loc[d.half.eq(period) if 'H' in period else d.date.str.startswith(period)]
+            for period in protocol.get('periods', ['2025H1', '2025H2', '2025']):
+                if len(period) == 6 and period[4] == 'Q' and period[5] in '1234':
+                    dates = pd.to_datetime(d.date)
+                    q = d.loc[dates.dt.year.eq(int(period[:4])) & dates.dt.quarter.eq(int(period[5]))]
+                else:
+                    q = d.loc[d.half.eq(period) if 'H' in period else d.date.str.startswith(period)]
                 out = dict(bps=bps, sensitive=sensitive, period=period, days=len(q),
                     shared_unknown_stock_days=int(q.shared_unknown.sum()))
                 for column in ['lower', 'upper', 'unknown_weight']:
@@ -119,7 +127,7 @@ def compare(spec, protocol):
         no_trade_is_zero_opportunity_not_realized_return=True,
         not_difference_of_known_conditional_rates=True, post_result_diagnostic_not_new_selection=True,
         original_reports_unchanged=True, year_2025_is_exploratory=True,
-        new_2026_prices_read=False, no_exit_rules=True)
+        new_2026_prices_read=bool(r.date.ge('2026-01-01').any()), no_exit_rules=True)
     output.parent.mkdir(parents=True, exist_ok=True); save_json(output, report)
     return {k:v for k,v in report.items() if k != 'daily'}
 

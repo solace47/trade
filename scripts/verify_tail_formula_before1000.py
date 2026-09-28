@@ -129,7 +129,7 @@ def labels():
     r = dict(passed=True, label_report_sha256=sha(study.ROOT / 'full_label_report.json'), rows=len(got),
              verifier_sha256=sha(Path(__file__)), unchanged_original_columns=len(unchanged), scalar_checks=count,
              all_old_statuses_and_buy_cash_exact=True, window_end='09:59',
-             no_old_unknown_recovered=True, new_2026_prices_read=False, no_exit_rules=True)
+             no_old_unknown_recovered=True, new_2026_prices_read=bool(got.date.ge('2026-01-01').any()), no_exit_rules=True)
     save_json(study.ROOT / 'full_label_verification.json', r)
     return r
 
@@ -175,7 +175,12 @@ def analysis(root):
     checks = 0
     for s in report['summaries']:
         d = expected.loc[expected.bps.eq(s['bps']) & expected.sensitive.eq(s['sensitive'])]
-        p = s['period']; d = d.loc[d.half.eq(p)] if 'H' in p else d.loc[d.date.str.startswith(p)]
+        p = s['period']
+        if len(p) == 6 and p[4] == 'Q' and p[5] in '1234':
+            first_month = 3*int(p[5])-2
+            d = d.loc[d.date.str[:4].eq(p[:4]) & d.date.str[5:7].astype(int).between(first_month,first_month+2)]
+        else:
+            d = d.loc[d.half.eq(p)] if 'H' in p else d.loc[d.date.str.startswith(p)]
         if s['arm'] == 'same_day_difference':
             a = d.loc[d.arm.eq('formula')].set_index('date'); b = d.loc[d.arm.eq('base_same_dates')].set_index('date')
             assert a.index.equals(b.index)
@@ -199,7 +204,7 @@ def analysis(root):
                     eq(s[k + '_ci'], interval(q, k), k + '_ci'); checks += 1
     r = dict(passed=True, analysis_report_sha256=sha(root / 'analysis_report.json'),
              daily_rows=len(expected), summary_checks=checks, all_daily_statistics_rebuilt=True,
-             reference_label='09:59', new_2026_prices_read=False, no_exit_rules=True)
+             reference_label='09:59', new_2026_prices_read=bool(expected.date.ge('2026-01-01').any()), no_exit_rules=True)
     save_json(root / 'analysis_verification.json', r)
     return r
 
