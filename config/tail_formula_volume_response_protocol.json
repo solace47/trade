@@ -1,0 +1,30 @@
+{
+  "objective": "检验尾盘每分钟涨跌幅大小与成交量的共同变化，追加到原48项；该量价代理不能识别交易者身份。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_path_variance/window_report.json": "153917c272b25709ca9c1708931bde52fcaaa8ff051c51ccd803e3cefc22d699",
+    "data/research/tail_formula_path_variance/feature_report.json": "f7708e59415d4aed68f03cf40e07c1d1769c3dc3d66e325c0d97517fe026276a",
+    "data/research/tail_formula_path_variance/feature_verification.json": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2",
+    "data/research/tail_formula_minute_pressure/window_report.json": "20d8331ccfa6ff3c8d33bbadff6968b5a3edfe6a2566e5136c1ba9b455d7cc0d",
+    "data/research/tail_formula_minute_pressure/feature_report.json": "567a171a78647267f5a72e591676780a8c38d5bd68b8dd921b58214d46b00253",
+    "data/research/tail_formula_minute_pressure/feature_verification.json": "804f2fb77ab04366ca218f2d8a6812191a530b6f33b47dd179de73f9ea480df1",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "return_bars": 29,
+  "price_window": ["14:20", "14:49"],
+  "volume_window": ["14:21", "14:49"],
+  "IP01": "r为每分钟100*ln(C/REF(C,1))。IP01=(29*SUM(r*V)/SUM(V)-SUM(r))/此前20日ATR百分比，表示带方向的量加权涨跌幅相对普通平均的偏移。",
+  "IP02": "IP02=(29*SUM(ABS(r)*V)/SUM(V)-SUM(ABS(r)))/此前20日ATR百分比，表示波动大小与分钟成交量的共同变化。",
+  "quality": "复用已核准的30根分钟收盘缓存及29根HLCV缓存；两者相同分钟收盘必须逐值一致。要求原始条数、时间、价格、非负整股成交量和正的整窗成交量，ATR分母为正；未知不填0。原48项及所有键保留，新失效进入同质量原48项对照。",
+  "native": "用VALUEWHEN、SUM、LN、ABS表达。原始股数转软件手数后，加权分子的分母同比缩放，两个新值不变。32个按四半年各固定哈希8例的有效窗口独立复读原档核准。",
+  "model": "原两段一年训练、原48项加2项、相对同日全已知基础池机会、日期等权、64棵深度3树、min_samples_leaf300、learning_rate0.05、固定种子20260927、训练99.5%分位；训练与评价统一09:31—09:59。不混入早段目标或半年方向约束。",
+  "comparison": "先共同冻结两段、全年和同质量修正48项对照，之后完整评价及同日比较。旧固定48项在相同29根窗口作为第二背景。两指标可能没有预测力，不按结果更换窗口或比例。",
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "secondary_control_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "no_window_or_parameter_scan": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
