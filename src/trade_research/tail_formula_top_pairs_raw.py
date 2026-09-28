@@ -111,7 +111,18 @@ def rank_weights(score, day_ids, positive, negative, top_k=10):
     np.testing.assert_array_equal(pair_day, day_ids[negative])
     totals = np.bincount(pair_day, weights=delta, minlength=int(day_ids.max()) + 1)
     assert (totals[pair_day] > 0).all(), 'An informative date must retain positive pair mass'
-    return delta / totals[pair_day]
+    weight = delta / totals[pair_day]
+    # Preserve the existing uniform weights bit-for-bit on completely tied
+    # dates; division by an accumulated floating constant needlessly perturbs
+    # the first tree's equal-gain splits.
+    smallest = np.full(len(totals), np.inf)
+    largest = np.full(len(totals), -np.inf)
+    np.minimum.at(smallest, day_ids, score)
+    np.maximum.at(largest, day_ids, score)
+    tied = (smallest == largest)[pair_day]
+    counts = np.bincount(pair_day, minlength=len(totals))
+    weight[tied] = 1. / counts[pair_day[tied]]
+    return weight
 
 
 def model(fold):
@@ -136,7 +147,7 @@ def model(fold):
     for iteration in range(64):
         weight = rank_weights(score, day_ids, positive, negative)
         if iteration == 0:
-            np.testing.assert_allclose(weight, pairs.weight, rtol=0, atol=2e-15)
+            np.testing.assert_array_equal(weight, pairs.weight)
         gradient, curvature, loss = uniform.derivatives(score, positive, negative, weight)
         residual = gradient / w
         np.testing.assert_allclose(np.bincount(day_ids, weights=gradient), 0, rtol=0, atol=2e-12)
