@@ -1,0 +1,43 @@
+{
+  "objective": "当前日期等权仍令日内多数类占更多损失权重。检验同日机会/非机会两类各占一半、类内等权的点式平方损失，是否更能识别个股差异。它不同于已失败RankNet配对边际损失；原48输入、训练行和原始标签完全保留。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "config/tail_formula_pairwise_protocol.json": "edad368d4d696be399a8d7b7c12bd4795c0d316e46263279933d80f5e1c154d8",
+    "data/research/tail_formula_pairwise_2025/selection_report.json": "59dfb6817e5c52b5d9b21bb0b89d107a884e377cbe927619032781cb4f74936f",
+    "data/research/tail_formula_pairwise_2025/selection_verification.json": "03f27e5feff4fd27de447aa54cfe4190c559c5011dae51ec9e8da5e73d96725b",
+    "data/research/tail_formula_pairwise_2025/analysis_report.json": "f2b255abaf46dff0f0a4d9afed5f0a04b27b5404a36f7555e3d512da38027e83",
+    "data/research/tail_formula_pairwise_2025/analysis_verification.json": "15f8e61625f5c01978bac87a9309b7b17903c4b4088cf561678ca6a4b85ec5bc"
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "criterion": "friedman_mse"
+  },
+  "new_fields": [],
+  "expected_features": 48,
+  "training_quantile": 0.995,
+  "weighting": "只用原已知且48项有效训练交集。每日期标签种类k为1或2，记录权重=1/(k*该日期该类记录数)，每日总权重1；两类都有则各占1/2。单类日仍保留原1/n_date总权重，禁止删除日期或按其稀缺性筛样本。",
+  "target": "opportunity15-(该日有效训练交集标签min+max)/2。两类日目标为-.5/+.5，单类日为0。每日期加权目标均值为0，不把平衡后的分数当实际成功概率。该日未来标签只用于过去训练样本权重和目标，推断不需要未来标签或类别比例。",
+  "rare_class": "不按结果或类别比例修剪权重，不搜索平衡强度；完整报告每期各类数量、最小少数类数量、单条最大日权重及单类日期。稀少类别可能放大噪声，作为设计局限保留。",
+  "verification": "生产Pandas类别变换，独立SQL从原labels与features交集复建全部键、输入、日期/类计数、中心目标、权重、日期总权重及加权均值。模型所有节点的样本数/权重/残差均值/方差、分数、七个分位和实际IF选择独立核准。边界测试严重不平衡、单类日、同类复制和日期外标签不得影响。",
+  "distinction": "旧配对排序全部记录均参加固定8遍同日配对，使用logistic边际及跨叶对的Newton更新；并非漏了记录。本项用每条记录平方损失与固定类别权重，明确惩罚中心分数水平，两者不等价。旧日内相对均值是另一种目标，原结果全部保留。",
+  "freeze": "输入核准后再训练；两模型及两半年度/年度名单一起提交再评价。原训练分数q995仍在全部原训练记录上取普通分位，不改成平衡类别分位。只年度聚合包含两半年，全字段相同则复用已有报告。",
+  "controls": "同参数保守48、旧固定48、已失败的同日配对模型共三组；完整自身/两半年/同日/独有日期/共享未知与参考缺口保留。",
+  "analysis_reuse_controls": {
+    "2025": [
+      "data/research/tail_formula_pairwise_2025"
+    ]
+  },
+  "evaluation": "仅原09:31—09:59观察，原14:49整手2万元、原1452—1455分钟模拟买入、10%容量、5/15基点、排队及公司行动未知不变。不研究多日或卖法。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
