@@ -1,0 +1,79 @@
+{
+  "objective": "保持原48项固定模型和全部原评分，按当日完整可见有效池做(评分-日均)/日标准差，检验不同日期评分离散尺度变化是否使固定幅度门槛偏向少数日期。仅减日均的旧版本已失败，作为直接对照保留，不重训模型。",
+  "selection_rule": "centered_score=score-mean(score for all formula_input_valid peers on that date); candidate iff valid and centered_score strictly above fixed training q995; mean includes current stock; no daily quota, no positive-raw-score gate, no variance scaling.",
+  "cohort": "原1,258,085个历史硬过滤键中，当时48项有效的1,117,397行；不得按未来known、收益或成交选择同日均值成员。全部484日保留，成员数不加新的数量门槛；仅空集合不能计算。",
+  "threshold_cohort": "原同模型训练日期内、next_date严格早于训练终点的known15与原有效输入交集；量化方法numpy默认linear，与原q995一致。日均分只用原可见有效输入，独立于标签。",
+  "training_quantile": 0.995,
+  "model_refitted": false,
+  "centered_score_is_probability": false,
+  "fold_sources": {
+    "2024": {
+      "root": "data/research/tail_formula_before1000_model_2024",
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01",
+      "source_hashes": {
+        "model_report.json": "6b7846506c8bf3ba42cd207469f121df7c8be6775e8ae1d01fb20581c3b01239",
+        "model_verification.json": "d3b61177961407dcbc1544a0959937d3c7e0e253f0b9c7c303c53bba51e40b13",
+        "score_report.json": "9fcbf743f478cb75c1efacf33728564016e0102e71bd142f8b6322d14fa139a1",
+        "score_verification.json": "5d34fa9ca5ad556d6896fc3859524fc0683db1bd2945da990e31f979cfad1c4c",
+        "scores.parquet": "c0f29ed650fa7fc5b70456dcdbba8d5cb0fca2953c1a8fd3cfcd6cf23ac1b052",
+        "selection_report.json": "b8a07313a7deb80f9fbf0e6f1bc9fe5041357ea0e4b70e4764694d8c38d7fa90",
+        "selection_verification.json": "05e9b89e14c05acfec8cd731362c476cb312e0b750f2e7a7388a75bf12c7743d"
+      }
+    },
+    "recent": {
+      "root": "data/research/tail_formula_before1000_model_recent",
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01",
+      "source_hashes": {
+        "model_report.json": "9db8e627cbe3c04906c0d97c2ddc7ce71537a6c9fc6ff2bdbb8beb016e97d861",
+        "model_verification.json": "4b43ca9abf9a0f5b32586023165a850e28f94e0e3743fb8b156350e576a86fed",
+        "score_report.json": "c1d112860d3597af5e3a404089da2a5e7b195093c8f3bcb2693d08e76636579e",
+        "score_verification.json": "fff76899a7de31e0d23f4e0c468b4353b93a3ca62bb19d4614a4b6b861d119a6",
+        "scores.parquet": "ee71b6f4f5fb4324b022b11edf2d7607d781468112d54b753bc5295d641c8937",
+        "selection_report.json": "ad280597734eaef11f5e0aced4a2c79c4901a54ec7b22ab8c677c55f15e899fd",
+        "selection_verification.json": "ec54c15925760af738c4492e16e3ac02966efa784c5b9028f97143545ce899fd"
+      }
+    }
+  },
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "distinction": "此前score_center只减日均，原每日前五名只按排名；本项还消去当日分散尺度，用单一训练阈值，允许空名单。不是把未来已知股票当作均值成员，也不继续扫居中强度。",
+  "native_scope": "YJSZ64辅助输出1=原硬过滤且48项有效，2=该标志乘原SC，3=该标志乘SC平方；主公式INSUM三项得均值与总体方差，MAX方差0后SQRT，再以1e-6为分母下界。只生成数值结构，完整辅助成员与历史客户端来源仍未核准，不能直接交付实盘。",
+  "reporting": "两折评分与三完整名单一起提交后只聚合一次年度报告含两半年；三个控制为仅减日均、同参数48、旧固定48；自身、独有日期、共享未知及参考缺口全保留。完整名单相同直接复用核准结果。",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "standard_deviation_floor": 1e-06,
+  "population_variance_ddof": 0,
+  "transformation": "所有当日原有效股票均参与，包含自身且不看未来是否成交/标签是否已知；总体标准差ddof0，分母MAX(std,1e-6)。常数日中心值0，不强取名额。训练q995只用与原模型相同的过去已知有效交集，但该日均值方差始终按完整可见池算。",
+  "verification": "Pandas两次中心化求总体方差，独立SQL从原分数的和/平方和重建每日期统计、每行标准分、原训练范围q995及严格大于标记。实际INSUM计数、总分和平方总分表达在全部日期数组重放；原48输入和树不变。测试正比例/共同平移、未知标签成员仍入池、无效不参与、常数和极小方差、日期独立。",
+  "references": {
+    "data/research/tail_formula_score_center_2024/score_report.json": "6b468c088ca10a4a886be53213978d962d7b844431b89096047690720a743177",
+    "data/research/tail_formula_score_center_recent/score_report.json": "6dadfd6db243b87e0993d1b7d449b5685e4cc48056f52323e00ade40c69183d2",
+    "data/research/tail_formula_score_center_2024/score_verification.json": "50391fd0be51e6e719dfca52169af9254194d5f766341b76e89f78caac61ece5",
+    "data/research/tail_formula_score_center_recent/score_verification.json": "bbb1d5dc676acf5ad8715781d923c53a668867bf386ee3fd942afee1b745998e",
+    "data/research/tail_formula_score_center_2024/selection_report.json": "9aeeff7754f0aad077c43b583e635111b3a793ed4cdd659f5606958d6ac54e4b",
+    "data/research/tail_formula_score_center_recent/selection_report.json": "b5b00a8e8d83065a35c940a4de1ae3f2fb500c59b104234b28f9d62bccbf0fe8",
+    "data/research/tail_formula_score_center_2024/selection_verification.json": "0779cd41ddea82fc7dc819ba54b1b3b6824e9cf87b2403310291a15b0fd7ce5e",
+    "data/research/tail_formula_score_center_recent/selection_verification.json": "6f97fc8ab273585eb0bb22db37d186a05605887e1f2c235f12901e56f9b66bc0",
+    "data/research/tail_formula_score_center_2025/selection_report.json": "89bd2766041d4d71ba27349d84fa15d40765b388efb46f4366e00b4bb60cdf6a",
+    "data/research/tail_formula_score_center_2025/selection_verification.json": "659e468352d510e5c39c22856440cead49c8bf852258c1f802d0caadbe826e24",
+    "data/research/tail_formula_score_center_2025/analysis_report.json": "c70d36e38e18b00b8dd10d953ba9b1f4f7ef78e6781bbc527d3475a063a8b403",
+    "data/research/tail_formula_score_center_2025/analysis_verification.json": "23dc07f495480a8656cfb304383732c239ac04e586669d9d27fe6e1b81e684d3"
+  },
+  "analysis_reuse_controls": {
+    "2025": [
+      "data/research/tail_formula_score_center_2025"
+    ]
+  }
+}
