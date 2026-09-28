@@ -1,0 +1,15 @@
+{
+  "training_target_protocol_sha256": "9dc1cc72dd61ec92ac56cdebe4094b3cf3cc0f8bb6d25cb72902c17bf9530eb2",
+  "fold_protocols": [
+    "config/tail_formula_path_order_2024_protocol.json",
+    "config/tail_formula_path_order_recent_protocol.json"
+  ],
+  "training_target_window_end": "09:45",
+  "evaluation_window_end": "09:59",
+  "primary_control": "data/research/tail_formula_before1000_model_2025",
+  "secondary_control": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "objective": "先后标签模型两段及全年先固定后评价，完整次晨机会与风险不变。"
+}
