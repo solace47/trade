@@ -1,0 +1,15 @@
+{
+  "objective": "检验14:49时本库可覆盖主板的上涨比例及从14:20至14:49的比例变化；不重复此前指数分钟家数缺失的取数路线。原48项只加两项，仍严格次晨目标。",
+  "inputs_protocol_sha256": "33b283506e30b4a5ceae801346924420a33e41ae0412a28af95572507edec011",
+  "fold_protocols": [
+    "config/tail_formula_cross_breadth_2024_protocol.json",
+    "config/tail_formula_cross_breadth_recent_protocol.json"
+  ],
+  "source_48_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "year_2025_is_exploratory": true,
+  "freeze_all_selections_before_group_outcomes": true,
+  "same_quality_control": "原48项既定两段名单与新增输入有效范围交集；相同名单直接复用旧核准统计。"
+}

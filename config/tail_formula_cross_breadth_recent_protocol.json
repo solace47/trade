@@ -1,0 +1,15 @@
+{
+  "objective": "检验14:49时本库可覆盖主板的上涨比例及从14:20至14:49的比例变化；不重复此前指数分钟家数缺失的取数路线。原48项只加两项，仍严格次晨目标。",
+  "source": "config/tail_formula_cross_breadth_protocol.json",
+  "model_max_depth": 3,
+  "fit": "原48项加CB01/CB02、原一年训练窗、相对机会平方目标、64棵深度3树、min_samples_leaf300、lr.05、日期等权、seed20260927、训练99.5%分位。不叠加历史累计换手、历史大涨或大小盘输入。",
+  "threshold": "沿用同一99.5%训练分数分位对应常数，两段皆先核准分数、冻结全部选择再评价；不按2025新分组结果调分位。",
+  "evaluation": "原有严格次日10点前机会、风险、未知、两档成本和原始分钟买入全部保留。各半年及预定衔接全年全报，2025已暴露，不能称盲测。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "inputs_protocol_sha256": "33b283506e30b4a5ceae801346924420a33e41ae0412a28af95572507edec011"
+}
