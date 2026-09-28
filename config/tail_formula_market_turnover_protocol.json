@@ -1,0 +1,32 @@
+{
+  "objective": "检验个股当日及尾29分钟换手活跃度相对同日可见合格股票均值的信息；不同于此前个股自身历史量比、涨跌家数、相对收益及评分去均值。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_float/features.parquet": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+    "data/research/tail_formula_score_center_2024/score_report.json": "6b468c088ca10a4a886be53213978d962d7b844431b89096047690720a743177",
+    "data/research/tail_formula_score_center_2024/score_verification.json": "50391fd0be51e6e719dfca52169af9254194d5f766341b76e89f78caac61ece5"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "members": "每个信号日原48项formula_input_valid为真且已经通过原历史硬过滤的全部股票日；与评分去均值的可见池相同。包含本股，不看known15、收益、入场后是否成交或未来数据。",
+  "benchmark": "当日成员等权平均S02与S03，不按股数、市值、成交额加权，不缩尾或去除极值；分母须有限且严格正，未知不能当零。",
+  "new_inputs": {
+    "MT01": "原S02 / 当日成员S02等权均值",
+    "MT02": "原S03 / 当日成员S03等权均值"
+  },
+  "original48_preserved": true,
+  "expected_features": 50,
+  "all_members_count_expected": 1117397,
+  "all_keys_expected": 1258085,
+  "training": "恢复原64轮、深度3、最小叶300、lr0.05、种子20260927、日期等权、原相对机会标签与q995；不叠加分状态或随机特征改动。",
+  "controls": "如有效交集未变，完整复用保守29根同参数48项及旧固定48项控制；如改变，先记录输入门槛失败并另固定同样本控制，不直接比较不同训练交集。",
+  "native": "辅助接口YJMTO48输出完整原硬过滤和48项有效成员标记，以及该标记下的原S02、S03；主公式INSUM三项后求均值和个股比值。这里只能先核准运算结构，完整客户端成员识别、历史FINANCE(7)映射仍未核准，不将结构文件冒称完整公式。",
+  "verification": "生产侧pandas按日均值；独立SQL从此前日量/换手重建股数代理、从当日量和尾29量重建S02/S03，再完整重建成员、均值、两项比值及整数编码。已验证原48项不重跑原档。32个固定有效样本做辅助输出聚合数学重放，明确原始核验复用。",
+  "sample": "各2024H1/H2及2025H1/H2按SHA256(date|code|market-turnover-native-v1)前8个；不依后续状态选样。",
+  "no_threshold_or_window_search": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "not_net_inflow_or_main_force_identity": true
+}
