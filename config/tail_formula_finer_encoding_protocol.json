@@ -1,0 +1,33 @@
+{
+  "objective": "原输入在所有树前固定取整可能合并相近但不同的价量状态。独立检验仅增加整数表示精度是否改变有效选股能力；不增加特征、行情或模型容量，也不重复此前仅将最终特征转float32的敏感性探针。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_before1000_model_2024/selection_report.json": "b8a07313a7deb80f9fbf0e6f1bc9fe5041357ea0e4b70e4764694d8c38d7fa90",
+    "data/research/tail_formula_before1000_model_2024/selection_verification.json": "05e9b89e14c05acfec8cd731362c476cb312e0b750f2e7a7388a75bf12c7743d",
+    "data/research/tail_formula_before1000_model_2024/analysis_report.json": "6cc0ecd3d7f8543b32ecf6449c952f53d607a42e4c90c0d6080aa3dbfa35e3e1",
+    "data/research/tail_formula_before1000_model_2024/analysis_verification.json": "d7903554f187cdfa254ef4a94673ae47124719c2bb6c5b14367290a44e31859f",
+    "data/research/tail_formula_before1000_model_recent/selection_report.json": "ad280597734eaef11f5e0aced4a2c79c4901a54ec7b22ab8c677c55f15e899fd",
+    "data/research/tail_formula_before1000_model_recent/selection_verification.json": "ec54c15925760af738c4492e16e3ac02966efa784c5b9028f97143545ce899fd",
+    "data/research/tail_formula_before1000_model_recent/analysis_report.json": "b125e0c816ff318c1538f1d3405caf61b2fcb71aa9cec913b626f2e1d5da8520",
+    "data/research/tail_formula_before1000_model_recent/analysis_verification.json": "7d3d1eb904befabd9b4c84fc88e295f15f4a18cbd24e068b325d2ae36e05950a",
+    "data/research/tail_formula_before1000_model_2025/selection_report.json": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+    "data/research/tail_formula_before1000_model_2025/selection_verification.json": "09274f27eaf6afc3464230de60a1a1886fffe2559787f9ad555bbd6bf4a2ce5f",
+    "data/research/tail_formula_before1000_model_2025/analysis_report.json": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+    "data/research/tail_formula_before1000_model_2025/analysis_verification.json": "bbe5a614d68bfc709730f1364eaaa5d50072b8977d621098ec54dc56735d41e8"
+  },
+  "encoding_multiplier": 10,
+  "new_fields": [],
+  "expected_features": 48,
+  "encoding": "令U=MIN(MAX(100*F+10000+0.000001,0),999999)。原floor(U)，本轮仅floor(10*U)，即在完全相同裁剪与偏移后将间隔细分为10份。上限9999990小于2^24，整数转换为float32仍精确。固定10倍，不扫描倍率、不改裁剪区间，不移除质量标记。",
+  "verification": "原48源证明直接复用。全量SQL与NumPy编码逐值相同、有效交集不变、floor(fine/10)重现原coarse编码、边界/裁剪/整数float32精确性核准。新增原生X赋值必须使用同U与外乘10，全部树节点、评分、q995及选中标记独立重算。共享核准函数只显式支持1或10，调用倍率与协议必须一致，原1倍控制重新核准收据必须字节保持。",
+  "fitting": "原同参数48树两段范围、502747/522653已知交集、日期权重、严格29根相对机会、64深度3/最小300/步长.05/固定种子及训练q995全部保持。参数和质量一致，旧1倍模型/名单/统计直接作为主控制，不重训旧版。",
+  "freeze": "新增编码核准后两模型和三完整名单共同提交，才评价新分组；相同名单复用，完整两半年、全年、原1倍及旧固定48两个对照。",
+  "evaluation": "14:49前输入/14:52—55原始分钟、2万元固定股数/10%容量/费用/排队及权益未知，09:31—09:59窗口、5/15基点和质量敏感性，机会/1%空间/参考/3%不利保持；全未知/未买入/参考缺失/独有日完整保留。",
+  "native": "原48项中间公式完全保留，仅X01..48整数编码多乘10。核准本地数学不等于实际客户端单精度全过程或数据源已一致，最终软件可用仍另核。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
