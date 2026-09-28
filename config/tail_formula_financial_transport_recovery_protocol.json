@@ -5,5 +5,8 @@
   "transport": "ego-browser既有TaskSpace10的后台Node fetch；无需账户和cookie。每个既定区间最多一次20秒请求，逐次失败或响应单独保存，任何失败不再盲目重试。",
   "grid": "原两代码×三个日期区间全部固定，已成功区间不再请求；不能改日期或放宽源码质量核验。",
   "new_stock_outcomes_read": false,
-  "new_2026_prices_allowed": false
+  "new_2026_prices_allowed": false,
+  "prior_protocol_sha256": "35d6d96087fdb892da005214e383d16ad26d60733ab12b29efc34a16ec9181f2",
+  "failed_node_report_sha256": "eacf955f80c9d26f8e0870961f1dcff75675d4926991a5008372b43d9b8dfb05",
+  "browser_diagnostic": "后台Node在读取HTTP响应前fetch failed，不能据此判断目标端内容。增加最后一次真实浏览器Page导航原首区间URL；不同时尝试其他代理或域名。若返回目标JSON，才按同通道每区间一次完成原六区间；若仍失败则保留本输入为未取齐，不循环恢复。"
 }
