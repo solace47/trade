@@ -1,0 +1,63 @@
+{
+  "objective": "核对分钟起终点未明时的次日十点边界，并为后续公式建立保守的09:31—09:59观察口径；不研究卖法。",
+  "reason": "供应商尚未定义时间标签起终点，10:00标签可能包含10点后一分钟；原30根结果保留为旧标签窗口，不能直接称严格十点前。",
+  "source_root": "data/research/tail_formula_1000",
+  "source_hashes": {
+    "data/research/tail_formula_1000/observation_manifest.json": "54120ce285537d7159d9e257ecdbb35d5d964b19d4801fea0c8ccdbc299be90f",
+    "data/research/tail_formula_1000/observation_keys.parquet": "fb89a59f4e31ab7c4a17572aa52b3b97c22413a6527f48bddab2ec18e8a18695",
+    "data/research/tail_formula_1000/observation_report.json": "3f18ba8c489442e8ccb2ff44b80fecaa0108dba614ff47f2139c2cf91a5b4f9c",
+    "data/research/tail_formula_1000/observation_verification.json": "7aeb0aae306c86629d8d36fcedd93387b46a751e553fb3b8ad782090d6247809",
+    "data/research/tail_formula_1000/observations.parquet": "b862be88075d37d9128b69ca82ee28475563d3f1d55f5ca2a3ab676b574063fb",
+    "data/research/tail_formula_1000/full_label_report.json": "1ae3602185c4162cd7fbfad0cec1061bac246e61c1d4f80c9dd2d88632b3ca3f",
+    "data/research/tail_formula_1000/full_label_verification.json": "df520221b3bd4127a0c26d7dc7be129af2823c94c780fb82e46aecdc308208be",
+    "data/research/tail_formula_1000/full_labels.parquet": "ea26c6ede3d0cdec8c681eeb40908bbb3f6c5dfad1151b5ae72d04aacaae1fb2"
+  },
+  "raw_manifest_sha256": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+  "window_start": "09:31",
+  "window_end": "09:59",
+  "window_bars": 29,
+  "signal_start": "2024-01-01",
+  "observation_end_exclusive": "2026-01-01",
+  "replay": "逐键重读原30根，先核对旧聚合完全相同；另聚合29根及固定09:59参考估值，连续三根正成交量收盘及既有会计保持。",
+  "quality": "保留所有旧known/unknown/no_trade及敏感质量标记，不因删去一根使旧未知恢复；新29根检查另列，已知记录必须完整。",
+  "selections": {
+    "tail_formula_float_2025": {
+      "selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+      "selection_sha256": "32f9fb6c197ff0db9d1be074647c24a7ea64b00af11d7ee7ffa87a75d0c40aa0",
+      "analysis_report_sha256": "516e53b7483dfca767eccb46ef7b9d22e1c9dfade5e42f869889379a7172e2ac"
+    },
+    "tail_formula_size_agreement_2025": {
+      "selection_report_sha256": "ed5fdf2dfd5526da8077422ed6a3f88c4e8a8d752bc22de3a76ed654b03a38ca",
+      "selection_sha256": "67bc9d5bc91d620a9453c559008c951408822457ed953d45ab0d7d4eff8fa54b",
+      "analysis_report_sha256": "d98da46ff550cbd0fdc924c3e74e91c2853109fbcc1fc1b517a1b1a40727b67e"
+    },
+    "tail_formula_cross_breadth_2025": {
+      "selection_report_sha256": "ea69f11c0652cbcc350b0e00a81f5ceca0515463f9e5a99e54fa21590f5a12b0",
+      "selection_sha256": "cadce6a82968a0e283044b0cc8d442dd184195cc2f43c064c4bb65c41f7e343e",
+      "analysis_report_sha256": "b15b160bd94cf76456ca67204cf37032ea26bf369fd425b24bf3517fea5a8142"
+    },
+    "tail_formula_day_weight48_2025": {
+      "selection_report_sha256": "38cd8c273f70763efd6ae4045ae2021cd3b0096a99738da4d3078b8bb174465d",
+      "selection_sha256": "88a3c305a1c73e01453753ca24b877a29c46be88e4d33675f436bc0c775cc865",
+      "analysis_report_sha256": "5a8d511fe1337bb699f493fe63f83995622fb7b704ba6030f973a6555385ad2c"
+    },
+    "tail_formula_cross_breadth_weight_2025": {
+      "selection_report_sha256": "5a2a8502d5fdff4eeedce56c404227e657fb26309ae05d81ac70c19073720264",
+      "selection_sha256": "27dfb0e062ca18a3a26bee7da9370f4d53562b45d40154fa7be52d45d8071e8f",
+      "analysis_report_sha256": "afd7d3424198452d78c492445060185c9749f6cb64c152f4ed22f78bffadf377"
+    }
+  },
+  "evaluation": "五份原名单不变，2025上下半年及全年完整日期等权、未知界、1%空间、09:59参考估值及不利幅度，同时报告同日基础池；另全基础池四半年比较。保存原30根结果，不选择有利口径。",
+  "planned_retraining": "修正窗口后，只用原48项按原两段一年窗、64深度3树、min_samples_leaf300、learning_rate0.05、日期等权相对机会平方目标、seed20260927及训练99.5%分位重新训练；两段和全年先冻后评。与同一29根标签的原固定48项名单比较。该重训计划在边界结果前固定，不加特征或扫参数。",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "year_2025_is_exploratory": true,
+  "periods": [
+    "2024H1",
+    "2024H2",
+    "2025H1",
+    "2025H2",
+    "2024",
+    "2025"
+  ]
+}
