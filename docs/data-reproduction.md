@@ -386,3 +386,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 历史日级收盘位置入口为`trade_research.tail_formula_daily_pressure`的`features`、`verify_features`、`native`，模型入口为`trade_research.tail_formula_daily_pressure_model`。原始量精确一致探针失败及32组诊断保留，`config/tail_formula_daily_pressure_source_boundary.json`明确了日线数值核准与分钟来源对照的区别；禁止把`raw_daily_volume_all_equal=false`当来源通过。固定两折全部模型、评分和名单后共同生成全年，并使用已有单组分析入口先检查完整名单是否可复用。
 
 跨股票金额集中程度入口为`trade_research.tail_formula_amount_concentration`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_amount_concentration_model`。复用旧成员和金额，新增`YJAC20.tdx`辅助输出；同组协议与输入收据保持，先共同固定两折及全年再评价，不把原生代数核准当客户端覆盖核准。
+
+同日强弱关系与尾段残差入口为`trade_research.tail_formula_cross_rotation`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_cross_rotation_model`。原成员和三个整数分报价复用，`YJXR20.tdx`汇总六项；全量中心矩／原始矩及矩阵最小二乘独立对照。先固定两模型、两折及全年，再调用通用单组分析器和两套48项对照，不按结果回改相关或残差定义。
