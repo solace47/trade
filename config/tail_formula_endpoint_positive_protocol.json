@@ -1,0 +1,47 @@
+{
+  "objective": "同一有限09:59参考训练交集，将任意连续三根正机会改为固定09:59参考净值严格大于0的二元事件；检验目标持续至早盘末端的差异，不研究卖法。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_endpoint_robust/source/manifest.json": "7535e9a2c0d3fd33708222b083403dc1e0cd7b260d4c32be8f6234e219125018",
+    "data/research/tail_formula_endpoint_robust/source/sklearn_ensemble__gb.py": "028f08005071c5998eb6ef4414009fb391bcb2fc73f8e18584f6f1d0a9b4059d",
+    "data/research/tail_formula_endpoint_robust/source/sklearn__loss_loss.py": "ff7f59d25bdd54bfe1b3c2e5b7f3e3766ca82b0b7347ee1cbc8285bfdbf58758",
+    "data/research/tail_formula_endpoint_robust/source/sklearn_utils_stats.py": "07b4920d8f43f8a49477d01d9ac8c856daf9cd6ba5332a722e68fb9bda4b82ab",
+    "data/research/tail_formula_endpoint_robust/initial_reference_missing_diagnostic.json": "cc9fae938f035eaf5d83b4ed19f0cfa1a2454f6047b863c22ebf1929be68e1ef",
+    "data/research/tail_formula_endpoint_robust/training_2024_verification.json": "b864977b014922f7990b2629dfee0717c6cad5d49010016f16769f30e79d3359",
+    "data/research/tail_formula_endpoint_robust/training_recent_verification.json": "cffa6f58cd501e1654d5b3003bed6700a186652970d01941a14e7bddea173213",
+    "data/research/tail_formula_endpoint_binary_2025/selection_report.json": "1f6da7a13c56c0c6d407c0b7a8a50a6ba7e0e45b9684e48617cbbe9d6c86a5ea",
+    "data/research/tail_formula_endpoint_binary_2025/analysis_report.json": "9545cd4100bde421b8c4c1b16684f426d8bddd0580cfdf7dc0f60c9a419789b7",
+    "data/research/tail_formula_endpoint_binary_2025/analysis_verification.json": "1da3eb051730a3713a3939526beee035af3adcd9b43e04033f54703a82592983"
+  },
+  "target": "原known15且mark_0959_return15有限；y=1(mark_0959_return15>0)，再减同日全部有限参考known15的事件均值，然后连接原48项有效输入。恰好0记失败，不改成本或时点。",
+  "endpoint": "09:59为既定参考时点，不搜索最优分钟；该数值扣原买入与参考卖出成本，但不模拟卖单、触发条件或成交容量，仍为参考价格标签。评价保持连续三根正成交机会、1%空间、参考均值与3%不利。",
+  "arms": [
+    "binary"
+  ],
+  "alpha": 0.9,
+  "implementation": "使用已安装scikit-learn1.7.2，固定tag三份官方源码与本地字节一致，未升级。两臂除loss及相应初始常数／梯度／叶更新外参数相同。",
+  "huber": "每轮日期等权绝对残差90%加权分位为delta；负梯度裁至±delta，叶更新为加权残差中位数加上该中位数周围截断偏差的加权平均。该叶更新是库的近似步骤，不声称精确求出Huber最优常数。初始化使用加权中位数；平方损失初始化加权均值。",
+  "parameters": {
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "alpha": 0.9
+  },
+  "scope": "同一502636／522531条、各241日，两段一年、原48项、日期等权、64深度3平方损失、原q995。只改变二元事件定义，不使用绝对目标模型或日期衰减。",
+  "freeze": "两模型、两折及全年三份选择全部核准后评价，主要复用已核准相同训练交集的原三根机会二元控制。",
+  "controls": "首要对照endpoint_binary相同训练交集；另保留完整同参数48项和旧固定48项。评价仍同时报告原三根机会、1%空间、09:59条件参考均值和3%不利，不能只报告新训练事件。",
+  "verification": "SQL以严格>0重建目标及同日基线，对全部训练键、费用、输入、权重、树节点及评分分位独立核准；零与非有限值边界测试。原有二元模型证明重新运行须字节保持。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_reference_required": "mark_0959_return15",
+  "target_event": "positive_reference",
+  "center_target": true
+}

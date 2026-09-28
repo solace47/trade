@@ -1,0 +1,17 @@
+{
+  "fold_protocols": [
+    "config/tail_formula_endpoint_positive_binary_2024_protocol.json",
+    "config/tail_formula_endpoint_positive_binary_recent_protocol.json"
+  ],
+  "control_selection_report_sha256": "1f6da7a13c56c0c6d407c0b7a8a50a6ba7e0e45b9684e48617cbbe9d6c86a5ea",
+  "control_analysis_report_sha256": "9545cd4100bde421b8c4c1b16684f426d8bddd0580cfdf7dc0f60c9a419789b7",
+  "control": "data/research/tail_formula_endpoint_binary_2025",
+  "unchanged_effective_inputs_control_reused": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "master_protocol_sha256": "8f6f48cf1f8169f586af12ae4eab167ec1b669378ec982b319c621b8d57ead64",
+  "loss_arm": "binary",
+  "training_reference_restricted": true
+}
