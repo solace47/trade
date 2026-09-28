@@ -51,6 +51,8 @@
 
 尾段有序最大幅度用`trade_research.tail_formula_path_excursion`依次`features`、`verify_features`、`native`；`test_tail_formula_path_excursion.py`核对先后顺序及窗口边界。模型入口`trade_research.tail_formula_path_excursion_model`沿用相同50项两折流程。相同完整名单可用`scripts/reuse_tail_formula_selected_analysis.py`生成复用收据，避免重算既有分析；新名单仍完整核准。
 
+按时间选择轮数用`trade_research.tail_formula_chrono_rounds`。每折依次`verify_inputs`、`calibration_model`、`verify_calibration_model`、`calibrate`、`verify_calibration`，先核准0至256阶段全部日期误差和选择，再`model`、`verify_model`进行完整一年重训；后续`scores`、`verify_scores`、`freeze`、`verify`及两折／全年共同冻结、严格29根评价流程保持。0轮有单独的常数原生核心与SQL评分核准；`test_tail_formula_chrono_rounds.py`覆盖零轮、舍入平手和日期权重。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
