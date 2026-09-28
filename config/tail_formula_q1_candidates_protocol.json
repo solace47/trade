@@ -1,0 +1,39 @@
+{
+  "objective": "协调原48项、日级路径50项与等权参考50项的已暴露2026首季完整对照；三模型冻结后才读取本轮首季输入，三份名单共同冻结后才读取分组结果。",
+  "model_protocols": {
+    "config/tail_formula_daily_efficiency_q1_protocol.json": "844b5522576dd937ddf4a4eaa58b86fb17fcb08bf16496f5ee0ae2b1258bfd30",
+    "config/tail_formula_equal_weight_q1_protocol.json": "00c68619c06c987fde80b5ee071b14afd5891a6c022b649211fccef33fdca031"
+  },
+  "source_reports": {
+    "data/research/tail_formula_forward_2026q1/inputs/source_manifest.json": "ff48a859837640b313433e9b79af9c7e0387aac42b7c9f2813e3082f6e223f15",
+    "data/research/tail_formula_forward_2026q1/inputs/feature_report.json": "19fa4bd1f1a1a01a8272ffc54ed51563ca6d6ec073bd649717891d28f9bd4357",
+    "data/research/tail_formula_forward_2026q1/inputs/feature_verification.json": "ccf89edf2bcc20a4fea36fed6674d2198e7cf324e609cf85e3ba24cc6ae7f5e6",
+    "data/research/tail_formula_forward_2026q1/inputs/base_report.json": "ec893c6c34cd2b3126cf7be630984507e5e9de4efd18e8e82bc917bd52690532"
+  },
+  "signal_first": "2026-01-01",
+  "signal_last": "2026-03-31",
+  "observation_last": "2026-04-01",
+  "warmup_first": "2025-01-01",
+  "minimum_members": 2000,
+  "prior_history_prices": 21,
+  "original_rows": 161781,
+  "original_valid": 139353,
+  "original_days": 56,
+  "stages": "models_gate, inputs, verify_inputs, native, scores, verify_scores, freeze_all, verify_all, observation_keys, raw_and_labels, verify_labels, analysis, verify_analysis, paired_comparisons",
+  "input_verification": "原48项沿用已核准首季文件逐值不变；DE按固定21个以前股票日，缺失不能跳过；EW按全部符合原2025成员规则的首季主板逐日平均。独立Pandas重建SQL成员和全部历史，新有效性与完整编码逐项核对；每月8个哈希样本核原始分钟和历史日终收盘。",
+  "coverage": "等权参考的覆盖分母为已存当时状态表的主板非ST正常交易、上市20股票日、正前收与开盘价成员；这是本库来源覆盖诊断，不冒称交易所完整主表，不据缺失比例选择日期。",
+  "control_quality": "保存完整48项控制；各新增输入若减少有效行，另冻结同质量控制，名单逐值相同则复用分析，不能隐含删除未知日期。",
+  "evaluation": "遵循两份已冻结模型协议：原14:52—14:55成交模拟，09:31—09:59机会，原成本和未知规则。合并全部版本信号日的完整原候选基础池，不受旧39日期限制；完整各月与全季、独有日期和共同日期均报告。",
+  "periods": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026Q1"
+  ],
+  "prior_q1_outcomes_exposed": true,
+  "strict_blind": false,
+  "new_q2_signal_prices_allowed": false,
+  "no_new_q2_daily_close_prices": true,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
