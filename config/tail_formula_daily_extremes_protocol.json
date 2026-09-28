@@ -1,0 +1,43 @@
+{
+  "objective": "原48项追加此前20个完整股票日最大的上方向和下方向单日原始收盘跳变，刻画历史尾部幅度；区别于旧至少9%次数／距离、累计趋势、均值波幅及路径效率。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_daily_efficiency/feature_report.json": "7d9a484518a803c792611cabde8c6ed7ce5fa6e2b62decafb15f5472440d25ff",
+    "data/research/tail_formula_daily_efficiency/feature_verification.json": "cfbb688c4a2310293964f5c0b0fc6ccfe83662076e03eef5220d0868363201e2",
+    "data/research/tail_formula_daily_efficiency/native_input_verification.json": "53f02697a1b11f083e3d43957379f9866521c9ae75cad5d7ff33efde5039f951",
+    "src/trade_research/tail_formula_daily_efficiency.py": "6782524b37044053f3fe39bb850d5d164da82e9aa9e377933a4e571df76f2cb4"
+  },
+  "history_first": "2023-06-01",
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "history_prices": 21,
+  "history_returns": 20,
+  "definition": "只用严格早于信号日的21个连续可用股票交易日原始收盘，rt=100*(C_t/C_prev-1)。DX01=max(20个rt)/原V01，DX02=min(20个rt)/原V01；保留符号，不将最大值强制非负，不将最小值强制非正，全平为0。不加阈值或选方向。",
+  "scope": "原48项加两项共50项；两折一年训练、64轮深度3、叶最小300、日期等权、原同日相对二元标签、原未加权q995保持，不叠加刚失败的门槛或分钟输入。",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "expected_features": 50,
+  "expected_keys": 1258085,
+  "expected_valid": 1117397,
+  "verification": "复用此前已逐股核准的21日收盘宽表；NumPy最大／最小与独立SQL展开全部20个比值核准、原输入及编码不变；复用32个固定原档日级样本，重读严格早于信号日的21条日线，逐项核对DCP顺序和嵌套MAX／MIN。参考价跳变和停牌间隔保留，原交集保持才复用控制。",
+  "expressions": {
+    "DX01": "MAX(100*(DCP1/DCP2-1),MAX(100*(DCP2/DCP3-1),MAX(100*(DCP3/DCP4-1),MAX(100*(DCP4/DCP5-1),MAX(100*(DCP5/DCP6-1),MAX(100*(DCP6/DCP7-1),MAX(100*(DCP7/DCP8-1),MAX(100*(DCP8/DCP9-1),MAX(100*(DCP9/DCP10-1),MAX(100*(DCP10/DCP11-1),MAX(100*(DCP11/DCP12-1),MAX(100*(DCP12/DCP13-1),MAX(100*(DCP13/DCP14-1),MAX(100*(DCP14/DCP15-1),MAX(100*(DCP15/DCP16-1),MAX(100*(DCP16/DCP17-1),MAX(100*(DCP17/DCP18-1),MAX(100*(DCP18/DCP19-1),MAX(100*(DCP19/DCP20-1),100*(DCP20/DCP21-1))))))))))))))))))))/V01",
+    "DX02": "MIN(100*(DCP1/DCP2-1),MIN(100*(DCP2/DCP3-1),MIN(100*(DCP3/DCP4-1),MIN(100*(DCP4/DCP5-1),MIN(100*(DCP5/DCP6-1),MIN(100*(DCP6/DCP7-1),MIN(100*(DCP7/DCP8-1),MIN(100*(DCP8/DCP9-1),MIN(100*(DCP9/DCP10-1),MIN(100*(DCP10/DCP11-1),MIN(100*(DCP11/DCP12-1),MIN(100*(DCP12/DCP13-1),MIN(100*(DCP13/DCP14-1),MIN(100*(DCP14/DCP15-1),MIN(100*(DCP15/DCP16-1),MIN(100*(DCP16/DCP17-1),MIN(100*(DCP17/DCP18-1),MIN(100*(DCP18/DCP19-1),MIN(100*(DCP19/DCP20-1),100*(DCP20/DCP21-1))))))))))))))))))))/V01"
+  },
+  "native_header": "",
+  "controls": "原有效交集保持时直接复用严格29根同参数48项及旧固定48项；否则先冻结同交集控制。完整两折及全年共同固定并提交后才评价；完整未知、独有日期和质量敏感性保留。",
+  "caveat": "采用与原公式相同的未复权价格链，历史公司行动可能产生跳变，保留并报告原参考价断点；不是经核准的复权收益或真实涨跌停身份，不从幅度推断资金身份。客户端复权设置、FINANCE7与指数一致性仍未核准。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
