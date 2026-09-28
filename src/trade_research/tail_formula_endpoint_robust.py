@@ -20,6 +20,9 @@ from .corporate_cash import save_json, sha
 STEM='tail_formula_endpoint_robust'
 ROOT=Path('data/research')/STEM
 PROTOCOL=Path('config')/(STEM+'_v2_protocol.json')
+SOURCE_ROOT=ROOT
+MODEL_STEM='tail_formula_endpoint'
+VARIANT='endpoint'
 
 
 def weighted_quantile(value,weight,q):
@@ -37,9 +40,10 @@ def huber_leaf(residual,weight,delta):
 def sources():
     p=json.loads(PROTOCOL.read_text());assert sklearn.__version__=='1.7.2'
     assert p['alpha']==.9 and not p['new_2026_prices_allowed']
-    assert p['supersedes_before_any_fit_sha256']==sha(Path('config')/(STEM+'_protocol.json'))
+    if 'supersedes_before_any_fit_sha256' in p:
+        assert p['supersedes_before_any_fit_sha256']==sha(Path('config')/(STEM+'_protocol.json'))
     for file,digest in p['source_hashes'].items():assert sha(Path(file))==digest
-    manifest=json.loads((ROOT/'source/manifest.json').read_text())
+    manifest=json.loads((SOURCE_ROOT/'source/manifest.json').read_text())
     for item in manifest['sources']:
         rel=item['url'].split('/1.7.2/')[1]
         local=Path(sklearn.__file__).parent.parent/rel
@@ -48,7 +52,7 @@ def sources():
 
 
 def setup(arm,fold):
-    sources();stem='tail_formula_endpoint_'+arm
+    master=sources();assert arm in master['arms'];stem=MODEL_STEM+'_'+arm
     combined=Path('config')/(stem+'_combined_protocol.json');p=json.loads(combined.read_text())
     control=Path(p['control'])
     for stage in ['selection','analysis']:
@@ -63,6 +67,7 @@ def setup(arm,fold):
         assert q['label_report_sha256']==sha(labels.ROOT/'full_label_report.json')
         assert q['expected_features']==48 and q['loss_arm']==arm
         assert q['training_reference_required']=='mark_0959_return15'
+        assert q.get('center_target',True)==master.get('center_target',True)
 
 
 def training():
@@ -76,7 +81,7 @@ def training():
     assert len(t)==p['original_training_rows']
     l=l.loc[finite].copy()
     l['target']=100*l.mark_0959_return15
-    l['target']-=l.groupby('date').target.transform('mean')
+    if p.get('center_target',True):l['target']-=l.groupby('date').target.transform('mean')
     l['binary_target']=l.opportunity15-l.groupby('date').opportunity15.transform('mean')
     if p['loss_arm']=='binary':l['target']=l.binary_target
     out=t.merge(l[['date','code','target','binary_target']],on=['date','code'],validate='one_to_one')
@@ -97,7 +102,8 @@ def independent_training():
         SELECT count(*) AS rows,count(*) FILTER(WHERE NOT isfinite(mark_0959_return15) OR mark_0959_return15 IS NULL) AS missing,
         max(abs(buy-buy_cash15)) AS buy_error,max(abs(sell/buy-1-mark_0959_return15)) AS mark_error FROM y''').df().iloc[0]
     assert checks.missing==p['expected_reference_missing_known_rows'] and checks.buy_error<1e-7 and checks.mark_error<2e-12
-    endpoint='100*mark_0959_return15-avg(100*mark_0959_return15) OVER(PARTITION BY date)'
+    endpoint='100*mark_0959_return15'
+    if p.get('center_target',True):endpoint+='-avg(100*mark_0959_return15) OVER(PARTITION BY date)'
     binary='opportunity15-avg(opportunity15) OVER(PARTITION BY date)'
     target=binary if p['loss_arm']=='binary' else endpoint
     c.sql(f'''SELECT date,code,{target} AS target,{binary} AS binary_target
@@ -124,6 +130,9 @@ def verify_inputs(fold):
         all_reference_costs_targets_keys_date_weights_and_integer_inputs_rebuilt=True,
         same_finite_reference_training_intersection_for_all_three_arms=True,
         inference_pool_unchanged_and_future_reference_never_used_to_select=True,new_2026_prices_read=False,no_exit_rules=True)
+    if not json.loads(base.PROTOCOL.read_text()).get('center_target',True):
+        proof.pop('same_finite_reference_training_intersection_for_all_three_arms')
+        proof.update(target_is_date_centered=False,same_training_intersection_as_relative_reference=True)
     save_json(ROOT/('training_'+fold+'_verification.json'),proof);return proof
 
 
@@ -142,10 +151,11 @@ def model(arm,fold):
         training_input_verification_sha256=sha(ROOT/('training_'+fold+'_verification.json')),
         feature_report_sha256=sha(inputs.ROOT/'feature_report.json'),label_report_sha256=sha(labels.ROOT/'full_label_report.json'),
         rows=len(train),days=train.date.nunique(),last_observation=train.next_date.max(),parameters=estimator.get_params(),
-        feature_names=list(inputs.EXPRESSIONS),variant='endpoint_'+arm,learning_rate=.05,bias=float(np.ravel(estimator.init_.constant_)[0]),trees=trees,
+        feature_names=list(inputs.EXPRESSIONS),variant=VARIANT+'_'+arm,learning_rate=.05,bias=float(np.ravel(estimator.init_.constant_)[0]),trees=trees,
         training_start=p['training_start'],training_end=p['training_end'],new_2025_score_groups_read=bool(train.date.ge('2025-01-01').any()),
         training_reference_required=p['training_reference_required'],
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    if not p.get('center_target',True):report['target_is_date_centered']=False
     score=base.predict(x,report);np.testing.assert_allclose(score,estimator.predict(x),rtol=0,atol=2e-12)
     report['thresholds']=[dict(id=i,training_quantile=q,threshold=float(np.quantile(score,q))) for i,q in enumerate(base.QUANTILES)]
     root.mkdir(parents=True,exist_ok=True);save_json(root/'model_report.json',report)
@@ -158,7 +168,8 @@ def verify_model(arm,fold):
         ('feature_report_sha256',inputs.ROOT/'feature_report.json'),('label_report_sha256',labels.ROOT/'full_label_report.json'),
         ('training_input_verification_sha256',ROOT/('training_'+fold+'_verification.json'))]:assert r[key]==sha(path)
     assert all(r['parameters'][key]==value for key,value in p['parameters'].items())
-    assert r['variant']=='endpoint_'+arm and r['feature_names']==list(inputs.EXPRESSIONS)
+    assert r['variant']==VARIANT+'_'+arm and r['feature_names']==list(inputs.EXPRESSIONS)
+    assert r.get('target_is_date_centered',True)==p.get('center_target',True)
     d,t,checks=independent_training();x=d[list(inputs.EXPRESSIONS)].to_numpy(dtype='int32');y=d.target.to_numpy();w=d.weight.to_numpy()
     bias=weighted_quantile(y,w,.5) if arm=='huber' else np.average(y,weights=w)
     np.testing.assert_allclose(r['bias'],bias,rtol=0,atol=2e-12)
@@ -194,7 +205,7 @@ def verify_model(arm,fold):
     save_json(base.ROOT/'model_verification.json',proof);return proof
 
 
-if __name__=='__main__':
+def main():
     from .tail_formula_offset_logit48 import verify_scores
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage',choices=['verify_inputs','model','verify_model','scores','verify_scores','freeze','verify','analyze'])
@@ -202,9 +213,9 @@ if __name__=='__main__':
     parser.add_argument('--fold',choices=['2024','recent','combined'],default='2024')
     args=parser.parse_args();setup(args.arm,args.fold)
     if args.stage=='analyze':
-        for arm in ['squared','huber','binary']:
+        for arm in sources()['arms']:
             for fold in ['2024','recent','2025']:
-                root=Path('data/research')/('tail_formula_endpoint_'+arm+'_'+fold)
+                root=Path('data/research')/(MODEL_STEM+'_'+arm+'_'+fold)
                 proof=json.loads((root/'selection_verification.json').read_text())
                 assert proof['passed'] and proof['selection_report_sha256']==sha(root/'selection_report.json')
         result=evaluation.analyze(linkage.COMBINED if args.fold=='combined' else base.ROOT,linkage.PROTOCOL if args.fold=='combined' else base.PROTOCOL)
@@ -221,3 +232,6 @@ if __name__=='__main__':
         result=study.verify()
     else:result=base.scores()
     print(json.dumps(result,ensure_ascii=False,indent=2))
+
+
+if __name__=='__main__':main()
