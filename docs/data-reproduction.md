@@ -384,3 +384,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 日历频率比较用`run_tail_formula_update_cadence.py --months 2 3 4 5 6 8 9 10 11 12`完成固定新增模型，一月／七月原模型直接复用。随后`evaluate_tail_formula_update_cadence.py freeze`共同生成全部12月、4季、2年度名单；共同记录提交后，依次`analyze`、`finish`完成18组统计及5组对照，不能只挑部分月份。每一模型阶段由独立子进程运行，避免共享模块根路径污染。
 
 历史日级收盘位置入口为`trade_research.tail_formula_daily_pressure`的`features`、`verify_features`、`native`，模型入口为`trade_research.tail_formula_daily_pressure_model`。原始量精确一致探针失败及32组诊断保留，`config/tail_formula_daily_pressure_source_boundary.json`明确了日线数值核准与分钟来源对照的区别；禁止把`raw_daily_volume_all_equal=false`当来源通过。固定两折全部模型、评分和名单后共同生成全年，并使用已有单组分析入口先检查完整名单是否可复用。
+
+跨股票金额集中程度入口为`trade_research.tail_formula_amount_concentration`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_amount_concentration_model`。复用旧成员和金额，新增`YJAC20.tdx`辅助输出；同组协议与输入收据保持，先共同固定两折及全年再评价，不把原生代数核准当客户端覆盖核准。
