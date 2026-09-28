@@ -378,3 +378,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 协议为`config/first_insider_short_protocol.json`。依次运行`PYTHONPATH=src .venv/bin/python -m trade_research.first_insider_short sources`、`inputs`和`scripts/verify_first_insider_short_inputs.py`，再运行同一模块的`exits`。只复用`first_insider_buy`既有109份原件，不下载月度回购PDF；原文重新提取，日历及最近对照独立SQL核对，全部未配者保留。
 
 对`data/research/first_insider_short/morning`依次调用`tick_morning_exit.raw(ROOT=...,PROTOCOL=Path('config/first_insider_short_protocol.json'))`、通用核对脚本`windows --root ...`、`tick_morning_exit.labels(ROOT=...)`和`labels --root ...`。然后运行`first_insider_short analyze`及`scripts/verify_first_insider_short_analysis.py`。两种退出同时固定，空结果类别的比例存为未知，不补零。通用分析器扩展事件字段后，原触板研究全部报告字段及产物哈希回归一致。
+
+新原生单组输入接续（如`tail_formula_vwap_path`）在全部模型和三名单共同提交后，可用`PYTHONPATH=src .venv/bin/python scripts/analyze_tail_formula_input_study.py --stem tail_formula_vwap_path`。入口先比较完整选择字段；相同名单绑定原统计并独立核准，已完成入口再次运行只核对现有收据。此入口不替代输入、模型及名单的先冻后评顺序，也不替代不同名单的全部对照／参考覆盖核准。
