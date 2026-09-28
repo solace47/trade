@@ -1,0 +1,62 @@
+{
+  "objective": "检验前一完整股票交易日的收盘末四根分钟量价能否补充当天14:49筛选。它不同于过去20日14:49到收盘平均变化，不在已失败上涨群继续调条件，回原完整48池。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_volume_history/input_manifest.json": "52a7578cb2246c4d8b4f945ea03c152da2ea78d3d964cf81f8496f6069ab8d0f",
+    "data/research/tail_formula_volume_history/stock_days.parquet": "c582156b28aa2392cd6cb7eb8eec184bf65a197033e25542a5d2c1142b509314",
+    "data/research/tail_formula_volume_history/feature_verification.json": "8249f0f62b24519676257ed8709dbabaca38428b53854063361d06fde68a4a8e",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_daily_efficiency/native_input_verification.json": "53f02697a1b11f083e3d43957379f9866521c9ae75cad5d7ff33efde5039f951"
+  },
+  "new_fields": [
+    "CA01",
+    "CA02"
+  ],
+  "expected_features": 50,
+  "history_first": "2023-06-01",
+  "history_last": "2025-12-30",
+  "source_window": [
+    "1432",
+    "1500"
+  ],
+  "price_clock": "1456",
+  "closing_clock": "1500",
+  "formula": "CA01=(前一活动股票日14:57—15:00成交量之和/4)/(同日14:32—14:56量和/25)；CA02=100*(前一活动日15:00收盘整数分/14:56收盘整数分-1)/信号日原V01。两项只描述固定标签窗口，不把它们等同完整集合竞价委托或净流入。",
+  "validity": "固定已核准tradestatus=1日序，先求每个原信号的上一股票交易日，不因分钟缺失跳到更早。要求前日14:32—15:00共29根唯一整分钟，OHLC合法分币正价且高低包住开收，量非负有限整数，前25量和>0。末四根零量允许；所有无效原因和跨停牌间隔保留，不读当前或次日的收盘。",
+  "native": "只加CA01=REF((SUM(V,4)/4)/MAX((SUM(V,29)-SUM(V,4))/25,1),B0)与CA02=100*(INTPART(DCP1*100+0.5)/MAX(INTPART(REF(C,B0+4)*100+0.5),1)-1)/V01。量纲采用股/手比值，合法分母必须大于0；原生MAX地板需确认前25平均至少1手，若不足则研究输入无效并另记。实际历史停牌占位及FINANCE7等原来源局限不解除。",
+  "verification": "Pandas按组求和与原始分钟SQL条件聚合独立核对每个窗口、滞后映射、两项和整数编码；32个既定日级路径原始探针复用信号键、独立重读前日完整分钟并执行实际REF/SUM原生表达。通过输入后才绑定训练数量；若有效交集减少，原48对照也在完全相同交集重训，否则直接复用同参数原48。",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "training_quantile": 0.995,
+  "folds": {
+    "2024": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    "recent": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "freeze": "全部需要的新模型、两折及年度名单共同提交后读结果；只聚合年度报告（内含两半年），先比较完整名单所有字段，完全相同直接复用已核准统计。",
+  "evaluation": "原保守09:31—09:59、2万元14:49固定股数、14:52—55原始分钟模拟、10%容量、5/15基点及所有排队/公司行动/来源未知保留。新模型对同质量48、完整同参数48（若相同只做一次）及旧固定48完整同日和共享未知比较，保留参考缺口。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
