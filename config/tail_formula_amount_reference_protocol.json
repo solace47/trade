@@ -1,0 +1,53 @@
+{
+  "objective": "原48项追加个股相对成交额加权主板群体的当日及尾段强弱；与同成员等权50项比较，检验成交活跃股票的价格表现能否提供更合适的参照。不是净流入或主力身份信号。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_float/features.parquet": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+    "data/research/tail_formula_equal_weight/feature_report.json": "77a48f9fd40db262cbdfa9cf80dc4f9ac42f306024aad5bbc98352a594bf6bf2",
+    "data/research/tail_formula_equal_weight/feature_verification.json": "7175096f1eef9a9bd9c626cbd2e2c42b36baf48ce8e9d12545bebb51cde3e937",
+    "data/research/tail_formula_equal_weight/features.parquet": "6a78984227beba04df042f1215dafd150321e1dc84431eea6a9058446461e75e",
+    "data/research/tail_formula_equal_weight/native_input_verification.json": "792a4aeddf38ac01972b62594d180faab93c164169528b219f733a65374bbeaa",
+    "data/research/tail_formula_equal_weight/market_reference.parquet": "8500051a8dcc3cecb5764fd5d36d896a02ec7ddc2e2028460ffd6bcffa2f77a5",
+    "data/research/tail_formula_cross_breadth/feature_report.json": "464ab44487b31bb89cd7a498aa0ed4c84b3e6e5b71399481edd8f6f707a25529",
+    "data/research/tail_formula_cross_breadth/feature_verification.json": "ef7eae067e7ca0281eb5437bbd12ce6da2f026196320177273769614cc6f7909",
+    "data/research/tail_formula_cross_breadth/coverage_verification.json": "7c54aae86cf8436921c72251ad21cc1101696108e6c2b794034486bcb3377dd9",
+    "data/research/tail_formula_cross_breadth/native_input_verification.json": "94133ede7ef7d726b43bc801ab0f8cdc13a6f8ed2a9c4b65d560a13164b4d02b",
+    "data/research/tail_formula_cross_breadth/members.parquet": "b1a90c02ef2f07733b0c995bbff23a08faa34bd12af4b01df57f774afe27d816",
+    "data/research/tail_formula_cross_breadth/breadth.parquet": "3f958d0514a0bcc6bd41c6f22dc285f1708e68a234b8a2d4e4564f4af2f4b003",
+    "data/research/next_day_winner/visible_base.parquet": "eb479c3924f1402ba08fea60f9a1181f9ff14f49eb94e6aa3f4983fee66ef926",
+    "data/research/next_day_winner/source_manifest.json": "cd6ddc0f9d1681355ace2fe6058ace6844317a1f1fa0d0510de7bf62c00e2eb9",
+    "data/research/minute_prefix_1449/input_audit.json": "5c7543049dde1b20a69bb4563ebeacf87a8b85c78dab8f87c4433a6f38ee94fb"
+  },
+  "expected_features": 50,
+  "minimum_members": 2000,
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "members": "完整复用原cross_breadth的1483109个主板股票日，不按未来标签、必要可买、当前模型有效性或新金额大小重选成员；包括本股。不是完整交易所证券主表。",
+  "weights": "当日收益以截至14:49的amount_1449加权；14:20至14:49收益以14:21—14:49的amount_last29加权。统一来源visible_base，前者须有限且正，后者须有限非负；零尾段金额只给0权重，不删除成员。每天两种总金额都须正，全部成员字段须合格，否则该日参考未知，不静默丢成员。",
+  "reference": "从整数分p49/pc与p49/p20计算百分比涨跌，分别sum(day_amount*day_return)/sum(day_amount)及sum(tail_amount*tail_return)/sum(tail_amount)，不缩尾、不开平方、不调权重、不开额外规模门槛。",
+  "inputs": {
+    "AW01": "(原A01-成交额加权当日涨跌百分比)/原V01",
+    "AW02": "(原A05-尾段成交额加权尾段涨跌百分比)/原V01"
+  },
+  "data_work": "复用原成员中的全天金额及visible_base已有尾段金额；先全量核准键、报价、量额单位和全日/尾段约束，不提取全市场新分钟。固定采用旧等权版32个原档样本，只增核当日与29根金额、辅助五输出和新比值，不按结果重抽样。",
+  "native": "辅助指标沿用原YJEW20的成员与价格定义，五个输出为成员数、当日金额、当日金额乘涨幅、尾段金额、尾段金额乘尾段涨幅；金额除一亿作等价缩放。INSUM重建两个加权均值，门槛成员>=2000且双分母>0。完整客户端成员、历史股本/指数和时效仍未核准。",
+  "verification": "独立SQL从visible_base重建完整同成员及整数报价，重算全部484日两种权重、均值、全部原股票输入与编码；NumPy/Pandas与SQL定义分别实现，32例原档金额复核。全部原48项与有效交集必须不变，否则先另固定同样本控制。",
+  "model": "原两段一年、原48+2共50项、64棵深度3、最小叶300、lr.05、seed20260927、原相对正机会目标和日期等权、原q995；不叠加季度集成或36项消融。",
+  "primary_equal_weight_control": {
+    "root": "data/research/tail_formula_equal_weight_2025",
+    "selection_report_sha256": "e8f614412ef24c701217e79feabd6fc10bdd6deecc610bd5b19b2faa667da7f4",
+    "analysis_report_sha256": "f71496e2aea7cf10c10d6cead92bbd20950220406b71b318bb63f5b59c4fb6d7"
+  },
+  "other_controls": [
+    "data/research/tail_formula_before1000_model_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025"
+  ],
+  "evaluation": "两折及全年共同固定后评价全部原29根指标，再对等权50项及两套48项各报告共同日期、独有日期、共享未知及周块区间。不能只比较对照较弱的一项，也不以参考价当卖出收益。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "no_weight_window_or_threshold_search": true,
+  "amount_quality": "权重沿用人民币原单位；正金额至少0.01元，尾段金额不超过当日金额。每个日期两种总额均至少0.01元；原生按一亿元缩放时MAX分母0.0000000001仅保护零值，不改变合格正分母。任何成员异常使整日参考未知，不补零。"
+}
