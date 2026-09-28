@@ -1,0 +1,48 @@
+{
+  "objective": "此前多个模型主要在稀少行情日集中出信号，独立检验训练输入范围之外的极端组合是否拖累原固定48树；只加事前可算的分布支持过滤，不再重训树或新增技术指标，不预设过滤有效。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_before1000_model_2024/selection_report.json": "b8a07313a7deb80f9fbf0e6f1bc9fe5041357ea0e4b70e4764694d8c38d7fa90",
+    "data/research/tail_formula_before1000_model_2024/selection_verification.json": "05e9b89e14c05acfec8cd731362c476cb312e0b750f2e7a7388a75bf12c7743d",
+    "data/research/tail_formula_before1000_model_recent/selection_report.json": "ad280597734eaef11f5e0aced4a2c79c4901a54ec7b22ab8c677c55f15e899fd",
+    "data/research/tail_formula_before1000_model_recent/selection_verification.json": "ec54c15925760af738c4492e16e3ac02966efa784c5b9028f97143545ce899fd",
+    "data/research/tail_formula_before1000_model_2025/selection_report.json": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+    "data/research/tail_formula_before1000_model_2025/selection_verification.json": "09274f27eaf6afc3464230de60a1a1886fffe2559787f9ad555bbd6bf4a2ce5f",
+    "data/research/tail_formula_before1000_model_2024/model_report.json": "6b7846506c8bf3ba42cd207469f121df7c8be6775e8ae1d01fb20581c3b01239",
+    "data/research/tail_formula_before1000_model_2024/model_verification.json": "d3b61177961407dcbc1544a0959937d3c7e0e253f0b9c7c303c53bba51e40b13",
+    "data/research/tail_formula_before1000_model_2024/score_report.json": "9fcbf743f478cb75c1efacf33728564016e0102e71bd142f8b6322d14fa139a1",
+    "data/research/tail_formula_before1000_model_2024/score_verification.json": "5d34fa9ca5ad556d6896fc3859524fc0683db1bd2945da990e31f979cfad1c4c",
+    "data/research/tail_formula_before1000_model_recent/model_report.json": "9db8e627cbe3c04906c0d97c2ddc7ce71537a6c9fc6ff2bdbb8beb016e97d861",
+    "data/research/tail_formula_before1000_model_recent/model_verification.json": "4b43ca9abf9a0f5b32586023165a850e28f94e0e3743fb8b156350e576a86fed",
+    "data/research/tail_formula_before1000_model_recent/score_report.json": "c1d112860d3597af5e3a404089da2a5e7b195093c8f3bcb2693d08e76636579e",
+    "data/research/tail_formula_before1000_model_recent/score_verification.json": "fff76899a7de31e0d23f4e0c468b4353b93a3ca62bb19d4614a4b6b861d119a6"
+  },
+  "inputs": "原48项和整数编码，原1258085键/1117397有效范围不变。两折纯输入样本为所有formula_input_valid且date在各自训练起止内的可见记录，包含训练末日；不连接known标签或结果，避免用未来是否可评价决定支持范围。",
+  "folds": [
+    {
+      "fold": "2024",
+      "start": "2024-01-01",
+      "end": "2025-01-01"
+    },
+    {
+      "fold": "recent",
+      "start": "2024-07-01",
+      "end": "2025-07-01"
+    }
+  ],
+  "support": "各折对纯输入训练样本按日等权估计48个整数输入的均值及总体标准差，标准差<=1e-12置1。对每条输入取48个绝对标准分的最大值D，不截尾。训练阈值为按日等权D分布的99%左连续经验分位：排序后累计权重首次>=.99处的D。只保留D<=阈值；这是输入偏离度而不是成功概率。",
+  "support_quantile": 0.99,
+  "scale_floor": 1e-12,
+  "expected_features": 48,
+  "selections": "原保守标签同参数48树的两折模型、q995和原名单全部直接复用，原名单分成supported(D<=cut)和rejected(D>cut)两臂；二者不重叠且并集逐字段等于原名单。四折名单和两全年名单共同冻结提交后评价，过滤组无候选也不降低阈值。",
+  "native": "使用原冻结树数值核心与已有X01..X48整数编码，追加48个ABS标准分与MAX聚合，CORE=原SC门限 AND支持条件。无外部名单、INSUM或新行情源；数学核准不代替软件实际编译。",
+  "verification": "生产逐行/分块计算均值方差距离，独立SQL全量重建纯输入成员/编码/日期权重/均值尺度/距离/加权分位；所有最终选中与过滤标记、互斥并集、核心常数及算式逐项核准，原48项来源证明直接复用。",
+  "controls": "supported相对原48未过滤为主要比较，并对旧固定48；rejected完整报告并对原48，补supported对rejected同日比较。共同与独有日期、未知和未买入、参考缺口及日期等权/逐股完整保留，不只报告留存者。",
+  "evaluation": "保持14:49前可见输入、14:52—55原始分钟2万元固定整手/10%容量/费用/权益和排队未知，09:31—09:59正机会/至少1%/参考均值/至少3%不利，5和15基点、质量敏感性和共享未知周块区间；无卖法或持有天数研究。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
