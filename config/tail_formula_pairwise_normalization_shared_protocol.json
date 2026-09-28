@@ -1,0 +1,16 @@
+{
+  "objective": "固定两个配对评分变换的完整比较，不据结果选择第三种变换。",
+  "master_protocol_sha256": "f8adbe4ad0807f97559eb3527a14155110c435465e7ac73336a43e4201e8e928",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "comparisons": [
+    {
+      "left": "data/research/tail_formula_pairwise_scale_2025",
+      "right": "data/research/tail_formula_pairwise_center_2025",
+      "left_analysis_sha256": "66d8b89f4d59ee98cc34fc34f6a8ad5b722374cc51dc0c6e2123d34eb87c6f5f",
+      "right_analysis_sha256": "8a7d78f6efe25499e8d3286de2554d5156c57ad1929862efb9e7571641e5b9bb",
+      "output": "data/research/tail_formula_pairwise_normalization/shared_scale_minus_center.json"
+    }
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
