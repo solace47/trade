@@ -1,0 +1,29 @@
+{
+  "objective": "检验严格此前日级价格路径的连续性；在相同净涨跌幅下区分连续推进与反复震荡，只追加DE05/DE20。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_1000/feature_report.json": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "history_first": "2023-06-01",
+  "windows": [
+    5,
+    20
+  ],
+  "inputs": "分别用此前6和21个完整股票日收盘，100*(最近收盘-最早收盘)/累计相邻收盘绝对差；全部平收时为0，表示无方向，历史缺失则未知。范围[-100,100]，当前未收盘价格不进入两个新指标。",
+  "source_scope": "使用既有未复权日线与原分钟最后收盘核对，只读至2025-12-30，2023仅作历史初始化；不将原始价格路径解释为复权投资回报或主力身份。历史参考价跳变及停牌间隔单列，保留完整原48项口径，不借事后结果修复价格。",
+  "quality": "要求最近21个股票日全部收盘有限、正数、合法整数分及adjustflag=3，不跳过坏日。所有键和原48项保留，新失效进入同质量修正48项对照。",
+  "not_duplicate": "原48项有净5/20日涨跌与ATR，没有日级累计绝对收盘变化分母；此前方向量按涨跌符号加权成交量。旧Alpha158线性固定退出结果保留，本轮只向现有非线性次晨模型追加这两个日级路径输入，不重做整套Alpha158。",
+  "native": "只用既有DCP1至DCP21、ABS及IF，按此前完整股票日引用。32个四半年各8个固定哈希有效样本另复读此前21个原始分钟日并核对最终收盘和原生整数编码。不是EMA或默认RSI，无递推初始化或跨周期新增依赖。",
+  "model": "原48+2、两段一年训练、原相对同日机会目标、日期等权、64棵深度3树、300最小叶、0.05步长、固定种子20260927、99.5%训练分位。回到标准原模型，不叠加整周平均或市值基线。",
+  "comparison": "两段、全年及同质量修正48项共同冻结后，统一29根评价完整结果和同日差；旧固定48项同29根作另一对照。若同质量名单不变则复用原结果。",
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "secondary_control_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "no_window_or_parameter_scan": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
