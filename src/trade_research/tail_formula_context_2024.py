@@ -64,6 +64,15 @@ def combine():
     return r
 
 
+def normalized_selection_flags(frame):
+    """Accept both non-null Boolean storage types, without coercing missing flags."""
+    assert pd.api.types.is_bool_dtype(frame.selected.dtype)
+    assert frame.selected.notna().all(), 'Unknown selection flags are not valid selections'
+    result = frame.copy()
+    result['selected'] = result.selected.astype(bool)
+    return result
+
+
 def verify_combined():
     r=json.loads((COMBINED/'selection_report.json').read_text())
     assert r['protocol_sha256']==sha(PROTOCOL) and r['selection_sha256']==sha(COMBINED/'selection.parquet')
@@ -78,7 +87,8 @@ def verify_combined():
         (a.date>='2025-01-01' AND a.date<'2025-07-01' AND a.selected) OR
         (a.date>='2025-07-01' AND a.date<'2026-01-01' AND b.selected) AS selected
         FROM a JOIN b USING(date,code) ORDER BY date,code''').df()
-    pd.testing.assert_frame_equal(pd.read_parquet(COMBINED/'selection.parquet'),expected,check_exact=True)
+    pd.testing.assert_frame_equal(normalized_selection_flags(pd.read_parquet(COMBINED/'selection.parquet')),
+                                  normalized_selection_flags(expected),check_exact=True)
     assert int(expected.selected.sum())==r['selected']==sum(f['selected'] for f in r['folds'])
     proof=dict(passed=True,selection_report_sha256=sha(COMBINED/'selection_report.json'),rows=len(expected),
         all_time_windows_and_selection_flags_rebuilt=True,no_new_group_outcomes_read=True,new_2026_prices_read=False)
