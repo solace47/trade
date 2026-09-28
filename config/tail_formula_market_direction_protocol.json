@@ -1,0 +1,42 @@
+{
+  "objective": "把大盘下跌分钟与上涨分钟中的个股超额变化分开，检验抗跌与跟涨是否包含被总相对强弱和对称相关掩盖的信息；不拟合贝塔、不识别主力，不扫描方向或窗口。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_context/source_report.json": "5a72cb50f75d2bd5d3900ee1869927104e3c37361cb33f22f0436bf5e7234599",
+    "data/research/tail_formula_context/feature_report.json": "9bfc158fcea31442b21cd2afbc97d384877a6bece25635d4c4768f7b34ab463a",
+    "data/research/tail_formula_context/feature_verification.json": "b0bfd01b4d3d7b2c4415ac2f59d256e9a9cf67bcb5395d1b4569f07082adc8e9",
+    "data/research/tail_formula_path_variance/window_report.json": "153917c272b25709ca9c1708931bde52fcaaa8ff051c51ccd803e3cefc22d699",
+    "data/research/tail_formula_path_variance/feature_verification.json": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2",
+    "data/research/tail_formula_volume_response/native_input_verification.json": "5c305f6188190bcf2543c6e6befec526d87000ea0aba3b6ab682201e7177441d",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "index_first_sequence": 199,
+  "index_last_sequence": 227,
+  "return_bars": 28,
+  "new_fields": [
+    "DU01",
+    "DU02"
+  ],
+  "expressions": {
+    "DU01": "DUD/V01",
+    "DU02": "DUU/V01"
+  },
+  "input": "同标签14:20—14:48共29点形成28项x=100*LN(指数相邻价比)、y=100*LN(股票相邻价比)。DU01=sum(IF(x<0,y-x,0))/V01，DU02=sum(IF(x>0,y-x,0))/V01；x=0两项均不计。原ATR百分比V01保持，不按方向分钟数除、不用拟合斜率。",
+  "timing": "股票和指数均固定同标签14:20—14:48，当前1449个股不会参与这两个新增指标；原48项仍截至1449。指数继续使用已核准历史代表价序号199—227，不替换为客户端来源，保留INDEXC对齐限制。",
+  "validity": "29个点全部为有限正值且标签唯一，序号来自原前228点连续且正价的有效前缀；原48有效性及原V01>0保持。股票以旧缓存整数分收盘，指数price_raw/100。不读取1448后的指数点决定输入有效性；所有历史无效和缺失保留。任何有效交集减少先另固定同交集48控制。",
+  "native": "DUCR=100*LN(C/REF(C,1))；DUIR=100*LN(INDEXC/REF(INDEXC,1))；DUD/DUU=VALUEWHEN(TIME=1448,SUM(IF(DUIR<0或>0,DUCR-DUIR,0),28))；再除V01。平指数两项0而不是缺失，无对应方向分钟也输出0，额外报告计数，不据计数筛选。",
+  "verification": "生产向量按log变化符号求和，独立SQL逐点展开以原指数价严格大小分类后聚合。全量值、有效性及整数编码对照；32固定原始股票日重新运行实际REF/LN/IF/SUM/VALUEWHEN，并改变1449及未来验证无影响。测试同步股票=指数为0、仅下跌抗跌贡献、仅上涨跟涨贡献、平指数不填造缺失、缺点不跳过、单位缩放不变和未来隔离。",
+  "model": "原48+DU01/DU02为50项；原两段一年、502747/522653已知有效例、原全已知池相对机会均值、日期等权、64树深度3/minleaf300/lr.05/seed20260927/q995保持。两模型、三名单共同提交后才评价，完整全字段名单相同复用；只年度聚合含两半年。",
+  "distinction": "此前历史20日联动和当日28分钟对称相关/斜率残差都失败。本轮是不拟合斜率的方向条件超额变化拆分；只加这两项，不沿用先前相关因子，也不追调窗口或拆分阈值。",
+  "controls": "原保守标签同参数48和旧固定48，完整自身、共同及独有日期、共享未知与参考缺口均保留。没有新2026和卖法。",
+  "evaluation": "原09:31—09:59标签、原两万元股数与1452—1455原始分钟买入、10%容量、5/15基点及原排队未知、公司行动未知保持。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "expected_features": 50,
+  "no_duplicate_half_year_aggregation": true
+}
