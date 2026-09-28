@@ -41,6 +41,10 @@
 
 `scripts/audit_tail_formula_reference_coverage.py --root <年度目录>`从原选择与标签分别用Pandas／SQL检查两成本、两质量口径的参考缺失、末端严格正事件和日均参考价。它写独立证明，不修改既有分析；参考不全的已知机会仍保留，全未知日期存null。两轮新同日比较分别由`tail_formula_absolute_zero_shared_unknowns_protocol.json`及`tail_formula_endpoint_positive_shared_unknowns_protocol.json`固定，沿用共同日期与共享未知工具。
 
+双评分交集用`trade_research.tail_formula_joint_reference freeze`和`verify`，一次固定两臂各五份选择（两半年、全年、被过滤、被整日过滤）。十份共同核准提交后，逐个`--arm squared/huber --fold 2024/recent/2025/removed/removed_dates analyze`并运行严格29根分析核查器；不生成被过滤组的反向原生公式。
+
+逐轮整日抽样用`trade_research.tail_formula_date_subsample`。两折先各`verify_inputs`，独立SQL重建原训练交集、标签与64轮SHA日程；随后按`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，再共同固定全年后评价。原训练241日每轮固定取120日，评分门槛仍完整训练q995；不调用旧独立树平均验证器。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
