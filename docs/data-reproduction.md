@@ -19,6 +19,8 @@
 
 单指标分段加分直接用`trade_research.tail_formula_stumps`，两折及全年阶段顺序与60日模型相同，但使用原48项，不重复生成输入。`verify_model`专门核准256棵单分裂树，不能使用原64棵深度3模型验证器代替；全量评分仍由独立SQL重建。模型、阈值和名单不得据2025评价覆盖。
 
+整段净价格面积先用`trade_research.tail_formula_path_area_labels target`与`verify`，再运行`trade_research.tail_formula_path_area`的两折／全年模型与选择阶段。该训练表保留原二元机会，另增`path_area15`；拟合使用`path_area`目标，评价仍连接原29根全池标签。共用模型代码新增分支后，原两折正机会模型证明字节保持；不重拟合原控制。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
