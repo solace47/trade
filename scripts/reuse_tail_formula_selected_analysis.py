@@ -23,7 +23,11 @@ def reuse(target, source):
     assert proof['passed'] and proof['analysis_report_sha256'] == sha(source / 'analysis_report.json')
     assert report['selection_report_sha256'] == sha(source / 'selection_report.json')
     assert report['daily_summary_sha256'] == sha(source / 'daily_summary.parquet')
-    assert report['full_label_verification_sha256'] == sha(source / 'full_label_verification.json')
+    if 'full_label_verification_sha256' in report:
+        assert report['full_label_verification_sha256'] == sha(source / 'full_label_verification.json')
+    else:
+        assert report['reference_label'] == '09:59'
+        assert report['label_report_sha256'] == sha(source / 'full_label_report.json')
     labels = json.loads((source / 'full_label_report.json').read_text())
     label_proof = json.loads((source / 'full_label_verification.json').read_text())
     assert label_proof['passed'] and label_proof['label_report_sha256'] == sha(source / 'full_label_report.json')
