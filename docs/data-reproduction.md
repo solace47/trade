@@ -59,6 +59,8 @@
 
 季度留段平均入口为`trade_research.tail_formula_quarter_ensemble`。每折先`verify_inputs`，按标签next_date的自然季度核准全部分组，再依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`。组件原始模型分文件保存，可在相同协议／代码指纹下恢复；每折四条完整64轮提升链全部保留并等权平均，不能选择单个组件。两折及`combined`全部冻结后执行`gate`，然后才允许三份`analyze`与独立29根核算。`test_tail_formula_quarter_ensemble.py`核对观察季度与平均运算。
 
+纯个股36项使用`trade_research.tail_formula_stock36`的`features`、`verify_features`、`native`，先证明33项原输入加股本有效性可独立复现同一股票池，静态核对完全去掉指数依赖；不重复提取旧分钟。模型入口`trade_research.tail_formula_stock36_model`沿用两折及全年先训练、核准、评分、共同冻结，再完整保守窗口评价的流程。原FINANCE(7)及完整客户端过滤边界继续保留。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
