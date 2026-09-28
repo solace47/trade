@@ -1,0 +1,31 @@
+{
+  "objective": "只追加个股相对本库等权主板群体的当日与末29分钟表现；既有大盘指数、涨跌家数和大小盘指标失败记录保持。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_cross_breadth/feature_report.json": "464ab44487b31bb89cd7a498aa0ed4c84b3e6e5b71399481edd8f6f707a25529",
+    "data/research/tail_formula_cross_breadth/feature_verification.json": "ef7eae067e7ca0281eb5437bbd12ce6da2f026196320177273769614cc6f7909",
+    "data/research/tail_formula_cross_breadth/coverage_verification.json": "7c54aae86cf8436921c72251ad21cc1101696108e6c2b794034486bcb3377dd9",
+    "data/research/tail_formula_cross_breadth/native_input_verification.json": "94133ede7ef7d726b43bc801ab0f8cdc13a6f8ed2a9c4b65d560a13164b4d02b"
+  },
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "minimum_members": 2000,
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "members": "完全复用cross_breadth已核准的1483109个主板股票日成员，不要求候选必要可买，不用次日标签，不剔除本股；上市20个股日、历史非ST和正常交易、14:49有效前缀与正量额。不是完整交易所证券主表。",
+  "benchmark": "从整数分报价计算100*(14:49/前收-1)及100*(14:49/14:20-1)，按当日全部成员等权平均，不缩尾、不看后续结果选成员。至少2000成员，覆盖只诊断。",
+  "inputs": {
+    "EW01": "(原A01-等权当日涨跌百分比)/原V01",
+    "EW02": "(原A05-等权14:20至14:49涨跌百分比)/原V01"
+  },
+  "interpretation": "共同群体均值包含本股，避免剔除自身带来的机械分母差。新参考池、权重和14:49时点与原INDEXC代表价不同，不能把任何效果单独归因于等权或单一分钟。不是资金净流入或主力身份。",
+  "native": "辅助指标YJEW20沿用原主板成员与截止防护，输出成员、当日涨跌幅和尾段涨跌幅；主公式INSUM汇总三个输出并除以成员数。需要辅助指标，尚未证明完整客户端覆盖或历史成员一致，不能冒称单段公式已可交付。",
+  "source_url": "https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html",
+  "verification": "原全部键与48项不变。独立SQL从原visible_base按代码范围重建成员及整数报价，重建全部484日均值和125.8万股票日两项输入与编码。固定32个原始分钟前缀核对报价、前收与辅助输出。对照为同质量修正48项，并保留旧固定48项同29根比较。",
+  "model": "原两段一年训练、相对机会目标、标准64棵深度3树、min_samples_leaf300、lr.05、日期等权、seed20260927、训练99.5%分位，原48项加两项共50。不叠加日级路径或量集中指标。",
+  "evaluation": "两段、全年、同质量对照共同冻结后评价。原对照逐值不变时复用全部既存结果。2025探索，全部信号日、未知和未买入保留；共同日期不能代替独有日期。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

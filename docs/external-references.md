@@ -44,3 +44,6 @@
 - [Positive feedback trading, the T+1 rule, and asymmetric return reversals in China](https://doi.org/10.1016/j.econmod.2026.107783)出版商检索摘要描述高换手下跌后的反转及其次日日内集中性，主体是市场指数；详情页本次未成功打开。不能由摘要推出具体股票在10点前有利润，也不重做本仓库已完成的下跌放量反转。仅记录检索层面的参考和访问限制，不声称完整读过论文。
 
 2026-09-28另读[Breiman《Bagging Predictors》1994技术报告](https://www.stat.berkeley.edu/~breiman/bagging.pdf)及[scikit-learn集成学习说明](https://scikit-learn.org/stable/modules/ensemble.html#bagging-meta-estimator)：独立拟合重抽样版本再平均可降低部分不稳定学习器的方差，与逐轮拟合残差的提升法不同；效果依赖问题，不能从其非金融数据结果推出股票盈利。股票日记录并非独立，若接续检验需按完整时间块抽样，不能把同日几千只股票当几千次独立行情。当前市值基线实验已固定，不据此改动该实验。
+
+
+2026-09-28核对[通达信官方函数列表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)：HYBLOCK使用客户端设置的行业体系，未说明等同本库证监会历史分类，不能直接混接。INSUM支持辅助指标输出的板块求和／均值，可表达本轮等权主板参考；语法能力不证明客户端成员、历史行情和本库逐点一致。INSORT虽提供横向排序，文档未明确同值排名方式，本轮不据此另造未经核准的历史百分位输入。
