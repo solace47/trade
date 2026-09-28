@@ -1,5 +1,16 @@
 # 数据复算
 
+## 当前保守窗口与首季三版本
+
+命令前缀为`PYTHONPATH=src .venv/bin/python`；模块加`-m`，脚本直接给路径。当前价格机会统一09:31—09:59，旧30根结果不得混用。所有已冻结产物拒绝覆盖，复核阶段可以重读已有产物。
+
+1. 先固定`tail_formula_daily_efficiency_q1`的`control`／`path`两模型及`tail_formula_equal_weight_q1`模型，独立核验后分别`freeze_models`／`freeze_model`；再执行`tail_formula_q1_candidates models_gate`。模型只训练2025，首季此前已暴露，不称盲测。
+2. `tail_formula_q1_candidate_inputs`依次`features`、`verify_features`、`native`；`scripts/freeze_tail_formula_q1_candidates.py`依次`scores`、`verify_scores`、`freeze`、`verify`。全部版本名单共同固定后才能继续。
+3. `tail_formula_q1_candidate_observations`依次`prepare`、`reuse_evidence`、`raw`、`windows`，运行`scripts/verify_tail_formula_q1_observations.py windows`，再生成`labels30`并由同脚本`labels30`复核。此30根层只用于保持原来源与未知状态。
+4. `tail_formula_q1_candidate_boundary build`后由`scripts/verify_tail_formula_q1_boundary.py observations`复核；再生成`labels`并由同脚本`labels`复核。`scripts/analyze_tail_formula_q1_candidates.py analyze --variant <control/path/equal_weight>`及`verify`检查三份完整报告，最后`comparisons`核对共同日期、共享未知和同质量控制复用。输出在`data/research/tail_formula_q1_candidates/`。
+
+同日配对排序接续复用2024—2025的原48项和已核准29根标签。模块`tail_formula_pairwise model --fold <2024/recent>`后运行`scripts/verify_tail_formula_pairwise.py --fold <同段>`；随后模块的`scores`、`verify_scores`、`freeze`、`verify`。两段完成后`--fold combined`执行`freeze`与`verify`，才能对两段及全年`analyze`，每份结果用`scripts/verify_tail_formula_before1000.py analysis --root <对应目录>`独立核准。这一接续不读取新2026价格。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
