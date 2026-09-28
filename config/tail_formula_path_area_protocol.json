@@ -1,0 +1,30 @@
+{
+  "objective": "学习整个保守次晨窗口的净价格面积，兼顾持续时间和涨跌幅度；仍只优化选股，不制定卖出时点。",
+  "source_hashes": {
+    "data/research/tail_formula_before1000/observation_report.json": "1ed9b02497ac375a76d17bd69370fa6b285b6b66bdef17c603cada6e1503a200",
+    "data/research/tail_formula_before1000/observation_verification.json": "081e3189df50528447697aa7b47efb7ed93bb5d5183a5887beece24e847f8e5f",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "target_window": [
+    "09:31",
+    "09:59"
+  ],
+  "target_window_bars": 29,
+  "training_first": "2024-01-01",
+  "training_observation_end_exclusive": "2025-07-01",
+  "target": "逐根沿用15基点和费用计算正成交收盘的净参考幅度r；path_area15=sum(有成交分钟的r)/29，训练效用为100*path_area15再减同日原全部known15基础池的效用均值。固定29个时刻等权，不取最佳分钟、不截尾、不搜索尺度。",
+  "inactive": "无正成交分钟对训练面积贡献0，表示该时刻没有可观察的活跃价格贡献；绝不把它称为实现零收益或补出参考价。另存活跃分钟数与仅活跃时刻的参考均值，零活跃原known15记录不删除，原参考缺失和评价状态保持。",
+  "unknowns": "只使用原known15训练键；原未知和未买入不恢复。源正机会标签与完整29根成本标记须逐值复现。",
+  "differs_from_old": "旧时长目标只数正值分钟而不区别盈亏幅度；旧软空间目标取最佳连续三根且饱和±1%；本轮整个窗口的正负幅度都累计，不用最佳段。",
+  "model": "原48项、原两段一年训练、日期等权、64深度3、最小叶300、lr.05、seed20260927、q995；不叠加60日输入或单分裂结构。",
+  "control": "复用同样本原29根正机会48项完整模型及名单；原旧固定48项作辅助。先核准训练键有效交集不变。",
+  "evaluation": "两半年及全年完整名单先冻结再评价；统一原29根机会、1%空间、09:59标记、全窗口不利幅度、5/15基点、未知界和原两套48项对照。不能把先后目标的改善代替这些完整指标。",
+  "year_2025_is_exploratory": true,
+  "new_2025H2_path_groups_allowed": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "path_area_is_not_realized_return": true
+}
