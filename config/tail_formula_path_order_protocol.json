@@ -1,0 +1,34 @@
+{
+  "objective": "只改变训练目标，识别次晨正机会先于较大不利幅度的股票；评价保持完整29根原指标，不制定或优化卖出。",
+  "source_hashes": {
+    "data/research/tail_formula_before1000/observation_report.json": "1ed9b02497ac375a76d17bd69370fa6b285b6b66bdef17c603cada6e1503a200",
+    "data/research/tail_formula_before1000/observation_verification.json": "081e3189df50528447697aa7b47efb7ed93bb5d5183a5887beece24e847f8e5f",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "target_window": [
+    "09:31",
+    "09:59"
+  ],
+  "target_window_bars": 29,
+  "positive_threshold": 0.0,
+  "adverse_threshold": -0.03,
+  "consecutive_active_minutes": 3,
+  "target": "按原15基点成本逐根计算价格标记；首次连续三根正成交收盘净标记>0的完成位置，须严格早于首次正成交分钟低价净标记<=-3%的位置；同一分钟完成则不算成功。没有正机会仍为0，没有不利触及用窗口结束后的哨兵。",
+  "unknowns": "只使用原known15训练键，原未知不能恢复，原零正成交的已知记录目标仍0。",
+  "training_first": "2024-01-01",
+  "training_observation_end_exclusive": "2025-07-01",
+  "implementation": "原始分钟数组与有效位掩码复用；独立SQL逐根成本标记、时间顺序与三根连续机会重建。原正机会和全窗口较大不利事件须先逐值复现。",
+  "model": "原48项、日期等权相对二元目标、64棵深度3、最小300、lr.05、seed20260927、原两段一年训练、q995，不与配对排序模型叠加。",
+  "evaluation": "两半年及全年完整名单先冻结再评价；统一原29根机会、1%空间、09:59标记、全窗口不利幅度、5/15基点、未知界和原两套48项对照。不能把先后目标的改善代替这些完整指标。",
+  "no_barrier_fills_assumed": true,
+  "no_first_hit_sale_assumed": true,
+  "no_label_level_search": true,
+  "differs_from_old_quality_target": "旧联合质量目标要求1%空间且整个窗口无3%不利；本轮只要求正机会与3%不利的先后，后续回落在完整评价中仍计入。",
+  "year_2025_is_exploratory": true,
+  "new_2025H2_path_groups_allowed": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
