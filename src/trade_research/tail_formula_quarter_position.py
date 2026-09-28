@@ -17,6 +17,7 @@ ROOT = Path('data/research') / STEM
 PROTOCOL = Path('config') / (STEM + '_protocol.json')
 DAILY_REPORT = Path('data/research/tail_formula_1000/feature_report.json')
 MINUTE_MANIFEST = Path('data/research/economic_winner/input_manifest.json')
+NATIVE_PROTOCOL = Path('config') / (STEM + '_native_protocol.json')
 NEW_EXPRESSIONS = {'QP01': '100*(Q/QPM60-1)/V01',
                    'QP02': '100*(Q-QPL60)/MAX(QPH60-QPL60,0.01)'}
 EXPRESSIONS = {**previous.EXPRESSIONS, **NEW_EXPRESSIONS}
@@ -53,6 +54,30 @@ def position(price, volatility, total_cents, lo_cents, hi_cents):
     low = np.asarray(lo_cents, dtype=float) / 100
     high = np.asarray(hi_cents, dtype=float) / 100
     return 100*(price/mean-1)/volatility, 100*(price-low)/np.maximum(high-low, .01)
+
+
+def trading_minute_projection(raw, daily, signal_date):
+    """Project a padded vendor grid onto the predeclared active-day convention.
+
+    This is a conditional replay convention, not proof of client data parity.
+    Unexplained, missing, or traded extra dates remain errors.
+    """
+    assert not daily.date.duplicated().any()
+    expected = set(daily.loc[daily.tradestatus.eq(1), 'date']) | {signal_date}
+    dates = raw.timestamp.dt.strftime('%Y-%m-%d')
+    assert expected <= set(dates), 'Missing active-day minutes cannot be discarded'
+    removed = []
+    for day in sorted(set(dates)-expected):
+        state = daily.loc[daily.date.eq(day)]
+        assert len(state) == 1 and state.tradestatus.iloc[0] == 0, 'Unexplained extra date'
+        bars = raw.loc[dates.eq(day)]
+        assert bars[['close', 'volume', 'turnover']].notna().to_numpy().all(), 'Missing halt values cannot establish padding'
+        assert pd.notna(state.close.iloc[0]) and np.isfinite(float(state.close.iloc[0]))
+        assert bars.volume.eq(0).all() and bars.turnover.eq(0).all(), 'Traded records cannot be treated as halt padding'
+        assert np.isfinite(bars.close).all() and bars.close.sub(state.close.iloc[0]).abs().le(.0001).all()
+        removed.append(dict(date=day, rows=len(bars), daily_status=0, all_volume_and_turnover_zero=True))
+    projected = raw.loc[dates.isin(expected)].reset_index(drop=True)
+    return projected, removed
 
 
 def features():
@@ -151,6 +176,7 @@ def verify_features():
     proof = dict(passed=True, feature_report_sha256=sha(ROOT / 'feature_report.json'), rows=len(f),
         independent_pandas_60_day_windows_and_sql_values_verified=True,
         all_prior_48_values_unchanged=True, all_keys_validity_and_integer_encodings_verified=True,
+        effective_input_intersection_unchanged=bool(np.array_equal(f.formula_input_valid, old.formula_input_valid)),
         new_group_outcomes_read=False, new_2026_prices_read=False, no_exit_rules=True)
     save_json(ROOT / 'feature_verification.json', proof); return proof
 
@@ -158,18 +184,24 @@ def verify_features():
 def native():
     p, _ = checked_sources(); proof = json.loads((ROOT / 'feature_verification.json').read_text())
     assert proof['passed'] and proof['feature_report_sha256'] == sha(ROOT / 'feature_report.json')
+    amendment = json.loads(NATIVE_PROTOCOL.read_text())
+    assert amendment['inputs_protocol_sha256'] == sha(PROTOCOL)
+    for file, digest in amendment['evidence'].items():
+        assert sha(Path(file)) == digest
     f = pd.read_parquet(ROOT / 'features.parquet'); selected = f.loc[f.formula_input_valid].copy()
     selected['sample_hash'] = [hashlib.sha256((d+'|'+s+'|quarter-position-v1').encode()).hexdigest() for d,s in zip(selected.date,selected.code)]
     sample = selected.sort_values('sample_hash').groupby('half', sort=True).head(8).sort_values(['date', 'code'])
     sources = json.loads(MINUTE_MANIFEST.read_text())['source_sha256']; receipts = []
     from .corporate_cash import DAILY
     for row in sample.itertuples():
-        daily = pd.read_parquet(DAILY / (row.code.replace('.', '_')+'.parquet'), columns=['date', 'close', 'tradestatus'],
+        daily_all = pd.read_parquet(DAILY / (row.code.replace('.', '_')+'.parquet'), columns=['date', 'close', 'tradestatus'],
             filters=[('date', '>=', row.qp_first_date), ('date', '<', row.date)])
-        daily = daily.loc[daily.tradestatus.eq(1)].sort_values('date'); assert len(daily) == 60
+        daily = daily_all.loc[daily_all.tradestatus.eq(1)].sort_values('date'); assert len(daily) == 60
         path = MINUTES / row.code[:2].upper() / (row.code[3:]+'.parquet'); assert sha(path) == sources[str(path)]
-        raw = pd.read_parquet(path, columns=['timestamp', 'close'], filters=[
+        raw = pd.read_parquet(path, columns=['timestamp', 'close', 'volume', 'turnover'], filters=[
             ('timestamp', '>=', pd.Timestamp(row.qp_first_date)), ('timestamp', '<=', pd.Timestamp(row.date+' 14:49'))]).sort_values('timestamp').reset_index(drop=True)
+        vendor_rows = len(raw)
+        raw, removed = trading_minute_projection(raw, daily_all, row.date)
         dates = raw.timestamp.dt.strftime('%Y-%m-%d'); assert dates.drop_duplicates().tolist() == daily.date.tolist()+[row.date]
         assert not raw.timestamp.duplicated().any()
         last = raw.groupby(dates, sort=True).tail(1)
@@ -188,11 +220,14 @@ def native():
         for name, value in zip(NEW_EXPRESSIONS, values):
             np.testing.assert_allclose(value, getattr(row,name), rtol=0, atol=2e-9)
             assert np.floor(np.clip(100*value+10000+.000001,0,999999)) == np.floor(np.clip(100*getattr(row,name)+10000+.000001,0,999999))
-        receipts.append(dict(date=row.date, code=row.code, first=row.qp_first_date, raw_minutes=len(raw), source_sha256=sources[str(path)]))
+        receipts.append(dict(date=row.date, code=row.code, first=row.qp_first_date, raw_minutes=len(raw),
+            vendor_rows=vendor_rows, removed_halt_padding=removed, source_sha256=sources[str(path)]))
     assert len(receipts) == 32
     r = dict(passed=True, feature_report_sha256=sha(ROOT / 'feature_report.json'),
         feature_verification_sha256=sha(ROOT / 'feature_verification.json'), samples=receipts,
-        raw_minutes=sum(x['raw_minutes'] for x in receipts), all_60_native_stock_day_boundaries_replayed=True,
+        raw_minutes=sum(x['raw_minutes'] for x in receipts), vendor_rows=sum(x['vendor_rows'] for x in receipts),
+        native_protocol_sha256=sha(NATIVE_PROTOCOL), conditional_active_day_projection=True,
+        all_60_native_stock_day_boundaries_replayed=True,
         software_history_depth_verified=False, software_compilation_verified=False,
         native_source_parity_verified=False, new_group_outcomes_read=False, new_2026_prices_read=False, no_exit_rules=True)
     save_json(ROOT / 'native_input_verification.json', r); return r
