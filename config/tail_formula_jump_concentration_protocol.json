@@ -1,0 +1,43 @@
+{
+  "objective": "原48项只追加尾段分钟涨跌平方份额集中度，区分同样总波动由少数大幅跳动贡献、或较均匀地分布在各分钟。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_path_variance/window_report.json": "153917c272b25709ca9c1708931bde52fcaaa8ff051c51ccd803e3cefc22d699",
+    "data/research/tail_formula_path_variance/feature_report.json": "f7708e59415d4aed68f03cf40e07c1d1769c3dc3d66e325c0d97517fe026276a",
+    "data/research/tail_formula_path_variance/feature_verification.json": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "src/trade_research/tail_formula_path_variance.py": "923da959ca950cb2bd1c54b0770561630d69a5166190f031844424fd5e204503"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "window_first": "1420",
+  "window_last": "1449",
+  "prices": 30,
+  "return_bars": 29,
+  "definition": "rt=100*ln(Ct/Ct-1)，t=14:21..14:49。JC01=100*(29*sum(rt^4)/(sum(rt^2)^2)-1)/28；所有rt为0时取0。平方份额均匀为0，仅一条非零为100。不按方向分组，不改29条长度或扫描不同幂次。",
+  "scope": "只加JC01共49项。保留原64轮、深度3、最小叶300、完整日期权重、相对二元目标和q995；不混合先后量价或刚失败的训练改动。",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "expected_features": 49,
+  "expected_keys": 1258085,
+  "expected_valid": 1117397,
+  "verification": "原已核准价格宽表全部复用；NumPy份额平方与独立SQL四次幂和核对、原48项及有效输入保持；复用32个固定原始分钟样本，以实际生成的SUM和VALUEWHEN算式验证边界及整数编码。测试全平、均匀、单跳、多跳及符号和正比例不变。",
+  "native_header": "JCR:=100*LN(C/REF(C,1));\nJCQ:=SUM(JCR*JCR,29);\nJCF:=SUM(JCR*JCR*JCR*JCR,29);\n",
+  "expressions": {
+    "JC01": "VALUEWHEN(TIME=1449,IF(JCQ>0,100*(29*JCF/MAX(JCQ*JCQ,0.000000000000000000000001)-1)/28,0))"
+  },
+  "controls": "原有效交集保持时直接复用严格29根同参数48项及旧固定48项；否则先冻结同交集控制。完整两折及全年共同固定并提交后才评价；完整未知、独有日期和质量敏感性保留。",
+  "caveat": "分钟报价波动集中度，包括零成交分钟的报价；不能推出资金身份、未来方向或沿途可成交。新指标不等同已有成交量集中度或价格总波动。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
