@@ -1,0 +1,37 @@
+{
+  "master_protocol_sha256": "48706d739e17789afb13f46a4c3063438e032892f847b2285a662899c9af4847",
+  "variant": "refit",
+  "training_start": "2024-07-01",
+  "training_split": "2025-01-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "expected_rows": 520374,
+  "expected_days": 240,
+  "group_rows": [
+    251792,
+    268582
+  ],
+  "group_days": [
+    124,
+    116
+  ],
+  "components": [
+    "2024h2",
+    "2025h1"
+  ],
+  "parameters": {
+    "n_estimators": 128,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_quantile": 0.995,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}

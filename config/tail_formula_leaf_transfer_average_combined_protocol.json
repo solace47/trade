@@ -1,0 +1,12 @@
+{
+  "master_protocol_sha256": "48706d739e17789afb13f46a4c3063438e032892f847b2285a662899c9af4847",
+  "variant": "average",
+  "fold_protocols": [
+    "config/tail_formula_leaf_transfer_average_2024_protocol.json",
+    "config/tail_formula_leaf_transfer_average_recent_protocol.json"
+  ],
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
