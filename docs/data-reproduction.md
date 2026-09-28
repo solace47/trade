@@ -29,6 +29,10 @@
 
 此前5／20日波幅比例用`trade_research.tail_formula_range_change`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_range_change_model`，两折及全年先共同固定再评价。验证器保留空历史SUM为空、COUNT为0，原输入文件保持不变。
 
+末端目标使用`trade_research.tail_formula_endpoint_robust`。旧主协议在任何拟合前因参考缺失失败，执行以`tail_formula_endpoint_robust_v2_protocol.json`为准，旧错误收据保留。先按两折运行`verify_inputs --arm squared`，独立重建连续及二元同样本目标；随后对`squared/huber/binary`三臂、`2024/recent`两折分别依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`。三臂各自`--fold combined`冻结并核准全年，九份选择齐备后才能评价任一臂。评估仍用原29根完整标签，训练参考有限约束不得进入推断或评价过滤。固定scikit-learn1.7.2源码与本地安装一致，专用模型复核器另外核准Huber每轮分位与叶更新；不是普通残差均值验证器的别名。
+
+日期衰减权重使用`trade_research.tail_formula_recency_weight`，原48项和标签不重建。两折及全年同样先模型、验证、评分、验证、冻结、验证，再共同评价；63日半衰期在协议内固定。日期权重只用于训练，评分门槛仍原逐股训练分数q995，评估仍日期等权。上述每份分析继续用`scripts/verify_tail_formula_before1000.py analysis --root <目录>`核准；共同日期／共享未知工具不变，不新增2026价格。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
