@@ -1,0 +1,15 @@
+{
+  "inputs_protocol_sha256": "6491c9ba0e86f3c16a5decd5d6936c4042ba41b9f7aa78e6f5ae31f39f890e04",
+  "fold_protocols": [
+    "config/tail_formula_reversal_change_joint_2024_protocol.json",
+    "config/tail_formula_reversal_change_joint_recent_protocol.json"
+  ],
+  "arm": "joint",
+  "paired_arm": "control",
+  "same_training_input_table_sha256": "2ed28018ae117c201a2737db60d832c5e38b09feea85b4990620a8cc93c793ce",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "native_protocol_sha256": "b0f28dac6e9ad3e97d6e86c843df033e3a9f083b3cb2d06107616f4741938786"
+}

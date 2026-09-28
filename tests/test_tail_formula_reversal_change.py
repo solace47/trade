@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from trade_research.tail_formula_reversal_change import native_values, rebuild_history
+from trade_research.tail_formula_reversal_change_daily_native import replay_helper
 
 
 def test_generated_expressions_exclude_today_and_separate_recent_history():
@@ -35,3 +36,16 @@ def test_missing_history_is_not_refilled_or_counted_as_observed_zero():
     assert got.rc_good.iloc[301:561].eq(259).all()
     assert got.rc_good.iloc[561] == 260
     assert got.rc_rows.iloc[301:561].eq(260).all()
+
+
+def test_daily_helper_completed_windows_unknowns_and_current_pollution():
+    o=np.full(263,9.);c=np.full(263,10.)
+    o[241:261]=11.
+    got=replay_helper(o,c)
+    assert np.isnan(got[:261]).all()
+    np.testing.assert_allclose(got[261],[100,-100],atol=1e-12)
+    np.testing.assert_allclose(got[262],[95-100/240,-95+100/240],atol=1e-12)
+    o[261:]=1e9;c[261:]=.01
+    np.testing.assert_array_equal(replay_helper(o,c)[261],got[261])
+    o[180]=np.nan
+    assert np.isnan(replay_helper(o,c)[261]).all()

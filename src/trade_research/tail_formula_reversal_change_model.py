@@ -11,11 +11,13 @@ from . import tail_formula_prior_day as adapter
 from . import tail_formula_recent as study
 from . import tail_formula_relative as relative
 from . import tail_formula_reversal_change as inputs
+from . import tail_formula_reversal_change_daily_native as daily_native
 from .corporate_cash import sha
 
 
 def setup(arm,fold):
     inputs.checked_sources()
+    daily_native.checked()
     for root in [inputs.ROOT,inputs.CONTROL_INPUTS]:
         r = json.loads((root/'feature_report.json').read_text())
         v = json.loads((root/'feature_verification.json').read_text())
@@ -23,18 +25,20 @@ def setup(arm,fold):
         assert r['protocol_sha256'] == sha(inputs.PROTOCOL) and r['features_sha256'] == sha(root/'features.parquet')
     n = json.loads((inputs.ROOT/'native_input_verification.json').read_text())
     assert n['passed'] and n['protocol_sha256'] == sha(inputs.PROTOCOL)
+    assert n['native_protocol_sha256'] == sha(daily_native.PROTOCOL)
     assert n['feature_report_sha256'] == sha(inputs.ROOT/'feature_report.json')
     assert n['feature_verification_sha256'] == sha(inputs.ROOT/'feature_verification.json')
     assert sha(inputs.ROOT/'features.parquet') == sha(inputs.CONTROL_INPUTS/'features.parquet')
     stem = inputs.STEM+'_'+arm
     adapter.STEM = stem;adapter.ROOT = inputs.ROOT if arm=='joint' else inputs.CONTROL_INPUTS
-    adapter.EXPRESSIONS = inputs.EXPRESSIONS if arm=='joint' else inputs.previous.EXPRESSIONS
-    adapter.HEADER = inputs.HEADER if arm=='joint' else inputs.previous.HEADER
+    adapter.EXPRESSIONS = daily_native.EXPRESSIONS if arm=='joint' else inputs.previous.EXPRESSIONS
+    adapter.HEADER = daily_native.HEADER if arm=='joint' else inputs.previous.HEADER
     adapter.COMBINED_PROTOCOL = Path('config')/(stem+'_combined_protocol.json')
     adapter.setup(fold);base.SOURCE = labels.ROOT
     for name in ['2024','recent']:
         p = json.loads((Path('config')/(stem+'_'+name+'_protocol.json')).read_text())
         assert p['inputs_protocol_sha256'] == sha(inputs.PROTOCOL)
+        assert p['native_protocol_sha256'] == sha(daily_native.PROTOCOL)
         assert p['feature_report_sha256'] == sha(adapter.ROOT/'feature_report.json')
         assert p['native_input_verification_sha256'] == sha(inputs.ROOT/'native_input_verification.json')
         assert p['label_report_sha256'] == sha(labels.ROOT/'full_label_report.json')
