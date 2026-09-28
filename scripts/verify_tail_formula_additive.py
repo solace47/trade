@@ -90,11 +90,17 @@ def scores():
         # The constrained-half experiment purges labels not yet observable
         # at the intermediate boundary in both its ordinary and constrained arm.
         where+=f" AND (date>='{split}' OR next_date<'{split}')"
+    reference=m.get('training_reference_required')
+    if reference is not None:
+        assert reference==protocol['training_reference_required']=='mark_0959_return15'
+        where+=' AND isfinite(mark_0959_return15)'
     c.execute(f'''CREATE VIEW training_keys AS SELECT date,code FROM read_parquet('{SOURCE}/full_labels.parquet')
         WHERE {where} AND known15''')
     train=c.sql('SELECT rebuilt_score FROM rebuilt JOIN training_keys USING(date,code) ORDER BY date,code').df()
     if split is not None:
         assert len(train)==m['rows']==protocol['expected_rows']
+    if reference is not None:
+        assert len(train)==m['rows']==protocol['expected_training_rows']
     for t in m['thresholds']:
         np.testing.assert_allclose(np.quantile(train.rebuilt_score,t['training_quantile']),t['threshold'],rtol=0,atol=2e-11)
     result=dict(passed=True,score_report_sha256=sha(ROOT/'score_report.json'),rows=len(actual),
@@ -106,6 +112,9 @@ def scores():
         result['fixed_selection_score_cut_verified']=m['selection_score_cut']
     if split is not None:
         result.update(training_split=split,purged_training_rows=len(train),intermediate_observation_boundary_verified=True)
+    if reference is not None:
+        result.update(training_reference_required=reference,reference_finite_training_rows=len(train),
+                      inference_pool_unchanged=True)
     save_json(ROOT/'score_verification.json',result)
     return result
 
