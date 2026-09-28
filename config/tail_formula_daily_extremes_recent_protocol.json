@@ -1,0 +1,31 @@
+{
+  "objective": "原48项追加此前20个完整股票日最大的上方向和下方向单日原始收盘跳变，刻画历史尾部幅度；区别于旧至少9%次数／距离、累计趋势、均值波幅及路径效率。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "b5a7e5700d0126bf18abb445ea4d99ab329b602e0f8007b2452a714661718d86",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "7388a1ac7b47dd41e35711a9f9628147efbd19e2cbf3f60bf6ebb85d171ba68f",
+  "native_input_verification_sha256": "63df4b55edec05f7db4fd0f6bb3adbdb624bf2868a238c689574817a921e55c3"
+}
