@@ -88,9 +88,10 @@ def verify_features():
         out['rc_atr5'],out['rc_atr20']=prior_ranges(d.high,d.low,d.close)
         prev=d.close.shift();good=np.isfinite(d[['high','low']]).all(axis=1)&np.isfinite(prev)&d.high.ge(d.low)&d.low.gt(0)&prev.gt(0)
         out['rc_rows5']=np.minimum(np.arange(len(d)),5);out['rc_rows20']=np.minimum(np.arange(len(d)),20)
-        out['rc_good20']=good.astype(int).rolling(20,min_periods=1).sum().shift().fillna(0)
+        # SUM over an empty preceding window is unknown, while COUNT is zero.
+        out['rc_good20']=good.astype(int).rolling(20,min_periods=1).sum().shift()
         out['rc_first_date']=d.date.shift(20).fillna(d.date.iloc[0]);out.loc[0,'rc_first_date']=None
-        out['rc_last_date']=d.date.shift();out['rc_reference_breaks']=d.preclose.sub(prev).abs().gt(.005).astype(int).rolling(20,min_periods=1).sum().shift().fillna(0)
+        out['rc_last_date']=d.date.shift();out['rc_reference_breaks']=d.preclose.sub(prev).abs().gt(.005).astype(int).rolling(20,min_periods=1).sum().shift()
         rebuilt.append(out.loc[d.date.ge('2024-01-01')])
     hist=pd.concat(rebuilt,ignore_index=True).sort_values(['date','code']).reset_index(drop=True)
     pd.testing.assert_frame_equal(pd.read_parquet(ROOT/'history.parquet'),hist,check_dtype=False,rtol=0,atol=2e-12)

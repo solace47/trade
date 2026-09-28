@@ -27,6 +27,8 @@
 
 历史累计位置用`trade_research.tail_formula_history_cdf`的`features`、`verify_features`、`native`，以及`trade_research.tail_formula_history_cdf_model`相同两折与全年流程。原20日价量宽表复用，新增原档仅64个固定尾盘价点；不重做已失败历史均价版。
 
+此前5／20日波幅比例用`trade_research.tail_formula_range_change`的`features`、`verify_features`、`native`，模型模块为`trade_research.tail_formula_range_change_model`，两折及全年先共同固定再评价。验证器保留空历史SUM为空、COUNT为0，原输入文件保持不变。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
