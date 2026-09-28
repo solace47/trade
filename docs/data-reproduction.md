@@ -21,6 +21,8 @@
 
 整段净价格面积先用`trade_research.tail_formula_path_area_labels target`与`verify`，再运行`trade_research.tail_formula_path_area`的两折／全年模型与选择阶段。该训练表保留原二元机会，另增`path_area15`；拟合使用`path_area`目标，评价仍连接原29根全池标签。共用模型代码新增分支后，原两折正机会模型证明字节保持；不重拟合原控制。
 
+相邻分钟顺序用`trade_research.tail_formula_serial_price`的`features`、`verify_features`、`native`，只复用既有30个收盘宽表。模型模块`trade_research.tail_formula_serial_price_model`仍按两折依次拟合、核准、评分、核准、冻结、核准，再共同冻结全年后评价；相同有效范围的48项控制直接复用。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
