@@ -1,0 +1,18 @@
+{
+  "inputs_protocol_sha256": "0b0425a84b9c20c1950bd45ed70336d7306eba1d9cb496941dfadad6577950eb",
+  "fold_protocols": [
+    "config/tail_formula_style_zscore_2024_protocol.json",
+    "config/tail_formula_style_zscore_recent_protocol.json"
+  ],
+  "control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "control_analysis_report_sha256": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+  "control": "data/research/tail_formula_before1000_model_2025",
+  "unchanged_effective_inputs_control_reused": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "additional_relative_turnover_control": "data/research/tail_formula_market_turnover_2025",
+  "relative_turnover_selection_report_sha256": "71771121d6e48762522da59a6b992175f2a115b8317239c8b53fef881e7e300b",
+  "relative_turnover_analysis_report_sha256": "eefab6461211cc10f58d78ad93d99473b677bb239b90a77479a969ac565b2bfd"
+}
