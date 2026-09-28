@@ -1,0 +1,76 @@
+{
+  "objective": "同日配对排序损失只约束同日分差，对同日共同分数偏移不敏感。原配对版使用跨日期固定原分数门槛；本轮不重训，检验减去同日可见池均值后的排名分数。主臂仅居中，次臂固定标准差归一化，不预设扩大覆盖就是优势。 当前臂：center",
+  "selection_rule": "centered_score=score-mean(score for all formula_input_valid peers on that date); candidate iff valid and centered_score strictly above fixed training q995; mean includes current stock; no daily quota, no positive-raw-score gate, no variance scaling.",
+  "cohort": "原1,258,085个历史硬过滤键中，当时48项有效的1,117,397行；不得按未来known、收益或成交选择同日均值成员。全部484日保留，成员数不加新的数量门槛；仅空集合不能计算。",
+  "threshold_cohort": "原同模型训练日期内、next_date严格早于训练终点的known15与原有效输入交集；量化方法numpy默认linear，与原q995一致。日均分只用原可见有效输入，独立于标签。",
+  "training_quantile": 0.995,
+  "model_refitted": false,
+  "centered_score_is_probability": false,
+  "fold_sources": {
+    "2024": {
+      "root": "data/research/tail_formula_pairwise_2024",
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01",
+      "source_hashes": {
+        "model_report.json": "93430dc313c54a7e3e17f3e308716a6ee0a05fd293661a591f5538d27315480b",
+        "model_verification.json": "3fcef7388c4567aa720dc9baaf658738e612b97748cb8742295194350894fe04",
+        "score_report.json": "ed981de02290cfd55b58a275147ec9030e8f38425e6426d2720b31ad96c9a74d",
+        "score_verification.json": "02ccc388464c1942d1986c0ceb42cad175f7f24876db10a6d21eee483feaf2f2",
+        "scores.parquet": "f05d9025b9e3b7a22fdacea583c6451e38dba9845c4096faa515ba2941d85a15",
+        "selection_report.json": "b0bdcf95419d3af14671e6fb1053430d695489890d8fb6d6687c4dd07a105ef2",
+        "selection_verification.json": "66829a6d7a2789f510b0199d90bf59f444aac0050688fc9b51f5a65e494f81c8"
+      }
+    },
+    "recent": {
+      "root": "data/research/tail_formula_pairwise_recent",
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01",
+      "source_hashes": {
+        "model_report.json": "1000b3c031c23afa404d376bc9e062c86978356faa3ece102ca7762c9faee42c",
+        "model_verification.json": "27e395c8d02fff9e30b1547802c210d0c04ba849faa0f89dab0b3e4befeb3157",
+        "score_report.json": "858afc016e1451c9e737f4044e4fda605e7366fe733fd0f5a4e59c5771ab7b6c",
+        "score_verification.json": "e2b6445efb01339429a9f2b434512e9b7f2db02a41d362922b628a30a9fa2031",
+        "scores.parquet": "8ae0db52ffc438b3717368f90aa63038d745b3b2a62279bb0e307dfe4ed5d0a8",
+        "selection_report.json": "a6b12a35e1e36973840b145965f7dde4c9411d883976914c605b0e2e9451aa41",
+        "selection_verification.json": "eba224981d076d944b4d0874c89e06bbe808813c9f8efbe3460ebe73587e1dd4"
+      }
+    }
+  },
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "distinction": "此前居中/标准化使用点式平方损失48模型，未处理配对损失模型的同日位移自由度。复用旧配对两模型及全部原分数，不能把排序分数当绝对获利概率，也不声称原固定规则计算有错。",
+  "native_scope": "加减和INSUM可表达两项辅助输出的计数、总分和中心分；辅助成员必须与原完整硬过滤和48项输入有效集合一致。该完整客户端一致性尚未核准，本次只生成数值结构，不冒充完整可用条件公式。",
+  "reporting": "每臂分别比较原配对模型、相同变换的旧点式48模型、保守重训48、旧固定48；另外比较两个新臂。完整结果与全部独有日期保留，不只报共同日。",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "normalization_protocol_sha256": "f8adbe4ad0807f97559eb3527a14155110c435465e7ac73336a43e4201e8e928",
+  "model_family": "same_date_binary_pairwise",
+  "primary_arm": true,
+  "verification": "沿用原居中和标准化已核准程序，绑定新原模型/评分哈希；独立SQL重建全体成员统计、每行变换、训练阈值与严格选择。实际INSUM数值在全部484日核准。两折两变换四份评分及六份名单共同提交后，才分别年度一次聚合包含两半年。",
+  "references": {
+    "data/research/tail_formula_pairwise_2025/analysis_report.json": "f2b255abaf46dff0f0a4d9afed5f0a04b27b5404a36f7555e3d512da38027e83",
+    "data/research/tail_formula_pairwise_2025/analysis_verification.json": "15f8e61625f5c01978bac87a9309b7b17903c4b4088cf561678ca6a4b85ec5bc",
+    "data/research/tail_formula_pairwise_2025/selection_report.json": "59dfb6817e5c52b5d9b21bb0b89d107a884e377cbe927619032781cb4f74936f",
+    "data/research/tail_formula_pairwise_2025/selection_verification.json": "03f27e5feff4fd27de447aa54cfe4190c559c5011dae51ec9e8da5e73d96725b",
+    "data/research/tail_formula_score_center_2025/analysis_report.json": "c70d36e38e18b00b8dd10d953ba9b1f4f7ef78e6781bbc527d3475a063a8b403",
+    "data/research/tail_formula_score_center_2025/analysis_verification.json": "23dc07f495480a8656cfb304383732c239ac04e586669d9d27fe6e1b81e684d3",
+    "data/research/tail_formula_score_center_2025/selection_report.json": "89bd2766041d4d71ba27349d84fa15d40765b388efb46f4366e00b4bb60cdf6a",
+    "data/research/tail_formula_score_center_2025/selection_verification.json": "659e468352d510e5c39c22856440cead49c8bf852258c1f802d0caadbe826e24"
+  },
+  "analysis_reuse_controls": {
+    "2025": [
+      "data/research/tail_formula_pairwise_2025",
+      "data/research/tail_formula_score_center_2025"
+    ]
+  }
+}
