@@ -1,0 +1,33 @@
+{
+  "objective": "固定原48项与相对机会目标，检验整周自助重抽样的独立浅树平均。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "random_state": 20260927,
+    "criterion": "friedman_mse",
+    "bootstrap_unit": "calendar_week",
+    "bootstrap_with_replacement": true,
+    "aggregation": "equal_tree_mean"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "week_bagging_protocol_sha256": "6ff27cd32beee999d73bb7dfae859856d40ebd64a04fa10bc4017937b42adcb2",
+  "expected_rows": 502747,
+  "expected_training_weeks": 52
+}
