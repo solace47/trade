@@ -1,0 +1,33 @@
+{
+  "objective": "区分尾盘大量同价收盘的成交与上涨/下跌分钟成交互相抵消。原A15只是方向量净差，零净差可来自两种不同结构；原A16只计上涨分钟比例。新增同价收盘分钟的成交量占比，不把分钟内全部成交都当同价，也不据此识别吸筹/主力。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_volume_response/feature_report.json": "336582714b7fa4bf9c7465a39ea6b92ed6a0e275839f95a91d2ffa2b8b1f0173",
+    "data/research/tail_formula_volume_response/feature_verification.json": "c51241229fd28666c9dfdf5b2244b5e76fddb76c37fc518aeb5f047a2376ed39",
+    "data/research/tail_formula_volume_response/native_input_verification.json": "5c305f6188190bcf2543c6e6befec526d87000ea0aba3b6ab682201e7177441d",
+    "data/research/tail_formula_path_variance/window_report.json": "153917c272b25709ca9c1708931bde52fcaaa8ff051c51ccd803e3cefc22d699",
+    "data/research/tail_formula_minute_pressure/window_report.json": "20d8331ccfa6ff3c8d33bbadff6968b5a3edfe6a2566e5136c1ba9b455d7cc0d",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "return_bars": 29,
+  "new_fields": [
+    "FV01"
+  ],
+  "expressions": {
+    "FV01": "VALUEWHEN(TIME=1449,100*SUM(IF(INTPART(C*100+0.5)=INTPART(REF(C,1)*100+0.5),V,0),29)/SUM(V,29))"
+  },
+  "input": "14:21至14:49共29根，收盘与紧前一分钟比较，首根与14:20比较。已核准报价恢复整数分，FV01=100*同价收盘分钟成交股数之和/29分钟总成交股数。零量分钟贡献0，总量0或任何原窗口缺失则未知；不跳过缺失，不以涨跌互相抵消替代逐分钟等价判断。",
+  "validity": "沿用原30价格/29成交量完整性与原48全部质量条件，价格需合法分币正值、量非负整数，总量正；保留所有原键与原48值。若原有效样本减少，两模型前必须追加同质量48项对照协议，不能忽略交集变化。",
+  "native": "使用INTPART恢复合法分位并按股价分精确相等。原生VALUEWHEN截止14:49、REF1及SUM29直接实现，无外部模型、名单或横向排名。量单位手/股同比例消去。客户端完整字段一致性另需核准。",
+  "verification": "生产Numpy相邻整数分相等掩码与成交量求和；独立SQL展开29个配对核对全部分子分母、原值、质量、输入及整数编码。复用已审计32个固定原档价量样本再独立读取30分钟，实际导出表达式重放、单位换算与窗口外任意值污染核验。边界覆盖全平、全变、零量平价、涨跌抵消但非同价、分位恢复及缺失。",
+  "model": "原48项只追加FV01共49项；保持原两段一年相对机会目标、64深度3/minleaf300/lr.05/seed20260927/日期等权/q995。两模型、H1/H2/全年三名单一起冻结提交后评价；名单若与控制相同复用已有统计，不重复实验。",
+  "controls": "保守09:31—09:59同参数48项及旧固定48项，两组均报告共同/独有日和共享未知界；原价格/量响应、每成交额价变等旧结果不重复。",
+  "evaluation": "保持原14:52—14:55分钟模拟买入、2万元整手、10%容量、排队和权益未知、5/15基点。完整两半年/全年、逐日与逐股、正机会/1%空间/09:59参考/3%不利和参考缺口全部保留。只研究次晨选股，不按结果追调29分钟长度或方向。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
