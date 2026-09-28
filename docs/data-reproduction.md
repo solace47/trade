@@ -57,6 +57,8 @@
 
 尾段价格／成交额输入先运行`trade_research.tail_formula_price_impact_amount`，只补2024—2025的29根金额；已有金额收据及分批文件拒绝覆盖，价格／量复用原核准缓存。再依次运行`trade_research.tail_formula_price_impact`的`features`、`verify_features`、`native`，原48项与有效交集必须核对。模型模块`trade_research.tail_formula_price_impact_model`按两折依次执行`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`；两折和`combined`的完整名单共同固定，才进行三份`analyze`及保守29根独立核算。两项边界测试位于`test_tail_formula_price_impact.py`，完整客户端行情一致性不在数学核准范围内。
 
+季度留段平均入口为`trade_research.tail_formula_quarter_ensemble`。每折先`verify_inputs`，按标签next_date的自然季度核准全部分组，再依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`。组件原始模型分文件保存，可在相同协议／代码指纹下恢复；每折四条完整64轮提升链全部保留并等权平均，不能选择单个组件。两折及`combined`全部冻结后执行`gate`，然后才允许三份`analyze`与独立29根核算。`test_tail_formula_quarter_ensemble.py`核对观察季度与平均运算。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
