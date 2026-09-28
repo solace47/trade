@@ -66,6 +66,9 @@ def verify(fold):
     pair_day=pairs.date
     assert len(r['trees'])==len(r['trace'])==64
     for iteration,(tree,trace) in enumerate(zip(r['trees'],r['trace'])):
+        if iteration == 0:
+            original_model=json.loads((Path('data/research')/('tail_formula_pairwise_'+fold)/'model_report.json').read_text())
+            assert tree == original_model['trees'][0], 'The initial uniform-weight tree must match exactly'
         rank_input=d[['date','code']].copy()
         rank_input['i']=np.arange(len(d));rank_input['score']=score
         ranking_connection.register('rank_input',rank_input)
@@ -144,6 +147,7 @@ def verify(fold):
         all_training_keys_integer_inputs_date_weights_and_fixed_pairs_rebuilt=True,
         all_64_rank_tie_geometries_and_pair_weights_independently_rebuilt=True,
         first_all_tied_round_recovers_uniform_weights=True,max_pair_weight_difference=max_weight_error,
+        first_tree_matches_original_uniform_pair_model_exactly=True,
         all_pair_gradients_and_same_leaf_cancellation_rebuilt=True,all_tree_nodes_and_leaf_directional_curvatures_rebuilt=True,
         all_export_scores_and_training_thresholds_rebuilt=True,constant_response_days_preserved=True,
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)

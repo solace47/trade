@@ -27,6 +27,10 @@ def test_tie_discounts_equal_exhaustive_random_permutations():
 
 
 def test_weights_are_date_local_offset_invariant_and_initially_uniform():
+    np.testing.assert_array_equal(
+        rank_weights(np.zeros(6), np.zeros(6, dtype=int),
+                     np.repeat([0, 1, 2], 3), np.tile([3, 4, 5], 3), 2),
+        np.full(9, 1. / 9))
     days = np.repeat([0, 1], 4)
     positive = np.array([0, 0, 1, 1, 4, 4, 5, 5])
     negative = np.array([2, 3, 2, 3, 6, 7, 6, 7])
