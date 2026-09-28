@@ -221,7 +221,7 @@ def verify_model():
     save_json(root / 'model_verification.json', proof); return proof
 
 
-def verify_scores():
+def verify_scores(expected_expressions=None):
     spec = importlib.util.spec_from_file_location('independent_additive_scores', Path('scripts/verify_tail_formula_additive.py'))
     module = importlib.util.module_from_spec(spec)
     # The shared score verifier imports another verifier in the scripts folder.
@@ -231,7 +231,7 @@ def verify_scores():
         spec.loader.exec_module(module)
         module.ROOT = base.ROOT; module.FEATURES = base.FEATURES
         module.SOURCE = base.SOURCE; module.PROTOCOL = base.PROTOCOL
-        return module.scores()
+        return module.scores(expected_expressions=expected_expressions)
     finally:
         sys.path.pop(0)
 

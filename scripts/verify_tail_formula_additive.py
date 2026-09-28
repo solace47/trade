@@ -43,7 +43,7 @@ def connection():
     return c
 
 
-def scores():
+def scores(expected_expressions=None):
     r=load('score_report.json');m=load('model_report.json');v=load('model_verification.json')
     assert v['passed'] and v['model_report_sha256']==sha(ROOT/'model_report.json')
     for key,path in [('protocol_sha256',PROTOCOL),('model_report_sha256',ROOT/'model_report.json'),
@@ -55,6 +55,14 @@ def scores():
     assert isinstance(expressions,dict) and expressions
     if 'expressions' in fr and 'native_expressions' in fr:
         assert list(fr['expressions'].items())==list(fr['native_expressions'].items())
+    if expected_expressions is not None:
+        # A predeclared control can use an exact projection of a shared table.
+        # Require the same native definitions; never infer the subset from a model.
+        assert expected_expressions and all(
+            name in expressions and expression == expressions[name]
+            for name, expression in expected_expressions.items())
+        assert len(expected_expressions) == json.loads(PROTOCOL.read_text())['expected_features']
+        expressions = expected_expressions
     assert m['feature_names']==list(expressions)
     c=connection()
     enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}'
