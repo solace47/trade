@@ -151,7 +151,7 @@ def model(variant):
     return {k:v for k,v in r.items() if k!='trees'}
 
 
-def verify_model(variant):
+def verify_model(variant, encoding_multiplier=1):
     root=base.ROOT
     r=json.loads((root/'model_report.json').read_text())
     assert r['protocol_sha256']==sha(PROTOCOL) and r['variant']==variant
@@ -160,6 +160,7 @@ def verify_model(variant):
     start,end,where=training_scope()
     assert r.get('training_start')==start and r.get('training_end','2025-01-01')==end
     config=json.loads(PROTOCOL.read_text())
+    assert encoding_multiplier in [1,10] and config.get('encoding_multiplier',1)==encoding_multiplier
     depth=config.get('model_max_depth',2)
     minimum_days=config.get('minimum_leaf_training_days',0)
     assert r['parameters']['max_depth']==depth
@@ -218,7 +219,8 @@ def verify_model(variant):
             FROM read_parquet('{base.SOURCE}/full_labels.parquet') WHERE {where} AND known15)
             SELECT date,code,{target} AS target FROM l''')
     names=list(base.EXPRESSIONS)
-    encoded=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in names)
+    multiplier='' if encoding_multiplier==1 else '10*'
+    encoded=','.join(f'floor({multiplier}least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in names)
     d=c.sql('''SELECT date,code,target,1./count(*) OVER(PARTITION BY date) AS w,'''+encoded+'''
         FROM features JOIN targets USING(date,code) WHERE formula_input_valid ORDER BY date,code''').df()
     original=training(variant)
@@ -275,6 +277,8 @@ def verify_model(variant):
         all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt=True,
         training_start=start,training_end=end,new_2025_score_groups_read=bool(original.date.ge('2025-01-01').any()),
         new_2025H2_score_groups_read=bool(original.date.ge('2025-07-01').any()),new_2026_prices_read=False,no_exit_rules=True)
+    if encoding_multiplier!=1:
+        proof['encoding_multiplier']=encoding_multiplier
     if minimum_days:
         proof.update(minimum_leaf_training_days_required=minimum_days,
             minimum_leaf_training_days_observed=minimum_observed_days,all_node_date_support_rebuilt=True)

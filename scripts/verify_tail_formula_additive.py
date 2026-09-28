@@ -43,8 +43,9 @@ def connection():
     return c
 
 
-def scores(expected_expressions=None):
+def scores(expected_expressions=None, encoding_multiplier=1):
     r=load('score_report.json');m=load('model_report.json');v=load('model_verification.json')
+    assert encoding_multiplier in [1,10] and json.loads(PROTOCOL.read_text()).get('encoding_multiplier',1)==encoding_multiplier
     assert v['passed'] and v['model_report_sha256']==sha(ROOT/'model_report.json')
     for key,path in [('protocol_sha256',PROTOCOL),('model_report_sha256',ROOT/'model_report.json'),
                      ('feature_report_sha256',FEATURES/'feature_report.json'),('scores_sha256',ROOT/'scores.parquet')]:
@@ -65,7 +66,8 @@ def scores(expected_expressions=None):
         expressions = expected_expressions
     assert m['feature_names']==list(expressions)
     c=connection()
-    enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}'
+    multiplier='' if encoding_multiplier==1 else '10*'
+    enc=','.join(f'floor({multiplier}least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}'
                  for i,n in enumerate(m['feature_names'],1))
     c.sql('SELECT date,code,'+enc+' FROM features WHERE formula_input_valid').create_view('encoded')
     score=format(m['bias'],'.17e')+'+'+'+'.join(tree_sql(t) for t in m['trees'])
@@ -116,6 +118,8 @@ def scores(expected_expressions=None):
         threshold_flag_checks=checks,all_integer_encodings_tree_scores_and_training_quantiles_rebuilt=True,
         training_start=start,training_end=end,new_2025_score_groups_read=m.get('new_2025_score_groups_read',False),
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
+    if encoding_multiplier!=1:
+        result['encoding_multiplier']=encoding_multiplier
     if 'selection_score_cut' in m:
         result['fixed_selection_score_cut_verified']=m['selection_score_cut']
     if split is not None:
