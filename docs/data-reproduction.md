@@ -47,6 +47,8 @@
 
 周内日期追加用`trade_research.tail_formula_weekday features`、`verify_features`，后者同时独立核准所有日期的原生数学表达。模型入口`trade_research.tail_formula_weekday_model`复用原特征扩展引擎，53项，两折及全年同顺序先核准、共同冻结再评价。原价格历史与有效交集完全不变；`DATE`表示信号周期日期，不用运行当天系统日期回填历史。
 
+尾段最长连续段用`trade_research.tail_formula_max_run`依次`features`、`verify_features`、`native`；运行`python -m unittest discover -s tests -p test_tail_formula_max_run.py`核验窗口与零成交边界。模型入口`trade_research.tail_formula_max_run_model`复用相同先模型、核准、评分、选择、两折及全年共同冻结后评价的顺序，50项；通用严格29根分析核对与共同日期／共享未知、参考覆盖审计保持。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。

@@ -1,0 +1,31 @@
+{
+  "objective": "原48项追加尾段最长连续上涨／下跌成交分钟数；完整日期训练、相对二元目标及原模型门槛不变。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "01e6cb4be90f2fb1a4f37756248058de561150864ca2573622c783169efddd43",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "6dca7a45563511090c9d152d55ba5dc33b3a71eec21839fea1bbbc3284edab0c",
+  "native_input_verification_sha256": "75da1a487710d67b71cec053dd5ce20a8bcc210fe85c685d172b781de1a8cc5e"
+}
