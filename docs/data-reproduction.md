@@ -394,3 +394,5 @@ Alpha158 定义固定于 `config/alpha158_definition.json`，许可位于 `licen
 双重确认用`scripts/evaluate_tail_formula_rotation_agreement.py freeze`共同固定交集及两个独有组，并从四份原评分独立核准、反向恢复两份原生核。共同记录提交后依次`analyze`、`finish`：只聚合三个年度完整名单，其两半年随同输出，不另重复半年度分析；主组与两个父版及旧固定48的三组比较、三套参考覆盖全部保留。
 
 可见费用／容量与价格曲线分别使用`trade_research.tail_formula_entry_friction`、`trade_research.tail_formula_price_curve`的`features`、`verify_features`、`native`，对应模型模块加`_model`。两折各依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，均用新进程和原配置；`--fold combined`固定全年。共同收据和三名单提交后用`analyze_tail_formula_input_study.py --stem ... --annual-only`，再`finish_tail_formula_input_study.py --stem ...`核准两套48对照和参考缺口。每份年度报告已含两半年，不重复聚合；已成功阶段不得覆盖原件。
+
+原轴／全维旋转先运行`trade_research.tail_formula_pca_axes prepare`及`verify_preprocessing`，各指定`--fold 2024`、`recent`；再用`tail_formula_pca_axes_inputs features`与`verify`固定两折四份输入。`tail_formula_pca_axes_axis_model`／`tail_formula_pca_axes_pca_model`各自按新进程依次完成两折的六个模型／评分／名单阶段。`scripts/evaluate_tail_formula_pca_axes.py freeze`共同固定四模型六名单，三份共同收据写入并提交文档后才`analyze`、`finish`，两臂年度及五组比较全部完成。原48项深度四研究使用`tail_formula_tree_depth4_model inputs`复用核准原输入／控制，再运行相同六阶段；两模型三名单共同提交后用通用年度一次分析及完成入口，最大层数以固定协议为准。
