@@ -1,0 +1,41 @@
+{
+  "objective": "核查中证全指证券公司与中证银行历史分时的来源可用性；候选机制为券商相对银行的盘中强弱，不推断主力身份，不连接选股或次晨结果。",
+  "symbols": [
+    "sz.399975",
+    "sz.399986"
+  ],
+  "dates": [
+    "2024-01-02",
+    "2024-12-02",
+    "2025-12-01"
+  ],
+  "host": "1.202.143.37",
+  "port": 7709,
+  "timeout_seconds": 5,
+  "attempts": 2,
+  "daily_source": "BaoStock，仅六个固定代码日期的日线OHLC；不足时保留缺失，本轮不临时选择替代代码或最新行情。",
+  "wire_source": "沿用已核准公开只读b40f历史分时接口，逐次请求响应及失败保存，每会话最多两次。",
+  "original_probe_sha256": "437a4d3ef49df42b2f8bb840ce29ce59c8a1f0de14889bbc01894a1e08e8cfa8",
+  "original_probe_verification_sha256": "db26045cc777ce9c9313e23ecefdd549468691f68000a4efeec71f0a15224cdc",
+  "validation": "独立重放全部成功原响应，检查请求日期代码、240点正价格、日线收盘和包络。复用同三日600000对照已经核准的分钟位置，不重复新请求；代表价不称原生CLOSE一致，研究保守截止14:48。",
+  "native_reference": "https://help.tdx.com.cn/gspt/docs/markdown/tdxgs-1d1k7biu16p6s/tdxgs-1dm0urbs4fcd8.html",
+  "after_probe": "六会话全部来源核准后才可单独冻结全量输入及增量模型；缺失则记录本路径未过，不因探针价格挑特征或阈值。",
+  "stock_outcomes_read": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "software_compilation_verified": false,
+  "index_references": [
+    {
+      "code": "sz.399975",
+      "name": "中证全指证券公司指数",
+      "url": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2023-11-29/515850_20231129_5MFZ.pdf",
+      "publication_date": "2023-11-29"
+    },
+    {
+      "code": "sz.399986",
+      "name": "中证银行指数",
+      "url": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2022-11-29/515280_20221129_7EAK.pdf",
+      "publication_date": "2022-11-29"
+    }
+  ]
+}
