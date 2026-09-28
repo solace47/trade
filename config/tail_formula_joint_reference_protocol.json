@@ -1,0 +1,62 @@
+{
+  "objective": "同样本三根正机会高分候选，同时要求固定09:59绝对参考净价差模型分数>0；两种损失完整并列，不重训或搜索联合门槛。",
+  "source_hashes": {
+    "data/research/tail_formula_absolute_zero_squared_2024/selection_report.json": "88b225e52928425b0b722a2e849d99308d6a0e907a89a7f786c6c23f2c849440",
+    "data/research/tail_formula_absolute_zero_squared_2024/selection_verification.json": "b499b9fcbf709404ad343985e7ae8c0b5026229a257e6e3d0e34939c66cada35",
+    "data/research/tail_formula_absolute_zero_squared_recent/selection_report.json": "43c36db88f269da8f67a2a68aae217ea10ab73d464b544459146e6d0e1a3cf52",
+    "data/research/tail_formula_absolute_zero_squared_recent/selection_verification.json": "74db5badeb4f5e5df7bd59a6c167a53126b0ed5bedbad696e2dcf63c1ef48e3f",
+    "data/research/tail_formula_absolute_zero_squared_2025/selection_report.json": "5041332eb39ea0a4db818623e38c612ba40455ac5fedf59a80dcbfaa88ef725f",
+    "data/research/tail_formula_absolute_zero_squared_2025/selection_verification.json": "4a0be8d688725ed151140f9679545a7c5b55d58da1faf151faa3a6e46657dc8a",
+    "data/research/tail_formula_absolute_zero_huber_2024/selection_report.json": "79c9e3cf3ba7c1485220b89e6c704baf4736f0b3568ccc19f761ed1924929147",
+    "data/research/tail_formula_absolute_zero_huber_2024/selection_verification.json": "c85cc44c136324edae6affb412a254cd38e963e88a33e71c30671c23cef7048d",
+    "data/research/tail_formula_absolute_zero_huber_recent/selection_report.json": "65ec95184437762fd74e48df3dbcfd618a7ceb47e3ff665cd493e6d824e2aaa1",
+    "data/research/tail_formula_absolute_zero_huber_recent/selection_verification.json": "d6d7e1f1f91bbdd67cd36b8990491fd557036996170901937e9320b0b503fcca",
+    "data/research/tail_formula_absolute_zero_huber_2025/selection_report.json": "0d3fe14fe100a1785d77304e810004c65330704ed8a5f39bd17d283c06a2c60f",
+    "data/research/tail_formula_absolute_zero_huber_2025/selection_verification.json": "27ba2160ed5c5d33bf0338846606d60afc811aa1cd60badfb146b6c622ec5cfb",
+    "data/research/tail_formula_endpoint_binary_2024/model_report.json": "e894d69d582ca9eb66dc9562b95cae5fdb58808467a65d6bb8adffc5d9c6eeb6",
+    "data/research/tail_formula_endpoint_binary_2024/model_verification.json": "cbd14c55e643734827f0ba18aad22d1270eac7d3fe03161fb7c7f3cb1ccd5f7b",
+    "data/research/tail_formula_endpoint_binary_2024/score_report.json": "0ca290d612e899500ed4c4cb383207d2acfd8c517d56d4fa30df9aafec502af4",
+    "data/research/tail_formula_endpoint_binary_2024/score_verification.json": "91d82739788a59919cee4207fd154f1eab1c2ba2835b303e05045d124a276110",
+    "data/research/tail_formula_endpoint_binary_2024/selection_report.json": "23269bbbe6720b3b23071a1182891dc404f7d5cf2a222f1f9e5f8f41b4aad125",
+    "data/research/tail_formula_endpoint_binary_2024/selection_verification.json": "a8adacffb7e49eb3b96f1c6854dc1aa6a10c79fccfc5d1a321fd98c6ac32bb64",
+    "data/research/tail_formula_endpoint_binary_recent/model_report.json": "7a2365b9b9dc25367d1535aa0122f3e4392cf1ac79778798f0749ca71b2419b8",
+    "data/research/tail_formula_endpoint_binary_recent/model_verification.json": "f5f23969c5ae3f4652b42be98e58c97e785a71b9567be7d25ee9616347c44511",
+    "data/research/tail_formula_endpoint_binary_recent/score_report.json": "dcd43ee52c094f6c53f99869d683f82245dbb09b999c07e8f4380c949899e466",
+    "data/research/tail_formula_endpoint_binary_recent/score_verification.json": "3d7b163193c2c0646428dbd7d1c1b47352643fb551504606b9d0de883da42b2c",
+    "data/research/tail_formula_endpoint_binary_recent/selection_report.json": "81481c942b022af7def6d2d271c5c57fd9530a6591a8b838f3895cef035c769f",
+    "data/research/tail_formula_endpoint_binary_recent/selection_verification.json": "3e5cdef591b9ac477baa209acc30ee0c3b5dd7aced28a8ab7211a5cf9c97cd0e",
+    "data/research/tail_formula_endpoint_binary_2025/selection_report.json": "1f6da7a13c56c0c6d407c0b7a8a50a6ba7e0e45b9684e48617cbbe9d6c86a5ea",
+    "data/research/tail_formula_endpoint_binary_2025/selection_verification.json": "bcc9b766abd8b62572b775d9e25a85a7140417d2d3aa0d878718e8eec1d7c767",
+    "data/research/tail_formula_endpoint_binary_2025/analysis_report.json": "9545cd4100bde421b8c4c1b16684f426d8bddd0580cfdf7dc0f60c9a419789b7",
+    "data/research/tail_formula_endpoint_binary_2025/analysis_verification.json": "1da3eb051730a3713a3939526beee035af3adcd9b43e04033f54703a82592983"
+  },
+  "zero_protocol_sha256": "79d3a215d7016bbb3250189a0c503c05dce1f3ac837c911b6cb7f490405e9761",
+  "arms": [
+    "squared",
+    "huber"
+  ],
+  "folds": [
+    {
+      "name": "2024",
+      "start": "2025-01-01",
+      "end": "2025-07-01"
+    },
+    {
+      "name": "recent",
+      "start": "2025-07-01",
+      "end": "2026-01-01"
+    }
+  ],
+  "condition": "已核准endpoint_binary对应折q995选择 AND absolute_zero对应折选择；二元评分与绝对参考评分使用同一有限参考训练交集和48输入，两模型均在对应半年之前拟合。",
+  "hypothesis": "较高相对机会并不保证绝对参考价格仍正；单独绝对模型又机会偏弱，组合检查二者能否互补。它与旧rank_gate的持续空间秩评分加绝对二元评分>0.60不同；仍可能只缩减日期或误删好股票，必须检验而不先称改善。",
+  "primary_control": "data/research/tail_formula_endpoint_binary_2025",
+  "secondary_controls": "分别复用各自absolute_zero全年名单；所有母名单表现保持，不能只报告交集。",
+  "freeze": "先共同冻结两臂四段与两份全年名单；同时固定各臂全年被过滤股票、被整日过滤股票子集及完整日期清单，十份选择全部核准并提交后评价。空组也完成分析。",
+  "diagnostics": "被过滤组仅用于完整说明取舍，不生成相反策略。两臂交集与各自母名单作同日及共享未知比较，保留独有日期、未知、未成交、参考缺失与两成本压力。",
+  "native": "复用原48项输入前缀，两个64树评分使用不同局部变量，CORE为两个冻结条件的AND。验证两模型正文与门槛逐字可逆、全量SQL评分选择和原生IF结果；完整客户端来源仍待核准。",
+  "model_refit_allowed": false,
+  "threshold_search_allowed": false,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
