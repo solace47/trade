@@ -1,0 +1,55 @@
+{
+  "objective": "原绝对参考目标四模型完全不重训，仅独立检查绝对预测量零门槛。原q995在2025六名单均为0，仍保留；不是降低分位后覆盖失败名单。",
+  "source_hashes": {
+    "data/research/tail_formula_endpoint_absolute_squared_2024/model_report.json": "8a18d319010c4c82953b4c8b36c32398f60807fb2c309d54d0026d10033b7bc9",
+    "data/research/tail_formula_endpoint_absolute_squared_2024/model_verification.json": "f1033be5fffbaec3e82544ecae466117c2e2d9f414d88ed19dab45abbfe36f83",
+    "data/research/tail_formula_endpoint_absolute_squared_2024/score_report.json": "6210347c7fdeb57837bc5a134cd8ab2d306537ddd76f707c8392d187085e7cc4",
+    "data/research/tail_formula_endpoint_absolute_squared_2024/score_verification.json": "a7a66edff747a6b1bc346daba2819dcf7b26cfb57fc13cdbd5939ea749e49a8b",
+    "data/research/tail_formula_endpoint_absolute_squared_2024/selection_report.json": "1d4688bdef540d71aebc11abb2f3a1142782409e8dd971acadd42bcc088c6d38",
+    "data/research/tail_formula_endpoint_absolute_squared_2024/selection_verification.json": "6e2a35442c431543565d6d12119d9ff1b07b5e3067f9c9a577d69cb72fa0db59",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/model_report.json": "d121959d7855e5bee3110e59e2d0c1acb4e68fb80dec294c9f1e6ccb53915418",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/model_verification.json": "43a341ad7e4f0d5e778470305940477b41e0fa389d0ae381a05ac262719b5d36",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/score_report.json": "6d58daab17b201621a127a13d844972ad303b096fe6fe3fc39d06291cce76f04",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/score_verification.json": "9ef4a6ce6174b1d9cafa2de6e42234e6d77a0c53f7e85f66888ed6433bf4c318",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/selection_report.json": "dfbbfd43037ff90bca9030d1b24cf492b566c54504b6fc549fce32b74f79d127",
+    "data/research/tail_formula_endpoint_absolute_squared_recent/selection_verification.json": "c6c84f6b3f562420cf4fa2de38e531f426f6b253c7c8b4406c4adb899640d160",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/model_report.json": "d26ec26dfdba239bfd1fc085aaa14545e7a135f14ab06fc8885f7c402bfbb942",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/model_verification.json": "1eca90267ec68aba85f164528c16a5644627765c448843460b0031314ad3c556",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/score_report.json": "3c3699dd9f3cc47085a1635ee2da5f3b1af1f9251e59e25658388653e26fb432",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/score_verification.json": "731a2676fc56e133f575b1bc7c90a443ac7a2a7188be4ad549752bca42403747",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/selection_report.json": "baee01be0038b982099fb0c2fd67ac91073cffe71c57fe909da23513c0c1db08",
+    "data/research/tail_formula_endpoint_absolute_huber_2024/selection_verification.json": "9cd487df76f1c0818d33be4415689d06501e7df3786a3693db29815deb79928c",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/model_report.json": "e0f9402d2892204ff20692616379fd38c1abd31906d48c58e5c02ed2fadf2603",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/model_verification.json": "39cd12560857700313950cf1cd965db2c327b54541af525d213668b84957df48",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/score_report.json": "22c501b1feff69ebd8d496897c66f27da6f13ef93cdd7583725acab733cecee6",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/score_verification.json": "7027d6d606dc4505dc112fce242b622fdff299edb42b53ccf34ffbe755aec5fa",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/selection_report.json": "4194741b8e27b29faeac359c61eba5843b705798785b8e03a59afc9f12529bcb",
+    "data/research/tail_formula_endpoint_absolute_huber_recent/selection_verification.json": "9748f80c6cf16e7de726894ee0bbd2e09239116cf4eda9ec65460c79715b8700"
+  },
+  "source_master_protocol_sha256": "53fbcbfcc5fbd5e1ec405f60eb49e1bb198a9d3a3c32bae4a816ededa8131169",
+  "arms": [
+    "squared",
+    "huber"
+  ],
+  "folds": [
+    {
+      "name": "2024",
+      "start": "2025-01-01",
+      "end": "2025-07-01"
+    },
+    {
+      "name": "recent",
+      "start": "2025-07-01",
+      "end": "2026-01-01"
+    }
+  ],
+  "threshold": 0.0,
+  "condition": "原formula_input_valid、对应评价时段、已核准score严格大于0；不按未来参考可用性、机会或成交结果挑选。两种损失使用完全相同条件。",
+  "units": "目标为含原费用的09:59参考净价差乘100，0是盈亏平衡点；模型输出未校准，不保证实际正收益。Huber拟合稳健位置，不把它冒称精确条件期望。",
+  "freeze": "两臂四段和两份全年选择全部核准后读取新组表现；只测0，不扫描门槛、不加入每日数量截断。",
+  "controls": "两绝对臂互比，分别对旧相对同损失版、同有限训练样本二元控制和旧固定48项；原q995无信号只报告无样本，不构造零收益差。",
+  "verification": "原模型、评分及原输入证明完整引用；Pandas选择与独立SQL全部键核对，原生数值核心只替换门槛，验证两段合并和非训练期选择。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
