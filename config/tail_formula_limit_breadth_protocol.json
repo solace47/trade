@@ -1,0 +1,35 @@
+{
+  "objective": "在保守次晨标签下检验14:49涨跌停报价失衡及触及涨停后回落的市场环境，不把它当封单或主力身份。",
+  "source_hashes": {
+    "data/research/tail_formula_cross_breadth/feature_report.json": "464ab44487b31bb89cd7a498aa0ed4c84b3e6e5b71399481edd8f6f707a25529",
+    "data/research/tail_formula_cross_breadth/feature_verification.json": "ef7eae067e7ca0281eb5437bbd12ce6da2f026196320177273769614cc6f7909",
+    "data/research/tail_formula_cross_breadth/coverage_verification.json": "7c54aae86cf8436921c72251ad21cc1101696108e6c2b794034486bcb3377dd9",
+    "data/research/tail_formula_cross_breadth/members.parquet": "b1a90c02ef2f07733b0c995bbff23a08faa34bd12af4b01df57f774afe27d816",
+    "data/research/next_day_winner/visible_base.parquet": "eb479c3924f1402ba08fea60f9a1181f9ff14f49eb94e6aa3f4983fee66ef926",
+    "data/research/next_day_winner/base_report.json": "e10ba91524073ea77cb3a5aafa249e277f1647f30c3f91a09c9d8a76cf597c96",
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "pool": "完全复用原参与度研究已核准的本库历史非ST正常主板、至少20股票日、完整14:49前缀成员；全市场覆盖局限保留，不增加金额或可买门槛。",
+  "prices": "当前参考价、14:49报价及此前正量分钟最高/最低价先恢复整数分。主板普通10%估计界为floor((11*pc+5)/10)、floor((9*pc+5)/10)。这些不是封单金额或逐笔状态。",
+  "classifiable": "正价格且lower<=low<=quote<=high<=upper；不符合者保留为分类未知成员，不计入已分类分母，完整计数另报。",
+  "minimum_members": 2000,
+  "minimum_classifiable_fraction": 0.99,
+  "features": {
+    "LB01": "100*(当前报价为涨停价家数-当前报价为跌停价家数)/已分类家数",
+    "LB02": "100*(此前有正量分钟最高价触及涨停而当前报价低于涨停者)/触及涨停者；无触及者时为0"
+  },
+  "same_day_all_stocks_share_inputs": true,
+  "leave_one_out": false,
+  "parameters_not_scanned": true,
+  "native": "辅助指标YJLB20输出全部成员/可分类成员/报价涨停/报价跌停/曾触及涨停5个计数，主公式INSUM；实机语法、成员及报价一致性不预先声称通过。",
+  "model": "原48项仅追加LB01/LB02，不加已失败CB01/CB02。原两段一年窗、64深度3树、最小300例、学习率0.05、日期等权相对机会平方目标、seed20260927及训练99.5%分位，不加入叶日期约束。",
+  "labels": "固定09:31—09:59三连分钟机会，保持原未知与未买入，原买入14:52—14:55和5/15基点费用不变。",
+  "evaluation": "两段、全年、同质量修正标签48项对照共同冻结；完整及共同日期统计，另与相同29根标签的旧48项固定名单比较。",
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "secondary_control_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "year_2025_is_exploratory": true
+}
