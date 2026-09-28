@@ -1,0 +1,14 @@
+{
+  "inputs_protocol_sha256": "3fbddd539ff83a15bc2c344ad2020c4c0692e465c3745069638a2d2c13f1a65d",
+  "fold_protocols": [
+    "config/tail_formula_stock_library_joint_2024_protocol.json",
+    "config/tail_formula_stock_library_joint_recent_protocol.json"
+  ],
+  "arm": "joint",
+  "paired_arm": "control",
+  "same_training_input_table_sha256": "37714d8a5f7833981d377a72079aa77ac345db4aa4540183789f230898400ad3",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}

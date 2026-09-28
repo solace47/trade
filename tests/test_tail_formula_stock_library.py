@@ -1,4 +1,4 @@
-from trade_research.tail_formula_stock_library import namespace, previous, rename
+from trade_research.tail_formula_stock_library import namespace, native_core, previous, rename
 
 
 def test_renaming_is_token_based_and_invertible():
@@ -19,3 +19,12 @@ def test_colliding_block_features_and_helpers_stay_distinct():
     assert 'U02HDV01:=SUM(V,4);' in header
     assert expressions['V01'] == previous.EXPRESSIONS['V01']
     assert mappings[0]['features'] != mappings[1]['features']
+
+
+def test_native_export_keeps_raw_features_distinct_from_integer_encodings():
+    model = dict(bias=0, trees=[dict(feature=[0, -2, -2], threshold=[10000, -2, -2],
+        children_left=[1, -1, -1], children_right=[2, -1, -1], value=[0, 1, -1])])
+    core = native_core(model, .1, {'X01': '100*(C/REF(C,1)-1)'}, '')
+    assert 'LX01:=100*(C/REF(C,1)-1);' in core
+    assert 'X01:=INTPART(MIN(MAX(100*LX01+' in core
+    assert 'IF(X01<=10000,' in core

@@ -14,6 +14,7 @@ from .corporate_cash import save_json, sha
 
 STEM = 'tail_formula_stock_library'
 ROOT = Path('data/research') / STEM
+CONTROL_INPUTS = Path('data/research') / (STEM + '_control_inputs')
 PROTOCOL = Path('config') / (STEM + '_protocol.json')
 BLOCKS = ['opening', 'overnight', 'volume_history', 'vwap', 'path_variance',
           'extrema_time', 'minute_pressure', 'history_weight', 'prior_day',
@@ -62,6 +63,18 @@ for _name in BLOCKS:
                         protocol=_module.PROTOCOL, expressions=_new, header=_module.HEADER))
 EXPRESSIONS, HEADER, MAPPINGS = namespace([(s['name'], s['expressions'], s['header']) for s in SOURCES])
 assert len(EXPRESSIONS) == 82
+ORIGINAL_NATIVE_CORE = base.native_core
+
+
+def native_core(model, threshold, expressions=EXPRESSIONS, header=HEADER):
+    # The shared exporter reserves X01... for integer encodings. Keep the
+    # input-table names frozen and use separate raw names only in the export.
+    mapping = {n: 'L'+n for n in expressions if re.fullmatch(r'X\d+', n)}
+    exported = {mapping.get(k, k): rename(v, mapping) for k,v in expressions.items()}
+    core = ORIGINAL_NATIVE_CORE(model, threshold, exported, rename(header, mapping))
+    names = DECL.findall(core) + re.findall(r'(?m)^([A-Z][A-Z0-9]*):[^=]', core)
+    assert len({n.casefold() for n in names}) == len(names)
+    return core
 
 
 def source_record(s):
@@ -171,7 +184,33 @@ def verify_features():
     return proof
 
 
+def control_inputs():
+    """Same immutable table and validity, with only the original 48 predictors."""
+    import os
+    proof = json.loads((ROOT / 'feature_verification.json').read_text())
+    assert proof['passed'] and proof['feature_report_sha256'] == sha(ROOT / 'feature_report.json')
+    r = json.loads((ROOT / 'feature_report.json').read_text())
+    assert r['features_sha256'] == sha(ROOT / 'features.parquet')
+    assert not (CONTROL_INPUTS / 'feature_report.json').exists()
+    CONTROL_INPUTS.mkdir(parents=True, exist_ok=True)
+    os.link(ROOT / 'features.parquet', CONTROL_INPUTS / 'features.parquet')
+    assert sha(CONTROL_INPUTS / 'features.parquet') == r['features_sha256']
+    control = dict(protocol_sha256=sha(PROTOCOL), source_feature_report_sha256=sha(ROOT / 'feature_report.json'),
+        source_feature_verification_sha256=sha(ROOT / 'feature_verification.json'),
+        features_sha256=r['features_sha256'], rows=r['rows'], valid=r['valid'],
+        expressions=previous.EXPRESSIONS, native_header=previous.HEADER,
+        same_exact_table_and_validity=True, all_extra_columns_are_unused_metadata=True,
+        new_group_outcomes_read=False, new_2026_prices_read=False, no_exit_rules=True)
+    save_json(CONTROL_INPUTS / 'feature_report.json', control)
+    checked = dict(passed=True, feature_report_sha256=sha(CONTROL_INPUTS / 'feature_report.json'),
+        source_feature_verification_sha256=sha(ROOT / 'feature_verification.json'),
+        rows=r['rows'], same_exact_table_bytes=True, original_48_expressions_unchanged=True,
+        new_group_outcomes_read=False, new_2026_prices_read=False, no_exit_rules=True)
+    save_json(CONTROL_INPUTS / 'feature_verification.json', checked)
+    return checked
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('stage', choices=['features', 'verify_features'])
+    parser.add_argument('stage', choices=['features', 'verify_features', 'control_inputs'])
     print(json.dumps(globals()[parser.parse_args().stage](), ensure_ascii=False, indent=2))
