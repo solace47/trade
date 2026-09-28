@@ -1,0 +1,34 @@
+{
+  "objective": "将已知14:49输入中的订单成本和近期容量关系显式组合，检验其相对本股历史波幅的非线性尺度是否改善原48项浅树选股。它不引入新的资金数据，也不改变成交或机会标签；是已有输入的经济含义组合，不冒称新增独立信息。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_intraday/feature_report.json": "920ccdcd04d31eb839efc24aa959064e6f815ad231b6f5498cd3631cfc59cea7",
+    "data/research/tail_formula_intraday/feature_verification.json": "b81572590fec0b839068936831a66bbb07bc853c8bceaca124682da299f7252d",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "src/trade_research/tail_formula_before1000.py": "aa5fa0bb58a46de098136a2de5d5ec72f5d071110b093d69595ab3881b6263cc",
+    "src/trade_research/tail_formula_1000_analysis.py": "b076cebe5cef27a358ad6bb7814279da7a4ba2a194086a6200573ed968776ebb"
+  },
+  "new_fields": [
+    "FR01",
+    "FR02"
+  ],
+  "expected_features": 50,
+  "visible_inputs": "原1,258,085键、48字段和1,117,397有效记录；14:49报价恢复整数分，20,000元整手计划股数保持，14:46—14:49已结束四根成交量，既有此前20日真实波幅比例V01。不得使用实际14:52—14:55价量、次晨价或未来是否成交作为输入。",
+  "definitions": {
+    "quote_shares": "pc=ROUND(100*price_1449); q=pc/100; n=100*floor(2000000/(100*pc)); must equal original decision_shares.",
+    "FR01": "b=n*(q+MAX(.0015*q,.005)); cash=b+MAX(.0003*b,5)+.00001*b; required_value=MAX(cash/(1-.00081),(cash+5)/(1-.00051)); e=required_value/n; required_quote=MAX(e/(1-.0015),e+.005); FR01=100*(required_quote/q-1)/V01.",
+    "FR02": "LN(1+n/(0.1*v4_shares)); v4 is strictly observed 14:46—14:49 volume. Formula V is lots so v4_shares=100*SUM(V,4). No prospective capacity gate or quota."
+  },
+  "cost_scope": "与本研究既有2024—2025估值相同的15基点每侧、至少半分钱、万三且最低5元佣金、买侧十万分之一与卖侧合计万分之5.1费用。只用当前报价构造假想成本距离，不用当前报价替代真实买入；不是新增卖出规则。",
+  "capacity_scope": "FR02只是近期四分钟容量利用比例的对数；不能代表随后窗口成交量或订单簿排队。原未来入场原始分钟检验全部保留，不从这个代理直接宣称买得到。",
+  "quality": "n>=100、q>0、V01>0、v4>0且所有新增值有限；原48字段逐值保持。期望原有效交集不减少，若减少则先固定同交集48控制，不忽略质量差。编码和截断沿用原规则并报告边界情况。",
+  "verification": "Pandas计算与独立SQL恢复股数、两段MAX费用逆解、容量和编码全量一致。另以直接原net_mark费用函数单调二分独立反求全部有效行的价格零点，验证门槛两侧符号。测试半分钱/比例滑点与最低佣金切换、低价整手精度、零量不填和股/手换算。固定32既有原档样本重放新增原生表达，不宣称完整客户端已核准。",
+  "models": "原两段一年训练、原严格29根标签、日期等权相对机会目标、64深度3树、min_samples_leaf300、learning_rate.05、seed20260927及训练q995均不变。输入核准和配置提交后训练，两个模型及三名单共同提交再年度一次聚合。",
+  "controls": "原保守重训48与旧固定48完整比较；如有效交集不变直接复用已有模型。全字段名单相同则直接复用核准结果，不重复经济聚合；全部未知及参考缺口保留。",
+  "no_duplicate_half_year_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
