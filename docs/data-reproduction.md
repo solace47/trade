@@ -53,6 +53,8 @@
 
 按时间选择轮数用`trade_research.tail_formula_chrono_rounds`。每折依次`verify_inputs`、`calibration_model`、`verify_calibration_model`、`calibrate`、`verify_calibration`，先核准0至256阶段全部日期误差和选择，再`model`、`verify_model`进行完整一年重训；后续`scores`、`verify_scores`、`freeze`、`verify`及两折／全年共同冻结、严格29根评价流程保持。0轮有单独的常数原生核心与SQL评分核准；`test_tail_formula_chrono_rounds.py`覆盖零轮、舍入平手和日期权重。
 
+可执行机会入口`trade_research.tail_formula_executable_opportunity`：两折先`verify_inputs`核准原执行拒绝状态、未知保留及新训练事件，再依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`；两折与全年共同冻结后才评价。使用专用模型／评分复核器，训练分位必须包括原明确未买入的0事件；评价仍用原保守29根标签，不能用训练事件替换。`test_tail_formula_executable_opportunity.py`覆盖事件转换边界。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
