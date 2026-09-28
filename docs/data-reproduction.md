@@ -23,6 +23,8 @@
 
 相邻分钟顺序用`trade_research.tail_formula_serial_price`的`features`、`verify_features`、`native`，只复用既有30个收盘宽表。模型模块`trade_research.tail_formula_serial_price_model`仍按两折依次拟合、核准、评分、核准、冻结、核准，再共同冻结全年后评价；相同有效范围的48项控制直接复用。
 
+截面离散度用`trade_research.tail_formula_cross_dispersion`的`features`、`verify_features`、`native`；两个模型用`trade_research.tail_formula_cross_dispersion_model`，同样完成两折与全年冻结再评价。主要复用已核准等权50项控制，另复用两份48项控制；辅助指标为`YJCS20.tdx`，与每份数值核心配套。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
