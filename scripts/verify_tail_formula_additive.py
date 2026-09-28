@@ -35,7 +35,10 @@ def tree_sql(tree,node=0):
 def connection():
     c=duckdb.connect()
     c.execute('SET threads=4')
-    c.read_parquet(str(FEATURES/'features.parquet')).create_view('features')
+    columns=['date','code','half','board','decision_shares','formula_input_valid',*load('model_report.json')['feature_names']]
+    assert len({name.casefold() for name in columns})==len(columns)
+    # Read exact Parquet field names before DuckDB's case-insensitive binding.
+    c.register('features',pd.read_parquet(FEATURES/'features.parquet',columns=columns))
     c.read_parquet(str(ROOT/'scores.parquet')).create_view('scores')
     return c
 

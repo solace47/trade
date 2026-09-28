@@ -135,7 +135,12 @@ def verify_model(variant):
     depth=config.get('model_max_depth',2)
     minimum_days=config.get('minimum_leaf_training_days',0)
     assert r['parameters']['max_depth']==depth
-    f=base.feature_inputs();c=base.conn();c.register('features',f)
+    # Pandas column lookup is case-sensitive; DuckDB identifiers are not.
+    # Project exact model names before registration so a retained source
+    # field such as ip01 cannot shadow the model input IP01.
+    columns=['date','code','formula_input_valid',*base.EXPRESSIONS]
+    assert len({name.casefold() for name in columns})==len(columns)
+    f=base.feature_inputs()[columns];c=base.conn();c.register('features',f)
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
