@@ -1,0 +1,30 @@
+{
+  "objective": "历史方向量只按涨跌正负记号；本轮保留涨跌幅度，检验此前20日放量偏向更强上涨还是更大下跌能否帮助尾盘次晨选择。区分全天历史价量响应与已做的尾29分钟同步/先后量价，不把相关行为称主力净买入。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_1000/feature_report.json": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+    "data/research/tail_formula_daily_efficiency/feature_report.json": "7d9a484518a803c792611cabde8c6ed7ce5fa6e2b62decafb15f5472440d25ff",
+    "data/research/tail_formula_daily_efficiency/feature_verification.json": "cfbb688c4a2310293964f5c0b0fc6ccfe83662076e03eef5220d0868363201e2",
+    "data/research/tail_formula_daily_efficiency/native_input_verification.json": "53f02697a1b11f083e3d43957379f9866521c9ae75cad5d7ff33efde5039f951",
+    "data/research/tail_formula_history_direction/feature_report.json": "d641ed70932c04ff47b2b082893f7083afb2960c38970ccc5ea07a0e9b4c3a00",
+    "data/research/tail_formula_history_direction/feature_verification.json": "9168b2d05ce650847b140978f0a6be1e5fe3b11017b5db8d42772b8e3d971d6b",
+    "data/research/tail_formula_history_direction/native_input_verification.json": "87cfdb0bd4ba2e69944fce1ee644c8371d12964f7aa5ceb8e5bc6fddec4e1f7d"
+  },
+  "history_first": "2023-06-01",
+  "history_last": "2025-12-30",
+  "history_days": 20,
+  "new_fields": [
+    "DR01"
+  ],
+  "expected_features": 49,
+  "input": "此前20个完整股票交易日r_i=100*(当日收盘整数分/前股票日收盘整数分-1)，v_i为该日完整成交股数。DR01=(20*sum(r_i*v_i)/sum(v_i)-sum(r_i))/原V01。等量日为0，相同方向量但涨幅/跌幅与量的关联可不同。所有源日严格早于信号，当日任何价量不加入历史，2023只初始化。",
+  "validity": "复用已核准21个前日收盘及20个完整日方向量质量/日期证明。从同一锁定日线投影20个成交量，按原股票日序而非跳过缺失。原48所有键和值保留；原有效交集减少则在训练前固定同质量48控制。历史除权参考断点与停牌跨度完整报告，不据后续收益调整或删去。",
+  "native": "沿用HDV=SUM(V,B0)及REF(HDV,B0..B19)的完整前日量引用，DCP1..DCP21为已完成收盘。20组显式百分比收益及量乘积、总量和收益总和，加入总量>0保护；手/股单位消去，公式不依赖外部名单。原已核准32例完整历史量价来源证明复用，新代数/整数编码独立重放；客户端数据一致性仍另核。",
+  "verification": "生产按逐行21价/20量数组计算。独立SQL从原3188份日线直接按股票日序形成日收益、成交量及其乘积，再滚动严格前20行，核准数值/全部新引用与有效性。测试等量为0、放量与涨跌幅关联、量单位不变和零分母未知。旧32个原生时序样本复用，仅重放新算术，不重新提取原分钟。",
+  "model": "原两段一年、原29根相对机会、64深度3/minleaf300/lr.05/seed20260927/日期等权/q995保持。两模型、三完整名单共同冻结提交后再评价。同参数48及旧固定48两控制保持；与控制相同名单直接复用。",
+  "evaluation": "保持14:49前可见、14:52—55原始分钟入场、2万元固定整手/10%容量、费用/涨停队列未知、5/15基点与09:31—09:59，完整两半年/全年机会/1%空间/参考均值/3%不利、参考缺口、共同/独有日期和共享未知界全报。固定20日和公式，不按2025结果追调。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
