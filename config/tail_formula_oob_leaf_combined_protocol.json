@@ -1,0 +1,16 @@
+{
+  "objective": "独立浅树平均的两段及全年先冻结后评价，完整保留同29根两套48项对照。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "fold_protocols": [
+    "config/tail_formula_oob_leaf_2024_protocol.json",
+    "config/tail_formula_oob_leaf_recent_protocol.json"
+  ],
+  "control": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "primary_control": "data/research/tail_formula_before1000_model_2025",
+  "oob_leaf_protocol_sha256": "9cbfc58cd426610ec4a44af813d75815e971d02f7db98fe3f3b0f577f4640735",
+  "no_duplicate_half_year_aggregation": true
+}
