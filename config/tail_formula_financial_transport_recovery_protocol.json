@@ -1,0 +1,9 @@
+{
+  "objective": "仅恢复既定行业指数日线采集的ProxyError；研究定义、代码、日期与字段均不变。旧两次失败不覆盖。",
+  "master_protocol_sha256": "def546dc2821403c91d5d00cb02cea918430c82457652b2647e63c842a1a1e20",
+  "failed_checkpoint_sha256": "ddf5f578c965365178b4c6c0a5ced29484be934f717d3658e58dc50bd783069b",
+  "transport": "ego-browser既有TaskSpace10的后台Node fetch；无需账户和cookie。每个既定区间最多一次20秒请求，逐次失败或响应单独保存，任何失败不再盲目重试。",
+  "grid": "原两代码×三个日期区间全部固定，已成功区间不再请求；不能改日期或放宽源码质量核验。",
+  "new_stock_outcomes_read": false,
+  "new_2026_prices_allowed": false
+}
