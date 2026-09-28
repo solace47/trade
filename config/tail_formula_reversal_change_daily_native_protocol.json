@@ -1,0 +1,27 @@
+{
+  "objective": "首分钟开盘不总等于日线开盘，保留失败证据和全部已核准特征；只将新两项部署表达改为已完成日线辅助指标再按DAY引用，不改变事件、20/240周期、有效交集、训练方法或任何数值。",
+  "inputs_protocol_sha256": "6491c9ba0e86f3c16a5decd5d6936c4042ba41b9f7aa78e6f5ae31f39f890e04",
+  "evidence": {
+    "data/research/tail_formula_reversal_change/native_source_mismatch.json": "1a3b9a03e7e26cdf0e4a8fb1192b0d4b91f21e7d63e53b8a4ac5aed7fd93cc4f",
+    "data/research/tail_formula_reversal_change/feature_report.json": "6892f5addc7538a1cf53fe889fbd2171b7d62c59cde72e46ffa36e9a9235ff54",
+    "data/research/tail_formula_reversal_change/feature_verification.json": "bb55604ba529038d25976bbee9b556bc0f93dba17d7c8dd3cd325853301e86df",
+    "data/research/tail_formula_reversal_change/source/tdx_cross_period.txt": "7dd1f2895e57ea5cac26f8b15bf9388e598ac47750f250b8f3364f62a275f1ad"
+  },
+  "helper_name": "YJRC01",
+  "helper_period": "DAY",
+  "helper_source": "RN:=IF(O>REF(C,1) AND C<O,1,0);\nRP:=IF(O<REF(C,1) AND C>O,1,0);\nRG:=O>0 AND C>0 AND REF(C,1)>0;\nREADY:=BARSCOUNT(C)>=262 AND REF(COUNT(RG,260),1)=260;\nRA01:IF(READY,100*(REF(SUM(RN,20),1)/20-REF(SUM(RN,240),21)/240),DRAWNULL);\nRA02:IF(READY,100*(REF(SUM(RP,20),1)/20-REF(SUM(RP,240),21)/240),DRAWNULL);\n",
+  "expressions": {
+    "RA01": "YJRC01.RA01#DAY",
+    "RA02": "YJRC01.RA02#DAY"
+  },
+  "native_header": "original48 header only",
+  "documentation_url": "https://help.tdx.com.cn/gspt/docs/markdown/tdxgs-1d1k7biu16p6s/tdxgs-1d1p28tpu92i8.html",
+  "timing": "SUM及REF都在辅助指标的日线周期内运算，当前日输出只依赖严格此前260个事件和261个价格日；不能在分钟主公式外层REF一根冒充REF一天。当前／未来日O、C任意变更须不改变当日输出。",
+  "requirements": "日线历史必须先下载，交易日序列采用同样的活动股票日与不复权定义；客户端补线、复权、数据供应源与历史对齐仍需实测。官方提示跨周期可能引用未来，故辅助输出内固定前移且核对当前价格污染不影响；文档不等于实机数据核准。",
+  "verification": "沿用原各半年哈希前8例，不因首分钟开盘失败重选；原261日独立日线重读，实际生成日线REF/SUM/COUNT/DRAWNULL表达逐项重放、编码一致及当前日污染测试。原分钟失败函数与收据保留，不伪造原验证通过。",
+  "all_features_and_validity_unchanged": true,
+  "training_started": false,
+  "new_group_outcomes_read": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
