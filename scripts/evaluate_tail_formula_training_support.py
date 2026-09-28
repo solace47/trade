@@ -36,6 +36,7 @@ def freeze():
             selection = pd.read_parquet(target / 'selection.parquet')
             selected = selection.loc[selection.selected]
             candidates = [study.control(fold), study.DATA / 'tail_formula_before1000/evaluation' / ('tail_formula_float_' + fold)]
+            candidates += [Path(record['root']) for record in records]
             same = [str(path) for path in candidates if (path / 'selection.parquet').exists()
                     and selection.equals(pd.read_parquet(path / 'selection.parquet'))]
             records.append(dict(arm=arm, fold=fold, root=str(target), selected=len(selected), days=selected.date.nunique(),
