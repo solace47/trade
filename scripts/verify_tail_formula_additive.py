@@ -80,9 +80,18 @@ def scores():
     from datetime import date
     assert date.fromisoformat(end).isoformat()==end and (start is None or date.fromisoformat(start).isoformat()==start)
     where=f"next_date<'{end}'"+(f" AND date>='{start}'" if start else '')
+    split=m.get('training_split')
+    if split is not None:
+        assert split==protocol['training_split'] and date.fromisoformat(split).isoformat()==split
+        assert start is not None and start<split<end
+        # The constrained-half experiment purges labels not yet observable
+        # at the intermediate boundary in both its ordinary and constrained arm.
+        where+=f" AND (date>='{split}' OR next_date<'{split}')"
     c.execute(f'''CREATE VIEW training_keys AS SELECT date,code FROM read_parquet('{SOURCE}/full_labels.parquet')
         WHERE {where} AND known15''')
     train=c.sql('SELECT rebuilt_score FROM rebuilt JOIN training_keys USING(date,code) ORDER BY date,code').df()
+    if split is not None:
+        assert len(train)==m['rows']==protocol['expected_rows']
     for t in m['thresholds']:
         np.testing.assert_allclose(np.quantile(train.rebuilt_score,t['training_quantile']),t['threshold'],rtol=0,atol=2e-11)
     result=dict(passed=True,score_report_sha256=sha(ROOT/'score_report.json'),rows=len(actual),
@@ -92,6 +101,8 @@ def scores():
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
     if 'selection_score_cut' in m:
         result['fixed_selection_score_cut_verified']=m['selection_score_cut']
+    if split is not None:
+        result.update(training_split=split,purged_training_rows=len(train),intermediate_observation_boundary_verified=True)
     save_json(ROOT/'score_verification.json',result)
     return result
 
