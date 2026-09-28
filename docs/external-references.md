@@ -58,3 +58,6 @@
 
 
 2026-09-28补读[Qiu 2022博士论文《Essays in Overnight Returns, Intraday Reversals, and Short-Selling Constraints in Chinese Stock Market》](https://unnc.globalimpact.cn/ws/portalfiles/portal/531719892/Thesis_Jiayan.pdf)，核对第2章方法与结论及第3章反转频率定义，并目视核准PDF第26／34／87页。第2章2009—2021样本使用早盘半小时成交量加权价定义一种开盘价，按月构造多空组合；低换手组相对高换手组较好，但两组自身隔夜分量均负。第3章关注过去反转频率相对长期均值的异常程度，并检验下一月收益。可复用的是区分绝对收益与组间差、区分频率水平与自身变化的思路；不能外推为2024—2025尾盘做多至次晨的盈利证据。已有20日高开低走频率及隔夜成分在本仓库检验过，不按新论文重新包装或重复实验。固定原件SHA256为`ab7f4335a7c58e3a95eac57a2b8f558e19fabe9c4aafa92f36ece6e924357c4b`，读取收据为`49aa1ce08193351634b83365f1b419a46ed080626ea056d9fa52e0f7ccaa2024`；没有取得机构账户身份或接入新的未来行情。
+
+
+2026-09-28核对[NYU V-Lab Historical ILLIQ实现说明](https://vlab.stern.nyu.edu/docs/liquidity/ILLIQ-HIST)。其单日度量为绝对收益除以成交金额，平台将金额缩放为一亿美元，历史指标取22交易日平均。可参考的是价格变动与成交额关系的度量；不能据此声称某笔交易的真实冲击、资金净流入、主力身份或A股次晨盈利。原2002论文未读取，本条只据V-Lab自己的公开实现文档；改为尾段分钟指标将是新的改编试验，需另行固定并独立检验。文档原文及来源收据`2aa9e4dc2a07ff79be4d34523a154c6e31edc4e144f5f77e8265c65e4a0b7e33`保存在忽略目录，未拉取新行情。
