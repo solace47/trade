@@ -1,0 +1,15 @@
+{
+  "inputs_protocol_sha256": "26d493aea73e9ee6261afc6bca3cc8179fe372e104c08095bf40accde15b0691",
+  "fold_protocols": [
+    "config/tail_formula_volume_lead_2024_protocol.json",
+    "config/tail_formula_volume_lead_recent_protocol.json"
+  ],
+  "control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "control_analysis_report_sha256": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+  "control": "data/research/tail_formula_before1000_model_2025",
+  "unchanged_effective_inputs_control_reused": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
