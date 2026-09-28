@@ -1,0 +1,17 @@
+{
+  "training_target_protocol_sha256": "b828cd2ab00befbbb9feff3c971b5a68d9c927aad568f37713c84e24e86d8abc",
+  "fold_protocols": [
+    "config/tail_formula_path_area_2024_protocol.json",
+    "config/tail_formula_path_area_recent_protocol.json"
+  ],
+  "training_target_window_end": "09:59",
+  "evaluation_window_end": "09:59",
+  "primary_control": "data/research/tail_formula_before1000_model_2025",
+  "secondary_control": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "objective": "学习整个保守次晨窗口的净价格面积，兼顾持续时间和涨跌幅度；仍只优化选股，不制定卖出时点。",
+  "control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "control_analysis_report_sha256": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344"
+}

@@ -51,7 +51,7 @@ def training_size_buckets(frame, groups):
 
 
 def training(variant):
-    assert variant in ['relative','risk','absolute','margin','rank','duration','downside','quality','space','group_relative']
+    assert variant in ['relative','risk','absolute','margin','rank','duration','downside','quality','space','group_relative','path_area']
     start,end,where=training_scope()
     t=base.training(start=start,end=end)
     c=base.conn()
@@ -76,6 +76,8 @@ def training(variant):
         return out.sort_values(['date','code']).reset_index(drop=True)
     # Price opportunities and adverse marks only; no future exit fields.
     extra=',sustained_return15' if variant in ['margin','rank','quality','space'] else ''
+    if variant=='path_area':
+        extra=',path_area15'
     labels=c.execute(f'''SELECT date,code,opportunity15,adverse_return15{extra} FROM read_parquet(?)
         WHERE {where} AND known15''',[str(base.SOURCE/'full_labels.parquet')]).df()
     # A fully observed morning with no positive-volume minute has no profit
@@ -93,7 +95,10 @@ def training(variant):
         t['target']=(grouped.rank(method='average')-.5)/grouped.transform('size')-.5
         np.testing.assert_allclose(t.groupby('date').target.mean(),0,rtol=0,atol=2e-12)
         return t.sort_values(['date','code']).reset_index(drop=True)
-    if variant=='margin':
+    if variant=='path_area':
+        assert np.isfinite(labels.path_area15).all()
+        labels['utility']=100*labels.path_area15
+    elif variant=='margin':
         assert np.isfinite(labels.sustained_return15).all()
         labels['utility']=labels.sustained_return15.clip(-.01,.01)/.01
     elif variant=='downside':
@@ -167,6 +172,8 @@ def verify_model(variant):
     utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
+    elif variant=='path_area':
+        utility='100*path_area15'
     elif variant=='downside':
         utility='CAST(adverse_return15<=-.03 AS INTEGER)'
     elif variant=='quality':
