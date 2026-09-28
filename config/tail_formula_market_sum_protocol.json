@@ -1,0 +1,53 @@
+{
+  "objective": "原相对模型学习股票机会减当天完整基础池机会率，部署却只用相对分数。本轮复用保守29根训练的原48相对模型，另在相同一年训练窗按日期独立学习基础机会率，再将预测基础水平与原相对分数系数各1相加。检验绝对机会水平的缺项是否影响选择。",
+  "distinction": "此前三年市场机会开关只删除原候选且采用旧30根目标，本轮采用相同一年及保守29根目标，连续相加后重算同样的训练q995，可以增删候选；没有反转旧过滤器或改市场门限。之前一体绝对机会训练也失败，本轮两类学习单位分开，个股部分完全不重训。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "config/tail_formula_market_gate_protocol.json": "bbbebe7b94c9a87320635650602cf70a489b6615d686dcece558748f415370e9",
+    "data/research/tail_formula_before1000_model_2024/model_report.json": "6b7846506c8bf3ba42cd207469f121df7c8be6775e8ae1d01fb20581c3b01239",
+    "data/research/tail_formula_before1000_model_2024/model_verification.json": "d3b61177961407dcbc1544a0959937d3c7e0e253f0b9c7c303c53bba51e40b13",
+    "data/research/tail_formula_before1000_model_2024/score_report.json": "9fcbf743f478cb75c1efacf33728564016e0102e71bd142f8b6322d14fa139a1",
+    "data/research/tail_formula_before1000_model_2024/score_verification.json": "5d34fa9ca5ad556d6896fc3859524fc0683db1bd2945da990e31f979cfad1c4c",
+    "data/research/tail_formula_before1000_model_2024/selection_report.json": "b8a07313a7deb80f9fbf0e6f1bc9fe5041357ea0e4b70e4764694d8c38d7fa90",
+    "data/research/tail_formula_before1000_model_2024/selection_verification.json": "05e9b89e14c05acfec8cd731362c476cb312e0b750f2e7a7388a75bf12c7743d",
+    "data/research/tail_formula_before1000_model_2024/frozen_numeric_core.tdx": "bb7317884f286930cb20ddeab5652560c05a65cd7273678ca95cab649da50f74",
+    "data/research/tail_formula_before1000_model_recent/model_report.json": "9db8e627cbe3c04906c0d97c2ddc7ce71537a6c9fc6ff2bdbb8beb016e97d861",
+    "data/research/tail_formula_before1000_model_recent/model_verification.json": "4b43ca9abf9a0f5b32586023165a850e28f94e0e3743fb8b156350e576a86fed",
+    "data/research/tail_formula_before1000_model_recent/score_report.json": "c1d112860d3597af5e3a404089da2a5e7b195093c8f3bcb2693d08e76636579e",
+    "data/research/tail_formula_before1000_model_recent/score_verification.json": "fff76899a7de31e0d23f4e0c468b4353b93a3ca62bb19d4614a4b6b861d119a6",
+    "data/research/tail_formula_before1000_model_recent/selection_report.json": "ad280597734eaef11f5e0aced4a2c79c4901a54ec7b22ab8c677c55f15e899fd",
+    "data/research/tail_formula_before1000_model_recent/selection_verification.json": "ec54c15925760af738c4492e16e3ac02966efa784c5b9028f97143545ce899fd",
+    "data/research/tail_formula_before1000_model_recent/frozen_numeric_core.tdx": "00812998da354632784521a06083c192be74928be21ff5342d743d73e4518c5c"
+  },
+  "new_fields": [],
+  "expected_features": 48,
+  "market_names": [
+    "J02",
+    "J03",
+    "J04"
+  ],
+  "market_parameters": {
+    "loss": "squared_error",
+    "n_estimators": 32,
+    "learning_rate": 0.05,
+    "max_depth": 2,
+    "min_samples_leaf": 40,
+    "subsample": 1.0,
+    "random_state": 20260927
+  },
+  "market_inputs": "只投影已核准原48项中同交易所指数的14:48/14:20、14:48/14:35、14:20/13:01百分比变化，原整数编码不变。每日期交易所组应完全唯一，原484日期各两个指数共968行。原1258085键及1117397有效输入不减；不使用随股票停牌历史变化的指数历史项或J01冒充同一市场日。",
+  "market_training": "每个训练日两指数各一行且各权重1/2，目标均为原完整known15基础池当日opportunity15均值，先求完整基线再连市场输入。日期及next_date边界与原相对模型一致，预期241日482行；单类日保留。最小40指数行且实际至少20不同日期，不把数千只股票视为独立市场日。",
+  "composition": "保留原64棵树的结构和值不变，将新32棵市场树的3项索引映射到原48索引，附在原树之后，共96树。bias=原bias+市场bias，learning_rate均为.05，无再拟合混合权重。规范计算顺序为先合并bias，然后依次64原树和32市场树；阈值从此规范计算在原known15且有效的502747/522653校准交集取q995。",
+  "probability_boundary": "加法对应目标的均值分解，但有限模型未校准，输出可以超出[0,1]，不裁剪也不当作已验证获利概率；不采用固定0.5门槛、市场均值开关或原候选交集。",
+  "verification": "Pandas与独立SQL重建全部968市场输入、分组唯一性、编码及全训练日基线和日期权重；独立核新市场每个节点残差均值方差、日期支持及全部指数分数。复用原模型完整证明，检查96树结构、索引映射、原生各项、完整个股分数及全部严格门限标志。两组合模型三名单共同提交后，全年一次聚合及原同参数48与旧固定48共同日、独有日和未知完整边界全部保留。",
+  "native": "只增加固定32棵IF，没有新增行情字段或INSUM横截面依赖，完整历史股本、指数来源、临停和实时延迟仍须客户端核准。数值导出不能冒称已发布。",
+  "no_weight_or_market_window_search": true,
+  "training_quantile": 0.995,
+  "no_duplicate_half_year_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}

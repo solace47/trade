@@ -1,0 +1,42 @@
+{
+  "objective": "原相对模型学习股票机会减当天完整基础池机会率，部署却只用相对分数。本轮复用保守29根训练的原48相对模型，另在相同一年训练窗按日期独立学习基础机会率，再将预测基础水平与原相对分数系数各1相加。检验绝对机会水平的缺项是否影响选择。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 96,
+    "max_depth": 3,
+    "learning_rate": 0.05,
+    "construction": "sum_of_frozen_relative_and_new_date_market_models",
+    "component_coefficients": [
+      1.0,
+      1.0
+    ]
+  },
+  "target": "sum of predicted same-date base opportunity and unchanged stock-relative opportunity",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "e9f4aaa93f89657fc0f82d24fcb1c23ef2e4d918e2edfdd350288a68d161cf7b",
+  "feature_verification_sha256": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+  "expected_rows": 502747,
+  "market_parameters": {
+    "loss": "squared_error",
+    "n_estimators": 32,
+    "learning_rate": 0.05,
+    "max_depth": 2,
+    "min_samples_leaf": 40,
+    "subsample": 1.0,
+    "random_state": 20260927
+  }
+}
