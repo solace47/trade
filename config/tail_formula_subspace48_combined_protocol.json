@@ -1,0 +1,18 @@
+{
+  "objective": "在原48项和原64轮下，只将节点候选特征预算固定为floor(sqrt(48))=6，检验限制反复挑选强历史分割是否改善跨半年质量。",
+  "master_protocol_sha256": "312ddabea1d9b4dd4f5fffd559e578d3e67be6ae99771378a489232455d1842e",
+  "fold_protocols": [
+    "config/tail_formula_subspace48_2024_protocol.json",
+    "config/tail_formula_subspace48_recent_protocol.json"
+  ],
+  "fold_protocol_sha256": [
+    "e53b05ec8f8b8eed0507226aa10b130afc810973857074c639e2a08d570a94f6",
+    "0c4dc6efe6a648d9ec567b41a540b5540b41cc067c11ab1c28399008bceea9dd"
+  ],
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "control": "data/research/tail_formula_before1000_model_2025",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}

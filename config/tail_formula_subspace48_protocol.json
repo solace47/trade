@@ -1,0 +1,42 @@
+{
+  "objective": "在原48项和原64轮下，只将节点候选特征预算固定为floor(sqrt(48))=6，检验限制反复挑选强历史分割是否改善跨半年质量。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "feature_verification_sha256": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+  "features_sha256": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "label_verification_sha256": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "max_features": 6
+  },
+  "sampling": "使用当前sklearn GradientBoostingRegressor的max_features=6；每节点重新考虑候选，不是整棵树固定六项。若未找到合法分裂，底层可能检查超过六项，故不宣称硬上限。",
+  "sklearn_version": "1.7.2",
+  "implementation_file": ".venv/lib/python3.12/site-packages/sklearn/ensemble/_gb.py",
+  "implementation_sha256": "028f08005071c5998eb6ef4414009fb391bcb2fc73f8e18584f6f1d0a9b4059d",
+  "same_training_population_target_weights_and_quantile_as": "tail_formula_before1000_model",
+  "training_target": "opportunity15减当日全部known15池均值，先计算日基线再与有效48项输入相交；保留原日期等权。",
+  "training_quantile": 0.995,
+  "stock_input_cutoff": "14:49",
+  "index_input_cutoff": "14:48",
+  "execution": "14:52—14:55原始分钟、原固定股数及容量限制",
+  "window_end": "09:59",
+  "controls": [
+    "data/research/tail_formula_before1000_model_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025"
+  ],
+  "independent_verification": "复用SQL目标/整数输入/日期权重与全节点残差核验、SQL评分、完整选择表；两折及全年共同提交后看分组结果。",
+  "feature_count_changed": false,
+  "new_raw_data_required": false,
+  "no_parameter_grid": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
