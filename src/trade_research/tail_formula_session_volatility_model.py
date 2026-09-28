@@ -16,9 +16,9 @@ def configure(arm):
     engine.inputs = inputs
 
 
-if __name__ == '__main__':
+def main(arm=None):
     p = argparse.ArgumentParser(add_help=False)
-    p.add_argument('--arm', choices=['late', 'both'], required=True)
+    p.add_argument('--arm', choices=['late', 'both'], required=arm is None, default=arm)
     args, remainder = p.parse_known_args()
     if 'analyze' in remainder:
         r = json.loads((inputs.ROOT / 'joint_selection_freeze.json').read_text())
@@ -29,6 +29,10 @@ if __name__ == '__main__':
         fold = remainder[remainder.index('--fold')+1] if '--fold' in remainder else '2024'
         engine.setup(fold)
         print(json.dumps(verify_scores(expected_expressions=inputs.EXPRESSIONS), ensure_ascii=False, indent=2))
-        sys.exit(0)
+        return
     sys.argv = [sys.argv[0], *remainder]
     engine.main()
+
+
+if __name__ == '__main__':
+    main()
