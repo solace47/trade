@@ -11,6 +11,10 @@
 
 同日配对排序接续复用2024—2025的原48项和已核准29根标签。模块`tail_formula_pairwise model --fold <2024/recent>`后运行`scripts/verify_tail_formula_pairwise.py --fold <同段>`；随后模块的`scores`、`verify_scores`、`freeze`、`verify`。两段完成后`--fold combined`执行`freeze`与`verify`，才能对两段及全年`analyze`，每份结果用`scripts/verify_tail_formula_before1000.py analysis --root <对应目录>`独立核准。这一接续不读取新2026价格。
 
+先后目标先运行`trade_research.tail_formula_path_order_labels`的`target`／`verify`；`trade_research.tail_formula_path_order`按两折依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，再共同冻结全年后`analyze`三份。评价必须用原29根标签，训练目标文件不可用于效果汇总。配对与先后两项的共同日期及共享未知均由`compare_tail_formula_same_dates.py`和`compare_tail_formula_shared_unknowns.py`复算，对应协议带各自前缀。
+
+联合输入使用`trade_research.tail_formula_stock_library`的`features`、`verify_features`、`control_inputs`，只复用核准表；控制和联合表字节相同，预测列分别48／82。`trade_research.tail_formula_stock_library_model --arm <joint/control> --fold <2024/recent>`依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`；两臂各用`--fold combined`冻结并核准全年，六份选择齐备才允许`analyze`。逐份分析用上述保守窗口验证器核准，不重做旧原始窗口抽取。所有命令在仓库根目录执行。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
