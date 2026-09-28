@@ -16,6 +16,9 @@ STEM='tail_formula_path_order'
 
 def setup(fold):
     adapter.STEM=STEM;adapter.targets=targets;adapter.setup(fold)
+    for name in ['2024','recent','combined']:
+        p=json.loads((Path('config')/(STEM+'_'+name+'_protocol.json')).read_text())
+        assert p['training_target_window_end']=='09:59'
 
 
 if __name__=='__main__':

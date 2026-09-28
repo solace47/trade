@@ -27,5 +27,5 @@
   "no_exit_rule_research": true,
   "training_target_protocol_sha256": "9dc1cc72dd61ec92ac56cdebe4094b3cf3cc0f8bb6d25cb72902c17bf9530eb2",
   "evaluation_label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
-  "training_target_window_end": "09:45"
+  "training_target_window_end": "09:59"
 }
