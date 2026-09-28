@@ -1,0 +1,32 @@
+{
+  "objective": "原48项新增此前20完整股票日的量加权收盘区间位置，49项；其他训练与评价固定。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "61287cf33283d3df0ff0ba97795f6ece66454c78b67a426fd37b22437436a2ce",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 49,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "2a73cd9f33f17bfecbc56e84577d9b0163d49759b1566cdb4ae99578abb3ec8f",
+  "native_input_verification_sha256": "75d8471c16f8c55e951dbabcd3e3f10aa297eff1f13f7cabd4740379d7a316fb",
+  "source_boundary_protocol_sha256": "4e9fa8abeabe89313c773acae7a6eb09f586d3621a1fdffd7236146e3d00c0b9"
+}
