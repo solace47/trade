@@ -37,6 +37,10 @@
 
 `scripts/verify_tail_formula_endpoint_reference.py`复核第一轮三臂评价的参考覆盖诊断：已知二元机会可以没有09:59活跃参考价，相关候选保留在机会分母；参考均值只汇总有效参考标记，不能将这种字段缺失当已知负事件或零收益。该脚本不重选名单、不改变评价标签。
 
+自然零门槛入口为`trade_research.tail_formula_absolute_zero`，`freeze`／`verify`一次处理两臂六份名单；原绝对模型不重训，只改选择为score>0。共同冻结后分别对`squared/huber`及`2024/recent/combined`运行`analyze`，严格29根分析核查器仍必需。无候选q995结果保持独立，不覆盖。
+
+`scripts/audit_tail_formula_reference_coverage.py --root <年度目录>`从原选择与标签分别用Pandas／SQL检查两成本、两质量口径的参考缺失、末端严格正事件和日均参考价。它写独立证明，不修改既有分析；参考不全的已知机会仍保留，全未知日期存null。两轮新同日比较分别由`tail_formula_absolute_zero_shared_unknowns_protocol.json`及`tail_formula_endpoint_positive_shared_unknowns_protocol.json`固定，沿用共同日期与共享未知工具。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
