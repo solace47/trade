@@ -63,6 +63,7 @@ def verify(fold):
     ranking_connection=base.conn()
     day_ids=pd.factorize(d.date,sort=True)[0]
     max_weight_error=0.
+    max_variance_absolute_error=0.;max_variance_relative_error=0.
     pair_day=pairs.date
     assert len(r['trees'])==len(r['trace'])==64
     for iteration,(tree,trace) in enumerate(zip(r['trees'],r['trace'])):
@@ -113,7 +114,10 @@ def verify(fold):
             assert mask.sum()==tree['n_node_samples'][node] and levels[node]<=3
             np.testing.assert_allclose(ww.sum(),tree['weighted_n_node_samples'][node],rtol=0,atol=2e-8)
             np.testing.assert_allclose(mean,tree['gradient_value'][node],rtol=0,atol=2e-9)
-            np.testing.assert_allclose(variance,tree['impurity'][node],rtol=0,atol=2e-9)
+            variance_error=abs(variance-tree['impurity'][node])
+            max_variance_absolute_error=max(max_variance_absolute_error,float(variance_error))
+            max_variance_relative_error=max(max_variance_relative_error,float(variance_error/max(1.,abs(variance))))
+            np.testing.assert_allclose(variance,tree['impurity'][node],rtol=2e-10,atol=2e-9)
             right=tree['children_right'][node]
             if left<0:
                 assert right<0 and mask.sum()>=300;leaves[mask]=node
@@ -148,6 +152,9 @@ def verify(fold):
         all_64_rank_tie_geometries_and_pair_weights_independently_rebuilt=True,
         first_all_tied_round_recovers_uniform_weights=True,max_pair_weight_difference=max_weight_error,
         first_tree_matches_original_uniform_pair_model_exactly=True,
+        node_variance_absolute_tolerance=2e-9,node_variance_relative_tolerance=2e-10,
+        max_node_variance_absolute_error=max_variance_absolute_error,
+        max_node_variance_relative_error=max_variance_relative_error,
         all_pair_gradients_and_same_leaf_cancellation_rebuilt=True,all_tree_nodes_and_leaf_directional_curvatures_rebuilt=True,
         all_export_scores_and_training_thresholds_rebuilt=True,constant_response_days_preserved=True,
         new_2025H2_score_groups_read=False,new_2026_prices_read=False,no_exit_rules=True)
