@@ -33,6 +33,10 @@
 
 日期衰减权重使用`trade_research.tail_formula_recency_weight`，原48项和标签不重建。两折及全年同样先模型、验证、评分、验证、冻结、验证，再共同评价；63日半衰期在协议内固定。日期权重只用于训练，评分门槛仍原逐股训练分数q995，评估仍日期等权。上述每份分析继续用`scripts/verify_tail_formula_before1000.py analysis --root <目录>`核准；共同日期／共享未知工具不变，不新增2026价格。
 
+绝对参考目标入口为`trade_research.tail_formula_endpoint_absolute`，共用已核准损失引擎，按`squared/huber`两臂完成两折及全年六份选择后评价。两折先各执行一次`verify_inputs`，不得使用原中心化目标的训练证明替代。固定末端正事件入口为`trade_research.tail_formula_endpoint_positive`，默认`binary`臂，两折和全年共三份选择；训练目标严格`mark_0959_return15>0`，其余阶段顺序不变。这两项分别用独立主协议和产物目录，不互相混接模型或参考样本。
+
+`scripts/verify_tail_formula_endpoint_reference.py`复核第一轮三臂评价的参考覆盖诊断：已知二元机会可以没有09:59活跃参考价，相关候选保留在机会分母；参考均值只汇总有效参考标记，不能将这种字段缺失当已知负事件或零收益。该脚本不重选名单、不改变评价标签。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
