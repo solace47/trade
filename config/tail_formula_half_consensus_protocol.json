@@ -1,0 +1,30 @@
+{
+  "objective": "检验两个不重叠半年分别学到的高分条件取交集，能否改善全年模型的跨期不稳定；固定一个交集规则，不扫描阈值。",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "label_verification_sha256": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+  "models": {
+    "2024h1": {"training_start": "2024-01-01", "training_end": "2024-07-01", "expected_rows": 249256, "expected_days": 116},
+    "2024h2": {"training_start": "2024-07-01", "training_end": "2025-01-01", "expected_rows": 251792, "expected_days": 124},
+    "2025h1": {"training_start": "2025-01-01", "training_end": "2025-07-01", "expected_rows": 268582, "expected_days": 116}
+  },
+  "folds": {
+    "2024": {"components": ["2024h1", "2024h2"], "evaluation_start": "2025-01-01", "evaluation_end": "2025-07-01"},
+    "recent": {"components": ["2024h2", "2025h1"], "evaluation_start": "2025-07-01", "evaluation_end": "2026-01-01"}
+  },
+  "model": "原48项、相对同日已知全池机会目标、日期等权、64棵深度3树、最小300例、学习率0.05、固定种子20260927；目标与评价都使用09:31—09:59。各模型只学习自己的半年，next_date严格早于该训练结束日。",
+  "selection": "两个组件分别使用自身训练分数99.5%分位，股票同时严格超过两者才入选。两组件的输入完全相同。H1用2024H1与2024H2，H2用2024H2与2025H1；2024H2模型仅训练一次并复用。",
+  "training_quantile": 0.995,
+  "arms": ["older", "newer", "intersection"],
+  "comparison": "先共同冻结两段交集、两组件及其三个全年名单，然后评价全部组、两个半年、两档成本及未知界。对照修正29根目标的全年48项及旧固定48项的同29根评价；另核准交集删除的候选和日期，避免以删除差日期冒充选股改善。",
+  "primary_control_root": "data/research/tail_formula_before1000_model_2025",
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "secondary_control_root": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "secondary_control_selection_report_sha256": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+  "no_threshold_or_split_scan": true,
+  "not_independent_validation": "训练时段不重叠不代表市场机制或模型误差独立，更不代表2025重新成为盲测。",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
