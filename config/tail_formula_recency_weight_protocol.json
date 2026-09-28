@@ -1,0 +1,29 @@
+{
+  "objective": "检验同一年训练样本逐日降低旧日期权重，是否改善跨时期表现；不同于已有季度换系数、缩短历史窗或独立半年代模型。只改变训练日期的权重，不增加指标。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "half_life_training_dates": 63,
+  "weight": "最近有效训练信号日年龄0，按完整训练日期排序的交易日间隔age取2**(-age/63)；归一化使241个日期权重之和为241，再除以该日训练股票数。同日股票仍等权；全部训练键保留。",
+  "choice": "63个交易日约为一个季度的预先固定时间尺度，不搜索衰减长短；沿用两段一年范围和原48项，不能与稳健目标同时改变。",
+  "target": "原29根opportunity15减同日全部原known15基础均值，之后连接原48项有效输入。",
+  "parameters": {
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "threshold": "原逐股票训练分数q995、严格大于，不另改变分位权重；筛选及推断不依赖次日状态。",
+  "freeze": "两模型、两半年代及全年选择全部核准冻结后才读取新组表现。",
+  "controls": "主要控制为相同训练记录和29根标签的日期均匀48项，另列旧固定48项；保留完整未知、独有日与共同日期比较。",
+  "verification": "SQL重建目标、整数输入、日期年龄与归一化权重；逐节点重算权重、残差均值和方差，完整SQL评分与训练分位复算。日期权重集中程度只作描述，不据结果改衰减或阈值。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
