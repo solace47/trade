@@ -1,0 +1,32 @@
+{
+  "objective": "训练标签同时去除股票固定平均差异与日期共同差异，使原48项主要学习同一股票随可见状态变化的机会，而非稳定价格/规模特征对应的股票长期差异。固定效应只用于历史训练目标，不能当主力识别或因果证明。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "criterion": "friedman_mse"
+  },
+  "target": "在原已知且48项有效交集内，以w=1/n_date求min sum w*(opportunity15-date_effect-stock_effect)^2；将唯一的最小二乘残差作为平方损失目标。保留所有行，不截尾，单次出现股票也保留；不加正则强度、偏置大小或股票分组搜索。原始机会标签不变。",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "expected_rows": 522653,
+  "stock_date_protocol_sha256": "438180a3db59625aabb88ad065490dad5b2e9658056df9887c93e4efaf098bbf"
+}

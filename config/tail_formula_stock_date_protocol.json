@@ -1,0 +1,54 @@
+{
+  "objective": "训练标签同时去除股票固定平均差异与日期共同差异，使原48项主要学习同一股票随可见状态变化的机会，而非稳定价格/规模特征对应的股票长期差异。固定效应只用于历史训练目标，不能当主力识别或因果证明。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_size_baseline_daily_2024/model_report.json": "52762b6930855b05ae61117d8c3a8d899425ec1a358e11f924136ff264833b30",
+    "data/research/tail_formula_size_baseline_daily_2024/model_verification.json": "262790c970c4a2d4252f66aa88980b82514a4fa1d6ff2abcc81d15c7f3ab0952",
+    "data/research/tail_formula_size_baseline_daily_2024/score_report.json": "381a33a5c08e41583923f72eef3e2fa2584c846f5443afd5b25efc3c91200ae5",
+    "data/research/tail_formula_size_baseline_daily_2024/score_verification.json": "9c937462ad75b4240ad6de3f013d36451c9de021fcfc37dd72333e1ab3fefb54",
+    "data/research/tail_formula_size_baseline_daily_2024/selection_report.json": "33dbdef9e9d9357d3ab6895d8343437b13ae38c2554b26adefc75fe474ef3cb9",
+    "data/research/tail_formula_size_baseline_daily_2024/selection_verification.json": "b1ae75f4d83ade249469b031ff570438ed5986e77f8f0683db06188f7f904ac1",
+    "data/research/tail_formula_size_baseline_daily_recent/model_report.json": "9de9ec5a154a06d3560d82b4753ee428d43d3a76b9cf8c2b19b29ad9984aeb19",
+    "data/research/tail_formula_size_baseline_daily_recent/model_verification.json": "5fd58b3abdfd2a43fde25b5701c530d381cdf416d206aa7ea10c3cda79c70ca5",
+    "data/research/tail_formula_size_baseline_daily_recent/score_report.json": "b40de58e4f843078159aee4eb342f3f8269bb87f00358b43360bd1daa9157650",
+    "data/research/tail_formula_size_baseline_daily_recent/score_verification.json": "f7a132f362d43a7138e3d4afa33a8ac8e2c849a4c1b4a7a0d286128d504a9ad0",
+    "data/research/tail_formula_size_baseline_daily_recent/selection_report.json": "ab1bf01eb479cf928f7d8e927ea9d92140340035f9d11f13b8fcc3c78d633765",
+    "data/research/tail_formula_size_baseline_daily_recent/selection_verification.json": "92db2e5d907c3dc8e8be23d87d1b4f52a5a96bc5f27bf0309f411cb1851ecbe5",
+    "data/research/tail_formula_size_baseline_daily_2025/selection_report.json": "03826317e71897a7dd4faba5e6b99c27b32fbec280c835471140dc9ab8646cf4",
+    "data/research/tail_formula_size_baseline_daily_2025/selection_verification.json": "d6d1e69539066a3e004520e5e74412485b23ee9a02a0e98bcae8dace4e8a6830",
+    "data/research/tail_formula_size_baseline_daily_2025/analysis_report.json": "fbc864453986ca373920f5f629d32cb1f410623094c7b23c767400231b938cff",
+    "data/research/tail_formula_size_baseline_daily_2025/analysis_verification.json": "779db6227d1536dd94ee7f2b57969369123a20603a3fd4a7253af7701a237e11"
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "criterion": "friedman_mse"
+  },
+  "new_fields": [],
+  "expected_features": 48,
+  "training_quantile": 0.995,
+  "target": "在原已知且48项有效交集内，以w=1/n_date求min sum w*(opportunity15-date_effect-stock_effect)^2；将唯一的最小二乘残差作为平方损失目标。保留所有行，不截尾，单次出现股票也保留；不加正则强度、偏置大小或股票分组搜索。原始机会标签不变。",
+  "computation": "生产使用加权日期/股票交替去均值，双组加权残差均值最大绝对值<=1e-13停止、最多10000遍，达不到则输入不通过。独立scipy稀疏LSMR对sqrt(w)乘两套one-hot设计矩阵解最小二乘，atol/btol=1e-14、conlim=1e12、maxiter10000；残差逐值差<=2e-10，两组加权均值<=2e-10。截距不唯一但残差唯一。",
+  "weighting": "每天总权重1、股内日期权重继承同一w；不再日内类平衡。股票数、最少/最多记录、单次股票及目标范围保留。只用training_start到next_date严格小于training_end的原记录。",
+  "distinction": "旧输入增加个股历史机会、旧市值组日期基线及日内配对不是双向固定效应残差。本项不把stock ID加入实时公式，也不要求推断时读取未来机会或个股历史标签。原48项可见输入和公式函数不变。",
+  "matched_control": "已有tail_formula_size_baseline_daily恰好使用同交集仅减日期均值、相同训练参数和q995，直接复用其2模型3名单与年度结果，避免重复训练。另完整比较保守重训48和旧固定48。",
+  "verification": "全部原键、48整数编码、机会、w由SQL重建；交替投影与稀疏最小二乘残差、日期/个股正交条件核准后提交，再拟合原64树。逐节点计数、权重、残差均值方差、完整评分、分位及实际原生IF选择独立复算。",
+  "freeze": "两模型及两半年/全年名单全部核准后共同提交，再只做一次年度聚合含两半年和三个控制；全字段名单相同则复用原结果，不另聚合半年。",
+  "analysis_reuse_controls": {
+    "2025": [
+      "data/research/tail_formula_size_baseline_daily_2025"
+    ]
+  },
+  "evaluation": "仅原09:31—09:59观察，原14:49整手2万元、原1452—1455分钟模拟买入、10%容量、5/15基点、排队及公司行动未知不变。不研究多日或卖法。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
