@@ -30,11 +30,13 @@ def run_log(cmd, path):
 
 def freeze():
     assert not (ROOT / 'joint_selection_freeze.json').exists()
+    ROOT.mkdir(parents=True, exist_ok=True)
     records = []
     for arm in ['linear', 'quadratic']:
         combined = root_for(arm, '2025')
         combined.mkdir(parents=True, exist_ok=True)
-        for stage in ['freeze', 'verify']:
+        stages = ['verify'] if (combined / 'selection_report.json').exists() else ['freeze', 'verify']
+        for stage in stages:
             run_log(command(arm, '2025', stage), combined / (stage + '_command.log'))
         for fold in ['2024', 'recent', '2025']:
             root = root_for(arm, fold)
