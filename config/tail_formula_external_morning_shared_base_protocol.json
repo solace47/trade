@@ -1,0 +1,25 @@
+{
+  "objective": "原外部完整条件的当前次晨目标比较，保留全部原分组。",
+  "master_protocol_sha256": "8cbfc8ef9e0cde48077a4086a0fa7e3f59401a7a03533e69607b064c92034875",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "periods": [
+    "2024H1",
+    "2024H2",
+    "2025H1",
+    "2025H2",
+    "2024",
+    "2025"
+  ],
+  "comparisons": [
+    {
+      "left": "data/research/tail_formula_external_morning/full",
+      "right": "data/research/tail_formula_external_morning/base",
+      "left_analysis_sha256": "b4e8f654788798f9e35b78ddae93f34a7f2540b9b66dc15609a512ad73a7d132",
+      "right_analysis_sha256": "c4a6997748947dc643a16a0362c7336b8c84f0d8b2185bbfc9db961805a3a23e",
+      "output": "data/research/tail_formula_external_morning/shared_unknowns_base.json"
+    }
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "coverage_note": "Coverage retains the source selections entire date ranges; 48-input comparisons have common dates only in 2025."
+}
