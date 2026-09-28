@@ -10,7 +10,9 @@ import pandas as pd
 from trade_research.corporate_cash import save_json, sha
 
 
-def audit(root):
+def audit(root, years=(2025,)):
+    years = sorted(set(years))
+    assert years and set(years) <= {2024, 2025}
     output = root / 'reference_coverage_verification.json'
     assert not output.exists(), 'Do not replace a recorded audit'
     for kind in ['analysis', 'selection']:
@@ -30,7 +32,7 @@ def audit(root):
     assert ar['daily_summary_sha256'] == sha(root / 'daily_summary.parquet')
     selection = pd.read_parquet(root / 'selection.parquet', columns=['date', 'code', 'selected'])
     selected = selection.loc[selection.selected, ['date', 'code']]
-    assert selected.date.between('2025-01-01', '2025-12-31').all()
+    assert selected.date.str[:4].astype(int).isin(years).all()
     columns = ['date', 'code', 'half'] + [
         name for bps in [5, 15] for name in
         [f'known{bps}', f'sensitive_known{bps}', f'mark_0959_return{bps}']]
@@ -85,8 +87,16 @@ def audit(root):
                 ORDER BY l.date,l.code''').df()
             pd.testing.assert_frame_equal(keys, sql_keys, check_exact=True, check_dtype=not keys.empty)
             missing.extend(dict(bps=bps, sensitive=sensitive, **x) for x in keys.to_dict('records'))
-            for period in ['2025H1', '2025H2', '2025']:
-                g = got.loc[got.half.eq(period)] if 'H' in period else got
+            for period in [str(y) + suffix for y in years for suffix in ['H1', 'H2', '']]:
+                g = got.loc[got.half.eq(period)] if 'H' in period else got.loc[got.date.str.startswith(period)]
+                recorded = next(s for s in ar['summaries'] if s['arm'] == 'formula'
+                                and s['bps'] == bps and s['sensitive'] == sensitive and s['period'] == period)
+                assert len(g) == recorded['days'] and int(g.selected.sum()) == recorded['rows']
+                assert int(g.known.sum()) == recorded['known']
+                if g.mean_reference.notna().any():
+                    np.testing.assert_allclose(g.mean_reference.mean(), recorded['mean_reference'], rtol=0, atol=2e-12)
+                else:
+                    assert recorded['mean_reference'] is None
                 reports.append(dict(bps=bps, sensitive=sensitive, period=period,
                     days=len(g), reference_available_days=int(g.reference_available.gt(0).sum()),
                     selected=int(g.selected.sum()), known=int(g.known.sum()),
@@ -101,7 +111,7 @@ def audit(root):
     result = dict(passed=True, analysis_report_sha256=sha(root / 'analysis_report.json'),
         selection_report_sha256=sha(root / 'selection_report.json'),
         label_report_sha256=sha(root / 'full_label_report.json'),
-        auditor_sha256=sha(Path(__file__)), summaries=reports, daily=daily,
+        auditor_sha256=sha(Path(__file__)), scope_years=years, summaries=reports, daily=daily,
         reference_missing_cases=missing, all_counts_keys_and_means_independently_rebuilt=True,
         positive_reference_is_strictly_above_zero=True,
         reference_rates_conditional_on_available_marks=True,
@@ -115,4 +125,6 @@ def audit(root):
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--root', required=True, type=Path)
-    print(json.dumps(audit(p.parse_args().root), ensure_ascii=False, indent=2))
+    p.add_argument('--years', nargs='+', type=int, choices=[2024, 2025], default=[2025])
+    a = p.parse_args()
+    print(json.dumps(audit(a.root, a.years), ensure_ascii=False, indent=2))
