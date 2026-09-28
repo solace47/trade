@@ -1,0 +1,31 @@
+{
+  "objective": "原48项只追加尾段平方涨跌份额集中度JC01；原一年训练、64轮及二元相对目标和q995保持。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "703ff17fc29f953b8d990d53c07c514723d94f2dd033a9b01635cc50ecf60a36",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 49,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "d375df664d1c244816067196cfb83bb5e4a8658460f041b3dc73609af2004eb0",
+  "native_input_verification_sha256": "3517950f53ebf03065311c70ca18e9a0f2716fcc39793ba53177c401eb33f1cd"
+}
