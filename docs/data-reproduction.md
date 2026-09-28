@@ -15,6 +15,10 @@
 
 联合输入使用`trade_research.tail_formula_stock_library`的`features`、`verify_features`、`control_inputs`，只复用核准表；控制和联合表字节相同，预测列分别48／82。`trade_research.tail_formula_stock_library_model --arm <joint/control> --fold <2024/recent>`依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`；两臂各用`--fold combined`冻结并核准全年，六份选择齐备才允许`analyze`。逐份分析用上述保守窗口验证器核准，不重做旧原始窗口抽取。所有命令在仓库根目录执行。
 
+60日价格位置的输入模块`trade_research.tail_formula_quarter_position`依次运行`features`、`verify_features`、`native`。原始停牌占位诊断与证据保留；原生重放明确遵守另行固定的停牌占位协议，不能拿通过结果冒充客户端数据核准。模型模块`trade_research.tail_formula_quarter_position_model`按`--fold <2024/recent>`依次`model`、`verify_model`、`scores`、`verify_scores`、`freeze`、`verify`，随后用`--fold combined`冻结并核准全年。三份完整选择共同固定后，分别`analyze`并运行上述29根验证器；原有效交集未变，48项控制直接复用。
+
+单指标分段加分直接用`trade_research.tail_formula_stumps`，两折及全年阶段顺序与60日模型相同，但使用原48项，不重复生成输入。`verify_model`专门核准256棵单分裂树，不能使用原64棵深度3模型验证器代替；全量评分仍由独立SQL重建。模型、阈值和名单不得据2025评价覆盖。
+
 ## 原48项的2026首季接续
 
 协议为 `config/tail_formula_forward_2026q1_protocol.json`，输出独立保存于 `data/research/tail_formula_forward_2026q1/`。依次运行 `trade_research.tail_formula_forward` 的 `model`、`verify_model`、`freeze_model`，再运行 `scripts/verify_tail_formula_replay48_legacy.py`。所有模块使用 `PYTHONPATH=src .venv/bin/python -m`，脚本使用相同前缀直接运行；既有冻结报告拒绝覆盖。
