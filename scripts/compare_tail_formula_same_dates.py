@@ -57,10 +57,14 @@ def compare(left, right, output, periods=None, intersection_only=False):
     sql = ('SELECT a.bps,a.sensitive,a.date,a.half,' + ','.join(fields) +
            ',a.lower-b.upper AS lower_delta,a.upper-b.lower AS upper_delta FROM a JOIN b USING(bps,sensitive,date,half) ORDER BY bps,sensitive,date')
     expected = c.sql(sql).df(); c.close()
-    pd.testing.assert_frame_equal(result, expected, check_exact=True)
+    # DuckDB cannot recover a string dtype from an empty Pandas column.
+    # Values and column order remain exact; only the empty-table dtype is relaxed.
+    pd.testing.assert_frame_equal(result, expected, check_exact=True, check_dtype=not result.empty)
     summaries = []
     checks = 0
-    for (bps, sensitive), group in result.groupby(['bps', 'sensitive']):
+    assert set(result.bps) <= {5, 15} and set(result.sensitive) <= {False, True}
+    for bps, sensitive in [(5, False), (5, True), (15, False), (15, True)]:
+        group = result.loc[result.bps.eq(bps) & result.sensitive.eq(sensitive)]
         for period in periods or ['2025H1', '2025H2', '2025']:
             if len(period) == 6 and period[4] == 'Q' and period[5] in '1234':
                 dates = pd.to_datetime(group.date)
