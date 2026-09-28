@@ -62,7 +62,12 @@ def reuse_controls():
         records[variant] = dict(analysis_report_sha256=sha(root/'analysis_report.json'),
             analysis_verification_sha256=sha(root/'analysis_verification.json'),
             old_base_labels_exactly_reused=len(overlap))
+    for variant in ['path','equal_weight','path_relative']:
+        root = study.ROOT/('control_'+variant)
+        assert json.loads((root/'selection_report.json').read_text())['identical_to_full_control']
+        reuse(root,study.ROOT/'control')
     r = dict(passed=True,records=records,all_three_selections_and_statistics_unchanged=True,
+        all_identical_quality_controls_reuse_full_control=True,
         independent_checks_on_current_label_source=True,strict_blind=False,no_exit_rules=True)
     save_json(study.ROOT/'control_reuse_verification.json',r);return r
 
