@@ -1,11 +1,10 @@
 {
   "objective": "保持原48项固定模型和全部原评分，按当日完整可见有效池做(评分-日均)/日标准差，检验不同日期评分离散尺度变化是否使固定幅度门槛偏向少数日期。仅减日均的旧版本已失败，作为直接对照保留，不重训模型。",
-  "selection_rule": "centered_score=score-mean(score for all formula_input_valid peers on that date); candidate iff valid and centered_score strictly above fixed training q995; mean includes current stock; no daily quota, no positive-raw-score gate, no variance scaling.",
+  "selection_rule": "standardized_score=(score-mean of all formula_input_valid peers that date)/MAX(population_std of those same peers,1e-6); candidate iff valid and standardized_score strictly above fixed training q995; statistics include current stock; no daily quota or positive-raw-score gate.",
   "cohort": "原1,258,085个历史硬过滤键中，当时48项有效的1,117,397行；不得按未来known、收益或成交选择同日均值成员。全部484日保留，成员数不加新的数量门槛；仅空集合不能计算。",
   "threshold_cohort": "原同模型训练日期内、next_date严格早于训练终点的known15与原有效输入交集；量化方法numpy默认linear，与原q995一致。日均分只用原可见有效输入，独立于标签。",
   "training_quantile": 0.995,
   "model_refitted": false,
-  "centered_score_is_probability": false,
   "fold_sources": {
     "2024": {
       "root": "data/research/tail_formula_before1000_model_2024",
@@ -75,5 +74,6 @@
     "2025": [
       "data/research/tail_formula_score_center_2025"
     ]
-  }
+  },
+  "standardized_score_is_probability": false
 }

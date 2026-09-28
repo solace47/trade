@@ -1,5 +1,5 @@
 {
-  "inputs_protocol_sha256": "5fd07b85485ec2790ef2727859825a7303af04224cd194c4402bf91ba357f6e5",
+  "inputs_protocol_sha256": "1d8ed4c156c6ea92648cf6456b9d387e89fa92d07d921838ccc20b43536a5443",
   "control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
   "control_analysis_report_sha256": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
   "control": "data/research/tail_formula_before1000_model_2025",
