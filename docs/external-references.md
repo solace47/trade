@@ -42,3 +42,5 @@
 
 - [Zhang、Cheng、Shi：日内流动性与预期收益，2023-12-26作者稿](https://www.cfrn.com.cn/uploads/master/file/20240905/66d9a1f1bccdc.pdf)采用日内开收盘变化与成交额衡量非流动性，主要检验下一月的多空组合；第6页明确指出理论因子回报不能直接实现。可参考其区分量、价格变化和相关关系的方法，不把月度多空溢价等同本项目尾盘做多至次晨10点的可交易优势。本轮未接入新信号。
 - [Positive feedback trading, the T+1 rule, and asymmetric return reversals in China](https://doi.org/10.1016/j.econmod.2026.107783)出版商检索摘要描述高换手下跌后的反转及其次日日内集中性，主体是市场指数；详情页本次未成功打开。不能由摘要推出具体股票在10点前有利润，也不重做本仓库已完成的下跌放量反转。仅记录检索层面的参考和访问限制，不声称完整读过论文。
+
+2026-09-28另读[Breiman《Bagging Predictors》1994技术报告](https://www.stat.berkeley.edu/~breiman/bagging.pdf)及[scikit-learn集成学习说明](https://scikit-learn.org/stable/modules/ensemble.html#bagging-meta-estimator)：独立拟合重抽样版本再平均可降低部分不稳定学习器的方差，与逐轮拟合残差的提升法不同；效果依赖问题，不能从其非金融数据结果推出股票盈利。股票日记录并非独立，若接续检验需按完整时间块抽样，不能把同日几千只股票当几千次独立行情。当前市值基线实验已固定，不据此改动该实验。
