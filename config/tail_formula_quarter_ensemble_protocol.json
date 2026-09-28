@@ -1,0 +1,74 @@
+{
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "feature_verification_sha256": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+  "features_sha256": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "label_verification_sha256": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "folds": {
+    "2024": [
+      "2024-01-01",
+      "2025-01-01",
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "recent": [
+      "2024-07-01",
+      "2025-07-01",
+      "2025-07-01",
+      "2026-01-01"
+    ]
+  },
+  "scope": "14:49个股、14:48指数；14:52—14:55原始分钟固定股数成交模拟；次晨09:31—09:59只评价，不研究卖法。",
+  "exclusions": [
+    "ST及*ST",
+    "92",
+    "688",
+    "300及301",
+    "停牌"
+  ],
+  "objective": "原48项的完整64轮模型按季度留一段训练，四个模型等权平均，检验降低单季度样本依赖能否缓解跨期失稳；不增加信号或调整目标。",
+  "parameters": {
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "n_estimators": 64
+  },
+  "components": 4,
+  "flattened_trees": 256,
+  "omission_unit": "calendar_quarter_of_training_next_date",
+  "quarter_definition": "以已结束标签的next_date归属自然季度，避免季度末信号对应下一季观察仍混入被留出季；原date>=训练起点且next_date<训练终点约束不变。",
+  "quarter_sets": {
+    "2024": [
+      "2024Q1",
+      "2024Q2",
+      "2024Q3",
+      "2024Q4"
+    ],
+    "recent": [
+      "2024Q3",
+      "2024Q4",
+      "2025Q1",
+      "2025Q2"
+    ]
+  },
+  "training": "每次删除其中一个完整标签季度，保留另外三个季度全部已知且原48项有效的记录；每条目标仍先在同日全known15池中心化，1/n_date权重保持，种子同为20260927。",
+  "aggregation": "四个完整GradientBoostingRegressor预测等权算术平均，所有四个都参与，不以留段误差挑成员或权重；扁平化时偏置取均值、每棵树的全部节点值除4，保持原0.05乘数。",
+  "threshold": "在原完整一年训练交集上计算四模型平均评分，统一取原np.quantile(.995)，严格大于。每条训练记录曾参与其中三模型，整体不是样本外分数，不称交叉验证校准。",
+  "comparisons": "原同参数单64轮完整名单及旧固定48项保持；评估这整个集成方案，样本数和总树容量不同，不能把差异单独归因于某种机制。不将既有128轮失败作为256轮的容量控制。",
+  "difference_from_prior": "旧整周bagging是64个独立深度3树；旧整日抽样是在一条提升链内逐轮删日；旧半年一致性对每叶均值约束。本轮是四条各自完整64轮提升链，固定按季度留段后平均。",
+  "no_choice_among_components": true,
+  "no_weight_window_or_seed_search": true,
+  "verification": "独立SQL重建原训练标签、编码、权重与next_date季度，核对每条恰参与三组件。逐组件重建每个节点的残差均值、方差和支持；独立SQL遍历256树并核对平均数与统一分位。两折和全年共同固定后才评价。",
+  "component_verifier_file": "src/trade_research/tail_formula_market_experts.py",
+  "component_verifier_sha256": "52741910e2272b4bc5c286b9df7913de39fdf7905f243d2437575daa4cfdd51f",
+  "native": "继续原48项表达，平均可展开普通IF或四个辅助数值模型再均值。完整256树编译、性能及原股本／指数／成员一致性均未核准，数学可表达不算上线完成。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}

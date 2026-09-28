@@ -1,0 +1,37 @@
+{
+  "objective": "原48项的完整64轮模型按季度留一段训练，四个模型等权平均，检验降低单季度样本依赖能否缓解跨期失稳；不增加信号或调整目标。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "n_estimators": 64
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "master_protocol_sha256": "acae5134dcb185279b6816336061d40f201c417f0048266e66e7435d87390c0d",
+  "expected_training_rows": 502747,
+  "omitted_quarters": [
+    "2024Q1",
+    "2024Q2",
+    "2024Q3",
+    "2024Q4"
+  ]
+}
