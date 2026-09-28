@@ -1,0 +1,54 @@
+{
+  "objective": "检验同一股票当前早盘的逐分钟波动是否为尾盘波动提供额外背景。已有早盘端点涨幅、现金比例和尾段路径波动失败，本轮比较两段相同长度的平方变化强度，不重新选择窗口或方向。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_morning_history/raw_report.json": "531591639379b63a30cedd0989b0704395e9994d47b70cbb16ec5a6215a60f41",
+    "data/research/tail_formula_morning_history/window_report.json": "23d743500e414915b828063cfa6a643596178fb570b9a698eb9e4c4f120f0154",
+    "data/research/tail_formula_morning_history/window_verification.json": "cbb4987217881992fba4b85d8bf4b7981354fe928c6679d24157a3f1371d2378",
+    "data/research/tail_formula_path_variance/window_report.json": "153917c272b25709ca9c1708931bde52fcaaa8ff051c51ccd803e3cefc22d699",
+    "data/research/tail_formula_path_variance/feature_report.json": "f7708e59415d4aed68f03cf40e07c1d1769c3dc3d66e325c0d97517fe026276a",
+    "data/research/tail_formula_path_variance/feature_verification.json": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2",
+    "data/research/tail_formula_volume_response/native_input_verification.json": "5c305f6188190bcf2543c6e6befec526d87000ea0aba3b6ab682201e7177441d",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "new_fields": [
+    "SV01",
+    "SV02",
+    "SV03"
+  ],
+  "arms": {
+    "late": [
+      "SV01"
+    ],
+    "both": [
+      "SV01",
+      "SV02",
+      "SV03"
+    ]
+  },
+  "expected_features": {
+    "late": 49,
+    "both": 51
+  },
+  "definitions": {
+    "returns": "100*LN(相邻合法分币收盘价比)。早盘用09:31—10:00共30点的29次变化，不引用09:30或当日开盘；尾盘用14:20—14:49共30点的29次变化。E/L分别为早/尾29次变化平方和。",
+    "SV01": "SQRT(L/29)/V01，须与旧路径波动Z01逐值及编码相同。",
+    "SV02": "SQRT(E/29)/V01。",
+    "SV03": "(L-E)/MAX(L+E,1e-12)；两段全平为0，原分母下限仅处理0/0且不调。"
+  },
+  "source": "只复用既有早盘原始缓存与尾盘宽表，当前日期严格2024—2025。原48字段和值保持。早盘缓存另含历史和1449参考，不读这些值参与本项计算。",
+  "validity": "两个窗口均需30个唯一整分钟，时间范围和当前股票日期完全一致；有限正价可恢复合法分币，原早盘非负整数成交量质量保持，零量收盘不删。两臂共用相同完整交集，不跳过缺失点。若原有效交集减少，先追加同交集48控制，不把质量筛选当预测改进。",
+  "native": "SVR=100*LN(C/REF(C,1));SVO=VALUEWHEN(TIME=1000,SUM(SVR*SVR,29));SVL=VALUEWHEN(TIME=1449,SUM(SVR*SVR,29));三项按定义使用SVO/SVL/V01。不用外部名单或客户端未来数据。",
+  "verification": "先生产30列早盘宽表及尾盘已核准宽表，numpy差分平方；独立SQL直接从原早盘按date/code/time做lag及sum，不复用生产早盘宽表；尾盘另展开29对求和。全部质量、值、编码和旧48逐项比对，SV01与旧Z01核对。32固定股票日重读09:30—14:49前缀运行原生表达，追加未来价格不能影响三项；改变10:00之后不能影响早盘项。测试相同端点不同路径、平路径和单位缩放、缺失不跳过、时间锚点。",
+  "model": "两臂各两段一年，严格29根次晨相对机会、日期等权、64深3树/minleaf300/lr.05/seed20260927/q995保持。四模型及两折/全年六名单共同提交后再评价，任何完整名单相同直接复用。",
+  "controls": "both对同质量late为主要增量比较；两臂各对原保守重训48和旧固定48，共五组。旧30根标签的三项路径模型不是本轮49项严格29标签对照，不能只拿它的数字代替。",
+  "evaluation": "年度报告一次聚合含两半年；5/15基点、2万元固定整手、原1452—1455原始模拟与10%容量保持。全部未知/未买入和参考缺口、独有日期及共享未知界完整报告，不研究卖法或2—3日。",
+  "no_duplicate_half_year_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
