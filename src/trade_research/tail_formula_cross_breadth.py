@@ -231,10 +231,48 @@ def native():
     return {k: v for k, v in r.items() if k not in ['cases', 'source_sha256']}
 
 
+def verify_coverage():
+    hashes = checked_sources(); frames = []
+    for name in sorted(hashes):
+        path = Path(name)
+        if path.parent != DAILY or not path.stem.startswith(('sh_60', 'sz_00')):
+            continue
+        assert sha(path) == hashes[name]
+        d = pd.read_parquet(path, columns=['date', 'code', 'isST', 'tradestatus', 'preclose'],
+                            filters=[('date', '<=', '2025-12-30')])
+        d = d.loc[d.tradestatus.eq(1)].sort_values('date').reset_index(drop=True)
+        assert not d.date.duplicated().any()
+        mask = (d.index >= 20) & d.date.ge('2024-01-01') & d.isST.eq(0) & d.preclose.gt(0)
+        frames.append(d.loc[mask, ['date', 'code']])
+    expected = pd.concat(frames, ignore_index=True).sort_values(['date', 'code']).reset_index(drop=True)
+    m = pd.read_parquet(ROOT / 'members.parquet', columns=['date', 'code'])
+    joined = expected.merge(m, on=['date', 'code'], how='outer', validate='one_to_one', indicator=True)
+    assert not joined['_merge'].eq('right_only').any()
+    count = expected.groupby('date').size()
+    missing = joined.loc[joined['_merge'].eq('left_only')].groupby('date').size()
+    d = pd.read_parquet(ROOT / 'breadth.parquet')
+    np.testing.assert_array_equal(d.expected_local_members, d.date.map(count))
+    np.testing.assert_array_equal(d.missing_local_members, d.date.map(missing).fillna(0))
+    np.testing.assert_allclose(d.coverage, 1 - d.missing_local_members / d.expected_local_members, rtol=0, atol=2e-16)
+    for suffix in ['20', '49']:
+        up = d['up' + suffix]; down = d['down' + suffix]; absent = d.missing_local_members
+        np.testing.assert_allclose(d['coverage_lower' + suffix], up / (up + down + absent) * 100, rtol=0, atol=2e-14)
+        np.testing.assert_allclose(d['coverage_upper' + suffix], (up + absent) / (up + down + absent) * 100, rtol=0, atol=2e-14)
+    r = dict(passed=True, feature_report_sha256=sha(ROOT / 'feature_report.json'),
+        source_manifest_sha256=sha(SOURCE / 'source_manifest.json'), expected_local_stock_days=len(expected),
+        missing_stock_days=int(d.missing_local_members.sum()),
+        all_local_daily_stock_ages_eligibility_identities_and_coverage_bounds_independently_rebuilt=True,
+        local_daily_universe_is_not_verified_exchange_master=True,
+        no_new_selection_outcomes_read=True, new_2026_prices_read=False, no_exit_rules=True)
+    save_json(ROOT / 'coverage_verification.json', r); return r
+
+
 def configure():
     checked_sources(); v = json.loads((ROOT / 'native_input_verification.json').read_text())
     assert v['passed'] and v['feature_report_sha256'] == sha(ROOT / 'feature_report.json')
     assert v['feature_verification_sha256'] == sha(ROOT / 'feature_verification.json')
+    coverage_proof = json.loads((ROOT / 'coverage_verification.json').read_text())
+    assert coverage_proof['passed'] and coverage_proof['feature_report_sha256'] == sha(ROOT / 'feature_report.json')
     adapter.STEM = STEM; adapter.ROOT = ROOT; adapter.PROTOCOL = PROTOCOL
     adapter.COMBINED_PROTOCOL = COMBINED_PROTOCOL; adapter.CONTROL = Path('data/research') / (STEM + '_control')
     adapter.EXPRESSIONS = EXPRESSIONS; adapter.HEADER = HEADER; base.native_core = native_core
@@ -248,9 +286,9 @@ if __name__ == '__main__':
     from . import tail_formula_relative as relative
     from .tail_formula_offset_logit48 import verify_scores
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage', choices=['features', 'verify_features', 'native', 'model', 'verify_model', 'scores', 'verify_scores', 'freeze', 'verify', 'analyze'])
+    p.add_argument('stage', choices=['features', 'verify_features', 'verify_coverage', 'native', 'model', 'verify_model', 'scores', 'verify_scores', 'freeze', 'verify', 'analyze'])
     p.add_argument('--fold', choices=['2024', 'recent', 'combined', 'control'], default='2024'); a = p.parse_args()
-    if a.stage in ['features', 'verify_features', 'native']:
+    if a.stage in ['features', 'verify_features', 'verify_coverage', 'native']:
         result = globals()[a.stage]()
     else:
         configure()
