@@ -1,0 +1,30 @@
+{
+  "objective": "固定检验相同总成交量下，尾段成交是集中在少数分钟还是持续分布；只追加29分钟与4分钟的归一化成交量集中度，不推断买卖发起方或主力身份。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_minute_pressure/feature_report.json": "567a171a78647267f5a72e591676780a8c38d5bd68b8dd921b58214d46b00253",
+    "data/research/tail_formula_minute_pressure/feature_verification.json": "804f2fb77ab04366ca218f2d8a6812191a530b6f33b47dd179de73f9ea480df1",
+    "data/research/tail_formula_minute_pressure/window_report.json": "20d8331ccfa6ff3c8d33bbadff6968b5a3edfe6a2566e5136c1ba9b455d7cc0d"
+  },
+  "primary_control_selection_report_sha256": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "windows": [
+    29,
+    4
+  ],
+  "inputs": {
+    "VC29": "100*(29*sum(v^2)/(sum(v)^2)-1)/28，14:21—14:49。",
+    "VC04": "100*(4*sum(v^2)/(sum(v)^2)-1)/3，14:46—14:49。"
+  },
+  "interpretation": "全部分钟等量为0，仅一根有量为100；按股或手计量相消。两窗口沿用原29／4划分，不搜索窗口。它刻画成交时间分布，不同于已失败的量加权收盘位置、零延迟涨跌幅与量共同变化及历史同时间量比。",
+  "source": "复用已完整核准的分钟成交量缓存和原始文件指纹，不下载新行情。保留全部原键和原48项；完整29条唯一整分钟、成交量有限非负整数，两窗口总量均正，否则新输入未知。旧缓存额外OHLC有效性只继承并单列，不新增未来价格过滤。",
+  "native": "一分钟VALUEWHEN(TIME=1449,100*(N*SUM(V*V,N)/(SUM(V,N)*SUM(V,N))-1)/(N-1))，N为29或4。先验证全量整数编码及固定32个原始分钟样本。原生函数和量单位无需新依赖，完整客户端来源一致性仍待核。",
+  "model": "回到原48项及修正29根相对机会目标，只加两项共50项；标准64棵深度3、min_samples_leaf300、lr.05、日期等权、seed20260927、训练99.5%分位；原两个一年时间折保持。",
+  "evaluation": "两段、全年及同质量修正48项对照共同冻结后评价；旧48项固定名单以同29根另作对照。报告两档成本、机会、空间、参考估值、风险、未知界及所有独有日期。原对照不变则复用。方案在日级路径版本新分组结果揭晓前固定，不叠加其输入。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
