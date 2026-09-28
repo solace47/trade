@@ -1,0 +1,13 @@
+{
+  "objective": "两段及全年先冻结后评价，和同一29根标签的原48项固定名单比較。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "fold_protocols": [
+    "config/tail_formula_before1000_model_2024_protocol.json",
+    "config/tail_formula_before1000_model_recent_protocol.json"
+  ],
+  "control": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
