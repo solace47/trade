@@ -12,24 +12,32 @@ from trade_research.corporate_cash import save_json,sha
 from reuse_tail_formula_selected_analysis import reuse
 
 
-def run(stem):
+def run(stem, annual_only=False):
     assert re.fullmatch(r'tail_formula_[a-z0-9_]+',stem)
     root=Path('data/research')/stem
     joint=json.loads((root/'joint_selection_freeze.json').read_text())
     assert joint['passed'] and joint['protocol_sha256']==sha(Path('config')/(stem+'_protocol.json'))
     master=json.loads((Path('config')/(stem+'_protocol.json')).read_text())
+    combined=json.loads((Path('config')/(stem+'_combined_protocol.json')).read_text())
+    if combined.get('no_duplicate_half_year_aggregation'):
+        assert annual_only, 'This study permits only an annual report containing both halves'
     assert len(joint['selections'])==3
+    if annual_only:
+        committed=subprocess.run(['git','show','HEAD:docs/selection-formula.md'],capture_output=True,text=True,check=True).stdout
+        assert sha(root/'joint_selection_freeze.json') in committed
     path=root/'analysis_dispatch_verification.json'
     if path.exists():
         recorded=json.loads(path.read_text())
         assert recorded['passed'] and recorded['joint_selection_freeze_sha256']==sha(root/'joint_selection_freeze.json')
+        assert recorded.get('annual_only',False)==annual_only
         for record in recorded['records']:
             target=Path(record['root']);proof=json.loads((target/'analysis_verification.json').read_text())
             assert proof['passed'] and proof['analysis_report_sha256']==record['analysis_report_sha256']==sha(target/'analysis_report.json')
         print(json.dumps(dict(passed=True,existing_dispatch_reused=True,receipt_sha256=sha(path))))
         return
     records=[]
-    for fold,argument in [('2024','2024'),('recent','recent'),('2025','combined')]:
+    folds=[('2025','combined')] if annual_only else [('2024','2024'),('recent','recent'),('2025','combined')]
+    for fold,argument in folds:
         target=Path('data/research')/(stem+'_'+fold)
         frozen=next(x for x in joint['selections'] if x['root']==str(target))
         assert frozen['selection_report_sha256']==sha(target/'selection_report.json')
@@ -73,10 +81,11 @@ def run(stem):
         print(json.dumps(dict(**records[-1],primary=primary),ensure_ascii=False),flush=True)
     result=dict(passed=True,joint_selection_freeze_sha256=sha(root/'joint_selection_freeze.json'),records=records,
         full_selection_equality_checked_before_evaluation=True,identical_new_lists_reuse_canonical_statistics=True,
-        new_2026_prices_read=False,no_exit_rules=True)
+        annual_only=annual_only,new_2026_prices_read=False,no_exit_rules=True)
     save_json(path,result)
 
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--stem',required=True)
-    run(p.parse_args().stem)
+    p.add_argument('--annual-only',action='store_true')
+    a=p.parse_args();run(a.stem,a.annual_only)
