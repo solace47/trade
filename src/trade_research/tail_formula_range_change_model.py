@@ -1,4 +1,4 @@
-"""Fixed 49-input prior-range-change model with an unchanged-input 48-input control."""
+"""Fixed native-input extension with an unchanged-input 48-input control."""
 import argparse
 import json
 from pathlib import Path
@@ -41,18 +41,18 @@ def setup(fold):
         assert p['feature_report_sha256']==sha(root/'feature_report.json')
         assert p['native_input_verification_sha256']==sha(root/'native_input_verification.json')
         assert p['label_report_sha256']==sha(labels.ROOT/'full_label_report.json')
-        assert p['expected_features']==49
+        assert p['expected_features']==len(inputs.EXPRESSIONS)
 
 
 def verify_model():
     p=json.loads(base.PROTOCOL.read_text());r=json.loads((base.ROOT/'model_report.json').read_text())
-    assert r['feature_names']==list(inputs.EXPRESSIONS) and len(r['feature_names'])==49
+    assert r['feature_names']==list(inputs.EXPRESSIONS) and len(r['feature_names'])==p['expected_features']
     assert r['days']==p['expected_training_days']==241
     assert all(r['parameters'][key]==value for key,value in p['parameters'].items())
     return relative.verify_model('relative')
 
 
-if __name__=='__main__':
+def main():
     from .tail_formula_offset_logit48 import verify_scores
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage',choices=['model','verify_model','scores','verify_scores','freeze','verify','analyze'])
@@ -83,3 +83,6 @@ if __name__=='__main__':
     else:
         result=base.scores()
     print(json.dumps(result,ensure_ascii=False,indent=2))
+
+
+if __name__=='__main__':main()
