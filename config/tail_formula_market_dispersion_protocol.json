@@ -1,0 +1,28 @@
+{
+  "objective": "直接给模型当天主板涨跌分歧大小，让尾盘条件可以随横截面分歧而变化。原有指数涨跌只描述方向；旧CZ01/CZ02把离散度仅作个股相对强弱分母，本轮不重复那种标准化，原48项只追加两个市场离散度水平。",
+  "source_hashes": {
+    "data/research/tail_formula_cross_dispersion/feature_report.json": "016dc2c198ce9a29542f70d7fd75be6a214344ebda8a3d7d24e70dd45fbd812f",
+    "data/research/tail_formula_cross_dispersion/feature_verification.json": "2d286de3a9638de0d6d67cbb61a846b0ed426be836e89dc59adfa66dd36dfc83",
+    "data/research/tail_formula_cross_dispersion/native_input_verification.json": "5b035ef762fee9798d2603fe8f438fe010be910fef8ffc62d47b773967a5e501",
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "new_fields": [
+    "CD01",
+    "CD02"
+  ],
+  "expected_features": 50,
+  "minimum_members": 2000,
+  "input": "CD01=当天14:49个股涨幅在固定本库主板成员中的总体标准差（百分点）；CD02=同一成员14:20至14:49涨幅总体标准差。完整复用已核准cross_dispersion的cz_day_std/cz_tail_std，平方均值减均值平方后下限0，全平为0；不除个股ATR，不做分歧大小分组或新门槛。",
+  "member_scope": "沿用已核准cross_breadth的当时非ST、正常交易、此前至少20股票日、有完整前缀/正量/合法参考价的本库沪深主板成员，不用次晨标签，不要求可买，不限制3000万，不排涨停，含本股；148.31万成员和484个原日期不重取。",
+  "validity": "原全部键/48值保持，父版已核准总体标准差、成员数和质量直接复用；若原有效交集不变则原48项控制复用，若减少先冻结同质量48项对照，不用质量筛选冒充收益改善。",
+  "native": "复用父版YJCS20五输出辅助指标、五个INSUM和成员数>=2000保护；CD01=CZDS、CD02=CZTS。原辅助及总体方差证明复用，检查新增原生映射及全部编码，不重采原分钟。仍需辅助指标，软件历史成员、FINANCE7/INDEXC与源值一致性未核准，不能称可直接发布。",
+  "verification": "生产按日期连接已核准market_reference；独立SQL从父版已核准members整数价重建全部484日总体标准差及全部特征映射，沿用父版原档样本另核新映射。原48项和两侧输入有效性逐值核准，原生零分歧/方向平移不变/非均匀分布测试。",
+  "model": "原两段一年训练、保守09:31—09:59相对机会目标、64树深度3/minleaf300/lr.05/seed20260927/日期等权及q995保持。先共同冻结两折和全年名单，再评两套原48项完整和共同日期对照。不结合其他新尾盘历史或事后挑选2025月份。",
+  "comparison": "保留未知/未买入、两档成本、所有日期、两半年/全年、正机会与1%机会、09:59参考、不利幅度和共享未知完整界；整周重抽样沿用。2025探索，不能称盲测，不从结果选分歧阈值。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
