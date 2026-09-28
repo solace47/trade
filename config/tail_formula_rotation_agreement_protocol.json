@@ -1,0 +1,83 @@
+{
+  "objective": "截面残差版共同日期局部改善、全部日期仍弱；探索原同参数保守48与残差50两版高分同时出现时是否更有选择性。只对这两个已固定父模型作一次双重确认，明确在父结果已暴露后提出，不把名单交集称为独立验证。",
+  "source_hashes": {
+    "data/research/tail_formula_before1000_model_2024/selection_report.json": "b8a07313a7deb80f9fbf0e6f1bc9fe5041357ea0e4b70e4764694d8c38d7fa90",
+    "data/research/tail_formula_before1000_model_2024/selection_verification.json": "05e9b89e14c05acfec8cd731362c476cb312e0b750f2e7a7388a75bf12c7743d",
+    "data/research/tail_formula_before1000_model_2024/analysis_report.json": "6cc0ecd3d7f8543b32ecf6449c952f53d607a42e4c90c0d6080aa3dbfa35e3e1",
+    "data/research/tail_formula_before1000_model_2024/analysis_verification.json": "d7903554f187cdfa254ef4a94673ae47124719c2bb6c5b14367290a44e31859f",
+    "data/research/tail_formula_before1000_model_2024/model_report.json": "6b7846506c8bf3ba42cd207469f121df7c8be6775e8ae1d01fb20581c3b01239",
+    "data/research/tail_formula_before1000_model_2024/model_verification.json": "d3b61177961407dcbc1544a0959937d3c7e0e253f0b9c7c303c53bba51e40b13",
+    "data/research/tail_formula_before1000_model_2024/score_report.json": "9fcbf743f478cb75c1efacf33728564016e0102e71bd142f8b6322d14fa139a1",
+    "data/research/tail_formula_before1000_model_2024/score_verification.json": "5d34fa9ca5ad556d6896fc3859524fc0683db1bd2945da990e31f979cfad1c4c",
+    "data/research/tail_formula_before1000_model_2024/frozen_numeric_core.tdx": "bb7317884f286930cb20ddeab5652560c05a65cd7273678ca95cab649da50f74",
+    "data/research/tail_formula_cross_rotation_2024/selection_report.json": "bf6e95aa758763aba197dd5dee2e6a86883e2da91ae448c9697b7beaad1e3c27",
+    "data/research/tail_formula_cross_rotation_2024/selection_verification.json": "b2865b2fce001d2b402866dd80875ad38231c8a3f7a8e4c86dc19340a287a3fe",
+    "data/research/tail_formula_cross_rotation_2024/analysis_report.json": "57370ba476dc03a8f8358d5e7d453c36976f37e3fcf2c5bb7624d8c22bb5b253",
+    "data/research/tail_formula_cross_rotation_2024/analysis_verification.json": "40ca15bbd3565d2bfd1320752c1baa3d79e9c7f3610eb750db8b72ca84a8ea42",
+    "data/research/tail_formula_cross_rotation_2024/model_report.json": "ff8641346fa34b2c05ef2d89037a3811045a63bb1dd4cbd68bbf6367974179de",
+    "data/research/tail_formula_cross_rotation_2024/model_verification.json": "b652b64656475d3b58bd0ea90df1a42af42805a8229b2865d9a9c6018b215155",
+    "data/research/tail_formula_cross_rotation_2024/score_report.json": "dbf0cac5aff096fd9e20df669e8c0b4ad4d2f2f562e1cf0ae1f57daa73fc36c6",
+    "data/research/tail_formula_cross_rotation_2024/score_verification.json": "4e3f422331e16bb61cd3634c0f43d4dd4ac6b6733102ea4696575d7653c33e51",
+    "data/research/tail_formula_cross_rotation_2024/frozen_numeric_core.tdx": "bc44df202930cbe7d62a7a9fc0ede1356f97cb9d207cdc2a72a407fa1552419a",
+    "data/research/tail_formula_before1000_model_recent/selection_report.json": "ad280597734eaef11f5e0aced4a2c79c4901a54ec7b22ab8c677c55f15e899fd",
+    "data/research/tail_formula_before1000_model_recent/selection_verification.json": "ec54c15925760af738c4492e16e3ac02966efa784c5b9028f97143545ce899fd",
+    "data/research/tail_formula_before1000_model_recent/analysis_report.json": "b125e0c816ff318c1538f1d3405caf61b2fcb71aa9cec913b626f2e1d5da8520",
+    "data/research/tail_formula_before1000_model_recent/analysis_verification.json": "7d3d1eb904befabd9b4c84fc88e295f15f4a18cbd24e068b325d2ae36e05950a",
+    "data/research/tail_formula_before1000_model_recent/model_report.json": "9db8e627cbe3c04906c0d97c2ddc7ce71537a6c9fc6ff2bdbb8beb016e97d861",
+    "data/research/tail_formula_before1000_model_recent/model_verification.json": "4b43ca9abf9a0f5b32586023165a850e28f94e0e3743fb8b156350e576a86fed",
+    "data/research/tail_formula_before1000_model_recent/score_report.json": "c1d112860d3597af5e3a404089da2a5e7b195093c8f3bcb2693d08e76636579e",
+    "data/research/tail_formula_before1000_model_recent/score_verification.json": "fff76899a7de31e0d23f4e0c468b4353b93a3ca62bb19d4614a4b6b861d119a6",
+    "data/research/tail_formula_before1000_model_recent/frozen_numeric_core.tdx": "00812998da354632784521a06083c192be74928be21ff5342d743d73e4518c5c",
+    "data/research/tail_formula_cross_rotation_recent/selection_report.json": "5a0bc2a78ce3e4cd5966ad5075d9dc978cff9dce10e48ef07453517fd587f03c",
+    "data/research/tail_formula_cross_rotation_recent/selection_verification.json": "15e146f888365e7d37b9a4fecd6236fc3fb532a6c69961d8d1034053daf90fe7",
+    "data/research/tail_formula_cross_rotation_recent/analysis_report.json": "07b064fd2da3e4b659827054f8d864401ba566e4708284b12076af55e982489a",
+    "data/research/tail_formula_cross_rotation_recent/analysis_verification.json": "4bc0646bf2e4b8bd396ca51b56efd33c2c7e9a959b0ef571c3f61aa014ccb1a0",
+    "data/research/tail_formula_cross_rotation_recent/model_report.json": "ded9da3b84f6964da6a56f7f6987f08f7c3d5eed996c1bbf23c3465794fe9818",
+    "data/research/tail_formula_cross_rotation_recent/model_verification.json": "0186aedccb8ad832fbe7b22a409cbd9ac9753847832d617c2414c7447553cff2",
+    "data/research/tail_formula_cross_rotation_recent/score_report.json": "46d6b0b78ecc293196010e1dc9f4bdb760f6763b06964eaecc2b98890060f614",
+    "data/research/tail_formula_cross_rotation_recent/score_verification.json": "1581c89b3ae56a336c4e391716df34a5935dbf1437176f5a934a1d40a5d8b42e",
+    "data/research/tail_formula_cross_rotation_recent/frozen_numeric_core.tdx": "b61ed8ac98273a0ce7b51aed1c84842b4ed1a7ea64bece68a7244adb093546f9",
+    "data/research/tail_formula_before1000_model_2025/selection_report.json": "25d9435c9afc25d27bdd61b2d35ca1389a1d5a70a55342711111b69eaf1bea48",
+    "data/research/tail_formula_before1000_model_2025/selection_verification.json": "09274f27eaf6afc3464230de60a1a1886fffe2559787f9ad555bbd6bf4a2ce5f",
+    "data/research/tail_formula_before1000_model_2025/analysis_report.json": "fb821cf5f93c88521a1f330f41186d86c075f456db7318a30675bf78d4f74344",
+    "data/research/tail_formula_before1000_model_2025/analysis_verification.json": "bbe5a614d68bfc709730f1364eaaa5d50072b8977d621098ec54dc56735d41e8",
+    "data/research/tail_formula_cross_rotation_2025/selection_report.json": "3eefcb768760735d57af2274c7e7ac013ac63935f92e03d5a49abd8e39444fed",
+    "data/research/tail_formula_cross_rotation_2025/selection_verification.json": "ae2ababa0a32c6ea55319ed3b0410c8ae0485152b17057fcb73c4a9da39c68d2",
+    "data/research/tail_formula_cross_rotation_2025/analysis_report.json": "7470d44d74d89481294528c409e89772d85064ea20ecbed91628d9707b1c4f00",
+    "data/research/tail_formula_cross_rotation_2025/analysis_verification.json": "a7f911f7ccdce5b3bbd9a8d063803b517802c7fe50275d066218aae5913f8301",
+    "data/research/tail_formula_cross_rotation/feature_report.json": "3e1a064c761f30f605ce59b045b7491803a11a922e32110d7f5e2aa0382b69ff",
+    "data/research/tail_formula_cross_rotation/feature_verification.json": "daa2c0c390725d137dc9196539238ec4bcfe880363e36106a10f8d058161ae82",
+    "data/research/tail_formula_cross_rotation/native_input_verification.json": "7f2eb88d9a6e194142b7239e9d439aa5bdf04d4edca9369dbc861b48a9a2bc16",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724"
+  },
+  "folds": {
+    "2024": {
+      "original": "data/research/tail_formula_before1000_model_2024",
+      "rotation": "data/research/tail_formula_cross_rotation_2024"
+    },
+    "recent": {
+      "original": "data/research/tail_formula_before1000_model_recent",
+      "rotation": "data/research/tail_formula_cross_rotation_recent"
+    },
+    "2025": {
+      "original": "data/research/tail_formula_before1000_model_2025",
+      "rotation": "data/research/tail_formula_cross_rotation_2025"
+    }
+  },
+  "groups": [
+    "both",
+    "original_only",
+    "rotation_only"
+  ],
+  "primary": "both",
+  "definition": "保持两个父模型每半年原64树/原权重/原q995/原时段/原输入有效性。按完整股票日分成A且B、A且非B、B且非A，三个互斥组完整覆盖A或B，不重训、不换阈值、不因未知或数量少删除。三份年度名单共同提交后评价；半年度统计来自年度原名单，不重复跑同一半年的独立聚合。",
+  "native": "复用残差版全部50输入声明和原生6输出，第一套原48树与第二套50树分别保持原计算顺序，变量T/SC及U/SSC区分，最终AND原两阈值并保留XRN>=2000。独立反向恢复两个原核文本逐字比对，完整客户端边界保持；诊断独有组不作为发布公式。",
+  "verification": "全部选择字段/股票日键与父版一致，独立SQL由四份原始评分与冻结q995/日期/有效性重新构造三组，核对互斥和完备。两份合取原生核及所有变量唯一性核准。经济聚合前先比较完整名单是否与父版/旧固定48/其他已核准新组相同，相同则直接复用。",
+  "evaluation": "先提交三份完整名单及两折原生核心后，统一29根09:31—59、5/15基点、日期等权，报告三组全年与两半年全部机会/1%空间/参考/3%不利及未知未买入/参考缺口。主组分别与原48、残差50及旧固定48作三组同日/共享未知比较，全部独有日期保留，不因父结果挑更好半年。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "year_2025_is_exploratory": true,
+  "parent_results_previously_seen": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
