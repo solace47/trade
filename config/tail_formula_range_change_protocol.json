@@ -1,0 +1,30 @@
+{
+  "objective": "补充个股波幅水平的变化：严格此前5个股票交易日平均真实波幅除此前20日均值，检验同样20日波幅背景下近期收缩或扩张的差异。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_volatility/feature_report.json": "78627e821b73f22f29e843ab2c219db713e591f05ce224d7fd0c11fd06922695",
+    "data/research/tail_formula_volatility/feature_verification.json": "552cf974ab9c32dda8d194846131d02b59666f0948b0198e17b6cb450af72270",
+    "data/research/tail_formula_volatility/native_history_probe.json": "256c0c352add5329c7a6efccc46040b2baf61412d5a0f66a9299c705ae1b02d1",
+    "data/research/tail_formula_volatility/native_history_probe_keys.json": "b8ce582b616d2267f90ea9d4e4ccf29ccea28f6e32e1f8491301d7e7953cb347",
+    "data/research/tail_formula_1000/feature_report.json": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70"
+  },
+  "minute_manifest": "data/research/economic_winner/input_manifest.json",
+  "history_first": "2023-06-01",
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "short_days": 5,
+  "long_days": 20,
+  "input": "VR01=100*ATR5/ATR20，TR=max(当日高低差,高点与此前正常交易日收盘绝对差,低点与此前正常交易日收盘绝对差)。两个均值都只用严格此前完整股票日；100表示两均值相同。短五日窗口包含在二十日中，不宣称独立样本。",
+  "rationale": "原48项保留ATR20水平及各价格位置，尚无此前5日平均真实波幅与20日的比例；82项联合版包含昨日振幅，不能完整代替5日序列。5/20为本项目既有窗口，不搜索长度或预设收缩必然赚钱。",
+  "quality": "完整历史、合法正价格和正ATR20；全部原键保留，无效显式标注。未复权真实波幅会包含参考价变动，记录并保留，不能解释成纯粹交易波动。原有效交集保持才直接复用48项控制，否则先固定同交集控制。",
+  "model": "原48项附加VR01共49项；原29根相对二元机会、64深度3、最小叶300、lr.05、日期等权、seed20260927、两段一年和q995。不叠加累计分布、截面尺度或其他追加指标。",
+  "native": "复用现有TR0、B0至B4、PAT，20*五个历史TR之和/PAT；分母仍为同一原20日ATR。完整客户端来源和历史数据设置未验证。",
+  "verification": "全量SQL构建日线滞后真实波幅，逐股独立Pandas核准5/20均值、日期、分母与原ATR20、全部原48项及整数编码。沿用原波幅32个先前哈希固定样本身份，重新核对其21日原始分钟高低收与新的5日和20日算式，不扩大原档抽样。",
+  "evaluation": "两折及全年完整名单共同固定，再按原机会、1%空间、09:59参考、3%不利、两成本、未知界及同日共享未知评价。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
