@@ -1,0 +1,30 @@
+{
+  "objective": "原训练只用known15、未让原执行规则明确拒绝买入的候选参与学习；本轮把这些已知未买入样本作为未形成可执行正机会的0事件，与原已知机会共同训练，检验可成交前提是否能改善选股。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 48,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "若原known15为真，utility=原opportunity15；若原known_no_trade为真，utility=0；其余仍未知不进入训练。先在全部已知utility基础池按日减均值，再与原48项有效输入相交，原日期等权训练。",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "master_protocol_sha256": "55d3b260979488a14dced8a0ce7fdeb59dbfd2d68351d3079376e29e5b710f36"
+}

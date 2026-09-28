@@ -1,0 +1,32 @@
+{
+  "objective": "原训练只用known15、未让原执行规则明确拒绝买入的候选参与学习；本轮把这些已知未买入样本作为未形成可执行正机会的0事件，与原已知机会共同训练，检验可成交前提是否能改善选股。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "src/trade_research/tail_formula_1000_analysis.py": "b076cebe5cef27a358ad6bb7814279da7a4ba2a194086a6200573ed968776ebb",
+    "scripts/verify_tail_formula_1000_analysis.py": "09620cd396e5ba19b420cb36ae54c8bae157367e699d1b87ae84134089ed6d3e"
+  },
+  "target": "若原known15为真，utility=原opportunity15；若原known_no_trade为真，utility=0；其余仍未知不进入训练。先在全部已知utility基础池按日减均值，再与原48项有效输入相交，原日期等权训练。",
+  "known_no_trade": "严格沿用已核准的非entry_source_unknown且非entry_recorded；它是原分钟模拟规则下明确未买入，含容量／无流动性／估计涨停价等拒绝状态，不是实盘订单回报。已记录但队列、压力限价或次晨来源未知者不能改成0。",
+  "separation": "所有原评估标签和状态逐值保留，未知不补零、不恢复。新训练表使用独立utility和target_known字段，不改写known15或假造未买入后的价格收益。完整评分和选择仍覆盖原可见输入，不用未来执行状态过滤候选。",
+  "scope": "回到原48项、固定64轮深度3、两段一年与q995，不叠加时间轮数校验、新尾盘输入或更早数据。训练样本与日期基线因加入明确未买入样本共同改变，如实记录，不宣称只改变单一系数。",
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "expected_features": 48,
+  "expected_keys": 1258085,
+  "expected_valid": 1117397,
+  "verification": "训练源先按date/next_date限制到2024起、2025年中前，逐键重建原known_no_trade及其与known15互斥、未知保留。Pandas事件转换与SQL CASE独立核准全部目标、原有效输入、日期权重和编码；原已知训练行不得丢失，新增行必须全部为原明确未买入。随后两段模型、全量分数、两折及全年共同固定后完整评价。",
+  "controls": "严格29根同参数原48项为主要对照，旧固定48项为附加对照；保留未知、未买入、全部独有日期和同日共享未知界。模型分数不是已校准胜率，0事件也不当作实际持仓零收益。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
