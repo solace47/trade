@@ -62,8 +62,8 @@ def late_windows(keys):
     return keys.merge(d, on=['date', 'code'], how='left', validate='one_to_one')
 
 
-def opening_source(c, keys):
-    c.read_parquet(parts(MORNING, 'raw_report.json')).create_view('raw')
+def opening_source(c, keys, paths):
+    c.read_parquet(paths).create_view('raw')
     c.register('keys', keys)
     c.sql('''SELECT r.*,coalesce(timestamp=date_trunc('minute',timestamp)
         AND strftime(timestamp,'%Y-%m-%d')=r.date AND strftime(timestamp,'%H%M')=clock
@@ -93,11 +93,16 @@ def measure(opening, closing, atr):
 def features():
     p = checked_sources(); assert not (ROOT / 'feature_report.json').exists()
     old = pd.read_parquet(previous.ROOT / 'features.parquet')
-    c = base.conn(); opening_source(c, old[['date', 'code']])
+    paths = parts(MORNING, 'raw_report.json')
     pivots = ','.join(f"max(round(close,2)) FILTER(WHERE clock='{clock}') AS {name}" for clock, name in zip(CLOCKS, OPEN_COLUMNS))
-    early = c.sql('''SELECT date,code,count(*) AS sv_bars,count(DISTINCT clock) AS sv_clocks,
-        count(*) FILTER(WHERE good) AS sv_good,''' + pivots + ''' FROM morning GROUP BY date,code ORDER BY date,code''').df()
-    c.close()
+    batches = []; codes = sorted(old.code.unique())
+    for start in range(0, len(codes), 256):
+        c = base.conn(); opening_source(c, old.loc[old.code.isin(codes[start:start+256]), ['date', 'code']], paths)
+        batches.append(c.sql('''SELECT date,code,count(*) AS sv_bars,count(DISTINCT clock) AS sv_clocks,
+            count(*) FILTER(WHERE good) AS sv_good,''' + pivots + ''' FROM morning GROUP BY date,code ORDER BY date,code''').df())
+        c.close()
+        print(json.dumps(dict(opening_codes=min(start+256, len(codes)), total_codes=len(codes))), flush=True)
+    early = pd.concat(batches, ignore_index=True)
     early = old[['date', 'code']].merge(early, on=['date', 'code'], how='left', validate='one_to_one')
     ending = late_windows(old[['date', 'code']])
     for d in [early, ending]: pd.testing.assert_frame_equal(d[['date', 'code']], old[['date', 'code']], check_exact=True)
@@ -136,14 +141,20 @@ def verify_features():
     old = pd.read_parquet(previous.ROOT / 'features.parquet'); actual = pd.read_parquet(ROOT / 'features.parquet')
     pd.testing.assert_frame_equal(actual[old.columns.drop('formula_input_valid')], old.drop(columns='formula_input_valid'), check_exact=True)
     assert actual.prior_formula_input_valid.equals(old.formula_input_valid)
-    c = base.conn(); opening_source(c, old[['date', 'code']])
+    paths = parts(MORNING, 'raw_report.json')
     # Sum adjacent changes directly from original long rows, independent of the pivot.
-    c.sql('''SELECT *,lag(round(close,2)) OVER(PARTITION BY date,code ORDER BY timestamp) AS pc
-        FROM morning''').create_view('adjacent')
-    early = c.sql('''SELECT date,code,count(*)=30 AND count(DISTINCT clock)=30
-        AND min(clock)='0931' AND max(clock)='1000' AND bool_and(good) AS early_good,
-        sum(CASE WHEN pc>0 AND close>0 THEN pow(100*ln(round(close,2)/pc),2) ELSE 0 END) AS early_square
-        FROM adjacent GROUP BY date,code ORDER BY date,code''').df()
+    batches = []; codes = sorted(old.code.unique())
+    for start in range(0, len(codes), 256):
+        c = base.conn(); opening_source(c, old.loc[old.code.isin(codes[start:start+256]), ['date', 'code']], paths)
+        c.sql('''SELECT *,lag(round(close,2)) OVER(PARTITION BY date,code ORDER BY timestamp) AS pc
+            FROM morning''').create_view('adjacent')
+        batches.append(c.sql('''SELECT date,code,count(*)=30 AND count(DISTINCT clock)=30
+            AND min(clock)='0931' AND max(clock)='1000' AND bool_and(good) AS early_good,
+            sum(CASE WHEN pc>0 AND close>0 THEN pow(100*ln(round(close,2)/pc),2) ELSE 0 END) AS early_square
+            FROM adjacent GROUP BY date,code ORDER BY date,code''').df())
+        c.close()
+    early = pd.concat(batches, ignore_index=True)
+    c = base.conn()
     ending = late_windows(old[['date', 'code']]); c.register('ending', ending)
     atoms = ','.join(f'struct_pack(p:=pv_c{i-1:02d},q:=pv_c{i:02d})' for i in range(21, 50))
     c.sql('SELECT date,code,unnest([' + atoms + ']) AS v FROM ending').create_view('tail_atoms')
