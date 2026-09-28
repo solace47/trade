@@ -1,0 +1,31 @@
+{
+  "objective": "终点站在当日均价之上不等于整个尾盘都得到相同支撑；检验14:21—14:49每分钟收盘相对该分钟当日累计成交均价的平均偏离，是否补充原48项。旧W01/W02只有当前全天均价偏离与尾段/较早均价关系，本项使用动态均价的完整可见路径。不是主力身份或真实持仓成本。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_price_impact/feature_report.json": "bba8885c24964422ad383c7be87a871d3971b7bba8bf7c079f19bfa6bb691d6e",
+    "data/research/tail_formula_price_impact/feature_verification.json": "86534b59f8b43c6041c9b58e86081ce564df0a26534f6c4104a233aa343a0938",
+    "data/research/tail_formula_price_impact/native_input_verification.json": "343de528c73a005e374916aee1c0886d85d3fb3ba2dd3e0921974a68b3063a83",
+    "data/research/tail_formula_volume_response/feature_report.json": "336582714b7fa4bf9c7465a39ea6b92ed6a0e275839f95a91d2ffa2b8b1f0173",
+    "data/research/tail_formula_volume_response/feature_verification.json": "c51241229fd28666c9dfdf5b2244b5e76fddb76c37fc518aeb5f047a2376ed39",
+    "data/research/tail_formula_volume_response/native_input_verification.json": "5c305f6188190bcf2543c6e6befec526d87000ea0aba3b6ab682201e7177441d",
+    "data/research/tail_formula_price_impact/window_report.json": "9ccc52eaedaa04c9bb878327eea68f3d215def5578f77bf096e4f6405c01ba36"
+  },
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "return_bars": 29,
+  "new_fields": [
+    "VP01"
+  ],
+  "expected_features": 49,
+  "input": "对14:21—14:49每根，以当日截至当根累计成交额A_t/成交股数V_t为VWAP_t；VP01=mean(100*(当根整数分收盘价/100/VWAP_t-1))/原V01。连续偏离可正可负，不设当日均价线穿越阈值，平均29根而非事后选片段。只用当根及更早累计价量，不把14:49的最终均价倒灌给早先分钟。",
+  "source": "复用已核准30根价、29根量及29根额窗口和原14:49完整累计量额。先从14:49累计中扣去尾29根得到14:20累计，依次只加回截至该分钟的量额；数学上等价于当日从首分钟递推，32例原档230根必须独立证明这一点，不重新批量取价。",
+  "validity": "要求原48键/值不变，30价/29量/29额完整、合法价格与非负量额，原单位同源可对齐；14:20累计非负且29个累计量额均为正，不能把空累计补成虚构均价。原有效交集若减少，在模型前同质量48项对照也固定并训练，完整48两控制仍保留。",
+  "native": "PVWP:=SUM(AMOUNT,B0)/MAX(100*SUM(V,B0),0.01)，PVG:=100*(C/MAX(PVWP,0.00000001)-1)，VP01:=VALUEWHEN(TIME=1449,SUM(PVG,29)/29)/V01；另显式保护29根累计正量正额。B0沿用当前股票日内根数。分钟手/股换算一致。实际表达式在原230根序列重放，污染14:49之后无影响；客户端来源一致性仍另核。",
+  "verification": "生产Numpy尾段累加、独立SQL逐根展开并窗口求和，逐项核对29个累计量额、动态均价偏离、均值、质量及整数编码；32例重读当日09:30—14:49完整前缀，直接从开盘累加而非通过最终总数反推。测试相同最后VWAP但不同早先路径、股/手单位、零累计未知和未来尾段污染不影响较早计算。",
+  "model": "原两段一年、严格29根相对机会、64深度3/minleaf300/lr.05/seed20260927/日期等权/q995。若质量交集不变只训49项并复用两48项控制；否则加同交集48项。全部模型和两折/全年名单共同提交后才评价，选择相同直接复用已有统计。",
+  "evaluation": "固定原14:52—14:55原始入场、2万元整手/10%容量、涨停/权益/来源未知、5/15基点和09:31—09:59评价，完整两半年/全年及参考缺口、风险、共同/独有日期与共享未知界全报。保持29分钟均值，不追加更好窗口或事后挑正向；2025暴露探索，不增加2026或卖法。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
