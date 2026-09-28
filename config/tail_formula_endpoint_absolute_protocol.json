@@ -1,0 +1,43 @@
+{
+  "objective": "保持已核准有限参考训练交集、输入、损失及参数，只取消09:59价格目标的同日均值扣除，检验相对目标与绝对参考价格要求是否错位。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_endpoint_robust/source/manifest.json": "7535e9a2c0d3fd33708222b083403dc1e0cd7b260d4c32be8f6234e219125018",
+    "data/research/tail_formula_endpoint_robust/source/sklearn_ensemble__gb.py": "028f08005071c5998eb6ef4414009fb391bcb2fc73f8e18584f6f1d0a9b4059d",
+    "data/research/tail_formula_endpoint_robust/source/sklearn__loss_loss.py": "ff7f59d25bdd54bfe1b3c2e5b7f3e3766ca82b0b7347ee1cbc8285bfdbf58758",
+    "data/research/tail_formula_endpoint_robust/source/sklearn_utils_stats.py": "07b4920d8f43f8a49477d01d9ac8c856daf9cd6ba5332a722e68fb9bda4b82ab",
+    "data/research/tail_formula_endpoint_robust/initial_reference_missing_diagnostic.json": "cc9fae938f035eaf5d83b4ed19f0cfa1a2454f6047b863c22ebf1929be68e1ef",
+    "config/tail_formula_endpoint_robust_v2_protocol.json": "373461e89d40d4011dc13e6ed9441f458b6dfac88bd2a824b0ddf5711f4ae578"
+  },
+  "target": "原已核准且mark_0959_return15有限的训练股票日，以100*mark_0959_return15为目标，不减同日均值；有效交集502636／522531、各241日完全保持。",
+  "endpoint": "09:59为既定参考时点，不搜索最优分钟；该数值扣原买入与参考卖出成本，但不模拟卖单、触发条件或成交容量，仍为参考价格标签。评价保持连续三根正成交机会、1%空间、参考均值与3%不利。",
+  "arms": [
+    "squared",
+    "huber"
+  ],
+  "alpha": 0.9,
+  "implementation": "使用已安装scikit-learn1.7.2，固定tag三份官方源码与本地字节一致，未升级。两臂除loss及相应初始常数／梯度／叶更新外参数相同。",
+  "huber": "每轮日期等权绝对残差90%加权分位为delta；负梯度裁至±delta，叶更新为加权残差中位数加上该中位数周围截断偏差的加权平均。该叶更新是库的近似步骤，不声称精确求出Huber最优常数。初始化使用加权中位数；平方损失初始化加权均值。",
+  "parameters": {
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "alpha": 0.9
+  },
+  "scope": "仍为两段一年、原48项、原64深度3、日期等权与q995；参考分钟、费用、有限训练交集、模型复杂度和Huber0.9均不变。不同于已经失败的绝对二元机会对数损失，也不使用新日期衰减。",
+  "freeze": "两臂四模型、四半年代及两份全年名单全部核准后，再读新组表现；主要与相同损失的已冻结相对参考目标配对，并保留同样本二元机会及旧固定48项。",
+  "controls": "每臂对应同损失相对参考目标，两个绝对臂相互比较，另与已核准同样本二元机会版及旧固定48项比较；不能把参考估值当真实卖出收益。",
+  "verification": "独立SQL重建未中心化目标、全部键、日期权重、费用与编码，再验证各树节点、Huber截断及叶更新；原相对目标复核证明字节必须保持。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false,
+  "training_reference_required": "mark_0959_return15",
+  "center_target": false
+}
