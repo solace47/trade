@@ -1,0 +1,33 @@
+{
+  "objective": "原48项增加当下14:20—14:48逐分钟与指数的共同变化及按同期斜率扣除后的额外走势。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "633805e73fc764a7f976a153448c83f20ed09dabc53fcf35aca6e3b87705395f",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "6f79c25b9d9a36b696785bedcb92a483bc441524250f5956ca914c07e112824b",
+  "feature_verification_sha256": "430f24712a10630dc438480280fe2d528e136f538ccaf7ad4911d57829ca1cf9",
+  "native_input_verification_sha256": "c7cfbe2b3f9921050ccdcbdca495085e050eeb0c9cd4d4dd1453bd31360b87b7",
+  "expected_rows": 502747
+}
