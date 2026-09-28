@@ -1,0 +1,251 @@
+{
+  "objective": "合并已核准且可用原生个股价量表达的15组新增信息，允许组间共同作用；不按各单项回测输赢选组，不重复抽取原始行情。",
+  "blocks": [
+    "opening",
+    "overnight",
+    "volume_history",
+    "vwap",
+    "path_variance",
+    "extrema_time",
+    "minute_pressure",
+    "history_weight",
+    "prior_day",
+    "history_direction",
+    "morning_history",
+    "daily_efficiency",
+    "volume_concentration",
+    "volume_response",
+    "history_turnover"
+  ],
+  "expected_features": 82,
+  "sources": [
+    {
+      "block": "opening",
+      "root": "data/research/tail_formula_opening",
+      "columns": [
+        "M01",
+        "M02",
+        "M03"
+      ],
+      "source_module": "src/trade_research/tail_formula_opening.py",
+      "source_module_sha256": "e8647f0e6737a28c9727a1ee692424ce32842bb5fa6c9915725f52ddd2181bd4",
+      "source_protocol": "config/tail_formula_opening_protocol.json",
+      "source_protocol_sha256": "50360375bf51d57b08a9d96fb7d257e65fa5a6f509941b490a657ce26e1cf068",
+      "feature_report_sha256": "65c3bf8a53fb8e47481fe02a35dcf47306a5fbae58516674157399d85dd35f19",
+      "feature_verification_sha256": "4c0550e9c64073b6890037129faff70f27a38d7213a7324dcb820cc05e3a80d1"
+    },
+    {
+      "block": "overnight",
+      "root": "data/research/tail_formula_overnight",
+      "columns": [
+        "G01",
+        "G02",
+        "G03"
+      ],
+      "source_module": "src/trade_research/tail_formula_overnight.py",
+      "source_module_sha256": "6813d00f0620359ec082f9de36f5923619abd1919c07b629ab430872b385c6dc",
+      "source_protocol": "config/tail_formula_overnight_protocol.json",
+      "source_protocol_sha256": "44b7181bbad4f4f827db242176dd3341e23434237e69aaadf042b6341c08454b",
+      "feature_report_sha256": "10cb728a1ed747e77588c7dc93f0a187fee781177f77cbcf50767220e519c476",
+      "feature_verification_sha256": "472f8084b20042deaf1350dfe68c58b88a9eb40714fca874e0b9b90ee22c11d1"
+    },
+    {
+      "block": "volume_history",
+      "root": "data/research/tail_formula_volume_history",
+      "columns": [
+        "HV01",
+        "HV02"
+      ],
+      "source_module": "src/trade_research/tail_formula_volume_history.py",
+      "source_module_sha256": "206fdf438b5d4accee4ef23dc562584d9d704fb1581de13cc8f6d3bfcfc4021d",
+      "source_protocol": "config/tail_formula_volume_history_protocol.json",
+      "source_protocol_sha256": "7f664cf31ec27326bee6c19346e9893f09fbdb470da397e3fdf7c39d2a41e699",
+      "feature_report_sha256": "b719dacb94090dc0248a1a60407ee14522dec3585965bbdeda1ed6ea5ea7072f",
+      "feature_verification_sha256": "8249f0f62b24519676257ed8709dbabaca38428b53854063361d06fde68a4a8e"
+    },
+    {
+      "block": "vwap",
+      "root": "data/research/tail_formula_vwap",
+      "columns": [
+        "W01",
+        "W02"
+      ],
+      "source_module": "src/trade_research/tail_formula_vwap.py",
+      "source_module_sha256": "19224142794908fc325b51358e06fe82a8eb2b4d29f219f60f62489c1d1833ae",
+      "source_protocol": "config/tail_formula_vwap_protocol.json",
+      "source_protocol_sha256": "a807d695283c2721da394c3fe050baf620ff06c3a2d863bbbe1f9cd8eb6bde99",
+      "feature_report_sha256": "a5edc62f219e97a38c913e53236afc7132fc4e7d9a01735ab3d0dd1d8d30647a",
+      "feature_verification_sha256": "1d22f66ff6b44b02c2d9bb423a56b932d1f8a26e0f56915a5f560a257b7209ec"
+    },
+    {
+      "block": "path_variance",
+      "root": "data/research/tail_formula_path_variance",
+      "columns": [
+        "Z01",
+        "Z02",
+        "Z03"
+      ],
+      "source_module": "src/trade_research/tail_formula_path_variance.py",
+      "source_module_sha256": "923da959ca950cb2bd1c54b0770561630d69a5166190f031844424fd5e204503",
+      "source_protocol": "config/tail_formula_path_variance_protocol.json",
+      "source_protocol_sha256": "f16be98ec643cac6093dfe718e7e97ce9a1ee73e5740989f09e9d6d67d400fa9",
+      "feature_report_sha256": "f7708e59415d4aed68f03cf40e07c1d1769c3dc3d66e325c0d97517fe026276a",
+      "feature_verification_sha256": "1dc042db2dbc29a4b6c4e4a1ad1581d8f75418d578dad45f682bff1902235fc2"
+    },
+    {
+      "block": "extrema_time",
+      "root": "data/research/tail_formula_extrema_time",
+      "columns": [
+        "E01",
+        "E02"
+      ],
+      "source_module": "src/trade_research/tail_formula_extrema_time.py",
+      "source_module_sha256": "750fe8b9a49d6cce4fc4ef9f6f410991197e5ca6c5945a9ac6a17e152eb9e823",
+      "source_protocol": "config/tail_formula_extrema_time_protocol.json",
+      "source_protocol_sha256": "f4c9a806f82ae81b752c2e36a770c37f3adddae46694aa581bbfb17e492a1757",
+      "feature_report_sha256": "68907ad6c55a5a2a038a9c6bc70484d578c1460a6170a12956626e1ca98474fc",
+      "feature_verification_sha256": "e067e31dececd3a81e7e48d269b4e4ade36a60240f2003b3cb6320a656ec0773"
+    },
+    {
+      "block": "minute_pressure",
+      "root": "data/research/tail_formula_minute_pressure",
+      "columns": [
+        "W01",
+        "W02"
+      ],
+      "source_module": "src/trade_research/tail_formula_minute_pressure.py",
+      "source_module_sha256": "d3d749af218db161b49f9efb54bc6c68363bf0c01835cbd7347baf73eef9a276",
+      "source_protocol": "config/tail_formula_minute_pressure_protocol.json",
+      "source_protocol_sha256": "c607cdfd3eb02d567da2758c93bbbc59d61d9010c49ad04a24b72bb44b6d6c0b",
+      "feature_report_sha256": "567a171a78647267f5a72e591676780a8c38d5bd68b8dd921b58214d46b00253",
+      "feature_verification_sha256": "804f2fb77ab04366ca218f2d8a6812191a530b6f33b47dd179de73f9ea480df1"
+    },
+    {
+      "block": "history_weight",
+      "root": "data/research/tail_formula_history_weight",
+      "columns": [
+        "K01",
+        "K02"
+      ],
+      "source_module": "src/trade_research/tail_formula_history_weight.py",
+      "source_module_sha256": "429186d9f27e41996d7dfb69aabe4b144015177ebad6f1e9637f45ef5f396dc9",
+      "source_protocol": "config/tail_formula_history_weight_protocol.json",
+      "source_protocol_sha256": "227a57f7a539df8a42303428d87abb07bb46146abb8f7f8e9267ce835d6b54c8",
+      "feature_report_sha256": "11fa798861b31bf49aefe42d4f9a067fb565eeeaa5432eed213ab7019e6a3657",
+      "feature_verification_sha256": "bc209d86a018499204991b1509b4d0ba495a8c1e594b6aab35f1eaad35f9fa97"
+    },
+    {
+      "block": "prior_day",
+      "root": "data/research/tail_formula_prior_day",
+      "columns": [
+        "Y01",
+        "Y02",
+        "Y03",
+        "Y04"
+      ],
+      "source_module": "src/trade_research/tail_formula_prior_day.py",
+      "source_module_sha256": "47c7fb19b312d8d6ecd9b27eed00d952c6687b3eb659aba45fc27bcd23ee8c48",
+      "source_protocol": "config/tail_formula_prior_day_protocol.json",
+      "source_protocol_sha256": "af659ccdc06d5924f4cd0d0e95ca208b3cc965908810359f9f31ac28363752e0",
+      "feature_report_sha256": "cb4a96141d39417b1d6aaac90022806ac3d33d2c2790dcaae0ab78268cad0b68",
+      "feature_verification_sha256": "73018e3c9e2125f02e25d4d5f81ffbf8ec50970e56417096e2a467cb800860fd"
+    },
+    {
+      "block": "history_direction",
+      "root": "data/research/tail_formula_history_direction",
+      "columns": [
+        "DN01",
+        "DN02"
+      ],
+      "source_module": "src/trade_research/tail_formula_history_direction.py",
+      "source_module_sha256": "5de42e5a987b3dc6d868e9a52a1c41059fde74bc6b281ee867a4410966f3a136",
+      "source_protocol": "config/tail_formula_history_direction_protocol.json",
+      "source_protocol_sha256": "ccc5c7a3c69e4aaa6a89aec539fb8fd03dbcfdc676b32e0a0bb1038c7b604a61",
+      "feature_report_sha256": "d641ed70932c04ff47b2b082893f7083afb2960c38970ccc5ea07a0e9b4c3a00",
+      "feature_verification_sha256": "9168b2d05ce650847b140978f0a6be1e5fe3b11017b5db8d42772b8e3d971d6b"
+    },
+    {
+      "block": "morning_history",
+      "root": "data/research/tail_formula_morning_history",
+      "columns": [
+        "HM01",
+        "HM02"
+      ],
+      "source_module": "src/trade_research/tail_formula_morning_history.py",
+      "source_module_sha256": "092837a446d04a4a1262dd68640b4bf0618e6e691272a7ac0210ff3104b93bcf",
+      "source_protocol": "config/tail_formula_morning_history_protocol.json",
+      "source_protocol_sha256": "0fb99141f16ba3c77d2e4b6a37537267bbd4e18aca9d215420aa5b38a293f871",
+      "feature_report_sha256": "ab73ae1a618b023e51c2fca660c81b05612090c79daac77273b8d26319367556",
+      "feature_verification_sha256": "e587908795513c4e86a570bc5bb57bdbd25886d6b833de34134c1e66519bf509"
+    },
+    {
+      "block": "daily_efficiency",
+      "root": "data/research/tail_formula_daily_efficiency",
+      "columns": [
+        "DE05",
+        "DE20"
+      ],
+      "source_module": "src/trade_research/tail_formula_daily_efficiency.py",
+      "source_module_sha256": "6782524b37044053f3fe39bb850d5d164da82e9aa9e377933a4e571df76f2cb4",
+      "source_protocol": "config/tail_formula_daily_efficiency_protocol.json",
+      "source_protocol_sha256": "53fe5c54a2769df57f7e5a9d0844eeccd1dba8c4bb91cb02de8dde2124df9924",
+      "feature_report_sha256": "7d9a484518a803c792611cabde8c6ed7ce5fa6e2b62decafb15f5472440d25ff",
+      "feature_verification_sha256": "cfbb688c4a2310293964f5c0b0fc6ccfe83662076e03eef5220d0868363201e2"
+    },
+    {
+      "block": "volume_concentration",
+      "root": "data/research/tail_formula_volume_concentration",
+      "columns": [
+        "VC29",
+        "VC04"
+      ],
+      "source_module": "src/trade_research/tail_formula_volume_concentration.py",
+      "source_module_sha256": "ab744e17b2d23fdb1e623a758a9453355e61fb0fa7d0edd9b8a66b9f26046348",
+      "source_protocol": "config/tail_formula_volume_concentration_protocol.json",
+      "source_protocol_sha256": "b5abcacd4fc9c99475d9a1dc70329276a609796393374cecdcbc42d3320d626a",
+      "feature_report_sha256": "b402b10536c0d2b0c43347f959c09c285fb6fd79e0c15184e23ed4dc5545acfb",
+      "feature_verification_sha256": "3e05f2eacf3ea4139af9f99431c7504f5bbabbf78d2d14748b051a60c505198f"
+    },
+    {
+      "block": "volume_response",
+      "root": "data/research/tail_formula_volume_response",
+      "columns": [
+        "IP01",
+        "IP02"
+      ],
+      "source_module": "src/trade_research/tail_formula_volume_response.py",
+      "source_module_sha256": "0c99194f3eb36147ebe617880a307935a7537910e419dec71b4a6929ab71668a",
+      "source_protocol": "config/tail_formula_volume_response_protocol.json",
+      "source_protocol_sha256": "ea6fabcd7847de064a29947bdac2da56a56f2eabc27fd12fc5cf31f02c2c68c3",
+      "feature_report_sha256": "336582714b7fa4bf9c7465a39ea6b92ed6a0e275839f95a91d2ffa2b8b1f0173",
+      "feature_verification_sha256": "c51241229fd28666c9dfdf5b2244b5e76fddb76c37fc518aeb5f047a2376ed39"
+    },
+    {
+      "block": "history_turnover",
+      "root": "data/research/tail_formula_history_turnover",
+      "columns": [
+        "HT01"
+      ],
+      "source_module": "src/trade_research/tail_formula_history_turnover.py",
+      "source_module_sha256": "05ff0f8cd951c809cebcfad12f0a212e96ab3d4df53c19795e6bb97824f3f785",
+      "source_protocol": "config/tail_formula_history_turnover_protocol.json",
+      "source_protocol_sha256": "00d10e8baf0f142fae93c2bfa2c97af8c05baeb09b363420420a50cf067d1790",
+      "feature_report_sha256": "0c8bf99af28ad9e838c1f9c0e552036308871688715557e08486f07db57525cc",
+      "feature_verification_sha256": "8ffa705e63c195d6c205ead3dfe0a73ec68ba9d5a53a87efa7e25e2960c828b1"
+    }
+  ],
+  "previous_feature_report_sha256": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+  "previous_feature_verification_sha256": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+  "signal_first": "2024-01-01",
+  "signal_last": "2025-12-30",
+  "namespace": "原48项保持；34项新输入按固定区块顺序命名X01至X34，各块辅助变量前加U及两位块号。仅标识符整体替换，可逆核对，W01/W02和HDV等重名不得覆盖。",
+  "quality": "逐股票日交集所有既有输入有效标记，不填补未知。原键、价格、股数、48项及各组定义逐值保留。另在完全同一交集训练原48项控制，分清样本变化与信息新增；旧完整48项作辅助对照。",
+  "excluded": "本轮只合并已验证的单股原生扩展；不增加INSUM横截面辅助、指数定义替换、日期门限、先后标签或配对目标。历史定义和窗口不按这轮结果改变。",
+  "model": "两臂均回到原29根、15基点二元相对机会；同一完整基础日均标签、同样日期等权、64棵深度3/min_samples_leaf300/lr.05/seed20260927/q995。两段一年训练日期分别2024全年、2024下半年至2025上半年，标签严格早于下一测试半年。",
+  "freeze": "四份模型和两臂各两半年及全年六份完整选择共同固定后才评价新分组；全部参数相同，联合臂82项、控制48项。原组各有旧失败记录，本轮属于探索，不构成未见数据证明。",
+  "evaluation": "两档成本、按日与逐股、未知完整界、正机会、1%空间、09:59参考估值及全29根至少3%不利均保留。共同日期及共享未知对照，不研究卖法和持有天数。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
