@@ -36,6 +36,14 @@ def daily_bounds(rows):
     return result
 
 
+def check_signal_dates(dates, signal_range=None):
+    if signal_range is None:
+        assert not dates.ge('2026-01-01').any()
+    else:
+        assert signal_range in [['2024-01-01', '2024-12-31'], ['2026-01-01', '2026-03-31']]
+        assert dates.between(*signal_range).all()
+
+
 def checked_selection(root, expected_analysis_sha, signal_range=None):
     report = json.loads((root/'analysis_report.json').read_text())
     proof = json.loads((root/'analysis_verification.json').read_text())
@@ -49,11 +57,7 @@ def checked_selection(root, expected_analysis_sha, signal_range=None):
     assert selection['selection_sha256'] == sha(root/'selection.parquet')
     frame = pd.read_parquet(root/'selection.parquet')
     assert not frame.duplicated(['date', 'code']).any()
-    if signal_range is None:
-        assert not frame.loc[frame.selected, 'date'].ge('2026-01-01').any()
-    else:
-        assert signal_range == ['2026-01-01', '2026-03-31']
-        assert frame.loc[frame.selected, 'date'].between(*signal_range).all()
+    check_signal_dates(frame.loc[frame.selected, 'date'], signal_range)
     return frame.loc[frame.selected, ['date', 'code', 'half', 'decision_shares']].copy()
 
 

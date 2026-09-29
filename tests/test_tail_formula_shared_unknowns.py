@@ -3,9 +3,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from compare_tail_formula_shared_unknowns import daily_bounds
+from compare_tail_formula_shared_unknowns import check_signal_dates, daily_bounds
 
 
 def rows(left, right, known, opportunity, no_trade=None):
@@ -31,3 +32,13 @@ def test_unshared_unknown_and_no_trade_keep_full_denominators():
         [False, False, True], [np.nan, np.nan, 1], [False, True, False]))
     assert d.lower.iloc[0] == -1 and d.upper.iloc[0] == -.5
     assert d.left_rows.iloc[0] == 2 and d.right_rows.iloc[0] == 1
+
+
+def test_explicit_2024_dates_do_not_relax_the_later_year_boundary():
+    check_signal_dates(pd.Series(['2024-01-02', '2024-12-31']), ['2024-01-01', '2024-12-31'])
+    with pytest.raises(AssertionError):
+        check_signal_dates(pd.Series(['2025-01-02']), ['2024-01-01', '2024-12-31'])
+    with pytest.raises(AssertionError):
+        check_signal_dates(pd.Series(['2026-04-01']), ['2026-04-01', '2026-06-30'])
+    with pytest.raises(AssertionError):
+        check_signal_dates(pd.Series(['2026-01-05']))
