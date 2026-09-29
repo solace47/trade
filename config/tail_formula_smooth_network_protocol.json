@@ -1,0 +1,62 @@
+{
+  "objective": "固定原48项，用少量平滑非线性组合检验原生尾盘评分的表达方式；此前硬分裂、线性和全二阶失败，本轮只比较单层8个tanh单元与同标准化、同惩罚强度的线性控制，不增加股票数据。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "src/trade_research/tail_formula_polynomial_ridge.py": "4a01cf72de5b6ffc5a0d123ed297f637c92fd8db03987e88ed2ae706486f83f6"
+  },
+  "sklearn_version": "1.7.2",
+  "local_primary_source_hashes": {
+    "/Users/xs/Documents/Coding/SelfProject/trade/.venv/lib/python3.12/site-packages/sklearn/neural_network/_multilayer_perceptron.py": "ab529cbf71f881a411eaca3f3fbedea299e85869b6ebdc71b8233f2cf2c2222d",
+    "/Users/xs/Documents/Coding/SelfProject/trade/.venv/lib/python3.12/site-packages/sklearn/neural_network/_base.py": "6e9e19dd3c6716dcc7ed58a70e1f4602ecb00a1ab2cf736884898b2f2986f638"
+  },
+  "arms": [
+    "linear",
+    "smooth"
+  ],
+  "training": [
+    {
+      "fold": "2024",
+      "start": "2024-01-01",
+      "end": "2025-01-01",
+      "rows": 502747,
+      "days": 241
+    },
+    {
+      "fold": "recent",
+      "start": "2024-07-01",
+      "end": "2025-07-01",
+      "rows": 522653,
+      "days": 241
+    }
+  ],
+  "preprocessing": "原48项原整数编码；每折按训练日等权均值／总体标准差标准化，固定截到±5。常数尺度<=1e-12用1。全部变换只用严格结束的训练行，与两臂一致。",
+  "target": "原严格29根次晨相对机会：opportunity15减质量交集前同日已知基础池均值；最终训练每日期总权重相等，全部权重归一化为1。",
+  "ridge_alpha": 0.0001,
+  "model": "linear为带不受惩罚截距的加权岭平方目标；smooth为48→8→1、tanh隐藏、线性输出，权重矩阵L2、偏置不惩罚。均为0.5加权平方和+0.5*alpha*权重平方和。",
+  "parameters": {
+    "hidden_layer_sizes": [
+      8
+    ],
+    "activation": "tanh",
+    "solver": "lbfgs",
+    "alpha": 0.0001,
+    "max_iter": 200,
+    "max_fun": 30000,
+    "tol": 1e-06,
+    "random_state": 20260927,
+    "early_stopping": false
+  },
+  "optimization": "现有scikit-learn1.7.2，不安装包。保留初始种子、迭代数和全部收敛警告；200轮为固定预算，达到预算不扩大或换种子。独立全训练梯度和损失复算，若有限预算结束则明确不能称收敛，仍报告预定预算模型，不按评价结果再训练。",
+  "native": "48项原生整数编码和训练固定缩放。平滑项以2/(1+EXP(-2*clip(hidden,-20,20)))-1导出；截尾仅防数值溢出，独立核对与tanh误差及所有选择标记。所有权重、原生表达、实际评分和训练q995都先核准；输出不是校准概率。",
+  "training_quantile": 0.995,
+  "controls": "smooth对同预处理linear为主比较；两臂各对原严格标签48和旧固定48，共五组。旧alpha=1线性结果不是本轮相同惩罚控制。",
+  "verification": "SQL独立重建所有训练键、标签、日期权重、48编码、均值尺度；线性正规方程，平滑全训练反传梯度与平方损失独立einsum复核；合成数值有限差分测试。所有原生算术由SQL从导出文本全量重放并核准q995/严格门槛。四模型六名单共同提交后再评价。",
+  "evaluation": "年度各聚合一次，包含两半年，先对全部字段去重再复用相同结果；全未知／未买入／参考缺口及独有日保留。原14:49股价截止、14:52—55原始模拟、2万元、10%容量、5/15基点保持。",
+  "no_duplicate_half_year_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
