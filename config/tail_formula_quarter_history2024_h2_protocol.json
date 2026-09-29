@@ -1,0 +1,43 @@
+{
+  "training_start": "2023-07-01",
+  "training_end": "2024-07-01",
+  "evaluation_start": "2024-07-01",
+  "evaluation_end": "2025-01-01",
+  "omitted_quarters": [
+    "2023Q3",
+    "2023Q4",
+    "2024Q1",
+    "2024Q2"
+  ],
+  "master_protocol_sha256": "b6e6fb75f2739edc187fd6c3a547fab5bee2e3b35140cd1bbfd5fd7c680d7833",
+  "input_receipts": {
+    "data/research/tail_formula_quarter_history2024/inputs/feature_report.json": "9b44548a6add0762ae182a640127570b52bf7b9fbc62d3f6d2a431eb8075e80b",
+    "data/research/tail_formula_quarter_history2024/inputs/feature_verification.json": "31e1d421bca87893e46970de84dbb7bee42241bd305862d89f5592f83ab8fc73",
+    "data/research/tail_formula_quarter_history2024/inputs/features.parquet": "00bce1f3ab24702f8e63cbf0c00aa36a456d2575a18a91c80e3c3fdf62afad93",
+    "data/research/tail_formula_quarter_history2024/inputs/full_label_report.json": "c09d67db309cd54e17f216ad36b85d170750b2980b0a6c26f064c1a9a4f77d49",
+    "data/research/tail_formula_quarter_history2024/inputs/full_label_verification.json": "65ad096121ba71cc7ffee6e98f6fcf22cfe6cb27122017cfd7053c602b3bfed5",
+    "data/research/tail_formula_quarter_history2024/inputs/full_labels.parquet": "f4e9c424bc80b9d0faa99fe570641ce45d7121bf358095f96261caf22486e9f1",
+    "data/research/tail_formula_quarter_history2024/inputs/history_2023/observation_report.json": "b1f45cc24c76c77aad2d12d2944ad25982fb9e9ea7674115ee830cfdf2a36c32",
+    "data/research/tail_formula_quarter_history2024/inputs/history_2023/observation_verification.json": "331ceec7ea5d2f0fa45eb81f77f948d8b0b0ecf13374cc519b6aff41a243f5db",
+    "data/research/tail_formula_quarter_history2024/inputs/history_2023/full_label_report.json": "4ba09ca2061f924f08dc8646faa152dc51a5ffc23fccbae64fc047f0f0b5b8a5",
+    "data/research/tail_formula_quarter_history2024/inputs/history_2023/full_label_verification.json": "2dc817e87d3339bb6da99c6791653ad3a90bedc7a7e95a54ec3413cd058e146a",
+    "/Users/xs/Documents/Coding/SelfProject/trade/src/trade_research/tail_formula_quarter_history2024_inputs.py": "d40c26a7580ba2ae8d0c609cd2a943a21e3a6ea8ba339969118a86ef71446ada"
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "training_quantile": 0.995,
+  "expected_training_rows": 493307,
+  "expected_training_days": 240,
+  "expected_last_observation": "2024-06-28",
+  "window_end": "09:59",
+  "expected_features": 48,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
