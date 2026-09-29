@@ -16,10 +16,14 @@
     "2025-12-01"
   ],
   "request_parameters": "_var=kline_dayqfq;param=codewithoutdot,day,exact_date,exact_date,640,qfq;r=0.8205512681390605",
-  "acceptance": "只接受响应对应指数键的day原始日序列，不用qfqday回退；日期恰好请求日，合法有限正OHLC、顺序范围正确且与既有独立东财日线四价按分一致。原240点分时包络证明保持。",
+  "acceptance": "六个原响应均返回截止请求日的640行，日期起点参数未生效而终点生效。在不增请求、不改变六日期的前提下先核对全部日期唯一、排序、末日恰为请求日且无其后日，仅投影出唯一指定日的day原始四价。该四价再按原规则与东财逐分一致；多余旧日期不参加比较，不用qfqday回退。",
   "attempts": 2,
   "timeout_seconds": 5,
   "history_only": "参数不含2026范围。接口可能附带当前快照，只归档原响应，不解析或显示qt等旁支；使用日期白名单解析day。不读取2026股票结果，不据快照作输入。",
   "no_models_or_new_stock_outcomes": true,
-  "no_exit_rule_research": true
+  "no_exit_rule_research": true,
+  "prior_protocol_sha256": "26d5277888ee6c7ddf2c1c77a704c53cb299014bc9616ea4fb75365ffac33bc8",
+  "raw_source_report_protocol_sha256": "26d5277888ee6c7ddf2c1c77a704c53cb299014bc9616ea4fb75365ffac33bc8",
+  "date_boundary_diagnosis_sha256": "60bb26492f00a718ceb66c48057da1d74fdb5e0487637ae7d9ce88ce3078845a",
+  "fixed_raw_source_report_sha256": "7648addfe170c156b72056b4c14c1ca234306d1ccc46da3db8fbea56b5e8da9b"
 }
