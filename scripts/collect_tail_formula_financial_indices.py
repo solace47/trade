@@ -20,6 +20,8 @@ OLD = Path('data/research/tail_formula_float')
 
 
 def collect_daily(p):
+    if p.get('daily_provider') == 'tencent_raw_day':
+        return collect_tencent_daily(p)
     frames = []; raw_paths = {}; blocks = []
     for code in p['symbols']:
         records = []
@@ -65,6 +67,54 @@ def collect_daily(p):
         assert len(f) and f.code.eq(code).all() and not f.date.duplicated().any()
         for name in ['open', 'high', 'low', 'close']: f[name] = pd.to_numeric(f[name], errors='raise')
         frames.append(f); raw_paths[str(path)] = sha(path)
+    return raw_paths, frames, blocks
+
+
+def collect_tencent_daily(p):
+    from probe_tail_formula_financial_tencent import day_rows
+    probe = Path('data/research/tail_formula_financial_tencent_probe')
+    for key, path in [('tencent_probe_protocol_sha256', Path('config/tail_formula_financial_tencent_probe_protocol.json')),
+                      ('tencent_probe_source_sha256', probe / 'source_report.json'),
+                      ('tencent_probe_verification_sha256', probe / 'verification.json')]:
+        assert p[key] == sha(path)
+    assert json.loads((probe / 'verification.json').read_text())['source_usable']
+    frames, raw_paths, blocks = [], {}, []
+    for code in p['symbols']:
+        params = dict(_var='kline_dayqfq', param=f"{code.replace('.', '')},day,{p['history_first']},{p['history_last']},640,qfq", r='0.8205512681390605')
+        url = p['daily_endpoint'] + '?' + urlencode(params)
+        checkpoint = ROOT / 'daily/tencent' / (code + '.json')
+        if checkpoint.exists():
+            entry = json.loads(checkpoint.read_text()); assert entry['url'] == url
+        else:
+            entry = dict(code=code, url=url, attempts=[])
+            for attempt in range(2):
+                folder = ROOT / 'daily/tencent/raw' / code / str(attempt); folder.mkdir(parents=True, exist_ok=True)
+                item = dict(attempt=attempt)
+                try:
+                    r = requests.get(url, timeout=5)
+                    path = folder / 'response.bin'; path.write_bytes(r.content)
+                    item.update(path=str(path), sha256=sha(path), http_status=r.status_code)
+                    r.raise_for_status(); count = len(day_rows(r.content, code))
+                    item.update(status='nonempty' if count else 'empty', rows=count)
+                except Exception as exc:
+                    item.update(status='error', error_type=type(exc).__name__, error=str(exc))
+                entry['attempts'].append(item)
+                if item['status'] == 'nonempty': break
+            save_json(checkpoint, entry)
+        blocks.append(entry)
+        a = next((v for v in entry['attempts'] if v['status'] == 'nonempty'), None)
+        assert a is not None, 'Preserve bounded Tencent source failure; no alternate date or symbol'
+        path = Path(a['path']); assert sha(path) == a['sha256']
+        rows = day_rows(path.read_bytes(), code); dates = [r[0] for r in rows]
+        assert dates == sorted(set(dates)) and dates[-1] == p['history_last']
+        records = [dict(date=r[0], code=code, open=r[1], close=r[2], high=r[3], low=r[4])
+                   for r in rows if p['history_first'] <= r[0] <= p['history_last']]
+        normalized = ROOT / 'daily/tencent' / (code + '_normalized.json')
+        save_json(normalized, dict(symbol=code, start=p['history_first'], end=p['history_last'], records=records))
+        raw_paths[str(normalized)] = sha(normalized)
+        f = pd.DataFrame(records)
+        for name in ['open', 'high', 'low', 'close']: f[name] = pd.to_numeric(f[name], errors='raise')
+        frames.append(f)
     return raw_paths, frames, blocks
 
 

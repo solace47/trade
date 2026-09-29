@@ -48,21 +48,13 @@
   "daily_probe_protocol_sha256": "226da675753109b18de370aa465755cbfabca3c31f92f262c960edec733b24ce",
   "daily_probe_source_sha256": "0fab5e3f73c1b23074f23023882dc9f918f4516ec0b49fce77e90f89d34a70c3",
   "daily_probe_verification_sha256": "94614a7d45d96f8bc4f497d08859326d09b42b68220e2699c317d3db9ae1e0a6",
-  "daily_endpoint": "https://push2his.eastmoney.com/api/qt/stock/kline/get",
-  "daily_blocks": [
-    [
-      "2023-06-01",
-      "2023-12-31"
-    ],
-    [
-      "2024-01-01",
-      "2024-12-31"
-    ],
-    [
-      "2025-01-01",
-      "2025-12-30"
-    ]
-  ],
-  "daily_collection": "保持已核准东方财富身份字段f1/f2/f3与f51—f55日期开收高低、klt101/fqt0。按固定三个自然年区间每块最多两次，超时5秒。全量日历必须完整且不多取未来；六探针数据必须逐值相同。",
-  "scope": "本轮只加固定行业指数对，不搜索其他行业组合、窗口或阈值。2025继续作为探索。"
+  "daily_endpoint": "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get",
+  "daily_collection": "六个固定日期的腾讯day四价均与东财按分一致，保留原东财完整范围失败。两个固定指数各请求一次640行截止2025-12-30，最多两尝试5秒。只使用day原始序列；先核对全部日期唯一有序、末日等于截止且不含其后日期，再投影2023-06-01至截止，投影必须覆盖完整市场日历，并与六个旧东财探针重合。其他当前快照旁支不提取/显示/用于研究。源替换不变更两个FI定义、全部日期、分时、模型或比较。",
+  "scope": "本轮只加固定行业指数对，不搜索其他行业组合、窗口或阈值。2025继续作为探索。",
+  "prior_protocol_sha256": "def546dc2821403c91d5d00cb02cea918430c82457652b2647e63c842a1a1e20",
+  "prior_source_incomplete_sha256": "41036682178d6e09b74fd79cb314cac623f44e60bca8d00ad027cc57e274991d",
+  "daily_provider": "tencent_raw_day",
+  "tencent_probe_protocol_sha256": "22aec9fcc1bbcc9a2012437971d2acf4053943e4ca299f2a96ba1dda8263fc23",
+  "tencent_probe_source_sha256": "7648addfe170c156b72056b4c14c1ca234306d1ccc46da3db8fbea56b5e8da9b",
+  "tencent_probe_verification_sha256": "8e3061771e188dfa82360d33047005e8671902e7dc52b89c8928692bd2cb577c"
 }
