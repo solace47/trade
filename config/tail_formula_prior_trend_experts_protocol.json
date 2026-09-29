@@ -1,0 +1,128 @@
+{
+  "feature_report_sha256": "e7b511f93fbd0bdef6965272f7fddd2aa32d83c033fdcf95c3ea6724d00fab10",
+  "feature_verification_sha256": "bab8cbd25e320c0a350b0b98da4c9edb54bb8f4a5159bc55cefd4ed9fa57614b",
+  "features_sha256": "98c8d0b3730a676ee66ec1fc6b058b7264fddc1f2d29ea11ef4efbed19316ac2",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "label_verification_sha256": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "arms": {
+    "split": {
+      "components": 2,
+      "n_estimators_per_component": 64,
+      "total_learned_trees": 128,
+      "active_learned_trees_per_prediction": 64,
+      "single_global_quantile": 0.995
+    }
+  },
+  "parameters_common": {
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "原opportunity15减当日全部known15池均值，均值在输入有效交集之前计算；两个状态不单独中心化。",
+  "weights": "每条记录使用全训练有效池1/当日记录数；拆分后直接保留这些权重，不按状态重新赋日期权重。",
+  "threshold": "先把各训练行依其可见状态取得所属模型分数，再对全部训练分数取原np.quantile(.995)；不各自取分位，不选优状态。",
+  "folds": {
+    "2024": [
+      "2024-01-01",
+      "2025-01-01",
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "recent": [
+      "2024-07-01",
+      "2025-07-01",
+      "2025-07-01",
+      "2026-01-01"
+    ]
+  },
+  "native_export": "第49项PT01只用于固定路由，不传给组件拟合器。两组件共128学习树，加偏置路由可导出129个静态IF；当股仅所属64树有效，未使用实时未来结果。",
+  "scope": "14:49个股、14:48指数；14:52—14:55原始分钟固定股数成交模拟；次晨09:31—09:59只评价，不研究卖法。",
+  "exclusions": [
+    "ST及*ST",
+    "92",
+    "688",
+    "300及301",
+    "停牌"
+  ],
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "no_hyperparameter_search": true,
+  "no_release_on_relative_improvement_alone": true,
+  "fit_features": 48,
+  "export_features": 49,
+  "fit_excludes_gate": true,
+  "analysis_reuse_controls": {
+    "2024": [
+      "data/research/tail_formula_market_experts_pooled_2024"
+    ],
+    "recent": [
+      "data/research/tail_formula_market_experts_pooled_recent"
+    ],
+    "2025": [
+      "data/research/tail_formula_market_experts_pooled_2025"
+    ]
+  },
+  "no_duplicate_half_year_aggregation": true,
+  "new_raw_price_extraction": false,
+  "comparison_limit": "统一128轮仅匹配总学习树数，不同时匹配每次预测活跃树数与子样本数；统一49项64轮有同路由信息但结构不同。结果只解释为整体方案比较，不声称完全分离机制。",
+  "objective": "固定用此前完整股票日的收盘均价位置路由原机会模型，检验把不同个股历史位置共用一组树是否限制整套筛选。不是按指数状态或市场代码分组，也不是只保留当日上涨股票。",
+  "input_protocol_sha256": "00c75485d1741127f861596105a3dbfb0230184739153ad1c964c37dfd2f4040",
+  "gate": {
+    "feature": "PT01",
+    "expression": "IF(20*PTC01>PTS20,1,0)",
+    "threshold": 10050,
+    "states": [
+      "encoded_PT01<=10050:prior_close_at_or_below_prior_mean20",
+      "encoded_PT01>10050:prior_close_above_prior_mean20"
+    ],
+    "known_values": [
+      10000,
+      10100
+    ]
+  },
+  "controls": [
+    "已核准原48统一128轮容量控制",
+    "同参数原48统一64轮",
+    "旧固定48项"
+  ],
+  "independent_verification": [
+    "全量原48与二十日前史整数状态已核准，原有效交集保持",
+    "训练SQL独立从此前20原始收盘重建状态，原known15全池目标、训练日期和全日期权重保持",
+    "全部组件节点、残差、叶值和支持重建，拟合仅原48列",
+    "全量原生路由静态IF评分、统一q995和三名单独立核准",
+    "两模型三名单共同提交，年度一次含两半年和全部三套对照"
+  ],
+  "causal_scope": "比较整套显式历史状态路由方案与既有统一控制，不称只改变分组而没有增加显式路由信息。",
+  "references": {
+    "config/tail_formula_prior_trend_protocol.json": "00c75485d1741127f861596105a3dbfb0230184739153ad1c964c37dfd2f4040",
+    "data/research/tail_formula_prior_trend/feature_report.json": "e7b511f93fbd0bdef6965272f7fddd2aa32d83c033fdcf95c3ea6724d00fab10",
+    "data/research/tail_formula_prior_trend/feature_verification.json": "bab8cbd25e320c0a350b0b98da4c9edb54bb8f4a5159bc55cefd4ed9fa57614b",
+    "data/research/tail_formula_prior_trend/native_input_verification.json": "10ca9c7c600199a895d46f9f487cf6f9a3045bda2a2976d90f7eb5da5e3b0fad",
+    "src/trade_research/tail_formula_market_experts.py": "52741910e2272b4bc5c286b9df7913de39fdf7905f243d2437575daa4cfdd51f",
+    "data/research/tail_formula_market_experts_pooled_2024/model_report.json": "ec059e059ff4a9254f29d11eaae2840c7ad66977e804a9697a851c797812683a",
+    "data/research/tail_formula_market_experts_pooled_2024/model_verification.json": "311e2e32a77784746e5ca418794df407f19ce497374500ff9d7e5282e8ab24ae",
+    "data/research/tail_formula_market_experts_pooled_2024/selection_report.json": "c60257c127082b4469b1eb8724a058ec4859f90ce9fcd277544278540dcb9654",
+    "data/research/tail_formula_market_experts_pooled_2024/selection_verification.json": "4ad66d890f2c42bbbf42d2f8affc20c04038d852b75d18df1054e77dc292c025",
+    "data/research/tail_formula_market_experts_pooled_2024/selection.parquet": "a010c3d2b86931662d26f2d7926038b1ed8afb4a62eac630f5421a11f0c73942",
+    "data/research/tail_formula_market_experts_pooled_2024/analysis_report.json": "f9dfcb62ea621c8e9d546e1177606fc53ca1dc26255688cc7753e2c18c33fc6c",
+    "data/research/tail_formula_market_experts_pooled_2024/analysis_verification.json": "42337e5d8ef6feb3454b85f0c22dc48fc2fc4ddfbe6b74c34461b22aeaf1e4af",
+    "data/research/tail_formula_market_experts_pooled_recent/model_report.json": "a7d6846bab97e2a7116a00591aae0acf44dbddbd771bd1b952e8c6c67eb35cf6",
+    "data/research/tail_formula_market_experts_pooled_recent/model_verification.json": "bb107134b02e288e21940a1a5f6a413bf21f189df08e71348edce1872d32d87d",
+    "data/research/tail_formula_market_experts_pooled_recent/selection_report.json": "bf48e8bdeebdf9d0ab73a7c1ed586b169e3574bf68982aca16cbe2885e5d3401",
+    "data/research/tail_formula_market_experts_pooled_recent/selection_verification.json": "1db62091e155ed4eac3affb0167019afa9e99315a4db49e33712da0577b5636a",
+    "data/research/tail_formula_market_experts_pooled_recent/selection.parquet": "16e79aad20cdf0e12edeef7418202bf2de254ecf2f7951870ffad871af4b3baa",
+    "data/research/tail_formula_market_experts_pooled_recent/analysis_report.json": "a36e62b854103ebc3091fec1ab4a841496805805ce49fbcde0ae6df444f799e4",
+    "data/research/tail_formula_market_experts_pooled_recent/analysis_verification.json": "6c1fdaa8747ba8690786502fd23b7c611220d778176bdc3902df6a3f24020c0f",
+    "data/research/tail_formula_market_experts_pooled_2025/selection_report.json": "74fcada883ae8ba178d4e19a12569e29364ec072489d0ca34ade7a1de612c3aa",
+    "data/research/tail_formula_market_experts_pooled_2025/selection_verification.json": "03b1d4ea83688a1aac4155b5e22a2578c4f50f6bfd8704bdc274ed0bccd46972",
+    "data/research/tail_formula_market_experts_pooled_2025/selection.parquet": "1249483666b92bb6284ec31b3705d230676bcbe0842cee0c5b65c603981d21fc",
+    "data/research/tail_formula_market_experts_pooled_2025/analysis_report.json": "03f71315ee4e54b3b58c76043f45cfef81d7335a81b39ab6ff28740428c1f968",
+    "data/research/tail_formula_market_experts_pooled_2025/analysis_verification.json": "578a206e27083c92ac1b6965e1c9261b2b7083b4698bf973eac2c85385144c21"
+  }
+}
