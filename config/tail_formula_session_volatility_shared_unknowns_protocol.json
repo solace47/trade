@@ -1,0 +1,17 @@
+{
+  "objective": "相同晚段波动与相同质量下加入早盘背景的直接比较，保留全部各自与独有日期。",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "method": "仅共同信号日；每个日期股票键只有一个未知二元机会。权重差a=左入选/N左-右入选/N右。已知成功贡献a，已知失败和未买入贡献0；未知对下界贡献min(a,0)，对上界贡献max(a,0)。同股同日两臂共享未知不能分别假定一边成功一边失败。每日期相加再日期等权，保留全部未知和未买入分母；独有日期列出但不混入共同日期差。",
+  "statistical_scope": "机会差上下界，不是已知样本条件机会率之差，不是实际收益；原两臂分别取界仍为较宽有效外界，保留不覆盖。沿用固定周块10000次种子20260926，分别对端点给区间；2025全部探索，不作多重比较后显著性保证。",
+  "comparisons": [
+    {
+      "left": "data/research/tail_formula_session_volatility_both_2025",
+      "right": "data/research/tail_formula_session_volatility_late_2025",
+      "left_analysis_sha256": "67cee304a93f9f3c593fe1f3f476f9b834bca8c5acc8721bf756d8d2722c5ffc",
+      "right_analysis_sha256": "2039c4f77e3d38038564da79f2e34784baa51f58ae0794d399698d7032dcec79",
+      "output": "data/research/tail_formula_session_volatility/shared_unknowns_both_minus_late.json"
+    }
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
