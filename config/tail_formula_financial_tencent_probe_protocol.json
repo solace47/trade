@@ -1,0 +1,25 @@
+{
+  "objective": "既定券商与银行相对强弱研究的独立日线备用源小探针。锁定AKShare原件已明确给出腾讯指数历史接口，属于新的来源证据，不重试失败的东财范围请求。",
+  "primary_source_url": "https://github.com/akfamily/akshare/blob/4771e6ea34f6139f226e2bf4fab88ce17579831d/akshare/index/index_stock_zh.py",
+  "primary_source_sha256": "924af9018b06765432ed15854252421cc47595595ed3538c6c97d96e036b00fd",
+  "prior_source_incomplete_sha256": "41036682178d6e09b74fd79cb314cac623f44e60bca8d00ad027cc57e274991d",
+  "reference_source_sha256": "0fab5e3f73c1b23074f23023882dc9f918f4516ec0b49fce77e90f89d34a70c3",
+  "reference_verification_sha256": "94614a7d45d96f8bc4f497d08859326d09b42b68220e2699c317d3db9ae1e0a6",
+  "endpoint": "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get",
+  "symbols": [
+    "sz.399975",
+    "sz.399986"
+  ],
+  "dates": [
+    "2024-01-02",
+    "2024-12-02",
+    "2025-12-01"
+  ],
+  "request_parameters": "_var=kline_dayqfq;param=codewithoutdot,day,exact_date,exact_date,640,qfq;r=0.8205512681390605",
+  "acceptance": "只接受响应对应指数键的day原始日序列，不用qfqday回退；日期恰好请求日，合法有限正OHLC、顺序范围正确且与既有独立东财日线四价按分一致。原240点分时包络证明保持。",
+  "attempts": 2,
+  "timeout_seconds": 5,
+  "history_only": "参数不含2026范围。接口可能附带当前快照，只归档原响应，不解析或显示qt等旁支；使用日期白名单解析day。不读取2026股票结果，不据快照作输入。",
+  "no_models_or_new_stock_outcomes": true,
+  "no_exit_rule_research": true
+}
