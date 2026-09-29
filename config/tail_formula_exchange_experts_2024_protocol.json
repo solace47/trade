@@ -1,0 +1,46 @@
+{
+  "objective": "在已完成的沪深标识局部改善基础上，固定按沪深主板分别拟合64轮组件，检验共享一组树是否掩盖两市场不同关系；不搜索代码段或股票身份。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "0ceacc013dc426e0e90dc3c06e28047131cc20c1f9e14a2ac1b2aa8d641ba3d7",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-01-01",
+  "training_end": "2025-01-01",
+  "evaluation_start": "2025-01-01",
+  "evaluation_end": "2025-07-01",
+  "model_max_depth": 3,
+  "expected_features": 49,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "native_input_verification_sha256": "d9c5bdb428d6c7953047c89b077fbdf3f5496525272063ef348e9a2c9bf08198",
+  "master_protocol_sha256": "794da339e160e210089cce3d4d69e298523b39a81e05f8fd0533efeed8ee5335",
+  "gate": {
+    "feature": "EX01",
+    "expression": "IF(CODELIKE('60'),1,0)",
+    "threshold": 10050,
+    "states": [
+      "encoded_EX01<=10050:SZ",
+      "encoded_EX01>10050:SH"
+    ],
+    "known_values": [
+      10000,
+      10100
+    ]
+  },
+  "fit_features": 48,
+  "expected_training_rows": 502747
+}
