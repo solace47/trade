@@ -1,0 +1,34 @@
+{
+  "objective": "固定用此前完整股票日的收盘均价位置路由原机会模型，检验把不同个股历史位置共用一组树是否限制整套筛选。不是按指数状态或市场代码分组，也不是只保留当日上涨股票。",
+  "references": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_float/features.parquet": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+    "data/research/tail_formula_daily_efficiency/feature_report.json": "7d9a484518a803c792611cabde8c6ed7ce5fa6e2b62decafb15f5472440d25ff",
+    "data/research/tail_formula_daily_efficiency/feature_verification.json": "cfbb688c4a2310293964f5c0b0fc6ccfe83662076e03eef5220d0868363201e2",
+    "data/research/tail_formula_daily_efficiency/features.parquet": "f3ceb9e56dae8efbf96bb91c4a157afdb5a9dbb4208aef40c299dc849b985e5e",
+    "data/research/tail_formula_daily_efficiency/native_input_verification.json": "53f02697a1b11f083e3d43957379f9866521c9ae75cad5d7ff33efde5039f951",
+    "data/research/tail_formula_atr_target/complete_results_manifest.json": "c9c5816c32f498e62e70582a4e473c4592981a475598976574915a4f10001f75",
+    "src/trade_research/tail_formula_market_experts.py": "52741910e2272b4bc5c286b9df7913de39fdf7905f243d2437575daa4cfdd51f",
+    "src/trade_research/tail_formula_exchange_experts.py": "eb0f74a1fd570f457e7366a91243b7e6edc3ec57b12e43b45350f7e14d0e65f4"
+  },
+  "prior_stock_days": 20,
+  "tie_state": "lower",
+  "expressions": {
+    "PT01": "IF(20*PTC01>PTS20,1,0)"
+  },
+  "native_header": "PTC01:=INTPART(100*DCP1+0.5);\nPTC02:=INTPART(100*DCP2+0.5);\nPTC03:=INTPART(100*DCP3+0.5);\nPTC04:=INTPART(100*DCP4+0.5);\nPTC05:=INTPART(100*DCP5+0.5);\nPTC06:=INTPART(100*DCP6+0.5);\nPTC07:=INTPART(100*DCP7+0.5);\nPTC08:=INTPART(100*DCP8+0.5);\nPTC09:=INTPART(100*DCP9+0.5);\nPTC10:=INTPART(100*DCP10+0.5);\nPTC11:=INTPART(100*DCP11+0.5);\nPTC12:=INTPART(100*DCP12+0.5);\nPTC13:=INTPART(100*DCP13+0.5);\nPTC14:=INTPART(100*DCP14+0.5);\nPTC15:=INTPART(100*DCP15+0.5);\nPTC16:=INTPART(100*DCP16+0.5);\nPTC17:=INTPART(100*DCP17+0.5);\nPTC18:=INTPART(100*DCP18+0.5);\nPTC19:=INTPART(100*DCP19+0.5);\nPTC20:=INTPART(100*DCP20+0.5);\nPTS20:=PTC01+PTC02+PTC03+PTC04+PTC05+PTC06+PTC07+PTC08+PTC09+PTC10+PTC11+PTC12+PTC13+PTC14+PTC15+PTC16+PTC17+PTC18+PTC19+PTC20;\n",
+  "expected_keys": 1258085,
+  "expected_valid": 1117397,
+  "definition": "此前20个完整股票日，全部原始收盘恢复整数分。若20*最近完整日收盘整数分>此前20日整数分之和，PT01=1，否则0。完全相等归0；当前14:49价和21日前价格不进入状态。它只是均价位置，不保证持续上行或下行趋势。",
+  "source_policy": "复用已核准21日价链，仅前20日用于状态。完整旧48值与有效交集保持，未复权断点、股票日相对市场日间隔全部保留。32固定原档核准21日链中的640个实际使用日及32个未使用边界日，复用既有日线/末分钟对应证明；不新增2026行情。",
+  "verification": "全量整数差、状态和10000/10100编码用独立SQL重建；实际INTPART/IF原生表达逐样本复放。测试精确并列、最近日一分钱两侧、最早使用日、未使用21日前价及当前价污染，资料缺失不默认为下降组。",
+  "model_plan": "回到原known15同日相对二元机会目标与原日期权重，两个状态各拟合64轮深度3、叶300、0.05、种子20260927；拟合只传原48列，路由列仅供固定状态选择。每股仍只用所属64树，整体学习128树。组件保留原全训练池每股1/当日有效数权重，不按组重新中心化或重赋日期权重。全训练行按其状态取得分数后统一q995，不分组调门槛。",
+  "controls": "主要与已有统一128轮原48控制比较，并保留原64轮及旧固定48，不重训控制。新增明确路由及分组是整套方案比较，不能仅据收益差把原因归为某一项。两模型及两段/全年三名单全部冻结提交，年度一次含两半年，保留未知、未买入、参考缺口及共同/独有日期。",
+  "limitations": "未复权历史位置不能当复权投资回报或主力成本。实际客户端历史日线、股本、指数、状态和延迟尚待核准；保留原排队不可识别和成本模拟边界。",
+  "historical_extension": "2025已暴露，仅整套质量有实质改善且不靠稀疏半年才扩2024时间顺序。失败不改20日、状态方向或门槛。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "multi_day_holding_study": false
+}
