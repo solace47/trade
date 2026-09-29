@@ -1,0 +1,34 @@
+{
+  "objective": "季度双重确认2024时间顺序扩展对两父版完整同日及共享未知比较；全部五组保留。",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "method": "仅共同信号日；每个日期股票键只有一个未知二元机会。权重差a=左入选/N左-右入选/N右。已知成功贡献a，已知失败和未买入贡献0；未知对下界贡献min(a,0)，对上界贡献max(a,0)。同股同日两臂共享未知不能分别假定一边成功一边失败。每日期相加再日期等权，保留全部未知和未买入分母；独有日期列出但不混入共同日期差。",
+  "statistical_scope": "机会差上下界，不是已知样本条件机会率之差，不是实际收益；原两臂分别取界仍为较宽有效外界，保留不覆盖。沿用固定周块10000次种子20260926，分别对端点给区间；2025全部探索，不作多重比较后显著性保证。",
+  "comparisons": [
+    {
+      "left": "data/research/tail_formula_quarter_history2024/both",
+      "right": "data/research/tail_formula_quarter_history2024/full",
+      "left_analysis_sha256": "c33b7469c07c7c061079f6fa038b6c1929c0ee6e1bf3b8ca791d211d6e5c864c",
+      "right_analysis_sha256": "efaaa8ea7388ca83f62520fabffff33ce5e360c845c0cc500e7cb7bef5b240fa",
+      "output": "data/research/tail_formula_quarter_history2024/both/shared_unknowns_full.json"
+    },
+    {
+      "left": "data/research/tail_formula_quarter_history2024/both",
+      "right": "data/research/tail_formula_quarter_history2024/minimum",
+      "left_analysis_sha256": "c33b7469c07c7c061079f6fa038b6c1929c0ee6e1bf3b8ca791d211d6e5c864c",
+      "right_analysis_sha256": "2ac122dc064da02175ef7fce64c572524f6b22bafaa999e573cfaa6213b2902b",
+      "output": "data/research/tail_formula_quarter_history2024/both/shared_unknowns_minimum.json"
+    }
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "periods": [
+    "2024H1",
+    "2024H2",
+    "2024"
+  ],
+  "signal_range": [
+    "2024-01-01",
+    "2024-12-31"
+  ],
+  "year_2024_is_exploratory": true
+}
