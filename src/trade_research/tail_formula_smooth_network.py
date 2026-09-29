@@ -184,7 +184,7 @@ def verify_model():
     expressions = [f'least(greatest(({n}-({mu:.17e}))/({s:.17e}),-5e0),5e0) AS Z{i}'
         for i,(n,mu,s) in enumerate(zip(names,m['input_means'],m['input_scales']))]
     z = c.sql('SELECT '+','.join(expressions)+' FROM training ORDER BY date,code').df().to_numpy(); c.close()
-    y = d.target.to_numpy(); w = d.w.to_numpy(); w /= w.sum(); coef = np.asarray(m['coefficients'])
+    y = d.target.to_numpy(); w = d.w.to_numpy(); w = w/w.sum(); coef = np.asarray(m['coefficients'])
     with threadpool_limits(limits=2):
         if ARM == 'linear':
             reference = m['bias'] + np.einsum('ij,j->i', z, coef)
