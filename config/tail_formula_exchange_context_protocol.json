@@ -1,0 +1,75 @@
+{
+  "objective": "原48项中INDEXC按沪深交易市场分别使用上证综指和深证成指，统一拟合时没有直接市场标识。检验显式沪深标识能否帮助同一价量／指数条件在两市场区分含义；增加同维常量控制，分清信息与树特征排列变化。",
+  "source_hashes": {
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "src/trade_research/tail_formula_context.py": "4cadf984be12df5f0ee2be7f8cab2bf95cd684bb172e88297a2af1110c7e94c0",
+    "src/trade_research/tail_formula_market.py": "511f3b119273c8d6bb23f93245c95316b586c6686b24a973662e9eeda1807f33"
+  },
+  "new_fields": [
+    "EX01",
+    "EX00"
+  ],
+  "arms": [
+    "constant",
+    "venue"
+  ],
+  "arm_fields": {
+    "constant": [
+      "EX00"
+    ],
+    "venue": [
+      "EX01"
+    ]
+  },
+  "expected_features_per_arm": 49,
+  "definition": {
+    "EX01": "原基础池代码sh.60xxxx为1，sz.00xxxx为0；先断言全池仅有这两类且六位证券代码合法，不把未知代码归零。",
+    "EX00": "同一完整输入池上的常量0；在第49项占据与EX01相同位置，其他48项次序完全相同。"
+  },
+  "native_expressions": {
+    "EX01": "IF(CODELIKE('60'),1,0)",
+    "EX00": "0"
+  },
+  "native_header": "",
+  "native_reference_url": "https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html",
+  "native_reference": "2026-09-29核对通达信官方函数列表的CODELIKE前缀匹配语义；只用于当前沪深主板已知范围。完整客户端、FINANCE7和INDEXC行情一致性仍未核准。",
+  "scope": "市场标识是当时已知的证券属性，一项二元字段覆盖整个市场，不使用股票逐码身份、当前成分回填、收益分组、外部每日名单或新增行情。基本排除条件及全部原输入保持，不以代码直接选中股票。",
+  "training": [
+    {
+      "fold": "2024",
+      "start": "2024-01-01",
+      "end": "2025-01-01",
+      "rows": 502747,
+      "days": 241
+    },
+    {
+      "fold": "recent",
+      "start": "2024-07-01",
+      "end": "2025-07-01",
+      "rows": 522653,
+      "days": 241
+    }
+  ],
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "training_quantile": 0.995,
+  "target": "严格29根次晨15基点opportunity减同日原known15池均值，先中心化再交有效输入，日期等权。",
+  "quality": "原1258085键、1117397有效输入、所有48值和股数逐位保持。任何代码不符合固定映射立即保留错误并停止该构造，不删除或补值。两臂同一49维、同训练样本与权重、同参数；有效域不变直接复用原两套48控制。",
+  "verification": "生产按证券完整前缀映射，独立SQL正则核准全部键和编码；原生CODELIKE仅对六位代码求前缀再与存储值全量相符。原48和原头逐项不变、没有重复定义。两臂全部节点、原生分数与q995独立核准，四模型六名单共同提交后再评价。",
+  "controls": "venue对constant为主要新增信息比较；两臂各与同参数保守48及旧固定48比较，共五组。若constant与原48任一完整名单相同直接复用核准结果，不能重复聚合；同维控制也可能因底层候选排列产生不同分裂，不预设相同。",
+  "evaluation": "两臂年度各聚合一次含H1/H2，先做所有字段去重。保持14:49股票／14:48指数、14:52—55原始成交、2万元整手、10%容量、5/15基点成本、09:31—09:59全部机会／1%空间／参考／3%不利。完整未知、未买入、全未知日期、参考缺口、共同与独有日和共享未知界全部保留。",
+  "no_duplicate_half_year_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true
+}
