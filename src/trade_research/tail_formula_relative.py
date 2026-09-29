@@ -151,7 +151,7 @@ def model(variant):
     return {k:v for k,v in r.items() if k!='trees'}
 
 
-def verify_model(variant, encoding_multiplier=1):
+def verify_model(variant, encoding_multiplier=1, training_cost_bps=15):
     root=base.ROOT
     r=json.loads((root/'model_report.json').read_text())
     assert r['protocol_sha256']==sha(PROTOCOL) and r['variant']==variant
@@ -170,7 +170,9 @@ def verify_model(variant, encoding_multiplier=1):
     columns=['date','code','formula_input_valid',*base.EXPRESSIONS]
     assert len({name.casefold() for name in columns})==len(columns)
     f=base.feature_inputs()[columns];c=base.conn();c.register('features',f)
-    utility='opportunity15'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
+    assert training_cost_bps in [5,15]
+    assert training_cost_bps==15 or variant=='relative'
+    utility=f'opportunity{training_cost_bps}'+('-CAST(adverse_return15<=-.03 AS INTEGER)' if variant=='risk' else '')
     if variant=='margin':
         utility='greatest(-1.,least(1.,sustained_return15/.01))'
     elif variant=='path_area':
@@ -279,6 +281,9 @@ def verify_model(variant, encoding_multiplier=1):
         new_2025H2_score_groups_read=bool(original.date.ge('2025-07-01').any()),new_2026_prices_read=False,no_exit_rules=True)
     if encoding_multiplier!=1:
         proof['encoding_multiplier']=encoding_multiplier
+    if training_cost_bps!=15:
+        proof['training_opportunity_cost_bps']=training_cost_bps
+        proof['original_known15_training_population_preserved']=True
     if minimum_days:
         proof.update(minimum_leaf_training_days_required=minimum_days,
             minimum_leaf_training_days_observed=minimum_observed_days,all_node_date_support_rebuilt=True)

@@ -114,6 +114,14 @@ def training(variant):
     return apply_targets(ORIGINAL_TRAINING('relative'), pd.read_parquet(root/'targets.parquet'))
 
 
+def verify_model():
+    p = json.loads(base.PROTOCOL.read_text()); r = json.loads((base.ROOT/'model_report.json').read_text())
+    assert r['days'] == p['expected_training_days'] == 241
+    assert r['feature_names'] == list(base.EXPRESSIONS)
+    assert all(r['parameters'][k] == v for k,v in p['parameters'].items())
+    return relative.verify_model('relative', training_cost_bps=5)
+
+
 def main():
     from .tail_formula_offset_logit48 import verify_scores
     p = argparse.ArgumentParser(description=__doc__)
@@ -128,7 +136,7 @@ def main():
         assert a.stage in ['freeze','verify']; result = linkage.combine() if a.stage=='freeze' else linkage.verify_combined()
     elif a.stage == 'inputs': result = inputs()
     elif a.stage == 'model': result = relative.model('relative')
-    elif a.stage == 'verify_model': result = baseline.verify_model()
+    elif a.stage == 'verify_model': result = verify_model()
     elif a.stage == 'verify_scores': result = verify_scores()
     elif a.stage in ['freeze', 'verify']: result = getattr(selection, a.stage)()
     else: result = base.scores()
