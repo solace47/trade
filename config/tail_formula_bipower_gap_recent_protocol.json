@@ -1,0 +1,31 @@
+{
+  "objective": "原48项只追加相邻绝对涨跌乘积的双幂缺口BP01；原一年训练、64轮、二元相对目标和q995保持。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "c89cca7c07910a25d81cc3e6f8ab8262e4b638f296992c472b14b1eb484604fe",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 49,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "203a64ac3d57984aa2b45abff5c580cc57437617b91c4c2889a1f798dfb8ca7f",
+  "native_input_verification_sha256": "78897bc2df481ebcf0ab76153eae7e78199455806f7387f1d5d6ca0b5fdde5b6"
+}
