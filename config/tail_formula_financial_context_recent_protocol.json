@@ -1,0 +1,33 @@
+{
+  "objective": "原48项增加既定券商相对银行当日与尾段强弱；目标参数及全量质量交集保持。",
+  "boundary_protocol_sha256": "9d9502003bc4164564dba60eb9c1d6f7db444037af0214b0b01b1245a6f3bc70",
+  "feature_report_sha256": "80afc41c149b2ef3cf9703e82ef9db612b87e6c151c401e4c1ea86b6f230ffd2",
+  "label_report_sha256": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+  "training_start": "2024-07-01",
+  "training_end": "2025-07-01",
+  "evaluation_start": "2025-07-01",
+  "evaluation_end": "2026-01-01",
+  "model_max_depth": 3,
+  "expected_features": 50,
+  "expected_training_days": 241,
+  "training_quantile": 0.995,
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "target": "opportunity15 minus same-day all-known base opportunity mean before feature validity intersection",
+  "date_equal_training_weights": true,
+  "window_end": "09:59",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "inputs_protocol_sha256": "3df141a971384eafab79ec55e07c9cac7ee8637f0967e3bdbe4002aa78379bd9",
+  "feature_verification_sha256": "3ebdea979ee5ed8491ff26d7a2ebd4ccb2055d49a6ddc949ae2a96b3edb05920",
+  "native_input_verification_sha256": "cd5893e53636cb189187407224ba55757d6b4cabd8c561c542146ba8b112a96d",
+  "expected_rows": 522653
+}
