@@ -1,0 +1,17 @@
+{
+  "objective": "只修独立SQL覆盖统计的n/clocks别名绑定歧义；冻结生产源码、两数学定义、原新输入和质量门不改。",
+  "input_protocol_sha256": "6370308750d99608cbd90b5fe4512e5f8419fb685383cc3f7c9c28ca02e87434",
+  "source_hashes": {
+    "scripts/verify_tail_formula_morning_distribution_inputs.py": "5ef12d11824be4a3122f81a3010312828e9089563abe2d4d5382be19be928fd6",
+    "src/trade_research/tail_formula_morning_distribution.py": "464cbbbafd664d3d1c51286c1a665fbb583cae3bcdec8aa25d154673f7d14428",
+    "data/research/tail_formula_morning_distribution/inputs/feature_report.json": "2a3cf3b2fa312c8fe0747fd7492f163c86bbdac78de9d86efac4dbdbe372619b",
+    "data/research/tail_formula_morning_distribution/inputs/independent_verification_alias_failure.log": "9f1042ce61b07f0e6ce3acf1607d98f5406f9342a3b5f07f04b36855e2c13d3f"
+  },
+  "failure": "原查询original和a都有clocks列，Binder阶段停止，未生成独立证明或拟合/评分/经济。",
+  "repair": "校验器局部别名raw_n/raw_clocks；表达式和覆盖门仍121，数据全量相同。原输入版本和失败日志保留。",
+  "no_new_raw_extraction": true,
+  "no_model_fit_or_prediction": true,
+  "no_new_group_economics": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
