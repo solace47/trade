@@ -28,7 +28,7 @@ python3 -m venv .venv
 
 ## 最近完成版本的核对
 
-最近完成的两股票模型共同确认协议位于`config/tail_formula_stock_agreement_*`，阶段入口为`scripts/run_tail_formula_stock_agreement.py`。原50输入和四模型／全评分直接引用父版本，入口只允许冻结／分析／完成，不重新拟合或预测。
+最近完成的两股票模型等权合分协议位于`config/tail_formula_stock_mean_*`，阶段入口为`scripts/run_tail_formula_stock_mean.py`。原50输入和四模型／全评分直接引用父版本，只另合成两评分及固定q995，不重新拟合或调用模型预测。
 
 先读取现有报告，不重复执行生产阶段：
 
@@ -37,17 +37,17 @@ PYTHONPATH=src .venv/bin/python - <<'PYCODE'
 import json
 from pathlib import Path
 from trade_research.corporate_cash import sha
-root = Path('data/research/tail_formula_stock_agreement')
-for name in ['joint_selection_freeze.json', 'stock_agreement_gate.json', 'complete_results_manifest.json']:
+root = Path('data/research/tail_formula_stock_mean')
+for name in ['joint_selection_freeze.json', 'stock_mean_gate.json', 'complete_results_manifest.json']:
     path = root / name
     report = json.loads(path.read_text())
     assert report['passed']
     print(name, sha(path))
-print('支持2024扩展：', json.loads((root / 'stock_agreement_gate.json').read_text())['supports_2024_extension'])
+print('支持2024扩展：', json.loads((root / 'stock_mean_gate.json').read_text())['supports_2024_extension'])
 PYCODE
 ```
 
-报告中的`passed`表示阶段核准，不能解释为策略通过。该入口的`shared.configure(study.STEM)`及`shared.checked_joint()`可核对协议、代码、父模型／评分／校准、联合收据和完整名单，不运行新经济汇总。联合文件写入修复与修复前完整名单相同性分别由`joint_write_repair.json`／`joint_write_repair_verification.json`绑定；已有年度摘要包含两半年，不重复聚合。
+报告中的`passed`表示阶段核准，不能解释为策略通过。该入口的`shared.configure(study.STEM)`、两半年`checked_scores()`及`shared.checked_joint()`可核对协议、代码、父模型／评分、新平均分／校准、联合收据和完整名单，不运行新经济汇总。旧共同确认完整统计由`agreement2025/analysis_reuse.json`绑定；已有年度摘要包含两半年，不重复聚合。三版2024接续是另行预先固定的否证研究，原2025门仍失败。
 
 需要复算已有版本时，先核对该版协议／源码／输入指纹及既有阶段报告。不同家族的命令和验证器不能互换；例如上午分布独立核准和高点保持原生核准须用其冻结包装脚本，不能改用曾失败的直接入口。
 
