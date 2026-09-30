@@ -1,0 +1,130 @@
+{
+  "model_protocol_sha256": "3a5974a578d68927dd946458640b9acdcf12a42a3679c218581703c5b3debd7f",
+  "source_hashes": {
+    "config/tail_formula_absolute_input_calibration_input_protocol.json": "e9526cdcc12dacf3322277ba6433ecda0d1bd88b246ed109416bebb622185aeb",
+    "src/trade_research/tail_formula_absolute_input_calibration.py": "c39b17443cb7d6e241c86d1f467e1e584547f70b576c666ff99e48aaa3e42542",
+    "tests/test_tail_formula_absolute_input_calibration.py": "53b12c6aaaed421c7797c3dad9476e14edde7247b066df0dddc7d1879b525301",
+    "scripts/run_tail_formula_absolute_input_calibration.py": "591cae34a8f454e175443effe46b6a4f92dab894355ee9abaf36395354a36e50",
+    "data/research/tail_formula_absolute_input_calibration/metadata_lookup_verification.json": "9974f5640e4a5f640e2488c69a4958bb210bd27781196c87bdd126680a9dcd26",
+    "src/trade_research/tail_formula_input_calibration.py": "a41b598e94daac2df32d1aea9d4ead80f08bfe0de215da745be69afd0e9c3213",
+    "scripts/run_tail_formula_input_calibration.py": "376a9dc06f44b66491e75a9fd31aabbad8023a3596882d6d63fcf3fc75004b42",
+    "scripts/run_tail_formula_absolute_morning.py": "e0827569c544b2608c0d67089d38f72132e0c4e0ef030725d0108d7cf029ab1c",
+    "src/trade_research/tail_formula_chrono_logit48.py": "735b18c5846fdc07fa8362c60dd91d2835a2ac1d615b54d23d4925774c2d1f08",
+    "data/research/tail_formula_input_calibration/input_calibration_gate.json": "cb280d75262f3ae2a8fca9a1d2f7180a7dddf641894d60d7b51bc2f5b0ec10de",
+    "data/research/tail_formula_input_calibration/complete_results_manifest.json": "c008786387a62b987f1625320ef4d26c7eb039e86aed6ee8a250c18c8b4f19db",
+    "data/research/tail_formula_morning_range/inputs/features.parquet": "1874d835d630c4b13352cac8635286b2b5e21e55653e4490f3700805edb62412",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c",
+    "data/research/tail_formula_morning_range/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
+    "data/research/tail_formula_morning_range/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639",
+    "src/trade_research/tail_formula_relative.py": "e7f8164cb93ff861acd3dd9198c368801af84ea0a823053b5cfc846177b3d4b5",
+    "src/trade_research/tail_formula_additive.py": "fd715b1ed9e592f4efe312f851c226c1ba03c49b63b3b7303268289ff5ecb711",
+    "src/trade_research/tail_formula_prior_bar_model.py": "dfd6887bc98200952a7c12b06b944e81d1c68893e101ed78c3282064a9189a9a",
+    "src/trade_research/tail_formula_offset_logit48.py": "cb069f1f8246ffc472405abbf1d46c2650c95d16112459e6a512cd406204771a",
+    "scripts/verify_tail_formula_additive.py": "2aff716ec2ff0836787c2d5b3b4389af0f4b1bd7601f74389df8a59df99c786c",
+    "scripts/run_tail_formula_paired_study.py": "f9b8a14898c96910e939e68f3f8779b6dc9c4771df62a2a187469c060d05c17c",
+    "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
+    "scripts/evaluate_tail_formula_pool_scope.py": "9bec786a98dbf160bf18ddb9dffb2210053a7ea875d0bdfd72bc87780a413e93",
+    "scripts/verify_tail_formula_before1000.py": "3531396cae864ce835b0c51bfa6300741dc2c3b3645d1eb46cdf9978f4a59f23",
+    "data/research/tail_formula_morning_range/morning2025/selection_report.json": "ea20485d9656c55be2707c629b207c45f6d131e3c5ee01cd76f49ac93ede1005",
+    "data/research/tail_formula_morning_range/morning2025/selection_verification.json": "8b5f1d3796ddd2dd19a679c30d2176ea6128421d144616633f60e2830eb910b6",
+    "data/research/tail_formula_morning_range/morning2025/analysis_report.json": "ee43b07423da5139a57c6525ddbb232ad715b66ea74094822b244eb0fa40d822",
+    "data/research/tail_formula_morning_range/morning2025/analysis_verification.json": "95d10845da2f9a292758eef401a6ce82909ea45b9196893c2b636cde994d5f4c",
+    "data/research/tail_formula_input_calibration/calibrated2025/selection_report.json": "d85c6dbc5b7304d4cd8e4dcad0dcb187c89b0681f7ba6023af0657d447087aa1",
+    "data/research/tail_formula_input_calibration/calibrated2025/selection_verification.json": "dafd8d790b3a7266f757f20d1fafa7b361f6849154f0db563b32b298b46b4083",
+    "data/research/tail_formula_input_calibration/calibrated2025/analysis_report.json": "56cb20431fdf70b88a52b029d9eebe659c41a126ab531c52ad6df6c0a456524d",
+    "data/research/tail_formula_input_calibration/calibrated2025/analysis_verification.json": "86e99b361f4556f1380a8e1c5850080f00c5f3953142cee052dc34c2fc315613",
+    "data/research/tail_formula_industry_baseline/industry2025/selection_report.json": "3479c23f715b050acceb16dbfed6f8f26ee9c954fbe583c47c83357f8bb3ade9",
+    "data/research/tail_formula_industry_baseline/industry2025/selection_verification.json": "9291c8389c548da74ec180315f4e5e33a80f4d72e5f8c63d79a148b3fe061506",
+    "data/research/tail_formula_industry_baseline/industry2025/analysis_report.json": "45bbb142ed5c0340fd96ff0d6f914fc88a15eed33902e95cd709ef5a89baa3a0",
+    "data/research/tail_formula_industry_baseline/industry2025/analysis_verification.json": "bb101e1a999ce5e15adf286c1d63903243fc54440391f3509dc2847b3f0f00e1",
+    "data/research/tail_formula_minute_vwap_range/range2025/selection_report.json": "d64c8da77f8890b802d8fe8c0b9508e384407342c6d79f40b0c22b697a458da4",
+    "data/research/tail_formula_minute_vwap_range/range2025/selection_verification.json": "5ce3066b5daa428da9891f610a5957c4142c04320cd21f7aa77b22daba4284a1",
+    "data/research/tail_formula_minute_vwap_range/range2025/analysis_report.json": "dcb1c15e65b0f33774d7f85c7a99c2911d01e781b00413f9e2aa8491abd46ea8",
+    "data/research/tail_formula_minute_vwap_range/range2025/analysis_verification.json": "cdd7d2caf7eae8fb69132f2cf00e2cb4fb3c2efe80f2df19c264945fac44a452",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/selection_report.json": "07de34caa25a339fa8e7b8d3665c7d04c044792d01fa170d0fd48f6b77b8f5c5",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/selection_verification.json": "43cf5c11a0ca67649ed6d47e674945d6cc5f52b6eb04e1c1b200ade289873f93",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/analysis_report.json": "0cff3bf1b8512a14771192b221a24334100bfd972ac9f9dc89f55d2bb5264c57",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/analysis_verification.json": "da7520a4f97bb81eeb83150eaecc5ad995e2017d6a371e1b664ac7dec9ffa200",
+    "config/tail_formula_absolute_input_calibration_model_protocol.json": "3a5974a578d68927dd946458640b9acdcf12a42a3679c218581703c5b3debd7f"
+  },
+  "planned_comparisons": [
+    [
+      "calibrated2025",
+      "morning2025"
+    ],
+    [
+      "calibrated2025",
+      "training2025"
+    ],
+    [
+      "calibrated2025",
+      "relativecal2025"
+    ],
+    [
+      "calibrated2025",
+      "industry2025"
+    ],
+    [
+      "calibrated2025",
+      "range2025"
+    ],
+    [
+      "calibrated2025",
+      "fixed2025"
+    ]
+  ],
+  "periods": [
+    "2025H1",
+    "2025H2",
+    "2025"
+  ],
+  "analysis": "每个全年只汇总一次并含两个半年，5/15基点和原敏感性均保留，全部未知和未买入分母及缺参考保留。日期等权15基点为主，不将最高价格当卖出收益。",
+  "comparisons": "仅共同信号日，同时列两侧独有日期；已知条件比例差及各臂未知外界差分别保留。共享未知按同日期股票键只允许同一个潜在成功值，按两臂全候选数量形成权重差，未知分别贡献min(权重差,0)或max(权重差,0)，未买入机会0而非零实现收益。日期等权及原固定周块10000次双实现核准，不宣称多重试验后的显著性保证。",
+  "complete_frame_gate": "每组聚合前整帧equals；相同须另核标签和值的相同性。对照复用还须两侧全帧、完整摘要、日统计hash及适用标签相同。",
+  "label_projection_reuse": "原完整1258085键，原09:31至09:59全部标签；完整名单和标签相同才复用。新两门槛列表相同亦必须复用统计。",
+  "statistical_screen": "两半年绝对校准版参考均正；全年机会高于原一年50及同绝对模型训练门槛；3%不利不高于原一年50；与原一年50共同日共享未知下界周块区间严格正。只决定2024扩展。",
+  "prior_completed_comparison_roots": [
+    "data/research/tail_formula_morning_flow",
+    "data/research/tail_formula_morning_trend",
+    "data/research/tail_formula_morning_distribution",
+    "data/research/tail_formula_morning_low_volume",
+    "data/research/tail_formula_morning_volume",
+    "data/research/tail_formula_morning_range",
+    "data/research/tail_formula_prior_bar",
+    "data/research/tail_formula_market_bins",
+    "data/research/tail_formula_absolute_morning",
+    "data/research/tail_formula_minute_vwap",
+    "data/research/tail_formula_minute_vwap_range",
+    "data/research/tail_formula_minute_vwap_path",
+    "data/research/tail_formula_index_morning",
+    "data/research/tail_formula_index_morning_range",
+    "data/research/tail_formula_industry_baseline",
+    "data/research/tail_formula_input_calibration"
+  ],
+  "prior_comparison_completion_hashes": {
+    "data/research/tail_formula_morning_flow/complete_results_manifest.json": "0330c76c6eb41d653f3255612c9db63c4e8928cfcd858d1248c09f6cdcb90ae2",
+    "data/research/tail_formula_morning_trend/complete_results_manifest.json": "c20dd8573216f17206712ed93dbfbbe9f9e851d9935b23b9f0acadc87c7d3d62",
+    "data/research/tail_formula_morning_distribution/complete_results_manifest.json": "39ad90d2ed317016ea078aceb71ce9e4c8b2e25e09a54f995d74e4e8302a16eb",
+    "data/research/tail_formula_morning_low_volume/complete_results_manifest.json": "f6b1faee737605e0ff251ae5b40181ad8b815fab669c2a5849ff89ec4633a4fb",
+    "data/research/tail_formula_morning_volume/complete_results_manifest.json": "0a11eee09b90a4b4ae3e4460a71b3394a695690f1188dad4947be53b392b6789",
+    "data/research/tail_formula_morning_range/complete_results_manifest.json": "1a82584fc920788944ff26c50760bf48bd257ee0803aef960a836cff4959d45c",
+    "data/research/tail_formula_prior_bar/complete_results_manifest.json": "0da60036bf4562542ce1a0503601cdd28f55a2af73d6bafc28114226db7169f9",
+    "data/research/tail_formula_market_bins/complete_results_manifest.json": "06737652b0a4a42ce06dd275dd5a7527a5fb3d2740c4b6d9e16edb02d7fce81e",
+    "data/research/tail_formula_absolute_morning/complete_results_manifest.json": "9d10f316607bea2e9a93e84c823184e9b91bc062e98e65fc91c2c7040e5bae7d",
+    "data/research/tail_formula_minute_vwap/complete_results_manifest.json": "c5948a5130ea6b2c59c6f7a3dbe244c2287659af0aa8c006676ebb30cab181e4",
+    "data/research/tail_formula_minute_vwap_range/complete_results_manifest.json": "aff27d7209ccee8656ac527cc445868815ce53dee4b345f3b4de2393e52e5ee3",
+    "data/research/tail_formula_minute_vwap_path/complete_results_manifest.json": "69efc1b3b7a7c3d0307ea9e467e3963e58f0bff621b54b2090bcd0e56f75d8b2",
+    "data/research/tail_formula_index_morning/complete_results_manifest.json": "6ff02e4dcfc7923930d5224164b2e0aea33bbfd9a709adc5a53741ffd81672a9",
+    "data/research/tail_formula_index_morning_range/complete_results_manifest.json": "04c0910e97b58421a37f652681f5296f8df6b222f45562c768b7d34239c30062",
+    "data/research/tail_formula_industry_baseline/complete_results_manifest.json": "dd9c508de4c003cb4c94895b6304779c0afeca0f8b2ede6038e95665a7388101",
+    "data/research/tail_formula_input_calibration/complete_results_manifest.json": "c008786387a62b987f1625320ef4d26c7eb039e86aed6ee8a250c18c8b4f19db"
+  },
+  "no_new_raw_extraction": true,
+  "new_2026_prices_allowed": false,
+  "no_new_2024_group_outcomes": true,
+  "no_exit_rules": true,
+  "year_2025_is_exploratory": true,
+  "no_publish_claim": true
+}
