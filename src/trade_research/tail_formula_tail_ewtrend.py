@@ -18,7 +18,7 @@ from .corporate_cash import save_json, sha
 STEM = 'tail_formula_tail_ewtrend'
 ROOT = Path('data/research')/STEM
 INPUTS = ROOT/'inputs'
-PROTOCOL = Path('config')/(STEM+'_protocol.json')
+PROTOCOL = Path('config')/(STEM+'_input_v2_protocol.json')
 INTENT = Path('config/tail_formula_tail_ewtrend_intent.json')
 META = price.META
 PRIOR = price.prior
@@ -64,6 +64,25 @@ def measure(prices,atr):
     cents = np.floor(values*100+.5); centered = cents-cents[:,-1:]
     with np.errstate(all='ignore'):
         return 100*(centered@WEIGHTS.T)/(cents[:,-1:]*atr[:,None])
+
+
+def adopt_input():
+    """Retain the v1 bytes; repair only the independent checker mechanics."""
+    p = checked(); file = INPUTS/'feature_report.json'; old = json.loads(file.read_text())
+    assert sha(file)==p['previous_feature_report_sha256']
+    assert old['protocol_sha256']==p['previous_input_protocol_sha256']
+    assert old['features_sha256']==sha(INPUTS/'features.parquet')
+    assert old['expressions']==EXPRESSIONS and old['native_header']==HEADER
+    assert old['weights_chronological']==WEIGHTS.tolist()
+    assert old['reused_quotes_sha256']==sha(PRIOR.INPUTS/'quotes.parquet')
+    backup = INPUTS/'feature_report_v1.json'; assert not backup.exists()
+    backup.write_bytes(file.read_bytes()); assert sha(backup)==p['previous_feature_report_sha256']
+    old.update(protocol_sha256=sha(PROTOCOL),reused_feature_report_sha256=sha(backup),
+        unchanged_prepared_feature_bytes_after_verifier_mechanics_repair=True,
+        prior_failed_input_verification_preserved=True)
+    save_json(file,old)
+    return dict(prior_feature_report_sha256=sha(backup),feature_report_sha256=sha(file),
+        no_feature_recalculation=True,no_model_or_economic_results_yet=True)
 
 
 def prepare():
@@ -115,7 +134,7 @@ def verify():
     good = ' AND '.join(f'isfinite(pv_c{i}) AND pv_c{i}>0' for i in range(20,50))
     valid = c.sql(f'''SELECT coalesce(pv_bars=30 AND pv_clocks=30 AND pv_good_bars=30
         AND isfinite(V01) AND V01>0 AND {good},false) AS valid FROM q JOIN v USING(date,code)
-        ORDER BY date,code''').df().valid.to_numpy(); c.close()
+        ORDER BY date,code''').df().valid.to_numpy().copy(); c.close()
     valid &= np.isfinite(expected).all(axis=1); expected[~valid] = np.nan
     np.testing.assert_array_equal(valid,f.ewtrend_valid)
     encode = lambda x:np.floor(np.clip(100*x+10000+.000001,0,999999))
@@ -172,7 +191,7 @@ def native():
     for item in samples:
         key = (item['date'],item['code']); row = indexed.loc[key]
         p = quotes.loc[key,PRIOR.PRICE_COLUMNS].to_numpy(float)
-        got = native_values(p,row.V01); np.testing.assert_allclose(got,row[list(NEW_EXPRESSIONS)],rtol=0,atol=2e-11)
+        got = native_values(p,row.V01); np.testing.assert_allclose(got,row[list(NEW_EXPRESSIONS)].to_numpy(float),rtol=0,atol=2e-11)
         np.testing.assert_array_equal(encode(got),encode(native_values(p,row.V01,.01)))
         np.testing.assert_array_equal(encode(got),encode(native_values(p*10,row.V01)))
         np.testing.assert_allclose(native_values(np.repeat(p[-1],30),row.V01),[0,0],rtol=0,atol=0)
@@ -189,5 +208,5 @@ def native():
 
 
 if __name__=='__main__':
-    p = argparse.ArgumentParser(description=__doc__); p.add_argument('stage',choices=['prepare','verify','native'])
+    p = argparse.ArgumentParser(description=__doc__); p.add_argument('stage',choices=['prepare','adopt_input','verify','native'])
     print(json.dumps(globals()[p.parse_args().stage](),ensure_ascii=False,indent=2))
