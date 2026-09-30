@@ -1,0 +1,20 @@
+{
+  "objective": "修正原生数学重放的AMHC参数单位绑定，原输入v2源码、全部值和生产/独立SQL证明不变。",
+  "input_protocol_sha256": "61c2186a4fbfc33fb0c1f37629c76365ef1afd960f775fa879b38a904e08f324",
+  "helper_sha256": "6215a487f9ac3d65aab877f9c9b1ed4e554fb520c61475de5f5f8afa3abaf4d6",
+  "source_hashes": {
+    "config/tail_formula_morning_hold_input_v2_protocol.json": "61c2186a4fbfc33fb0c1f37629c76365ef1afd960f775fa879b38a904e08f324",
+    "src/trade_research/tail_formula_morning_hold.py": "1b46f652ab85301d6f4322a30f9782db28f8a8c5c75962dbca01ac4547917ec6",
+    "data/research/tail_formula_morning_hold/inputs/native_failure_v2.log": "cbf0c7477514b3894d3d789a8130cf79e6348b26fff7a0382f27eb9af991c5e2"
+  },
+  "unchanged_input_receipts": {
+    "data/research/tail_formula_morning_hold/inputs/features.parquet": "435635f76faf5c40c164075ae16b20e83400093e2c486cb8df4ae26bfbed792e",
+    "data/research/tail_formula_morning_hold/inputs/feature_report.json": "cab64bbb19ef5af347809429de34ba0692c459749c213e818266df994e918cd6",
+    "data/research/tail_formula_morning_hold/inputs/feature_verification.json": "0b4e9d8ca7d08d15057a2a6d40af334ecbae22ab80710fcc98f9a5be2dc7bbca"
+  },
+  "repair": "native_values此前收到元单位high却直接放入分单位AMHC。包装器在调用前仅转换floor(high*100+.5)；原公式和输入算法不改，重放完整新值/编码、96固定键及所有状态扰动。",
+  "no_new_raw_extraction": true,
+  "no_model_or_new_group_economics": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
