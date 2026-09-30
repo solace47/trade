@@ -16,12 +16,29 @@ from audit_tail_formula_reference_coverage import audit
 from compare_tail_formula_same_dates import compare
 from compare_tail_formula_shared_unknowns import compare as shared
 from freeze_tail_formula_bipower_gap import checked_selection
-from reuse_tail_formula_input_comparisons import checked as checked_analysis
 from reuse_tail_formula_selected_analysis import reuse
 
 ROOT = study.ROOT
 PERIODS = ['2024H1', '2024H2', '2024']
 META = study.META[:-1]
+
+
+def checked_analysis(root):
+    """Validate the 2024 evaluation explicitly; the existing reuse helper is 2025-only."""
+    frame = checked_selection(root)
+    assert frame.date.between('2024-01-01', '2024-12-31').all()
+    report = json.loads((root / 'analysis_report.json').read_text())
+    proof = json.loads((root / 'analysis_verification.json').read_text())
+    assert proof['passed'] and proof['analysis_report_sha256'] == sha(root / 'analysis_report.json')
+    assert report['selection_report_sha256'] == sha(root / 'selection_report.json')
+    assert report['daily_summary_sha256'] == sha(root / 'daily_summary.parquet')
+    assert report['reference_label'] == '09:59'
+    labels = json.loads((root / 'full_label_report.json').read_text())
+    label_proof = json.loads((root / 'full_label_verification.json').read_text())
+    assert label_proof['passed'] and label_proof['label_report_sha256'] == sha(root / 'full_label_report.json')
+    assert report['label_report_sha256'] == sha(root / 'full_label_report.json')
+    assert labels['labels_sha256'] == sha(root / 'full_labels.parquet')
+    return frame, report
 
 
 def checked_models():
