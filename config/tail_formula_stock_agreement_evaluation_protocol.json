@@ -1,9 +1,9 @@
 {
-  "model_protocol_sha256": "3500599693845016cfe121e86036f865bd0436eea33cd5a988b8ddeedfb899be",
+  "model_protocol_sha256": "f5d78d9a25ba7b25dd656765932652ff5084e1a53b3c229d7ad5a7966f76d8eb",
   "source_hashes": {
     "config/tail_formula_stock_agreement_intent.json": "8f872d1f1c9e116d9c83d39fe9983335f90354a84f7cbbfd40a2ecef27b968a3",
     "src/trade_research/tail_formula_stock_agreement.py": "57ae9b8d5280a97eae74b8212470458d03c3f012162aedc456bfb3e4dd1b5579",
-    "scripts/run_tail_formula_stock_agreement.py": "055185984840d2dfcec129213ea41cfb1b512a781dd40ee87c50fc0bb47b8677",
+    "scripts/run_tail_formula_stock_agreement.py": "2157937f7b2aa7a1f960a710e23fac0944374af848f97625dc5189c01c2b67b0",
     "src/trade_research/tail_formula_prior_bar_model.py": "dfd6887bc98200952a7c12b06b944e81d1c68893e101ed78c3282064a9189a9a",
     "scripts/run_tail_formula_paired_study.py": "f9b8a14898c96910e939e68f3f8779b6dc9c4771df62a2a187469c060d05c17c",
     "scripts/evaluate_tail_formula_pool_scope.py": "9bec786a98dbf160bf18ddb9dffb2210053a7ea875d0bdfd72bc87780a413e93",
@@ -42,7 +42,8 @@
     "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/selection_verification.json": "43cf5c11a0ca67649ed6d47e674945d6cc5f52b6eb04e1c1b200ade289873f93",
     "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/analysis_report.json": "0cff3bf1b8512a14771192b221a24334100bfd972ac9f9dc89f55d2bb5264c57",
     "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025/analysis_verification.json": "da7520a4f97bb81eeb83150eaecc5ad995e2017d6a371e1b664ac7dec9ffa200",
-    "config/tail_formula_stock_agreement_input_protocol.json": "9752fab255b5a31dee9e53f1696c13ff75699286345cb5fe28382d0515baee31"
+    "data/research/tail_formula_stock_agreement/joint_write_repair.json": "173fbb84063eefbc3dc5efd9b5c238ca79bc6fcf600e2a4e29ccca19d5ebf38d",
+    "config/tail_formula_stock_agreement_input_protocol.json": "8f013d2f523c5454e9540b6401296f4d109fb4080afac7bf90f94f388d858657"
   },
   "planned_comparisons": [
     [

@@ -12,8 +12,8 @@ import run_tail_formula_paired_study as shared
 
 def freeze():
     p = shared.model.checked()
-    path = study.ROOT / 'joint_selection_freeze.json'
-    assert not path.exists()
+    joint_path = study.ROOT / 'joint_selection_freeze.json'
+    assert not joint_path.exists()
     parent = study.parent.ROOT
     receipts = {str(shared.model.PROTOCOL): sha(shared.model.PROTOCOL),
                 str(parent / 'joint_selection_freeze.json'): sha(parent / 'joint_selection_freeze.json')}
@@ -102,8 +102,8 @@ def freeze():
         both_full_annual_lists_jointly_frozen_before_economics=True,
         no_new_raw_extraction=True, year_2025_is_exploratory=True, no_new_group_evaluation=True,
         new_2026_prices_read=False, no_exit_rules=True)
-    save_json(path, joint)
-    return dict(joint_sha256=sha(path), selections=selections, equality=equality)
+    save_json(joint_path, joint)
+    return dict(joint_sha256=sha(joint_path), selections=selections, equality=equality)
 
 
 if __name__ == '__main__':
