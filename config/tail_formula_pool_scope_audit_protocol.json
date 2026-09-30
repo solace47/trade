@@ -1,0 +1,33 @@
+{
+  "intent_sha256": "58487c98df21172d63a89db994f432173ce368b540c08738c6d76424b89fabd6",
+  "source_hashes": {
+    "config/tail_formula_pool_scope_intent.json": "58487c98df21172d63a89db994f432173ce368b540c08738c6d76424b89fabd6",
+    "scripts/audit_tail_formula_pool_scope.py": "1979afdc0a726a8e7511fcd8eb9c59e0b64c4c9e8931676e2ecd497d1abef0c3",
+    "data/research/next_day_winner/base_report.json": "e10ba91524073ea77cb3a5aafa249e277f1647f30c3f91a09c9d8a76cf597c96",
+    "data/research/next_day_winner/source_manifest.json": "cd6ddc0f9d1681355ace2fe6058ace6844317a1f1fa0d0510de7bf62c00e2eb9",
+    "data/research/tail_formula_1000/feature_report.json": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70"
+  },
+  "input_caches": [
+    {
+      "name": "原48输入",
+      "path": "data/research/tail_formula_feature_subsample/inputs/features.parquet",
+      "sha256": "89e360ee6951604b54d01dfc223aba5b9e8b0e1466657584aaaa72615c301b8c"
+    },
+    {
+      "name": "既有29分钟量缓存",
+      "path": "data/research/tail_formula_minute_pressure/features.parquet",
+      "sha256": "34f742cd0c7ed9b696a947b8e5069f0374998688cb461e5bf936860ed4a314fd"
+    },
+    {
+      "name": "既有30报价缓存",
+      "path": "data/research/tail_formula_tail_regression/inputs/quotes.parquet",
+      "sha256": "3f2bfe5bc4e2cfee28053a9c99982b886ade3e612adc69051a342130e6e4404d"
+    }
+  ],
+  "minute_manifest": "data/research/economic_winner/input_manifest.json",
+  "audit_only": true,
+  "no_extra_outcomes_or_scores_allowed": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
