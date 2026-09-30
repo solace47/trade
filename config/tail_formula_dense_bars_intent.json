@@ -1,0 +1,52 @@
+{
+  "objective": "价量组未过既定扩2024门时，检查原分钟内冲高／下探是否被收盘及汇总区间遗漏；用全部29根高低价而非挑若干分钟。",
+  "execute_only_if_dense_flow_expansion_gate_false": true,
+  "if_flow_passes": "优先扩2024价量验证，不叠加新高低价挽救或改变该版本。",
+  "arms": {
+    "control": 48,
+    "price": 77,
+    "flow": 106,
+    "bars": 164
+  },
+  "coordinates": "新增DHIi、DLOi各29个，i=0至28，对应14:49回溯至14:21。以整数分高／低相对14:49整数分close的百分比除原ATR；保留原106项，不增窗口或改变0.01尺度编码。",
+  "validity": "原29根已核准HLCV窗口，有限正分价且高≥收≥低，原价格30根和量29根时间守卫继续；未知不补收盘价，样本域变化必须另核匹配控制。",
+  "source": "完全复用既有2024—2025缓存，HLCV不含分钟open，不能称完整OHLCV；不新增原档提取或2023窗口。",
+  "folds": {
+    "2025h1": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    "2025h2": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "max_features": null
+  },
+  "threshold": 0.995,
+  "protocol_stages": "此意向在当前价量新组结果前提交，实施及详细主协议在投影前固定。六父版模型与评分先精确复用，仅拟合两164项新增；八模型、四2025完整全年名单共同提交后看结果，相同表统计必须复用。",
+  "comparisons": "对匹配106父版和77价格父版及48控制，保留原同参数／旧固定48、四阶曲线和四窗回归完整2025结果。",
+  "expand_2024_only_if": "新164版两半年15基点09:59参考均正，全年日期等权正机会高于106与77、3%不利低于二者，和106父版共同日共享未知差下界周块区间严格正；仅过此门才扩2024，非发布。",
+  "no_new_2026_prices": true,
+  "no_exit_rules": true,
+  "year_2025_is_exploratory": true,
+  "source_hashes": {
+    "config/tail_formula_dense_flow_protocol.json": "71ab7b6b660ecec07134aedc57bd23910102eacf633ecea1ee2846c009d1a590",
+    "config/tail_formula_dense_flow_intent.json": "220d2029fc61e4a11419532d0bfaedd036a7d5f01509092b87b8dc4c1080d7e0",
+    "data/research/tail_formula_minute_pressure/feature_report.json": "567a171a78647267f5a72e591676780a8c38d5bd68b8dd921b58214d46b00253",
+    "data/research/tail_formula_minute_pressure/feature_verification.json": "804f2fb77ab04366ca218f2d8a6812191a530b6f33b47dd179de73f9ea480df1",
+    "data/research/tail_formula_minute_pressure/window_report.json": "20d8331ccfa6ff3c8d33bbadff6968b5a3edfe6a2566e5136c1ba9b455d7cc0d"
+  }
+}
