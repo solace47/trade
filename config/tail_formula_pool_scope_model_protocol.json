@@ -1,0 +1,190 @@
+{
+  "objective": "仅去附加3000万元金额门扩大训练，保持原48值、原学习器、次晨目标、费用和可成交限制；两原模型复用，两新模型及五组名单共同固定。",
+  "source_hashes": {
+    "src/trade_research/tail_formula_pool_scope_model.py": "cb35f8a1c7eb939fff62118d4e6c40ef66db54a13af9b225d7cf7f9e6c80bfd3",
+    "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
+    "src/trade_research/tail_formula_relative.py": "e7f8164cb93ff861acd3dd9198c368801af84ea0a823053b5cfc846177b3d4b5",
+    "src/trade_research/tail_formula_additive.py": "fd715b1ed9e592f4efe312f851c226c1ba03c49b63b3b7303268289ff5ecb711",
+    "src/trade_research/tail_formula_offset_logit48.py": "cb069f1f8246ffc472405abbf1d46c2650c95d16112459e6a512cd406204771a",
+    "scripts/verify_tail_formula_additive.py": "2aff716ec2ff0836787c2d5b3b4389af0f4b1bd7601f74389df8a59df99c786c",
+    "config/tail_formula_pool_scope_inputs_protocol.json": "bd919f1e0b4f2e77377ae2137a8cbc5c86869e032274298c7623d77f8de0f38f",
+    "config/tail_formula_pool_scope_labels_protocol.json": "30bfb85d116cad27a3e1c012b4a7d52b1361ced3e5bf65494dcda8f4c48e1d91",
+    "data/research/tail_formula_pool_scope/inputs/feature_report.json": "3591e6128876c8c5e9531f7597ac3fe12d9a5584f46450780979c93d32d75342",
+    "data/research/tail_formula_pool_scope/inputs/feature_verification.json": "da5c31775d6c2396b50222687187f9c2e51872e9f9d5fb500596faa65f5fb50f",
+    "data/research/tail_formula_pool_scope/inputs/native_input_verification.json": "c1352b87f93dab7f992c999f5c6da88e7b9da330070a50b421a009a4140308c0",
+    "data/research/tail_formula_pool_scope/inputs/membership.parquet": "62c32e7ce0e79e6c417b34fe5ff9238ff20ec8a2a30214937d7da807631d0fe4",
+    "data/research/tail_formula_pool_scope/training_labels/input_manifest.json": "e10b7899a1ca74a3a837cbaa396b294509316f3b065330bb7cbd955a1395b7da",
+    "data/research/tail_formula_pool_scope/training_labels/window_report.json": "27e24b7e679c54d624fff4fc07073cfc528704940a0657606f0195b31717f4ab",
+    "data/research/tail_formula_pool_scope/training_labels/window_verification.json": "85f51aeab42e44264079c8c9323ca4d08d7c534df23a4b5e4a13b0a7c5004c27",
+    "data/research/tail_formula_pool_scope/training_labels/full_label_report.json": "cd1cdebe4948030822d38b413e172d132877b2243d371b55a28e6d960ed9a669",
+    "data/research/tail_formula_pool_scope/training_labels/full_label_verification.json": "b4c173943fe40b021a8f938799b6cb6f833f7c3ac07f3069b366d4e9769cb914",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_dense_bars/inputs/feature_report.json": "e478deb28b95df8b8eb0de6fe5c00ecedae2859add30bfc4aa992feabdb5e09c",
+    "data/research/tail_formula_dense_bars/inputs/feature_verification.json": "e09c4d37b7df67c41c1715459ca88e51721af244ce54c707ee8d8826131dc75c",
+    "data/research/tail_formula_dense_bars/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
+    "data/research/tail_formula_dense_bars/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639",
+    "data/research/tail_formula_dense_bars/control/2025h1/model_report.json": "99ab473cbc21b52828f7de5607c1edc514b54c4c4a7da99c9d1a82960f8624b1",
+    "data/research/tail_formula_dense_bars/control/2025h1/model_verification.json": "670eb097e44bde056667564eaceec6e7066a2a4feb7c082fe4ca747ccc4ccd57",
+    "data/research/tail_formula_dense_bars/control/2025h1/score_report.json": "6b3269c8e24d9ff69c75a560af75ffce839a876e74f25d90eac1008704b7097e",
+    "data/research/tail_formula_dense_bars/control/2025h1/score_verification.json": "cd407a623e5723af25d94ca11e0ae31144e583d871aa962fe69465628ecc1cfd",
+    "data/research/tail_formula_dense_bars/control/2025h1/parent_reuse_verification.json": "f8948bd25f9d7d23efb87bd3a541edddf97bd6aa751f3cead5d01df33462b60a",
+    "data/research/tail_formula_dense_bars/control/2025h2/model_report.json": "42d0b2b092b97820794575164fa8141f0512ab78c56df73208d8ef65d48d621e",
+    "data/research/tail_formula_dense_bars/control/2025h2/model_verification.json": "8e0a8c6d5bdee8af62a6cec1b2e4f7ebfe39acea6c99829245bb796b0c649d07",
+    "data/research/tail_formula_dense_bars/control/2025h2/score_report.json": "fae62b15833f57135f9acba6817a2f5ac8ab21129305f4feed24822eacbf60e6",
+    "data/research/tail_formula_dense_bars/control/2025h2/score_verification.json": "82275c3e7da37bacc9f7492cbec9b62f8adc7e267497bcbedc64a3901a1f7858",
+    "data/research/tail_formula_dense_bars/control/2025h2/parent_reuse_verification.json": "ea019d6b01813610c42a8d420a63ac6dd91f58aaaad479acce0bd0224c7f6498"
+  },
+  "expressions": {
+    "NA01": "A01/VP20",
+    "NA02": "A02/VP20",
+    "NA03": "A03/VP20",
+    "A04": "Q",
+    "NA05": "A05/VP20",
+    "NA06": "A06/VP20",
+    "NA07": "A07/VP20",
+    "A08": "VALUEWHEN(TIME=1449,SUM(V,29)/REF(SUM(V,29),29))",
+    "A09": "VALUEWHEN(TIME=1449,SUM(V,14)/REF(SUM(V,14),14))",
+    "A10": "VALUEWHEN(TIME=1449,(SUM(V,4)/4)/((SUM(V,29)-SUM(V,4))/25))",
+    "A11": "VALUEWHEN(TIME=1449,100*(C-LLV(L,29))/MAX(HHV(H,29)-LLV(L,29),0.01))",
+    "A12": "VALUEWHEN(TIME=1449,SUM(AMOUNT,29)/100000000)",
+    "NA13": "A13/VP20",
+    "NA14": "A14/VP20",
+    "A15": "VALUEWHEN(TIME=1449,100*SUM(IF(C>REF(C,1),V,IF(C<REF(C,1),-V,0)),29)/SUM(V,29))",
+    "A16": "VALUEWHEN(TIME=1449,100*COUNT(C>REF(C,1),29)/29)",
+    "A17": "VALUEWHEN(TIME=1449,100*HHV(V,29)/SUM(V,29))",
+    "NA18": "A18/VP20",
+    "NA19": "A19/VP20",
+    "A20": "VALUEWHEN(TIME=1449,100*ABS(LN(C/REF(C,29)))/MAX(SUM(ABS(LN(C/REF(C,1))),29),0.000001))",
+    "ND01": "D01/VP20",
+    "ND02": "D02/VP20",
+    "ND03": "D03/VP20",
+    "ND04": "D04/VP20",
+    "C01": "100*(Q-DL)/MAX(DH-DL,0.01)",
+    "NC02": "C02/VP20",
+    "NC03": "C03/VP20",
+    "NC04": "C04/VP20",
+    "C05": "DV/PV5",
+    "C06": "DA/100000000",
+    "NC07": "C07/VP20",
+    "NC08": "C08/VP20",
+    "V01": "VP20",
+    "I01": "100*(ICP1/ICP2-1)",
+    "I02": "100*(ICP1/ICP6-1)",
+    "I03": "100*(ICP1/ICP21-1)",
+    "I04": "100*(ICP1/IM20-1)",
+    "J01": "100*(IX1448/ICP1-1)",
+    "J02": "100*(IX1448/IX1420-1)",
+    "J03": "100*(IX1448/IX1435-1)",
+    "J04": "100*(IX1420/IX1301-1)",
+    "R01": "(A01-J01)/V01",
+    "R02": "(A05-J02)/V01",
+    "R03": "(A06-J03)/V01",
+    "R04": "(A07-J04)/V01",
+    "S01": "LN(1+PSH*Q/100000000)",
+    "S02": "10000*DV/PSH",
+    "S03": "10000*VALUEWHEN(TIME=1449,SUM(V,29))/PSH"
+  },
+  "native_header": "Q:=VALUEWHEN(TIME=1449,C);\nP20:=VALUEWHEN(TIME=1420,C);\nP35:=VALUEWHEN(TIME=1435,C);\nP01:=VALUEWHEN(TIME=1301,C);\nDD:=DATE<>REF(DATE,1);\nB0:=BARSLAST(DD)+1;\nB1:=B0+REF(BARSLAST(DD)+1,B0);\nB2:=B1+REF(BARSLAST(DD)+1,B1);\nB3:=B2+REF(BARSLAST(DD)+1,B2);\nB4:=B3+REF(BARSLAST(DD)+1,B3);\nB5:=B4+REF(BARSLAST(DD)+1,B4);\nB6:=B5+REF(BARSLAST(DD)+1,B5);\nB7:=B6+REF(BARSLAST(DD)+1,B6);\nB8:=B7+REF(BARSLAST(DD)+1,B7);\nB9:=B8+REF(BARSLAST(DD)+1,B8);\nB10:=B9+REF(BARSLAST(DD)+1,B9);\nB11:=B10+REF(BARSLAST(DD)+1,B10);\nB12:=B11+REF(BARSLAST(DD)+1,B11);\nB13:=B12+REF(BARSLAST(DD)+1,B12);\nB14:=B13+REF(BARSLAST(DD)+1,B13);\nB15:=B14+REF(BARSLAST(DD)+1,B14);\nB16:=B15+REF(BARSLAST(DD)+1,B15);\nB17:=B16+REF(BARSLAST(DD)+1,B16);\nB18:=B17+REF(BARSLAST(DD)+1,B17);\nB19:=B18+REF(BARSLAST(DD)+1,B18);\nB20:=B19+REF(BARSLAST(DD)+1,B19);\nDCP1:=REF(C,B0);\nDCP2:=REF(C,B1);\nDCP3:=REF(C,B2);\nDCP4:=REF(C,B3);\nDCP5:=REF(C,B4);\nDCP6:=REF(C,B5);\nDCP7:=REF(C,B6);\nDCP8:=REF(C,B7);\nDCP9:=REF(C,B8);\nDCP10:=REF(C,B9);\nDCP11:=REF(C,B10);\nDCP12:=REF(C,B11);\nDCP13:=REF(C,B12);\nDCP14:=REF(C,B13);\nDCP15:=REF(C,B14);\nDCP16:=REF(C,B15);\nDCP17:=REF(C,B16);\nDCP18:=REF(C,B17);\nDCP19:=REF(C,B18);\nDCP20:=REF(C,B19);\nDCP21:=REF(C,B20);\nDH:=VALUEWHEN(TIME=1449,HHV(H,B0));\nDL:=VALUEWHEN(TIME=1449,LLV(L,B0));\nDV:=VALUEWHEN(TIME=1449,SUM(V,B0));\nDA:=VALUEWHEN(TIME=1449,SUM(AMOUNT,B0));\nPV5:=REF(SUM(V,B4),B0)/5;\nPH20:=REF(HHV(H,B19),B0);\nPL20:=REF(LLV(L,B19),B0);\nA01:=100*(Q/DYNAINFO(3)-1);\nA02:=100*(DYNAINFO(4)/DYNAINFO(3)-1);\nA03:=100*(Q/DYNAINFO(4)-1);\nA05:=100*(Q/P20-1);\nA06:=100*(Q/P35-1);\nA07:=100*(P20/P01-1);\nA13:=VALUEWHEN(TIME=1449,100*(C/(SUM(AMOUNT,29)/(100*SUM(V,29)))-1));\nA14:=VALUEWHEN(TIME=1449,100*(C/(SUM(AMOUNT,4)/(100*SUM(V,4)))-1));\nA18:=VALUEWHEN(TIME=1449,100*(C/HHV(H,109)-1));\nA19:=VALUEWHEN(TIME=1449,100*(HHV(H,109)-LLV(L,109))/DYNAINFO(3));\nD01:=100*(DCP1/DCP6-1);\nD02:=100*(DCP1/DCP21-1);\nD03:=100*(Q/((DCP1+DCP2+DCP3+DCP4+DCP5)/5)-1);\nD04:=100*(Q/((DCP1+DCP2+DCP3+DCP4+DCP5+DCP6+DCP7+DCP8+DCP9+DCP10+DCP11+DCP12+DCP13+DCP14+DCP15+DCP16+DCP17+DCP18+DCP19+DCP20)/20)-1);\nC02:=100*(DH-DL)/DCP1;\nC03:=100*(DH-Q)/DCP1;\nC04:=100*(MIN(DYNAINFO(4),Q)-DL)/DCP1;\nC07:=100*(Q/PH20-1);\nC08:=100*(Q/PL20-1);\nTR0:=MAX(HHV(H,B0)-LLV(L,B0),MAX(ABS(HHV(H,B0)-REF(C,B0)),ABS(LLV(L,B0)-REF(C,B0))));\nPAT:=(REF(TR0,B0)+REF(TR0,B1)+REF(TR0,B2)+REF(TR0,B3)+REF(TR0,B4)+REF(TR0,B5)+REF(TR0,B6)+REF(TR0,B7)+REF(TR0,B8)+REF(TR0,B9)+REF(TR0,B10)+REF(TR0,B11)+REF(TR0,B12)+REF(TR0,B13)+REF(TR0,B14)+REF(TR0,B15)+REF(TR0,B16)+REF(TR0,B17)+REF(TR0,B18)+REF(TR0,B19))/20;\nVP20:=100*PAT/DCP1;\nICP1:=REF(INDEXC,B0);\nICP2:=REF(INDEXC,B1);\nICP6:=REF(INDEXC,B5);\nICP21:=REF(INDEXC,B20);\nIM20:=(REF(INDEXC,B0)+REF(INDEXC,B1)+REF(INDEXC,B2)+REF(INDEXC,B3)+REF(INDEXC,B4)+REF(INDEXC,B5)+REF(INDEXC,B6)+REF(INDEXC,B7)+REF(INDEXC,B8)+REF(INDEXC,B9)+REF(INDEXC,B10)+REF(INDEXC,B11)+REF(INDEXC,B12)+REF(INDEXC,B13)+REF(INDEXC,B14)+REF(INDEXC,B15)+REF(INDEXC,B16)+REF(INDEXC,B17)+REF(INDEXC,B18)+REF(INDEXC,B19))/20;\nIX1448:=VALUEWHEN(TIME=1448,INDEXC);\nIX1420:=VALUEWHEN(TIME=1420,INDEXC);\nIX1435:=VALUEWHEN(TIME=1435,INDEXC);\nIX1301:=VALUEWHEN(TIME=1301,INDEXC);\nPSH:=REF(FINANCE(7),B0);\n",
+  "folds": {
+    "2025h1": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    "2025h2": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "max_features": null
+  },
+  "groups": {
+    "old_original": [
+      "old",
+      "original"
+    ],
+    "old_full": [
+      "old",
+      "full"
+    ],
+    "expanded_original": [
+      "expanded",
+      "original"
+    ],
+    "expanded_full": [
+      "expanded",
+      "full"
+    ],
+    "expanded_extra": [
+      "expanded",
+      "extra"
+    ]
+  },
+  "threshold": 0.995,
+  "old_models": {
+    "2025h1": "data/research/tail_formula_dense_bars/control/2025h1",
+    "2025h2": "data/research/tail_formula_dense_bars/control/2025h2"
+  },
+  "original_control": "data/research/tail_formula_dense_bars/control_2025",
+  "group_pool_metadata": "原池两组各完整1258085键；全池及额外成员三组各完整1443629键，2024全未选保留。额外成员组仅新成员可选，但同日完整全池基准保留。",
+  "old_reuse": "全部原48数值、有效性、已知完整池标签及日基准、训练键和权重、参数64树及所有训练阈值逐项相同；1258085旧评分原值复用，仅185544额外键评分，全1443629值和阈值标志独立SQL核准。",
+  "expanded_training": "全部已知扩池标签先形成日均机会基准，再交输入有效性；机会减日均，平方损失，训练有效交集后日期等权。训练范围和日基准同时改变；不宣称只变一个因子。",
+  "pre_fit_lookup": "先生成四折协议及候选查重收据再拟合；旧模型须精确复用，新模型若有候选先审计，不能重复拟合。",
+  "analysis": "五全年完整组和全部模型联合固定并提交，后补评价标签；全帧相同直接复用。每组全年只汇总一次并包括半年，不重算半年。未知、未买、缺参考及全未知日期保留。15基点日期等权为主，两费用两敏感性全留。",
+  "planned_comparisons": [
+    [
+      "expanded_original",
+      "old_original"
+    ],
+    [
+      "expanded_full",
+      "old_full"
+    ],
+    [
+      "expanded_full",
+      "expanded_original"
+    ],
+    [
+      "old_full",
+      "old_original"
+    ],
+    [
+      "expanded_extra",
+      "old_original"
+    ],
+    [
+      "expanded_full",
+      "old_original"
+    ],
+    [
+      "expanded_full",
+      "fixed2025"
+    ],
+    [
+      "expanded_full",
+      "price2025"
+    ]
+  ],
+  "controls": {
+    "fixed2025": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+    "price2025": "data/research/tail_formula_dense_path/path_2025"
+  },
+  "success_screen": "两半年09:59日期均值正，全年机会高于旧全池，至少3%不利不高于旧全池，对旧全池共同日共享未知机会差下界周块区间严格正。只支持后续研究，非发布门。",
+  "new_2026_prices_allowed": false,
+  "year_2025_is_exploratory": true,
+  "no_exit_rules": true,
+  "software_compilation_verified": false,
+  "native_source_parity_verified": false
+}
