@@ -1,6 +1,6 @@
 {
   "objective": "仅完整一年绝对跨股票校准仍不足时，检验相同分组、日期和输入校准下的本组相对机会目标。",
-  "intent_sha256": "bbb63c7ef01173ce45fb31611c5ebdbdeb975ac46d9d71b5d88993f442d52756",
+  "intent_sha256": "ac1456f9b223de0fc4dadd33411552c9758fd9df3dc7c2e290206fc898d62992",
   "conditional_gate": "data/research/tail_formula_stock_holdout/stock_holdout_gate.json",
   "source_hashes": {
     "config/tail_formula_stock_holdout_intent.json": "0cdd63caae1cf506e36fae7509bf6f3ead0efc743c3ab2e17ecb3ae4a0a4e74f",
@@ -32,11 +32,12 @@
     "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
     "scripts/evaluate_tail_formula_pool_scope.py": "9bec786a98dbf160bf18ddb9dffb2210053a7ea875d0bdfd72bc87780a413e93",
     "scripts/verify_tail_formula_before1000.py": "3531396cae864ce835b0c51bfa6300741dc2c3b3645d1eb46cdf9978f4a59f23",
-    "config/tail_formula_stock_relative_intent.json": "bbb63c7ef01173ce45fb31611c5ebdbdeb975ac46d9d71b5d88993f442d52756",
-    "data/research/tail_formula_stock_relative/metadata_lookup_verification.json": "7d22b54df720d007a159adf984001b61f826d9d16aca9b14485f35da8d6adf7c",
-    "src/trade_research/tail_formula_stock_relative.py": "07d3436da0d484a1d454e87b2c8d1da2620394b4f7bf68b5150ac99f0629916a",
+    "config/tail_formula_stock_relative_intent.json": "ac1456f9b223de0fc4dadd33411552c9758fd9df3dc7c2e290206fc898d62992",
+    "data/research/tail_formula_stock_relative/metadata_lookup_verification.json": "61e7b939b93987560f5d9ca30b7bdfd35b5999ea13f3c81286c6767594492d8a",
+    "data/research/tail_formula_stock_relative/pre_fit_interface_repair.json": "c9839e3db716e561892b05fae847e40b216a927b158c759207332901c8a7c641",
+    "src/trade_research/tail_formula_stock_relative.py": "e77d3205e81d6b4a6a496dc39370a4b6a63549ea5ad03bf91bb5f169b71e657e",
     "scripts/run_tail_formula_stock_relative.py": "f5e952a1db58e67b39ca4b1af72286b6e227c5aba3725263c9557814702bb36b",
-    "tests/test_tail_formula_stock_relative.py": "bac9b1693c826b3c923f76c0166afbca2bde0f39ea4d60ca799607bd0f23121e",
+    "tests/test_tail_formula_stock_relative.py": "5f8e9cb49041f3ae77d460d85c9925cb6735c020d5a7235f6802068a6c1f042e",
     "data/research/tail_formula_stock_holdout/stock_holdout_gate.json": "e0c1619885bea8a0a5166eeb3b60b6419d3b63bbef716fb7ae0562ff5f2d9f52",
     "data/research/tail_formula_stock_holdout/complete_results_manifest.json": "3abf4e69aaa7aab13c395ba87fe3c7096d8206bcf0ecd29c7c5045baaa1ee9fc",
     "data/research/tail_formula_stock_holdout/legacy_directory_resolution_verification.json": "b31e4115f63278c101b936f8de996ef58547c1da3114e53cf5617175952a444b"
@@ -167,9 +168,19 @@
   "expected_keys": 1258085,
   "expected_valid": 1117397,
   "quantile": 0.995,
-  "projection": "本组同一成熟作用域，原六字段加adverse_return15和sustained_return15，共八字段；仅兼容原相对读取接口，目标只用本组opportunity15按日归零",
+  "projection": "本组同一成熟作用域，原六字段加adverse_return15，共现有七字段；仅兼容原相对读取接口，目标只用本组opportunity15按日归零",
   "calibration": "另一组全部有效输入，不交已知标签或未来成交；同日期股票留出，不称时间留出",
   "new_2026_prices_allowed": false,
   "year_2025_is_exploratory": true,
-  "no_exit_rules": true
+  "no_exit_rules": true,
+  "label_field_names": [
+    "date",
+    "code",
+    "next_date",
+    "known15",
+    "opportunity15",
+    "known_no_trade",
+    "adverse_return15"
+  ],
+  "pre_fit_interface_repair_sha256": "c9839e3db716e561892b05fae847e40b216a927b158c759207332901c8a7c641"
 }

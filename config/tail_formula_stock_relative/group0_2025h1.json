@@ -1,5 +1,5 @@
 {
-  "master_protocol_sha256": "d1e19d1d8965fc9935aa35a7791c9df353ec2ac7a32ab4f32a3703bd0d534789",
+  "master_protocol_sha256": "e1e3f3d197b28cda31f2e38f181aa1bf5052e9227448dd6cfec97bbb80f52597",
   "arm": "group0",
   "fold": "2025h1",
   "training_start": "2024-01-01",

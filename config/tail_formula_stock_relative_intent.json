@@ -9,7 +9,7 @@
   "target": "每个模型只使用本组严格成熟的原known15标签。先在本组全已知标签上按训练日计算opportunity15均值，再交原有效输入，target=opportunity15减该均值；另一组收益不进入目标或权重。",
   "fit": "沿已核准GradientBoostingRegressor、squared_error、64棵、深度3、叶300、learning_rate0.05、subsample1、max_features=null、seed20260927，本组训练日期等权。最多四个新拟合，先查元数据。",
   "calibration_and_control": "每模型在同一年日期中用另一组全部有效输入的评分固定q995线性分位，不读其收益。跨组候选与本组控制共用四模型、四评分和四门槛。",
-  "label_projection": "原绝对投影六字段加原adverse_return15和sustained_return15，以兼容原相对模型读取接口；目标仍只使用opportunity15，不优化风险或幅度标签。投影全部原值独立核准，不替换完整经济评价标签。",
+  "label_projection": "原绝对投影六字段加原adverse_return15，共现有七字段，以兼容原相对模型读取接口；目标仍只使用opportunity15，不优化风险或幅度标签。投影全部原值独立核准，不替换完整经济评价标签。",
   "distinction": "旧全市场相对50及九个月时间校准失败保留；本项仅本组标签按日归零，排除另一组收益进入目标，完整一年与同日期跨股票校准沿本轮。不能称跨时间校准或盲测。",
   "evaluation": "四模型及跨组／本组完整年度名单共同固定后再评价。固定六比较为原一年相对50、本组同模型控制、本轮绝对跨组、九个月相对校准、实际均价区间和旧固定48，费用、容量、未知、未买入、共同及独有日期均保持。",
   "new_2026_prices_allowed": false,

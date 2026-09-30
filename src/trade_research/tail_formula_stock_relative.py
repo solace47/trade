@@ -12,7 +12,7 @@ spec = importlib.util.spec_from_file_location(__package__ + '._stock_relative_sh
 shared = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(shared)
 shared.STEM, shared.ROOT, shared.PROTOCOL, shared.INTENT = STEM, ROOT, PROTOCOL, INTENT
-shared.LABEL_FIELDS = [*shared.LABEL_FIELDS, 'adverse_return15', 'sustained_return15']
+shared.LABEL_FIELDS = [*shared.LABEL_FIELDS, 'adverse_return15']
 
 prior, INPUTS, META, HEADER = shared.prior, shared.INPUTS, shared.META, shared.HEADER
 ARMS, CORE_GATE, LABEL_FIELDS = shared.ARMS, shared.CORE_GATE, shared.LABEL_FIELDS
