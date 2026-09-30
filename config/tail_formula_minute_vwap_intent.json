@@ -1,0 +1,36 @@
+{
+  "objective": "若绝对机会50项完整核准仍不足，停止损失或门槛细调，检查每根尾盘分钟收盘相对本分钟实际成交均价的量加权方向与末四根变化。",
+  "conditional_on": "absolute_morning完整六对照及门核准且supports_2024_extension=false；若通过则优先2024顺序扩展。",
+  "source_hashes": {
+    "config/tail_formula_absolute_morning_model_protocol.json": "4692ccbf48b2dd7ddf376e429df8f5cf2832106876b2d346d2c57285d95c8017",
+    "data/research/tail_formula_absolute_morning/joint_selection_freeze.json": "6376f0dcd30bca81c993909242e901378e63061399358836e77de6ede9d41dcc",
+    "data/research/tail_formula_price_impact/window_report.json": "9ccc52eaedaa04c9bb878327eea68f3d215def5578f77bf096e4f6405c01ba36",
+    "data/research/tail_formula_price_impact/native_input_verification.json": "343de528c73a005e374916aee1c0886d85d3fb3ba2dd3e0921974a68b3063a83",
+    "data/research/tail_formula_minute_pressure/window_report.json": "20d8331ccfa6ff3c8d33bbadff6968b5a3edfe6a2566e5136c1ba9b455d7cc0d",
+    "data/research/tail_formula_minute_pressure/feature_verification.json": "804f2fb77ab04366ca218f2d8a6812191a530b6f33b47dd179de73f9ea480df1",
+    "data/research/tail_formula_volume_response/native_input_verification.json": "5c305f6188190bcf2543c6e6befec526d87000ea0aba3b6ab682201e7177441d",
+    "config/tail_formula_volume_response_protocol.json": "ea6fabcd7847de064a29947bdac2da56a56f2eabc27fd12fc5cf31f02c2c68c3",
+    "config/tail_formula_minute_pressure_protocol.json": "c607cdfd3eb02d567da2758c93bbbc59d61d9010c49ad04a24b72bb44b6d6c0b",
+    "config/tail_formula_vwap_path_protocol.json": "c62b26be600e2dd994a62ccfa2658ed6be1b6e955c12b7a9c8697ad2f953cbac",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc"
+  },
+  "inputs": "原50保持；原已核准30收盘/29分钟HLCV/29原始金额缓存按完整股票日键和分钟逐项联合；只2024—2025，无新原档提取。",
+  "definition": "每分钟把close圆至分、volume视为整数股、amount圆至分，方向sign(round(close*100)*volume-round(amount*100))。零量零金额贡献0；正、负、相等三态，不把本根全部成交定性为主买或主卖。",
+  "features": {
+    "MV01": "100*sum(V*direction,29)/sum(V,29)",
+    "MV02": "100*(sum(V*direction,4)/sum(V,4)-(sum(V*direction,29)-sum(V*direction,4))/(sum(V,29)-sum(V,4)))"
+  },
+  "native": "普通分钟C/V/AMOUNT/ROUND/IF/SUM/VALUEWHEN；软件V为手，先ROUND(100*V)成股与金额分比较，正负相等完全可核准。",
+  "prior_research": "旧W01/W02使用分钟高低价格区间位置，IP01/IP02使用相邻报价涨跌乘量，动态均价路径是当日截至当分钟累计均价，IL01是相邻价格变动/本分钟金额；均保留失败。本项比较的是每根自身实际量额均价，四套定义不同；必须进一步语义及同参数模型查重，不能按名称声称新信息。",
+  "quality": "严格相同时钟、价格、整股量、有限非负量额、零量零额同步、正量均价在本分钟高低各外扩0.0101元内；原50值/完整键保持。若新增有效域减少，先固定同质量50控制并按实际需要重训，不能填零或丢键。",
+  "model": "原相对目标/成熟滚动一年/日期等权/64深3叶300/lr.05/seed20260927/q995；正常只两新模型，原50只有同有效域同输入目标权重时才直接复用。",
+  "controls": "固定六对照：原50、同期区间52、前股日52、上午量价52、旧固定48、完整价格77。若同质量控制需要新增，明确新增同交集比较，不以原控制差归因新值。",
+  "screen": "沿用两半年参考均正、全年机会超过原50及上午量价、3%不利不高于50、共同日共享未知下界周块区间严格正，仅决定2024扩展。",
+  "input_source_model_evaluation_protocols_required": true,
+  "full_models_and_complete_lists_joint_commit_before_economics": true,
+  "no_threshold_or_window_search": true,
+  "no_new_raw_extraction": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
