@@ -1,0 +1,35 @@
+{
+  "objective": "早盘指数两点已完成失败后，检验14:48指数相对09:31—11:30完整上午报价区间的位置与原50的联合；不叠加失败的IM01/IM02。",
+  "reason": "相同早盘起终点仍可能有不同中途高低点；市场是否收复完整上午区间可能影响个股尾盘反弹的次晨持续性。这是待检验假设，不是主力进场识别。",
+  "timing": "早盘两点完整结果之后固定新假设，实际新输入生成和模型拟合之前固定。原失败结论不修改。",
+  "inputs": "原50加IMH/IML共52；指数venue沿原沪深映射，代表价来源不改；索引0..119含两端=09:31—11:30，索引227=14:48。",
+  "features": {
+    "IMH": "100*(14:48指数代表价/上午120代表价最大值-1)",
+    "IML": "100*(14:48指数代表价/上午120代表价最小值-1)"
+  },
+  "source": "复用既有968份指数序列及已核准早盘两点的原股日参考/venue/J01映射；原50所有键和值保留，末12项不参与输入或质量判断。",
+  "quality": "既有可见228条序号/正价/有限数前缀质量不变；新极值只从120条取，非指数逐分钟high/low。有效域先核准精确同原50，不填0。",
+  "native": "原50HEADER加VALUEWHEN(TIME=1130,HHV/LLV(INDEXC,120))，显式同日/120分钟/正价及14:48同日门；客户端来源及编译仍未证明。",
+  "model": "原一年两折、相对三连正机会、日期等权、64深3叶300/.05/seed20260927/q995；仅两新拟合，原50控制精确复用。",
+  "controls": "原50、早盘指数两点52、完整量额路径79、实际均价区间52、旧固定48、完整收盘价格77共六组；全部未知/独有日保留。",
+  "screen": "两半年压力参考均正，全年机会高于原50及早盘指数两点，3%不利不高于原50，原50共同日共享未知下界周块区间严格正；只决定2024扩展。",
+  "source_hashes": {
+    "data/research/tail_formula_index_morning/complete_results_manifest.json": "6ff02e4dcfc7923930d5224164b2e0aea33bbfd9a709adc5a53741ffd81672a9",
+    "data/research/tail_formula_index_morning/index_morning_gate.json": "5a974edc69363757be0ec3232ddf34175cd933a510f752f04a8269191abbac0c",
+    "data/research/tail_formula_index_morning/source_metadata_lookup_verification.json": "976ac2d5526c4cc64b2cd199478c348312fe94347349d38f9c3206b486505e7e",
+    "data/research/tail_formula_index_morning/inputs/feature_report.json": "bb08c509521a6e1a808baea1dcedafad7492cb77ac068074095f8a52474cd6a5",
+    "data/research/tail_formula_index_morning/inputs/feature_verification.json": "f0923c92ec2d92a3bea99e8f9ae665e5437d1dbef3398c5fc55560a6a6c3a884",
+    "data/research/tail_formula_index_morning/inputs/native_input_verification.json": "d826168b0a1a9439f9f94de67263667c0f7f142ff3bc2ef8a664bb1e69ecc662",
+    "config/tail_formula_index_morning_input_protocol.json": "0125bb84e11d32dd5d8ce7cf8a758ceb7806eee7b80d965c1fc46fac5d1a031e",
+    "src/trade_research/tail_formula_index_morning.py": "74384fda8f9b35abf40b3caa71e4bfa2cb83a317e022b428bbfaf28a39325541",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c"
+  },
+  "no_window_or_threshold_search": true,
+  "no_new_raw_extraction": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "full_models_and_lists_joint_commit_before_economics": true
+}
