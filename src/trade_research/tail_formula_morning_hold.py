@@ -14,7 +14,7 @@ from .corporate_cash import save_json, sha
 STEM = 'tail_formula_morning_hold'
 ROOT = Path('data/research')/STEM
 INPUTS = ROOT/'inputs'
-PROTOCOL = Path('config')/(STEM+'_input_protocol.json')
+PROTOCOL = Path('config')/(STEM+'_input_v2_protocol.json')
 INTENT = Path('config')/(STEM+'_intent.json')
 META = prior.META
 QUOTES = prior.price.prior.INPUTS/'quotes.parquet'
@@ -73,7 +73,7 @@ def prepare():
     checked(); assert not (INPUTS/'feature_report.json').exists(); INPUTS.mkdir(parents=True,exist_ok=True)
     f,q = original_and_quotes(); values = q[PRICE_COLUMNS].to_numpy(float)
     good = (f.morning_input_valid & q.pv_bars.eq(30) & q.pv_clocks.eq(30) & q.pv_good_bars.eq(30)
-            & f.high_cents.gt(0) & np.isfinite(f.V01) & f.V01.gt(0)).to_numpy()
+            & f.high_cents.gt(0) & np.isfinite(f.V01) & f.V01.gt(0)).to_numpy(copy=True)
     good &= (np.isfinite(values)&(values>0)&(np.abs(values-np.floor(values*100+.5)/100)<=.0001)).all(axis=1)
     with np.errstate(all='ignore'): got = measure(np.floor(values*100+.5),f.high_cents.to_numpy())
     got[~good] = np.nan
