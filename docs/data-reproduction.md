@@ -22,7 +22,7 @@ python3 -m venv .venv
 | 当前14:49原始前缀 | `data/research/minute_prefix_1449/` |
 | 原生公式各版本 | `data/research/tail_formula_*/` |
 | 最新前股日联合输入与完整年度结果 | `data/research/tail_formula_prior_bar/` |
-| 最新量额方向结果／接续均价区间 | `data/research/tail_formula_minute_vwap/`；区间实际协议与产物以[当前状态](research-status.md)为准 |
+| 分钟量额各版／当前接续 | `data/research/tail_formula_minute_vwap*/`；实际阶段及产物以[当前状态](research-status.md)为准 |
 
 `data/`受Git忽略，仓库本身不包含完整行情和研究产物。不能删除本地收据再运行旧命令来重选版本；文件名、数量相同也不证明来源或结果相同。
 
