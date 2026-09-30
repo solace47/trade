@@ -1,0 +1,26 @@
+{
+  "objective": "若同期主板区间联合完整六对照仍不足，检验当前50项输入能否在绝对正机会二元对数损失下筛出更好的次晨机会；不再换区间分界或窗口。",
+  "conditional_on": "market_bins完整六对照及门核准且supports_2024_extension=false；若通过，先作2024时间顺序扩展。",
+  "source_hashes": {
+    "config/tail_formula_market_bins_model_protocol.json": "eefff62c4bfdc2eb394cc4ac775e13efe0a2f0b705c5391116cc3e16cd3d7081",
+    "data/research/tail_formula_market_bins/joint_selection_freeze.json": "8ae43d66d94566f2b3eea2622317680f895420528ec6c539df3b2224836ca978",
+    "data/research/tail_formula_absolute_morning/model_metadata_intent_lookup.json": "1f2a406410aa9f4dcd8f27e334f1b0f764b50ab6803b01baf877eee2d2062f03",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c",
+    "config/tail_formula_chrono_logit48_recent_protocol.json": "6c95b39d9ace43fa1da5069b50f0a128d0a32982cdf48d3ee249c3ae1116ada4",
+    "src/trade_research/tail_formula_chrono_logit48.py": "735b18c5846fdc07fa8362c60dd91d2835a2ac1d615b54d23d4925774c2d1f08"
+  },
+  "prior_research": "直接机会树、早期24项提升分类及chrono_logit48绝对对数损失已失败；本项不是新损失发现，仅检验后来完整上午极值50项与目前相同滚动一年/保守29根标签的组合。旧失败/校准未通过不改写。",
+  "inputs": "精确复用morning_range原50和1258085完整键/1117397有效输入及原标签；没有新价格或分钟提取，也不用市场横向辅助。",
+  "model": "正常只两次GradientBoostingClassifier:64/深3/叶300/lr.05/seed20260927/subsample1/日期等权；只known15二元机会，不减当天均值；原两段一年成熟观察与固定q995保持。",
+  "score": "只输出静态IF树之和及log-odds门槛，不称已校准胜率；数学和全量评分必须独立核准。",
+  "controls": "原50相对模型与统计精确复用。六对照：原50、同期区间52、前股日52、上午量价52、旧固定48、完整价格77；全量未知/未买入/参考缺口/独有日保留。",
+  "statistical_screen": "两半年15基点参考均正，全年正机会高于原50及区间52，3%不利不高于50，与50共同日共享未知下界周块区间严格正；仅决定2024扩展，不是发布。",
+  "source_input_model_and_evaluation_protocols_required": true,
+  "full_models_and_lists_joint_commit_before_economics": true,
+  "no_parameter_threshold_window_search": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
