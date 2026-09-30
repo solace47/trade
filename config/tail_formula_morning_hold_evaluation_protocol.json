@@ -1,0 +1,49 @@
+{
+  "objective": "固定上午高点联合保持52项两套年度名单与四预定对照；原50/48/旧固定/完整价序列统计全部只在整帧及标签精确相同后复用。",
+  "model_protocol_sha256": "51956c3b8b2162745651821bd15fe33420c479c6eb12c9db33d306af77c22674",
+  "source_hashes": {
+    "scripts/reuse_tail_formula_selected_analysis.py": "2617e891d1f577706ca23030db819261c7d79888dbff397c7fd866c93ec28bf9",
+    "scripts/compare_tail_formula_same_dates.py": "515206a419604eae592557c08491b92949f5b313befd838e5be2ea839a8f4535",
+    "scripts/compare_tail_formula_shared_unknowns.py": "40e142c38e1b01c38b5e663d0c109f268137eac11a6f3b38539bb5b101312c19",
+    "scripts/audit_tail_formula_reference_coverage.py": "9807c5aee562be70bea770fde0a356cb71d32b488be9ff5af3ce7d4b59609226",
+    "scripts/verify_tail_formula_before1000.py": "3531396cae864ce835b0c51bfa6300741dc2c3b3645d1eb46cdf9978f4a59f23",
+    "src/trade_research/tail_formula_boundary_evaluation.py": "c973e76e9174b2933b26ed86f4b0bf1c646a7d83cdb4d11e668390886d137bd1",
+    "src/trade_research/reference_gain_accounting.py": "b16f66be3ef7bc5b64cbe67dec88d09dd1bbc8c32192cd6188cab49e4041a86f",
+    "scripts/evaluate_tail_formula_pool_scope.py": "9bec786a98dbf160bf18ddb9dffb2210053a7ea875d0bdfd72bc87780a413e93",
+    "scripts/evaluate_tail_formula_morning_hold.py": "76b4504c6576be2ab5f91da39341efc6cae2f880f11daf3c37305e585e758bc0"
+  },
+  "planned_comparisons": [
+    [
+      "hold2025",
+      "morning2025"
+    ],
+    [
+      "hold2025",
+      "control2025"
+    ],
+    [
+      "hold2025",
+      "fixed2025"
+    ],
+    [
+      "hold2025",
+      "price2025"
+    ]
+  ],
+  "periods": [
+    "2025H1",
+    "2025H2",
+    "2025"
+  ],
+  "label_projection_reuse": "所有组保留原1258085原池完整键；引用原09:59完整标签。控制完整名单全帧相同，逐键所有适用标签值相同后直接复用原摘要和日统计；不重复原年度聚合。若新名单也完全相同必须复用旧结果。",
+  "complete_frame_gate": "每组聚合前整帧equals；相同须另核标签和值的相同性。对照复用还须两侧全帧、完整摘要、日统计hash及适用标签相同。",
+  "analysis": "每个全年只汇总一次并含两个半年，5/15基点和原敏感性均保留，全部未知和未买入分母及缺参考保留。日期等权15基点为主，不将最高价格当卖出收益。",
+  "comparisons": "仅共同信号日，同时列两侧独有日期；已知条件比例差及各臂未知外界差分别保留。共享未知按同日期股票键只允许同一个潜在成功值，按两臂全候选数量形成权重差，未知分别贡献min(权重差,0)或max(权重差,0)，未买入机会0而非零实现收益。日期等权及原固定周块10000次双实现核准，不宣称多重试验后的显著性保证。",
+  "statistical_screen": "两半年参考均正，全年机会同时高于原50和原48、至少3%不利不高于原50，与原50共同日共享未知差下界周块区间严格正；只决定扩2024，不是发布门。",
+  "no_exit_rules": true,
+  "new_2026_prices_allowed": false,
+  "year_2025_is_exploratory": true,
+  "no_publish_claim": true,
+  "no_new_raw_extraction": true,
+  "no_new_2024_group_outcomes": true
+}
