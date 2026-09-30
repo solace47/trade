@@ -1,0 +1,48 @@
+{
+  "master_protocol_sha256": "71ab7b6b660ecec07134aedc57bd23910102eacf633ecea1ee2846c009d1a590",
+  "joint_selection_sha256": "f2546c205bc2c8a7111aefb29565ce021243477d9a2fea18add2cc990fe6b094",
+  "comparison_cache": [
+    {
+      "left": "data/research/tail_formula_dense_path/path_2025",
+      "right": "data/research/tail_formula_dense_path/control_2025",
+      "same_dates": "data/research/tail_formula_dense_path/same_dates_path_2025_minus_control_2025.json",
+      "shared_unknowns": "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_control_2025.json"
+    },
+    {
+      "left": "data/research/tail_formula_dense_path/path_2025",
+      "right": "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+      "same_dates": "data/research/tail_formula_dense_path/same_dates_path_2025_minus_fixed2025.json",
+      "shared_unknowns": "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_fixed2025.json"
+    },
+    {
+      "left": "data/research/tail_formula_dense_path/path_2025",
+      "right": "data/research/tail_formula_price_curve_2025",
+      "same_dates": "data/research/tail_formula_dense_path/same_dates_path_2025_minus_price_curve2025.json",
+      "shared_unknowns": "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_price_curve2025.json"
+    },
+    {
+      "left": "data/research/tail_formula_dense_path/path_2025",
+      "right": "data/research/tail_formula_tail_regression/regression_2025",
+      "same_dates": "data/research/tail_formula_dense_path/same_dates_path_2025_minus_tail_regression2025.json",
+      "shared_unknowns": "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_tail_regression2025.json"
+    }
+  ],
+  "source_hashes": {
+    "scripts/evaluate_tail_formula_dense_flow_cache.py": "1886039e44a6a00446b2172cc890a3ac5a3b61436d76e5905d30b9bee29be426",
+    "data/research/tail_formula_dense_flow/joint_selection_freeze.json": "f2546c205bc2c8a7111aefb29565ce021243477d9a2fea18add2cc990fe6b094",
+    "data/research/tail_formula_dense_path/complete_results_manifest.json": "56d4b5e9550218143460972cba877644983c5415c195edbe3a563c07c50c6878",
+    "data/research/tail_formula_dense_path/same_dates_path_2025_minus_control_2025.json": "84044e3d59603e98466599868412768a39c621160846c1a2a5a1d37560e0f5cc",
+    "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_control_2025.json": "2d533f2090185156a25f4f78a7710e2d71ffb7d94f79afff76850301e25e3ec1",
+    "data/research/tail_formula_dense_path/same_dates_path_2025_minus_fixed2025.json": "c54981c47a66315f0f1353cc6624fa5b5673e2c4f8f6c072caca1579fb8fb3c0",
+    "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_fixed2025.json": "b536e0214a7ae57e7a671ad18eac7ee6991b70ad06d6a021d8dfebc2969c7148",
+    "data/research/tail_formula_dense_path/same_dates_path_2025_minus_price_curve2025.json": "92680587275081beb84bdb7e85bf6c06c0aa0664766fc742e95e93f7fbc69c5b",
+    "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_price_curve2025.json": "73292e2a2a7356aeeb038e48febedaef1762774f6e0bb8dacdca41bf91f8bbdd",
+    "data/research/tail_formula_dense_path/same_dates_path_2025_minus_tail_regression2025.json": "15c69484f2ae859a019838f965d34b3143a87c5d08e4173a4d1436e8050e9e8c",
+    "data/research/tail_formula_dense_path/shared_unknowns_path_2025_minus_tail_regression2025.json": "7df95b0873077016ff30efc66bd192feeec2e7da118f9f683ee802157649f96a"
+  },
+  "objective": "完整名单相同后扩充原价序列已算对照缓存，仅避免重复统计；不改变模型、选择、标签、比较清单或扩2024门。",
+  "full_lists_labels_and_daily_summaries_must_be_equal_before_each_reuse": true,
+  "new_economic_aggregation_allowed": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
