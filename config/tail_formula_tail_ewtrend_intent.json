@@ -1,0 +1,49 @@
+{
+  "objective": "只在扩大池可买事件完整检验不足后，回到原池原目标，检验既有30报价的指数权重趋势及其信号偏离，不继续扩池或收紧目标。",
+  "prior_research": "原完整价坐标、四窗线性回归和四阶曲线均已检验不足；这不是新原始信息。旧源码和文档未发现有限30根指数权重快慢差及其9根递推信号。必须精确查重；已存在相同输入/目标/权重/参数模型就复用。",
+  "source_hashes": {
+    "config/tail_formula_pool_executable_model_protocol.json": "867ea484421e2710dfca89c96ca94d44b2ce1beeaf5de8c84600100bc035b09f",
+    "config/tail_formula_pool_executable_evaluation_protocol.json": "7c10b7bd46a92d85ea30748bf7d1b85cfb0bb2b16e318cfef2a3b95f976b8310",
+    "config/tail_formula_dense_path_protocol.json": "44affaa62eaceacde884858f20fc9cac080d8d3f57c219d599f4355f0da38f48",
+    "config/tail_formula_tail_regression_protocol.json": "45e4b0bb3ff85e2076617eda27faa8661810fc0ad3daebe409eac68e1ea9892c",
+    "data/research/tail_formula_tail_regression/inputs/feature_report.json": "8318a6ac55207f03cf3d9bc4aa13b6288885a00763a99392a5a1e165a73e4df3",
+    "data/research/tail_formula_tail_regression/inputs/feature_verification.json": "88146c8c8888165ff28d3c46dce0215ddad149a90b54e81074ffe9a82cbbd340",
+    "data/research/tail_formula_tail_regression/inputs/native_input_verification.json": "5c9ba774b83e90cd63841192c7fff2308d4e6e4fd97aaf11b055c6f4e3d6c7e7"
+  },
+  "conditional_on": "tail_formula_pool_executable/event_objective_gate.json passed且supports_followup为false；新指标及模型协议、核准、共同名单另行提交在前，禁止直接用意向替代实际协议。",
+  "price_window": [
+    "14:20",
+    "14:49"
+  ],
+  "no_new_raw_extraction": true,
+  "initialization": "快12与慢26指数递推分别在14:20都初始化为该根整数分收盘；差在14:20为0，9根信号也初始化0。随后29次更新，a_n=2/(n+1)，不使用14:20前价格，不冒称客户端连续历史EMA或标准完整MACD。",
+  "new_features": {
+    "EWTD": "14:49快12均价减慢26均价，乘100再除14:49分价和原ATR百分比",
+    "EWTH": "14:49上述差减其9根递推信号，乘100再除14:49分价和原ATR百分比"
+  },
+  "native": "最终差和差减信号各是现有30整数分价的固定常数加权和。导出以14:49分价为锚的RTC00—RTC29常数组合，全部项同时保留；全量递推独立核准与固定原档探针代数验证，不依赖软件EMA隐含预热。",
+  "model": "原归一化48追加两项共50，原同日相对三根正机会，原两段一年/64深3/最小叶300/lr.05/日期等权/q995；原控制全量精确复用。有效域若减少须在名单固定前增同质量对照。",
+  "planned_comparisons": [
+    [
+      "ew2025",
+      "control2025"
+    ],
+    [
+      "ew2025",
+      "fixed2025"
+    ],
+    [
+      "ew2025",
+      "price2025"
+    ],
+    [
+      "ew2025",
+      "regression2025"
+    ]
+  ],
+  "statistical_screen": "两半年参考均正，全年机会高于同参数48，至少3%不利不高于同参数48，与同参数48共同日共享未知差下界周块区间严格正；只决定是否支持扩2024，不是发布门。",
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_window_or_coefficient_search": true
+}
