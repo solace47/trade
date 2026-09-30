@@ -1,0 +1,35 @@
+{
+  "objective": "若完整量额路径仍不足，停止该尾段表示的微调，检验早盘沪深指数背景与原50的联合；保持原相对目标和训练。",
+  "conditional_on": "minute_vwap_path完整六对照核准且supports_2024_extension=false；通过则先2024扩展。",
+  "source_hashes": {
+    "data/research/tail_formula_index_morning/source_metadata_lookup_verification.json": "976ac2d5526c4cc64b2cd199478c348312fe94347349d38f9c3206b486505e7e",
+    "src/trade_research/tail_formula_context.py": "4cadf984be12df5f0ee2be7f8cab2bf95cd684bb172e88297a2af1110c7e94c0",
+    "config/tail_formula_context_protocol.json": "4284da859ed23620727f7314c3ed2f89d042e7fd9d41df2357c13a14cb1aa427",
+    "data/research/tail_formula_context/source_report.json": "5a72cb50f75d2bd5d3900ee1869927104e3c37361cb33f22f0436bf5e7234599",
+    "data/research/tail_formula_context/feature_report.json": "9bfc158fcea31442b21cd2afbc97d384877a6bece25635d4c4768f7b34ab463a",
+    "data/research/tail_formula_context/feature_verification.json": "b0bfd01b4d3d7b2c4415ac2f59d256e9a9cf67bcb5395d1b4569f07082adc8e9",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c",
+    "config/tail_formula_minute_vwap_path_model_protocol.json": "c7472880943a46216116445f596a671ca18ce999136353b0a935df1fa8d613dc",
+    "config/tail_formula_minute_vwap_path_evaluation_protocol.json": "18bf5a5fec60390a1c43e90f695b28ccf2bdec1489ee7c45b4442a081b1b0498"
+  },
+  "inputs": "原50保留，只追加两项共52。使用既有指数序号0和28代表09:31/09:59，沿用最近完整活跃股日对应指数参考价index_prior_close；按沪/深原映射，不混其他指数。不得把复牌间隔统一称昨收。",
+  "features": {
+    "IM01": "100*(当前09:59指数代表价/当前09:31代表价-1)",
+    "IM02": "100*(当前09:59指数代表价/个股原index_prior_close-1)"
+  },
+  "prior_research": "原I是日线趋势、J/R是1448/1420/1435/1301指数/超额；旧行业指数对、状态分流、市场基线和尾30序列失败保留。新早盘两点未单独使用，不按收益选其他分钟。",
+  "native": "IQ31/IQ59用VALUEWHEN(TIME=931/959,INDEXC)，IM01为两点比，IM02除原ICP1。显式同日时钟/正价门，引用既有代表价与INDEXC仍未客户端证明。",
+  "quality": "原50全部键和值保留；先核准原index_prior_close与旧J01来源逐键一致，完整旧前228序号质量保持。有效交集若变先固定同质量控制，不填0。",
+  "model": "原一年两折、日期等权、相对三连机会、64深3叶300/.05/seed20260927/q995。正常仅两新拟合，原50控制全训练方程/评分/名单精确相同后复用。",
+  "controls": "固定六对照：原50、完整量额路径79、实际均价区间52、上午量价52、旧固定48、完整收盘价格77。全部未知、未买入、缺参考与独有日期保留。",
+  "screen": "两半年15基点参考均正，全年机会高于原50及完整量额路径，3%不利不高于原50，原50共同日共享未知下界周块区间严格正；只决定2024扩展。",
+  "actual_input_source_model_and_evaluation_protocols_required": true,
+  "full_models_and_lists_joint_commit_before_economics": true,
+  "no_window_or_threshold_search": true,
+  "no_new_raw_extraction": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
