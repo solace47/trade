@@ -2,6 +2,10 @@
   "objective": "仅完整一年绝对跨股票校准仍不足时，检验相同分组、日期和输入校准下的本组相对机会目标。",
   "activation": "tail_formula_stock_holdout完整六对照不支持2024扩展时；通过则先扩2024，不执行本项。",
   "inputs_and_membership": "精确复用原50、完整键、有效域、代码末位0至4／5至9两组及一年训练／2025两半年；不读取新增行情、不重分组、不改分位。",
+  "folds": {
+    "2025h1": {"training_start": "2024-01-01", "training_end": "2025-01-01", "evaluation_start": "2025-01-01", "evaluation_end": "2025-07-01"},
+    "2025h2": {"training_start": "2024-07-01", "training_end": "2025-07-01", "evaluation_start": "2025-07-01", "evaluation_end": "2026-01-01"}
+  },
   "target": "每个模型只使用本组严格成熟的原known15标签。先在本组全已知标签上按训练日计算opportunity15均值，再交原有效输入，target=opportunity15减该均值；另一组收益不进入目标或权重。",
   "fit": "沿已核准GradientBoostingRegressor、squared_error、64棵、深度3、叶300、learning_rate0.05、subsample1、max_features=null、seed20260927，本组训练日期等权。最多四个新拟合，先查元数据。",
   "calibration_and_control": "每模型在同一年日期中用另一组全部有效输入的评分固定q995线性分位，不读其收益。跨组候选与本组控制共用四模型、四评分和四门槛。",
