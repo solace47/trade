@@ -1,0 +1,66 @@
+{
+  "objective": "只在完整上午推进与残差六对照不支持扩2024时，检验完整上午120次价格变化发生时的成交量方向和带幅度响应；原50只追加两项共52。",
+  "conditional_on": "morning_trend完整结果与门均passed且supports_2024_extension=false；否则先跨2024，不启动本项。",
+  "source_hashes": {
+    "config/tail_formula_morning_trend_intent.json": "9e8939b1c0fc801eb00140a970fbca2b8b7ecc5789dc74d03184d4efe591c519",
+    "config/tail_formula_morning_trend_input_protocol.json": "2c8fe5da3745538ac8661e17fc92b7ba16ffcb1ecbff14f78328b5061e6915c5",
+    "config/tail_formula_morning_trend_model_protocol.json": "f05ae76c2910c09c2363cbe2ae3bb1606b9e9bd4fb0f6ca187a4ef2566183f13",
+    "config/tail_formula_volume_response_protocol.json": "ea6fabcd7847de064a29947bdac2da56a56f2eabc27fd12fc5cf31f02c2c68c3",
+    "config/tail_formula_history_direction_protocol.json": "ccc5c7a3c69e4aaa6a89aec539fb8fd03dbcfdc676b32e0a0bb1038c7b604a61",
+    "data/research/tail_formula_morning_range/inputs/raw_report.json": "dbcc4e1369a4d3b91bc8d7e23892f48677d4e4933208a386aea7a8d258ee9e10",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c"
+  },
+  "prior_research": "尾盘29量的方向、带幅度量价响应、历史20日方向和量权响应均已失败，不重复它们。完整上午量权分布保留价格水平而没有相邻变化，本项固定0930锚至1130的完整120次变化，单独检验上午变化与同一分钟量的联合，不任意换窗或另取新原档。",
+  "source": "原53个完整上午缓存121个0930至1130标签，0930仅价格锚，931至1130的120根量配本根价格变化。零量条仍保留价格前件，贡献量为0；原50全部键值元数据质量保持。",
+  "primitives": {
+    "c_i": "整数分C_i，i=0..120",
+    "v_i": "原始股数V_i，i=1..120",
+    "s_i": "sign(c_i-c_(i-1))，严格涨1、跌-1、平0",
+    "r_i": "LN(c_i/c_(i-1))，i=1..120",
+    "AMVTO": "sum(v_i)，120根非负量、正总量",
+    "AMVSD": "sum(v_i*s_i)",
+    "AMVLD": "sum(v_i*r_i)"
+  },
+  "new_features": {
+    "AMVS": "100*AMVSD/AMVTO",
+    "AMVR": "12000*AMVLD/AMVTO/前日ATR百分比"
+  },
+  "native": "0930起121完整价格保护；1130保存SUM(V,120)、SUM(V*sign(整分C-REF(整分C,1)),120)、SUM(V*LN(整分C/REF(整分C,1)),120)。首变化931引用930，不能引用昨日或午后。原AMREADY和120正总量及同日门保护。",
+  "model": "原50固定控制只加两项共52，原相对三连正机会、两一年窗、日期等权、64深3/叶300/lr.05/seed20260927/q995保持，只两个新拟合。原50模型及全评分在完整等价后精确复用；有效交集减少须先冻结同质量原控制，不能冒称整帧相同。",
+  "planned_comparisons": [
+    [
+      "flow2025",
+      "morning2025"
+    ],
+    [
+      "flow2025",
+      "trend2025"
+    ],
+    [
+      "flow2025",
+      "distribution2025"
+    ],
+    [
+      "flow2025",
+      "control2025"
+    ],
+    [
+      "flow2025",
+      "fixed2025"
+    ],
+    [
+      "flow2025",
+      "price2025"
+    ]
+  ],
+  "statistical_screen": "两半年15基点参考均正，全年正机会高于原50和推进版、3%不利不高于50，与50共同日共享未知下界周块区间严格正；只决定扩2024。六对照及独有日全部保留，不能用节点使用或个别时期替代。",
+  "interpretation": "分钟报价涨跌与该分钟量的配对统计，不是逐笔主动成交、机构身份或真实净流入，也不能证明下单排队可成交。",
+  "actual_input_model_and_evaluation_protocols_required": true,
+  "cache_metadata_and_model_exact_lookup_required": true,
+  "full_models_and_lists_joint_commit_before_economics": true,
+  "no_window_or_coefficient_search": true,
+  "no_new_raw_extraction": true,
+  "new_2026_prices_allowed": false,
+  "year_2025_is_exploratory": true,
+  "no_exit_rules": true
+}
