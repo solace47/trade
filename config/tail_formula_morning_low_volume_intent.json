@@ -1,0 +1,51 @@
+{
+  "objective": "仅在高点量权54项完整检验不足时，转向上午低点的量权站位与有方向穿越，不新增行情。",
+  "conditional_on": "morning_volume_gate.json passed且supports_2024_extension=false，两个54模型及两完整名单五对照全部核准；若支持扩2024则先跨年验证。",
+  "source_hashes": {
+    "config/tail_formula_morning_volume_input_protocol.json": "5f2f674f87f5712eb0caa997bee554161c7ce45702aa16f41d4215072e683ebd",
+    "config/tail_formula_morning_volume_intent.json": "5a9e0c3fc653c18934bb1a2090022a87f2e9e4158dd3c21ffcc15223bab74d35",
+    "config/tail_formula_morning_range_input_protocol.json": "d86d9149d7c7fd5f2263382829cbc6769b269f625c91557ae5b6e0f0fdd041f6",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c"
+  },
+  "prior_research": "原50上午低点距离进入2/17分裂，高点距离和保持时间未使用。这是已知旧结果提供的独立方向，先于54效果固定。此前全天/下午低点和单独29量坐标旧失败保留；完整上午低点与逐分钟位置/穿越量的联合表示需实际精确查重。",
+  "window": "原14:20—14:49三十报价及14:21—14:49二十九量，上午低点是原1130正量极值，第一穿越使用窗内1420状态。",
+  "new_features": {
+    "MLVA": "100*sum(V_i*I(整数分C_i>上午最低整数分价))/sum(V_i)，i=1421—1449",
+    "MLVX": "100*sum(V_i*(I(C_i>上午低点)-I(C_{i-1}>上午低点)))/sum(V_i)，i=1421—1449"
+  },
+  "native": "明确整数分上午低点ALMC/AMLC绑定，严格高于，完整时钟/非负量/正总量，1130同日保存及1449锁定；只作价量位置，不推断主力身份。",
+  "model": "原54追加两项共56，两个原相对一年窗/日期等权/64深3/叶300/lr.05/q995；两个原54控制及50/48方程评分统计严格等价复用；有效域减少先同质量控制。",
+  "planned_comparisons": [
+    [
+      "low2025",
+      "volume2025"
+    ],
+    [
+      "low2025",
+      "morning2025"
+    ],
+    [
+      "low2025",
+      "control2025"
+    ],
+    [
+      "low2025",
+      "fixed2025"
+    ],
+    [
+      "low2025",
+      "price2025"
+    ]
+  ],
+  "statistical_screen": "两半年参考均正，全年机会高于原54和原50、至少3%不利不高于54，与54共同日共享未知下界周块区间严格正，仅决定扩2024。",
+  "actual_input_model_and_evaluation_protocols_required": true,
+  "full_models_and_lists_joint_commit_before_economics": true,
+  "no_new_raw_extraction": true,
+  "no_window_or_coefficient_search": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_trader_identity_claim": true
+}
