@@ -1,0 +1,63 @@
+{
+  "objective": "仅在56项低点量权完整评价不支持扩2024时，检查已缓存完整上午121分钟成交量对应的价格分布，替代继续追加高低点二元计数。",
+  "conditional_on": "低点56完整两模型及两名单、五对照均核准且门passed、supports_2024_extension=false；若支持扩2024则优先跨年验证。",
+  "source_hashes": {
+    "config/tail_formula_morning_low_volume_intent.json": "81d6f98d9485ccd9d0fc9349ff282b4fa52fa889393cab985426025bf1fa9e8b",
+    "config/tail_formula_morning_low_volume_input_protocol.json": "08eafb1d100de8e55a882d388404b6808de711f97dd1450d9553a3249050c83f",
+    "config/tail_formula_morning_low_volume_model_protocol.json": "589e3e014f34e7158106a9227107b0d7eff28bfe46bc6b3bbe776aa0950c3593",
+    "config/tail_formula_morning_range_input_protocol.json": "d86d9149d7c7fd5f2263382829cbc6769b269f625c91557ae5b6e0f0fdd041f6",
+    "data/research/tail_formula_morning_range/inputs/raw_report.json": "dbcc4e1369a4d3b91bc8d7e23892f48677d4e4933208a386aea7a8d258ee9e10",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c"
+  },
+  "prior_research": "完整上午高低50项低点距离有分裂，随后保持52与高点量权54新项均未用且完整名单相同。旧全天/尾盘实际量额VWAP、历史20日量权收盘中心及尾盘HLCV位置、早尾同长波动均已失败，不重复它们。本项是当日已完成上午121根量权收盘中心与量权单分钟价格区间，不等价于上述时间窗或极值。",
+  "source": "原morning_range/raw_report锁定的53个完整晨窗缓存，09:30—11:30含121标签；所有股日及整数分O/H/L/C、量非负和正总量门原样保持，仅缓存再聚合，无下载或原行情重提。",
+  "primitives": {
+    "AMVPC": "sum(V_i*整数分C_i)/sum(V_i)",
+    "AMVRC": "sum(V_i*(整数分H_i-整数分L_i))/sum(V_i)"
+  },
+  "new_features": {
+    "AMCP": "100*(14:49整数分价/AMVPC-1)/前日ATR百分比",
+    "AMRP": "100*AMVRC/AMVPC/前日ATR百分比"
+  },
+  "interpretation": "按分钟量加权的收盘字段中心及分钟价格区间，不是逐笔成交价、实际成交VWAP、买卖发起方或主力身份。零量分钟保留并贡献0，不搜索窗长、下沿距离、标准差或系数。",
+  "native": "AMVPC/AMVRC均VALUEWHEN(TIME=1130,SUM(...,121)/AMVV)保存，再用原1130同日/1449报价和ATR质量保护；整数分和股/手共同比例明确绑定。",
+  "model": "回到原50项作为固定控制，新输入只加两项共52；两一年窗/严格成熟标签/相对正机会/日期等权/64深3/叶300/步长.05/seed20260927/q995，原50方程完整评分严格复用，不拟合52保持或54高点量权。若有效域减少先同质量控制。",
+  "planned_comparisons": [
+    [
+      "distribution2025",
+      "morning2025"
+    ],
+    [
+      "distribution2025",
+      "low2025"
+    ],
+    [
+      "distribution2025",
+      "volume2025"
+    ],
+    [
+      "distribution2025",
+      "control2025"
+    ],
+    [
+      "distribution2025",
+      "fixed2025"
+    ],
+    [
+      "distribution2025",
+      "price2025"
+    ]
+  ],
+  "statistical_screen": "两半年参考均正、全年机会高于原50及56、至少3%不利不高于原50、与原50共同日共享未知下界周块区间严格正，仅决定扩2024。所有六对照和两侧独有日期保留。",
+  "actual_input_model_and_evaluation_protocols_required": true,
+  "cache_metadata_and_model_exact_lookup_required": true,
+  "full_models_and_lists_joint_commit_before_economics": true,
+  "no_new_raw_extraction": true,
+  "no_window_or_coefficient_search": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_trader_identity_claim": true
+}
