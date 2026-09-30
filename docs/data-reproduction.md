@@ -28,7 +28,7 @@ python3 -m venv .venv
 
 ## 最近完成版本的核对
 
-最近完成的绝对输入校准协议位于`config/tail_formula_absolute_input_calibration_*`，阶段入口为`scripts/run_tail_formula_absolute_input_calibration.py`。原50输入直接引用`data/research/tail_formula_morning_range/inputs/`，两模型共用训练及校准门槛控制，不复制行情或特征。
+最近完成的绝对跨股票校准协议位于`config/tail_formula_stock_holdout_*`，阶段入口为`scripts/run_tail_formula_stock_holdout.py`。原50输入直接引用`data/research/tail_formula_morning_range/inputs/`，四模型共用于跨组及本组名单，不复制行情或特征。
 
 先读取现有报告，不重复执行生产阶段：
 
@@ -37,17 +37,17 @@ PYTHONPATH=src .venv/bin/python - <<'PYCODE'
 import json
 from pathlib import Path
 from trade_research.corporate_cash import sha
-root = Path('data/research/tail_formula_absolute_input_calibration')
-for name in ['joint_selection_freeze.json', 'absolute_input_calibration_gate.json', 'complete_results_manifest.json']:
+root = Path('data/research/tail_formula_stock_holdout')
+for name in ['joint_selection_freeze.json', 'stock_holdout_gate.json', 'complete_results_manifest.json']:
     path = root / name
     report = json.loads(path.read_text())
     assert report['passed']
     print(name, sha(path))
-print('支持2024扩展：', json.loads((root / 'absolute_input_calibration_gate.json').read_text())['supports_2024_extension'])
+print('支持2024扩展：', json.loads((root / 'stock_holdout_gate.json').read_text())['supports_2024_extension'])
 PYCODE
 ```
 
-报告中的`passed`表示阶段核准，不能解释为策略通过。该入口的`shared.configure(study.STEM)`、两折`checked_scores()`及`shared.checked_joint()`可核对协议、代码、模型、评分、校准、联合收据和完整名单，不运行新经济汇总。空训练控制的`analysis_reuse.json`及标签投影证明绑定旧绝对50空名单；已有年度摘要包含两半年，不重复聚合。
+报告中的`passed`表示阶段核准，不能解释为策略通过。该入口的`shared.configure(study.STEM)`、两半年各两组`checked_scores()`及`shared.checked_joint()`可核对协议、代码、模型、评分、校准、联合收据和完整名单，不运行新经济汇总。两套空名单的`analysis_reuse.json`及标签投影证明绑定旧绝对50空名单；旧主控制的目录别名来源见`legacy_directory_resolution_verification.json`。已有年度摘要包含两半年，不重复聚合。
 
 需要复算已有版本时，先核对该版协议／源码／输入指纹及既有阶段报告。不同家族的命令和验证器不能互换；例如上午分布独立核准和高点保持原生核准须用其冻结包装脚本，不能改用曾失败的直接入口。
 
