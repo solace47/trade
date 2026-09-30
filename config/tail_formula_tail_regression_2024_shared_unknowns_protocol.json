@@ -1,0 +1,40 @@
+{
+  "objective": "当日尾盘四窗回归输入跨年与匹配及旧价格曲线对照；原经济数据、日期和未知全部保留。",
+  "labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "method": "仅共同信号日；每个日期股票键只有一个未知二元机会。权重差a=左入选/N左-右入选/N右。已知成功贡献a，已知失败和未买入贡献0；未知对下界贡献min(a,0)，对上界贡献max(a,0)。同股同日两臂共享未知不能分别假定一边成功一边失败。每日期相加再日期等权，保留全部未知和未买入分母；独有日期列出但不混入共同日期差。",
+  "statistical_scope": "机会差上下界，不是已知样本条件机会率之差，不是实际收益；原两臂分别取界仍为较宽有效外界，保留不覆盖。沿用固定周块10000次种子20260926，分别对端点给区间；2025全部探索，不作多重比较后显著性保证。",
+  "comparisons": [
+    {
+      "left": "data/research/tail_formula_tail_regression/regression_2024",
+      "right": "data/research/tail_formula_tail_regression/control_2024",
+      "left_analysis_sha256": "b830f35e94b9ccaa9074081e99438a87fc05960bccce0bae139982c8d657c4f8",
+      "right_analysis_sha256": "8d305e4eb1dba6dad1850c1e6262cdfd3c43819ea3c04d1be46102b6e8c44c74",
+      "output": "data/research/tail_formula_tail_regression/shared_unknowns_regression_2024_minus_control_2024.json"
+    },
+    {
+      "left": "data/research/tail_formula_tail_regression/control_2024",
+      "right": "data/research/tail_formula_quarter_history2024/full",
+      "left_analysis_sha256": "8d305e4eb1dba6dad1850c1e6262cdfd3c43819ea3c04d1be46102b6e8c44c74",
+      "right_analysis_sha256": "efaaa8ea7388ca83f62520fabffff33ce5e360c845c0cc500e7cb7bef5b240fa",
+      "output": "data/research/tail_formula_tail_regression/shared_unknowns_control_2024_minus_norm_full2024.json"
+    },
+    {
+      "left": "data/research/tail_formula_tail_regression/regression_2024",
+      "right": "data/research/tail_formula_quarter_history2024/full",
+      "left_analysis_sha256": "b830f35e94b9ccaa9074081e99438a87fc05960bccce0bae139982c8d657c4f8",
+      "right_analysis_sha256": "efaaa8ea7388ca83f62520fabffff33ce5e360c845c0cc500e7cb7bef5b240fa",
+      "output": "data/research/tail_formula_tail_regression/shared_unknowns_regression_2024_minus_norm_full2024.json"
+    }
+  ],
+  "new_2026_prices_allowed": false,
+  "no_exit_rule_research": true,
+  "periods": [
+    "2024H1",
+    "2024H2",
+    "2024"
+  ],
+  "signal_range": [
+    "2024-01-01",
+    "2024-12-31"
+  ]
+}
