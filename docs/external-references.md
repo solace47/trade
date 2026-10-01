@@ -23,6 +23,8 @@
 
 当前最直接的收益是确认历史参考价与常见动态均价实现的数学对应，并明确可复用组件的默认假设；尚未从外部项目取得经本地验证的盈利策略。下载来源、内容 SHA 和 DMA 对照保存在本地忽略的 `data/research/external_reuse/`。GitHub 元数据接口遇到限流，使用公开源码页完成查阅，没有把未成功获取的提交信息写成已核验版本。
 
+2026-10-01接续ETF来源：上交所[510300历史产品资料](https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-03-25/510300_20250325_W5NO.pdf)及[510500历史产品资料](https://www.sse.com.cn/disclosure/fund/announcement/c/new/2023-02-28/510500_20230228_3ELF.pdf)第一页确认华泰柏瑞沪深300ETF、南方中证500ETF的证券身份，上市日与数据覆盖表相同；只核身份，不采用基金业绩、当前持仓或指数成员。原件／文本收据`ff0956a158b9ce1e79f2a88f298d558d49122bafb69cfb61227c9c4583de7258`保存在`independent_signal_source_probe/`。另读[通达信官方函数列表](https://help.tdx.com.cn/gspt/docs/markdown/redword/functionlist.html)的CALCSTOCKINDEX：可引用指定证券辅助指标，但对应周期必须先下载；目录不能替代客户端对齐验证。两ETF的新成交量只在实际输入协议固定之后读取，完整数学核准见[ETF活动研究](selection-formula.md#接续两只etf的可见成交活动)。
+
 
 2026-09-27另核对[AKShare资金流源码](https://github.com/akfamily/akshare/blob/main/akshare/stock/stock_fund_em.py)、[同花顺适配器](https://github.com/akfamily/akshare/blob/main/akshare/stock_feature/stock_fund_flow.py)与[快讯适配器](https://github.com/akfamily/akshare/blob/main/akshare/stock_feature/stock_info.py)：前者个股接口注明近期日级数据，同花顺大单追踪无历史日期参数，快讯默认只取最近一页；这不证明上游完全没有历史，但封装本身不能提供已核准的2024–2025盘中快照。源码仅阅读，未整体执行。文件SHA分别`04a4677103fe8faa02515944af8e45e6c6200ef45a6f6f68a4bf8f0c95d049cd`、`d9c658a6c47186f06f1094e127e5aa75284d23cd57a82ca4e9b6d2ccd368a0f0`、`af5222de4c1396b2b1ecc14ff40c13e5cdc32ae8be738523b1c2f7a395bedb90`，保存在本地`news_source_probe/`。
 
