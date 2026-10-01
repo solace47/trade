@@ -246,7 +246,11 @@
     "config/tail_formula_profit_rule_search_evaluation.json": "78de363a5cc9f90f82ea658303188d8198a7a047827d63d604b012cfb70994c3",
     "config/tail_formula_robust_profit_rule_search_protocol.json": "f07e8be397f47d87e3a0cdef57085280214a2a4229171537bfb1f27e90c9f252",
     "config/tail_formula_robust_profit_rule_search_execution.json": "16173bf133aa74fcc76f55e1837df53f32b5c291cc68c98ea7640170b4d06e4b",
-    "data/research/research_method_sources_20261002/overnight_scope_followup.json": "ce84e574cb458c9c389a1419d8dba193c137fb6f8d12b0604f735a9619c3873d"
+    "data/research/research_method_sources_20261002/overnight_scope_followup.json": "ce84e574cb458c9c389a1419d8dba193c137fb6f8d12b0604f735a9619c3873d",
+    "config/tail_formula_robust_profit_rule_search_evaluation.json": "b14518a254216ce4902ba367e78742b837f1095ae97dc0a0125080a763db7a69",
+    "data/research/tail_formula_robust_profit_rule_search/all_models_verified.json": "2f59ed9a579f0169f1353c80bc5559af88ebfb6bb60da0021309815fb1570f7a",
+    "data/research/tail_formula_robust_profit_rule_search/joint_selection_freeze.json": "2a936580e6e308f999142b460e8cffa9214f6bb955006aaff1b341d9912d23d9",
+    "data/research/tail_formula_robust_profit_rule_search/complete_results_manifest.json": "21f2d63a5d854ce88889a1509d3d575fc690e40ae7ca0ffbbe8121101f3033c3"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -261,12 +265,13 @@
     "data/research/tail_formula_external_pattern/prior_cleaned_runtime.json": "f51af2ed2f8a89e35c84b1a5c6d58166f400a105664bd95ad14bf978540968d1",
     "data/research/tail_formula_rule_reference_gate/prior_cleaned_runtime.json": "64e14bcfff6cfcd3fafd0f683e3fd97b6b2b3dda9327945998aeb37f0ea2d754",
     "data/research/tail_formula_robust_profit_rule_search/prior_cleaned_runtime.json": "1531aa19f09ca79f74c5698dd1db2c697f8f02206141b95836bf87fc9510f619",
-    "data/research/tail_formula_robust_profit_rule_search/prior_archive_runtime.json": "056111801e2ce19c85f7d7004e114ced33c31578bda31672cc3756a187642b4c"
+    "data/research/tail_formula_robust_profit_rule_search/prior_archive_runtime.json": "056111801e2ce19c85f7d7004e114ced33c31578bda31672cc3756a187642b4c",
+    "data/research/tail_formula_robust_profit_rule_search/prior_fit_runtime.json": "c88c09d56798164175be549ef40ca173a903740cda8e9bd7ecd0e7b390c3e93b"
   },
-  "previous_completed_study_revision": "24a883f",
-  "current_study": "tail_formula_robust_profit_rule_search_fitting",
+  "previous_completed_study_revision": "aad7cf7af6ab840f72fa94b7d95ccc07a3ad85d8",
+  "current_study": "tail_formula_robust_profit_rule_search_complete",
   "research_definition_changed": true,
-  "rationale": "平均净参考搜索完整失败；全部24组同日拆解及集中度核准，H2训练均值受少数大涨日支撑。事先固定同规模中位数与截尾目标；旧平均实现字节可从Git24a883f恢复，不重做旧拟合。 删除八个已结束且无当前运行依赖的执行文件，原字节逐项由Gitf6abbcb核准，结果与原件保留。",
+  "rationale": "稳健目标、两年四半年及全部四控制比较完成，五项质量条件仍失败。继续核查这条已固定三条件的跨期使用，不重复拟合或改阈值。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -589,6 +594,9 @@
     "training_concentration_groups": 24,
     "current_robust_fits_at_protocol": 0,
     "tests_passed": 27,
-    "additional_retired_files": 8
+    "additional_retired_files": 8,
+    "completed_robust_fits": 4,
+    "completed_robust_comparisons": 8,
+    "completed_robust_source_fingerprints": 115
   }
 }

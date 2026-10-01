@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-当前为稳健收益三条件检验：[选择器入口](../scripts/run_tail_formula_robust_profit_rule_search.py)、[名单与评价入口](../scripts/finish_tail_formula_robust_profit_rule_search.py)。旧平均搜索、后过滤及全部诊断已完成，禁止重复拟合或覆盖收据。使用已有Python 3.12虚拟环境，依赖见requirements.txt。
+最近完成稳健收益三条件检验：[选择器入口](../scripts/run_tail_formula_robust_profit_rule_search.py)、[名单与评价入口](../scripts/finish_tail_formula_robust_profit_rule_search.py)。稳健搜索、旧平均搜索、后过滤及全部诊断已完成，禁止重复拟合或覆盖收据。使用已有Python 3.12虚拟环境，依赖见requirements.txt。
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
