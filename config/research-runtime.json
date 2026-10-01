@@ -260,7 +260,11 @@
     "data/research/tail_formula_rule_persistence/complete_results_manifest.json": "b0577138ceca3047bd59a47836a7f9497876fdf332cedb518d1e3142981ee305",
     "data/research/research_method_sources_20261002/search_selection_bias_review.json": "73367c9455b436ae045731ccdb808fdbf3d9759dca549cbee046a1b139cc570a",
     "config/tail_formula_chronological_rule_gate_protocol.json": "77eb66babe520127eceec01161158f0a8d5450b2e8ba8f79c1aba4fa14c43441",
-    "config/tail_formula_chronological_rule_gate_execution.json": "82e5f78a636b0e40549dab622be23e8bd99ab2b5bfdbf4f8076ff96ced0597e2"
+    "config/tail_formula_chronological_rule_gate_execution.json": "82e5f78a636b0e40549dab622be23e8bd99ab2b5bfdbf4f8076ff96ced0597e2",
+    "config/tail_formula_chronological_rule_gate_evaluation.json": "44d2759ee4bebf040862eb436421d890df7758e14bad037d3a4c005a52ab41bf",
+    "data/research/tail_formula_chronological_rule_gate/all_models_verified.json": "21ffabd78f3404fd12e25a4427488519c07fb5a9d63c3e699e99cbdc4df84bc1",
+    "data/research/tail_formula_chronological_rule_gate/joint_selection_freeze.json": "788e694d40c11729b8d1a767e0e4ee3dcc011180d6ab302c34904d90a27ffd6d",
+    "data/research/tail_formula_chronological_rule_gate/complete_results_manifest.json": "a632e21ac6ba0d8dc34b5dfaec268fa75d21dc3c305a1a1c6e92cf38f5361dda"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -279,12 +283,13 @@
     "data/research/tail_formula_robust_profit_rule_search/prior_fit_runtime.json": "c88c09d56798164175be549ef40ca173a903740cda8e9bd7ecd0e7b390c3e93b",
     "data/research/tail_formula_rule_persistence/prior_runtime.json": "87d1ba8b1c98490955e9e9c455467fd0ba358d855150d8c6a5788fb1d29f74e8",
     "data/research/tail_formula_rule_persistence/prior_binding_runtime.json": "04ffca62f2f01d7f04c447534eb4336ed217f8ad2bbe68bdae422b2133f04a8a",
-    "data/research/tail_formula_chronological_rule_gate/prior_runtime.json": "b3f4b82ebaf6b944e1639f4f2f2da398bb615c9a3734ad320db0bc94c2344fc9"
+    "data/research/tail_formula_chronological_rule_gate/prior_runtime.json": "b3f4b82ebaf6b944e1639f4f2f2da398bb615c9a3734ad320db0bc94c2344fc9",
+    "data/research/tail_formula_chronological_rule_gate/prior_completed_runtime.json": "753d3d28cef2ad8c1c3c3772974cd99b70cfaddb06e758874fa941a095615792"
   },
-  "previous_completed_study_revision": "a215fe2",
-  "current_study": "tail_formula_chronological_rule_gate_fitting",
+  "previous_completed_study_revision": "8f655d9",
+  "current_study": "tail_formula_chronological_rule_gate_complete",
   "research_definition_changed": true,
-  "rationale": "只以前半年选单条AND，后半年仅一次通过/拒绝；阈值也只取发现段，跨界次晨剔除，零整年重训。不是重做旧树轮数选择或盲测。",
+  "rationale": "四折单次时间门均未通过；两年空表经济统计精确复用，十二项比较完成。接续先检查旧历史模型的评价时段，不重复拟合已有历史特征。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -642,6 +647,9 @@
     "completed_rule_persistence_comparisons": 10,
     "completed_rule_persistence_source_fingerprints": 133,
     "additional_robust_retired_files": 5,
-    "current_chronological_fits_at_protocol": 0
+    "current_chronological_fits_at_protocol": 0,
+    "completed_chronological_rule_fits": 4,
+    "completed_chronological_rule_comparisons": 12,
+    "completed_chronological_source_fingerprints": 152
   }
 }
