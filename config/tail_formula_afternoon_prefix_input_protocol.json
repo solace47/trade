@@ -1,0 +1,1420 @@
+{
+  "objective": "只检验13:01至14:20完整收盘路径是否补足原50遗漏的中途顺序，窗口固定、不按结果挑分钟或改阈值。",
+  "intent_sha256": "13dd871d3fee184c7f47e856b79c3c3f34a296bf820e0fecbd7281a68eb18ab0",
+  "conditional_gate": "data/research/tail_formula_narrow_breakout/memory_gate.json",
+  "conditional_completion": "data/research/tail_formula_narrow_breakout/complete_results_manifest.json",
+  "source_hashes": {
+    "scripts/run_tail_formula_morning_extrema_order.py": "00128d6fbe377fa6012b4c3de657aa120ecf202402dddf0623d1a2dd4729c6bd",
+    "src/trade_research/tail_formula_volume_memory.py": "f22df89ae67c4e60d697ee58b986b37b25007e346c0f0d0d4cdcfd417b9c8b65",
+    "src/trade_research/tail_formula_morning_range.py": "9cadae8b90ea49818ad2df73d009a96eb15f311017090cfe8a508805c08076f2",
+    "src/trade_research/tail_formula_extrema_time.py": "750fe8b9a49d6cce4fc4ef9f6f410991197e5ca6c5945a9ac6a17e152eb9e823",
+    "src/trade_research/tail_formula_morning_trend.py": "fd1de6df2e6ba1458f3a7b8b59c9bd6f797012effeacbe92668124d7813584d6",
+    "src/trade_research/tail_formula_morning_flow.py": "68b469581aadd5830642c69df4f928c56b860a037b651d78ee1afc3a1fac0447",
+    "src/trade_research/tail_formula_additive.py": "fd715b1ed9e592f4efe312f851c226c1ba03c49b63b3b7303268289ff5ecb711",
+    "src/trade_research/tail_formula_relative.py": "e7f8164cb93ff861acd3dd9198c368801af84ea0a823053b5cfc846177b3d4b5",
+    "scripts/run_tail_formula_volume_memory.py": "52ad583da695cd997261f2810b41f2534376e6466a6ab0fa259f9bd43d580190",
+    "scripts/run_tail_formula_market_reference.py": "bc5f2aa88c6fba8203e296f3b13ef6952a87f5fff3875517571de9b32fed27a4",
+    "scripts/evaluate_tail_formula_pool_scope.py": "9bec786a98dbf160bf18ddb9dffb2210053a7ea875d0bdfd72bc87780a413e93",
+    "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
+    "scripts/compare_tail_formula_same_dates.py": "515206a419604eae592557c08491b92949f5b313befd838e5be2ea839a8f4535",
+    "scripts/compare_tail_formula_shared_unknowns.py": "40e142c38e1b01c38b5e663d0c109f268137eac11a6f3b38539bb5b101312c19",
+    "src/trade_research/tail_formula_offset_logit48.py": "cb069f1f8246ffc472405abbf1d46c2650c95d16112459e6a512cd406204771a",
+    "scripts/verify_tail_formula_additive.py": "2aff716ec2ff0836787c2d5b3b4389af0f4b1bd7601f74389df8a59df99c786c",
+    "scripts/audit_tail_formula_reference_coverage.py": "9807c5aee562be70bea770fde0a356cb71d32b488be9ff5af3ce7d4b59609226",
+    "scripts/freeze_tail_formula_bipower_gap.py": "10f962ceed82e8bf6ff70104d53131c80145ec719892d02dc74f9e5c880665cc",
+    "data/research/tail_formula_stock_2024/inputs/raw_report.json": "65efc928c89d6dacb7f4ac00f04eae38efda40f6003c85454be1ebfe942b6de6",
+    "data/research/tail_formula_morning_range/inputs/raw_report.json": "dbcc4e1369a4d3b91bc8d7e23892f48677d4e4933208a386aea7a8d258ee9e10",
+    "data/research/tail_formula_stock_2024/inputs/features.parquet": "9b3edf988981f82aef9f5415c7b72f740b62e2e98fd5e93b6bfa0f2cd245c7f7",
+    "data/research/tail_formula_stock_2024/inputs/feature_report.json": "a365c16deca5a37b24cfc42642ff96d8a24dee3635f7a92786fb99a738d66310",
+    "data/research/tail_formula_stock_2024/inputs/feature_verification.json": "ca2fb79e83daf7a898a09b08efe2e2407219fced64c7ae4510a2d3667fede233",
+    "data/research/tail_formula_stock_2024/inputs/native_input_verification.json": "91f4ecaa0ceffaf4364f56fded188d16a8140e5e1d95cd0c180cb5ba9f4ea409",
+    "data/research/tail_formula_morning_range/inputs/features.parquet": "1874d835d630c4b13352cac8635286b2b5e21e55653e4490f3700805edb62412",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c",
+    "data/research/tail_formula_morning_range/inputs/full_labels.parquet": "fd7b19cb1b343e4aeda3c281487642ba214c4cd5dc0de8a8abfa655921d99b60",
+    "data/research/tail_formula_morning_range/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
+    "data/research/tail_formula_morning_range/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639",
+    "config/tail_formula_afternoon_prefix_intent.json": "13dd871d3fee184c7f47e856b79c3c3f34a296bf820e0fecbd7281a68eb18ab0",
+    "data/research/tail_formula_afternoon_prefix/source_metadata_audit.json": "dc3e9c96f53d0d4568046a810d8863a9136ab029c7d31397462a8d4e19a27818",
+    "src/trade_research/tail_formula_afternoon_prefix.py": "02e2a497e3a245dfb5babd93b0aa508fba9842c297412dd55da821fba9bdefc5",
+    "scripts/run_tail_formula_afternoon_prefix.py": "3e0574ca6782100cd43834957ef83ddeb44ae1c463353b489e8aa6316c304098",
+    "tests/test_tail_formula_afternoon_prefix.py": "c28918325f2430e1d11d20338e00ca362cd3b8726421deff09f421a127dde508",
+    "data/research/tail_formula_narrow_breakout/memory_gate.json": "52f9cbe116b6c7b326e6b3afd398d27f2fb858cd387a75b933908b3f1dfb4ca4",
+    "data/research/tail_formula_narrow_breakout/complete_results_manifest.json": "a3221baa36b3a4490c49f6029f4d886f6ec3b398384eefd27b7e4a5dd80657c8",
+    "data/research/tail_formula_stock_2024/metadata_lookup_verification.json": "e47d4e887895a67e64782f235e0d06516d5538d9924e6c35595dd2a3f1721027",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+    "data/research/tail_formula_morning_range/inputs/input_manifest.json": "98b4c86aaa0501264ce603697801542f0707e034951a21a71581b8e826807534",
+    "data/research/touch_sequence/raw_report.json": "7f7ad0f86246967372777ac80f3181c2306ca5fc532fd11d5b6c3576c9bd846a",
+    "data/research/minute_amount_consistency/report.json": "2b3e516c77ac24792fd62e795fc9f64d31e92b1af9e15e5be3b25e980475292d",
+    "data/research/external_tail_combo/input_report.json": "85d8c1f1d4b6b5e00029421e8d87bb1030878992ef4e11bf8d00af36962f1b04",
+    "data/research/tail_formula_afternoon_prefix/inputs/keys.parquet": "80f66d4fcc36e87eedc24c9594b8941632e27bef222eba1a2f4eced89f2381de",
+    "data/research/tail_formula_afternoon_prefix/inputs/missing_cache_keys.parquet": "972b39c2be53066b96c51775825d1a575d1f504807aabba0ae63857c904cb346",
+    "data/research/tail_formula_afternoon_prefix/inputs/touch_cache_keys.parquet": "6b0a4ca65f9e04988132fc35ff312c445014a96203e9bffc480a96fc889ba05b",
+    "data/research/tail_formula_afternoon_prefix/inputs/diagnostic_cache_keys.parquet": "b211a60d0150f8e066b692e9bd5ed27c8508b84bc8b73dc25fcf71c0952e5f55",
+    "data/research/tail_formula_afternoon_prefix/inputs/external_cache_keys.parquet": "dae11e64d0f15ac5251aae73875c0762e013c38e9d453aeee030047ed74a067f"
+  },
+  "source_metadata_audit": "data/research/tail_formula_afternoon_prefix/source_metadata_audit.json",
+  "source_metadata_audit_sha256": "dc3e9c96f53d0d4568046a810d8863a9136ab029c7d31397462a8d4e19a27818",
+  "arms": {
+    "control": {
+      "NA01": "A01/VP20",
+      "NA02": "A02/VP20",
+      "NA03": "A03/VP20",
+      "A04": "Q",
+      "NA05": "A05/VP20",
+      "NA06": "A06/VP20",
+      "NA07": "A07/VP20",
+      "A08": "VALUEWHEN(TIME=1449,SUM(V,29)/REF(SUM(V,29),29))",
+      "A09": "VALUEWHEN(TIME=1449,SUM(V,14)/REF(SUM(V,14),14))",
+      "A10": "VALUEWHEN(TIME=1449,(SUM(V,4)/4)/((SUM(V,29)-SUM(V,4))/25))",
+      "A11": "VALUEWHEN(TIME=1449,100*(C-LLV(L,29))/MAX(HHV(H,29)-LLV(L,29),0.01))",
+      "A12": "VALUEWHEN(TIME=1449,SUM(AMOUNT,29)/100000000)",
+      "NA13": "A13/VP20",
+      "NA14": "A14/VP20",
+      "A15": "VALUEWHEN(TIME=1449,100*SUM(IF(C>REF(C,1),V,IF(C<REF(C,1),-V,0)),29)/SUM(V,29))",
+      "A16": "VALUEWHEN(TIME=1449,100*COUNT(C>REF(C,1),29)/29)",
+      "A17": "VALUEWHEN(TIME=1449,100*HHV(V,29)/SUM(V,29))",
+      "NA18": "A18/VP20",
+      "NA19": "A19/VP20",
+      "A20": "VALUEWHEN(TIME=1449,100*ABS(LN(C/REF(C,29)))/MAX(SUM(ABS(LN(C/REF(C,1))),29),0.000001))",
+      "ND01": "D01/VP20",
+      "ND02": "D02/VP20",
+      "ND03": "D03/VP20",
+      "ND04": "D04/VP20",
+      "C01": "100*(Q-DL)/MAX(DH-DL,0.01)",
+      "NC02": "C02/VP20",
+      "NC03": "C03/VP20",
+      "NC04": "C04/VP20",
+      "C05": "DV/PV5",
+      "C06": "DA/100000000",
+      "NC07": "C07/VP20",
+      "NC08": "C08/VP20",
+      "V01": "VP20",
+      "I01": "100*(ICP1/ICP2-1)",
+      "I02": "100*(ICP1/ICP6-1)",
+      "I03": "100*(ICP1/ICP21-1)",
+      "I04": "100*(ICP1/IM20-1)",
+      "J01": "100*(IX1448/ICP1-1)",
+      "J02": "100*(IX1448/IX1420-1)",
+      "J03": "100*(IX1448/IX1435-1)",
+      "J04": "100*(IX1420/IX1301-1)",
+      "R01": "(A01-J01)/V01",
+      "R02": "(A05-J02)/V01",
+      "R03": "(A06-J03)/V01",
+      "R04": "(A07-J04)/V01",
+      "S01": "LN(1+PSH*Q/100000000)",
+      "S02": "10000*DV/PSH",
+      "S03": "10000*VALUEWHEN(TIME=1449,SUM(V,29))/PSH",
+      "AMHD": "IF(AMREADY,100*(AMQC/AMHC-1)/VP20,DRAWNULL)",
+      "AMLD": "IF(AMREADY,100*(AMQC/AMLC-1)/VP20,DRAWNULL)"
+    },
+    "memory": {
+      "NA01": "A01/VP20",
+      "NA02": "A02/VP20",
+      "NA03": "A03/VP20",
+      "A04": "Q",
+      "NA05": "A05/VP20",
+      "NA06": "A06/VP20",
+      "NA07": "A07/VP20",
+      "A08": "VALUEWHEN(TIME=1449,SUM(V,29)/REF(SUM(V,29),29))",
+      "A09": "VALUEWHEN(TIME=1449,SUM(V,14)/REF(SUM(V,14),14))",
+      "A10": "VALUEWHEN(TIME=1449,(SUM(V,4)/4)/((SUM(V,29)-SUM(V,4))/25))",
+      "A11": "VALUEWHEN(TIME=1449,100*(C-LLV(L,29))/MAX(HHV(H,29)-LLV(L,29),0.01))",
+      "A12": "VALUEWHEN(TIME=1449,SUM(AMOUNT,29)/100000000)",
+      "NA13": "A13/VP20",
+      "NA14": "A14/VP20",
+      "A15": "VALUEWHEN(TIME=1449,100*SUM(IF(C>REF(C,1),V,IF(C<REF(C,1),-V,0)),29)/SUM(V,29))",
+      "A16": "VALUEWHEN(TIME=1449,100*COUNT(C>REF(C,1),29)/29)",
+      "A17": "VALUEWHEN(TIME=1449,100*HHV(V,29)/SUM(V,29))",
+      "NA18": "A18/VP20",
+      "NA19": "A19/VP20",
+      "A20": "VALUEWHEN(TIME=1449,100*ABS(LN(C/REF(C,29)))/MAX(SUM(ABS(LN(C/REF(C,1))),29),0.000001))",
+      "ND01": "D01/VP20",
+      "ND02": "D02/VP20",
+      "ND03": "D03/VP20",
+      "ND04": "D04/VP20",
+      "C01": "100*(Q-DL)/MAX(DH-DL,0.01)",
+      "NC02": "C02/VP20",
+      "NC03": "C03/VP20",
+      "NC04": "C04/VP20",
+      "C05": "DV/PV5",
+      "C06": "DA/100000000",
+      "NC07": "C07/VP20",
+      "NC08": "C08/VP20",
+      "V01": "VP20",
+      "I01": "100*(ICP1/ICP2-1)",
+      "I02": "100*(ICP1/ICP6-1)",
+      "I03": "100*(ICP1/ICP21-1)",
+      "I04": "100*(ICP1/IM20-1)",
+      "J01": "100*(IX1448/ICP1-1)",
+      "J02": "100*(IX1448/IX1420-1)",
+      "J03": "100*(IX1448/IX1435-1)",
+      "J04": "100*(IX1420/IX1301-1)",
+      "R01": "(A01-J01)/V01",
+      "R02": "(A05-J02)/V01",
+      "R03": "(A06-J03)/V01",
+      "R04": "(A07-J04)/V01",
+      "S01": "LN(1+PSH*Q/100000000)",
+      "S02": "10000*DV/PSH",
+      "S03": "10000*VALUEWHEN(TIME=1449,SUM(V,29))/PSH",
+      "AMHD": "IF(AMREADY,100*(AMQC/AMHC-1)/VP20,DRAWNULL)",
+      "AMLD": "IF(AMREADY,100*(AMQC/AMLC-1)/VP20,DRAWNULL)",
+      "AF00": "IF(AFREADY,100*(AFP00/AFCC-1)/VP20,DRAWNULL)",
+      "AF01": "IF(AFREADY,100*(AFP01/AFCC-1)/VP20,DRAWNULL)",
+      "AF02": "IF(AFREADY,100*(AFP02/AFCC-1)/VP20,DRAWNULL)",
+      "AF03": "IF(AFREADY,100*(AFP03/AFCC-1)/VP20,DRAWNULL)",
+      "AF04": "IF(AFREADY,100*(AFP04/AFCC-1)/VP20,DRAWNULL)",
+      "AF05": "IF(AFREADY,100*(AFP05/AFCC-1)/VP20,DRAWNULL)",
+      "AF06": "IF(AFREADY,100*(AFP06/AFCC-1)/VP20,DRAWNULL)",
+      "AF07": "IF(AFREADY,100*(AFP07/AFCC-1)/VP20,DRAWNULL)",
+      "AF08": "IF(AFREADY,100*(AFP08/AFCC-1)/VP20,DRAWNULL)",
+      "AF09": "IF(AFREADY,100*(AFP09/AFCC-1)/VP20,DRAWNULL)",
+      "AF10": "IF(AFREADY,100*(AFP10/AFCC-1)/VP20,DRAWNULL)",
+      "AF11": "IF(AFREADY,100*(AFP11/AFCC-1)/VP20,DRAWNULL)",
+      "AF12": "IF(AFREADY,100*(AFP12/AFCC-1)/VP20,DRAWNULL)",
+      "AF13": "IF(AFREADY,100*(AFP13/AFCC-1)/VP20,DRAWNULL)",
+      "AF14": "IF(AFREADY,100*(AFP14/AFCC-1)/VP20,DRAWNULL)",
+      "AF15": "IF(AFREADY,100*(AFP15/AFCC-1)/VP20,DRAWNULL)",
+      "AF16": "IF(AFREADY,100*(AFP16/AFCC-1)/VP20,DRAWNULL)",
+      "AF17": "IF(AFREADY,100*(AFP17/AFCC-1)/VP20,DRAWNULL)",
+      "AF18": "IF(AFREADY,100*(AFP18/AFCC-1)/VP20,DRAWNULL)",
+      "AF19": "IF(AFREADY,100*(AFP19/AFCC-1)/VP20,DRAWNULL)",
+      "AF20": "IF(AFREADY,100*(AFP20/AFCC-1)/VP20,DRAWNULL)",
+      "AF21": "IF(AFREADY,100*(AFP21/AFCC-1)/VP20,DRAWNULL)",
+      "AF22": "IF(AFREADY,100*(AFP22/AFCC-1)/VP20,DRAWNULL)",
+      "AF23": "IF(AFREADY,100*(AFP23/AFCC-1)/VP20,DRAWNULL)",
+      "AF24": "IF(AFREADY,100*(AFP24/AFCC-1)/VP20,DRAWNULL)",
+      "AF25": "IF(AFREADY,100*(AFP25/AFCC-1)/VP20,DRAWNULL)",
+      "AF26": "IF(AFREADY,100*(AFP26/AFCC-1)/VP20,DRAWNULL)",
+      "AF27": "IF(AFREADY,100*(AFP27/AFCC-1)/VP20,DRAWNULL)",
+      "AF28": "IF(AFREADY,100*(AFP28/AFCC-1)/VP20,DRAWNULL)",
+      "AF29": "IF(AFREADY,100*(AFP29/AFCC-1)/VP20,DRAWNULL)",
+      "AF30": "IF(AFREADY,100*(AFP30/AFCC-1)/VP20,DRAWNULL)",
+      "AF31": "IF(AFREADY,100*(AFP31/AFCC-1)/VP20,DRAWNULL)",
+      "AF32": "IF(AFREADY,100*(AFP32/AFCC-1)/VP20,DRAWNULL)",
+      "AF33": "IF(AFREADY,100*(AFP33/AFCC-1)/VP20,DRAWNULL)",
+      "AF34": "IF(AFREADY,100*(AFP34/AFCC-1)/VP20,DRAWNULL)",
+      "AF35": "IF(AFREADY,100*(AFP35/AFCC-1)/VP20,DRAWNULL)",
+      "AF36": "IF(AFREADY,100*(AFP36/AFCC-1)/VP20,DRAWNULL)",
+      "AF37": "IF(AFREADY,100*(AFP37/AFCC-1)/VP20,DRAWNULL)",
+      "AF38": "IF(AFREADY,100*(AFP38/AFCC-1)/VP20,DRAWNULL)",
+      "AF39": "IF(AFREADY,100*(AFP39/AFCC-1)/VP20,DRAWNULL)",
+      "AF40": "IF(AFREADY,100*(AFP40/AFCC-1)/VP20,DRAWNULL)",
+      "AF41": "IF(AFREADY,100*(AFP41/AFCC-1)/VP20,DRAWNULL)",
+      "AF42": "IF(AFREADY,100*(AFP42/AFCC-1)/VP20,DRAWNULL)",
+      "AF43": "IF(AFREADY,100*(AFP43/AFCC-1)/VP20,DRAWNULL)",
+      "AF44": "IF(AFREADY,100*(AFP44/AFCC-1)/VP20,DRAWNULL)",
+      "AF45": "IF(AFREADY,100*(AFP45/AFCC-1)/VP20,DRAWNULL)",
+      "AF46": "IF(AFREADY,100*(AFP46/AFCC-1)/VP20,DRAWNULL)",
+      "AF47": "IF(AFREADY,100*(AFP47/AFCC-1)/VP20,DRAWNULL)",
+      "AF48": "IF(AFREADY,100*(AFP48/AFCC-1)/VP20,DRAWNULL)",
+      "AF49": "IF(AFREADY,100*(AFP49/AFCC-1)/VP20,DRAWNULL)",
+      "AF50": "IF(AFREADY,100*(AFP50/AFCC-1)/VP20,DRAWNULL)",
+      "AF51": "IF(AFREADY,100*(AFP51/AFCC-1)/VP20,DRAWNULL)",
+      "AF52": "IF(AFREADY,100*(AFP52/AFCC-1)/VP20,DRAWNULL)",
+      "AF53": "IF(AFREADY,100*(AFP53/AFCC-1)/VP20,DRAWNULL)",
+      "AF54": "IF(AFREADY,100*(AFP54/AFCC-1)/VP20,DRAWNULL)",
+      "AF55": "IF(AFREADY,100*(AFP55/AFCC-1)/VP20,DRAWNULL)",
+      "AF56": "IF(AFREADY,100*(AFP56/AFCC-1)/VP20,DRAWNULL)",
+      "AF57": "IF(AFREADY,100*(AFP57/AFCC-1)/VP20,DRAWNULL)",
+      "AF58": "IF(AFREADY,100*(AFP58/AFCC-1)/VP20,DRAWNULL)",
+      "AF59": "IF(AFREADY,100*(AFP59/AFCC-1)/VP20,DRAWNULL)",
+      "AF60": "IF(AFREADY,100*(AFP60/AFCC-1)/VP20,DRAWNULL)",
+      "AF61": "IF(AFREADY,100*(AFP61/AFCC-1)/VP20,DRAWNULL)",
+      "AF62": "IF(AFREADY,100*(AFP62/AFCC-1)/VP20,DRAWNULL)",
+      "AF63": "IF(AFREADY,100*(AFP63/AFCC-1)/VP20,DRAWNULL)",
+      "AF64": "IF(AFREADY,100*(AFP64/AFCC-1)/VP20,DRAWNULL)",
+      "AF65": "IF(AFREADY,100*(AFP65/AFCC-1)/VP20,DRAWNULL)",
+      "AF66": "IF(AFREADY,100*(AFP66/AFCC-1)/VP20,DRAWNULL)",
+      "AF67": "IF(AFREADY,100*(AFP67/AFCC-1)/VP20,DRAWNULL)",
+      "AF68": "IF(AFREADY,100*(AFP68/AFCC-1)/VP20,DRAWNULL)",
+      "AF69": "IF(AFREADY,100*(AFP69/AFCC-1)/VP20,DRAWNULL)",
+      "AF70": "IF(AFREADY,100*(AFP70/AFCC-1)/VP20,DRAWNULL)",
+      "AF71": "IF(AFREADY,100*(AFP71/AFCC-1)/VP20,DRAWNULL)",
+      "AF72": "IF(AFREADY,100*(AFP72/AFCC-1)/VP20,DRAWNULL)",
+      "AF73": "IF(AFREADY,100*(AFP73/AFCC-1)/VP20,DRAWNULL)",
+      "AF74": "IF(AFREADY,100*(AFP74/AFCC-1)/VP20,DRAWNULL)",
+      "AF75": "IF(AFREADY,100*(AFP75/AFCC-1)/VP20,DRAWNULL)",
+      "AF76": "IF(AFREADY,100*(AFP76/AFCC-1)/VP20,DRAWNULL)",
+      "AF77": "IF(AFREADY,100*(AFP77/AFCC-1)/VP20,DRAWNULL)",
+      "AF78": "IF(AFREADY,100*(AFP78/AFCC-1)/VP20,DRAWNULL)"
+    }
+  },
+  "arm_display_names": {
+    "control": "原50",
+    "memory": "完整午后前段129"
+  },
+  "native_header": "Q:=VALUEWHEN(TIME=1449,C);\nP20:=VALUEWHEN(TIME=1420,C);\nP35:=VALUEWHEN(TIME=1435,C);\nP01:=VALUEWHEN(TIME=1301,C);\nDD:=DATE<>REF(DATE,1);\nB0:=BARSLAST(DD)+1;\nB1:=B0+REF(BARSLAST(DD)+1,B0);\nB2:=B1+REF(BARSLAST(DD)+1,B1);\nB3:=B2+REF(BARSLAST(DD)+1,B2);\nB4:=B3+REF(BARSLAST(DD)+1,B3);\nB5:=B4+REF(BARSLAST(DD)+1,B4);\nB6:=B5+REF(BARSLAST(DD)+1,B5);\nB7:=B6+REF(BARSLAST(DD)+1,B6);\nB8:=B7+REF(BARSLAST(DD)+1,B7);\nB9:=B8+REF(BARSLAST(DD)+1,B8);\nB10:=B9+REF(BARSLAST(DD)+1,B9);\nB11:=B10+REF(BARSLAST(DD)+1,B10);\nB12:=B11+REF(BARSLAST(DD)+1,B11);\nB13:=B12+REF(BARSLAST(DD)+1,B12);\nB14:=B13+REF(BARSLAST(DD)+1,B13);\nB15:=B14+REF(BARSLAST(DD)+1,B14);\nB16:=B15+REF(BARSLAST(DD)+1,B15);\nB17:=B16+REF(BARSLAST(DD)+1,B16);\nB18:=B17+REF(BARSLAST(DD)+1,B17);\nB19:=B18+REF(BARSLAST(DD)+1,B18);\nB20:=B19+REF(BARSLAST(DD)+1,B19);\nDCP1:=REF(C,B0);\nDCP2:=REF(C,B1);\nDCP3:=REF(C,B2);\nDCP4:=REF(C,B3);\nDCP5:=REF(C,B4);\nDCP6:=REF(C,B5);\nDCP7:=REF(C,B6);\nDCP8:=REF(C,B7);\nDCP9:=REF(C,B8);\nDCP10:=REF(C,B9);\nDCP11:=REF(C,B10);\nDCP12:=REF(C,B11);\nDCP13:=REF(C,B12);\nDCP14:=REF(C,B13);\nDCP15:=REF(C,B14);\nDCP16:=REF(C,B15);\nDCP17:=REF(C,B16);\nDCP18:=REF(C,B17);\nDCP19:=REF(C,B18);\nDCP20:=REF(C,B19);\nDCP21:=REF(C,B20);\nDH:=VALUEWHEN(TIME=1449,HHV(H,B0));\nDL:=VALUEWHEN(TIME=1449,LLV(L,B0));\nDV:=VALUEWHEN(TIME=1449,SUM(V,B0));\nDA:=VALUEWHEN(TIME=1449,SUM(AMOUNT,B0));\nPV5:=REF(SUM(V,B4),B0)/5;\nPH20:=REF(HHV(H,B19),B0);\nPL20:=REF(LLV(L,B19),B0);\nA01:=100*(Q/DYNAINFO(3)-1);\nA02:=100*(DYNAINFO(4)/DYNAINFO(3)-1);\nA03:=100*(Q/DYNAINFO(4)-1);\nA05:=100*(Q/P20-1);\nA06:=100*(Q/P35-1);\nA07:=100*(P20/P01-1);\nA13:=VALUEWHEN(TIME=1449,100*(C/(SUM(AMOUNT,29)/(100*SUM(V,29)))-1));\nA14:=VALUEWHEN(TIME=1449,100*(C/(SUM(AMOUNT,4)/(100*SUM(V,4)))-1));\nA18:=VALUEWHEN(TIME=1449,100*(C/HHV(H,109)-1));\nA19:=VALUEWHEN(TIME=1449,100*(HHV(H,109)-LLV(L,109))/DYNAINFO(3));\nD01:=100*(DCP1/DCP6-1);\nD02:=100*(DCP1/DCP21-1);\nD03:=100*(Q/((DCP1+DCP2+DCP3+DCP4+DCP5)/5)-1);\nD04:=100*(Q/((DCP1+DCP2+DCP3+DCP4+DCP5+DCP6+DCP7+DCP8+DCP9+DCP10+DCP11+DCP12+DCP13+DCP14+DCP15+DCP16+DCP17+DCP18+DCP19+DCP20)/20)-1);\nC02:=100*(DH-DL)/DCP1;\nC03:=100*(DH-Q)/DCP1;\nC04:=100*(MIN(DYNAINFO(4),Q)-DL)/DCP1;\nC07:=100*(Q/PH20-1);\nC08:=100*(Q/PL20-1);\nTR0:=MAX(HHV(H,B0)-LLV(L,B0),MAX(ABS(HHV(H,B0)-REF(C,B0)),ABS(LLV(L,B0)-REF(C,B0))));\nPAT:=(REF(TR0,B0)+REF(TR0,B1)+REF(TR0,B2)+REF(TR0,B3)+REF(TR0,B4)+REF(TR0,B5)+REF(TR0,B6)+REF(TR0,B7)+REF(TR0,B8)+REF(TR0,B9)+REF(TR0,B10)+REF(TR0,B11)+REF(TR0,B12)+REF(TR0,B13)+REF(TR0,B14)+REF(TR0,B15)+REF(TR0,B16)+REF(TR0,B17)+REF(TR0,B18)+REF(TR0,B19))/20;\nVP20:=100*PAT/DCP1;\nICP1:=REF(INDEXC,B0);\nICP2:=REF(INDEXC,B1);\nICP6:=REF(INDEXC,B5);\nICP21:=REF(INDEXC,B20);\nIM20:=(REF(INDEXC,B0)+REF(INDEXC,B1)+REF(INDEXC,B2)+REF(INDEXC,B3)+REF(INDEXC,B4)+REF(INDEXC,B5)+REF(INDEXC,B6)+REF(INDEXC,B7)+REF(INDEXC,B8)+REF(INDEXC,B9)+REF(INDEXC,B10)+REF(INDEXC,B11)+REF(INDEXC,B12)+REF(INDEXC,B13)+REF(INDEXC,B14)+REF(INDEXC,B15)+REF(INDEXC,B16)+REF(INDEXC,B17)+REF(INDEXC,B18)+REF(INDEXC,B19))/20;\nIX1448:=VALUEWHEN(TIME=1448,INDEXC);\nIX1420:=VALUEWHEN(TIME=1420,INDEXC);\nIX1435:=VALUEWHEN(TIME=1435,INDEXC);\nIX1301:=VALUEWHEN(TIME=1301,INDEXC);\nPSH:=REF(FINANCE(7),B0);\nRMC:=ROUND(Q*100);\nRTC00:=0;\nRTC01:=VALUEWHEN(TIME=1449,ROUND(REF(C,1)*100))-RMC;\nRTC02:=VALUEWHEN(TIME=1449,ROUND(REF(C,2)*100))-RMC;\nRTC03:=VALUEWHEN(TIME=1449,ROUND(REF(C,3)*100))-RMC;\nRTC04:=VALUEWHEN(TIME=1449,ROUND(REF(C,4)*100))-RMC;\nRTC05:=VALUEWHEN(TIME=1449,ROUND(REF(C,5)*100))-RMC;\nRTC06:=VALUEWHEN(TIME=1449,ROUND(REF(C,6)*100))-RMC;\nRTC07:=VALUEWHEN(TIME=1449,ROUND(REF(C,7)*100))-RMC;\nRTC08:=VALUEWHEN(TIME=1449,ROUND(REF(C,8)*100))-RMC;\nRTC09:=VALUEWHEN(TIME=1449,ROUND(REF(C,9)*100))-RMC;\nRTC10:=VALUEWHEN(TIME=1449,ROUND(REF(C,10)*100))-RMC;\nRTC11:=VALUEWHEN(TIME=1449,ROUND(REF(C,11)*100))-RMC;\nRTC12:=VALUEWHEN(TIME=1449,ROUND(REF(C,12)*100))-RMC;\nRTC13:=VALUEWHEN(TIME=1449,ROUND(REF(C,13)*100))-RMC;\nRTC14:=VALUEWHEN(TIME=1449,ROUND(REF(C,14)*100))-RMC;\nRTC15:=VALUEWHEN(TIME=1449,ROUND(REF(C,15)*100))-RMC;\nRTC16:=VALUEWHEN(TIME=1449,ROUND(REF(C,16)*100))-RMC;\nRTC17:=VALUEWHEN(TIME=1449,ROUND(REF(C,17)*100))-RMC;\nRTC18:=VALUEWHEN(TIME=1449,ROUND(REF(C,18)*100))-RMC;\nRTC19:=VALUEWHEN(TIME=1449,ROUND(REF(C,19)*100))-RMC;\nRTC20:=VALUEWHEN(TIME=1449,ROUND(REF(C,20)*100))-RMC;\nRTC21:=VALUEWHEN(TIME=1449,ROUND(REF(C,21)*100))-RMC;\nRTC22:=VALUEWHEN(TIME=1449,ROUND(REF(C,22)*100))-RMC;\nRTC23:=VALUEWHEN(TIME=1449,ROUND(REF(C,23)*100))-RMC;\nRTC24:=VALUEWHEN(TIME=1449,ROUND(REF(C,24)*100))-RMC;\nRTC25:=VALUEWHEN(TIME=1449,ROUND(REF(C,25)*100))-RMC;\nRTC26:=VALUEWHEN(TIME=1449,ROUND(REF(C,26)*100))-RMC;\nRTC27:=VALUEWHEN(TIME=1449,ROUND(REF(C,27)*100))-RMC;\nRTC28:=VALUEWHEN(TIME=1449,ROUND(REF(C,28)*100))-RMC;\nRTC29:=VALUEWHEN(TIME=1449,ROUND(REF(C,29)*100))-RMC;\nRTCLK:=VALUEWHEN(TIME=1449,TIME)=1449 AND VALUEWHEN(TIME=1449,REF(TIME,1))=1448 AND VALUEWHEN(TIME=1449,REF(TIME,2))=1447 AND VALUEWHEN(TIME=1449,REF(TIME,3))=1446 AND VALUEWHEN(TIME=1449,REF(TIME,4))=1445 AND VALUEWHEN(TIME=1449,REF(TIME,5))=1444 AND VALUEWHEN(TIME=1449,REF(TIME,6))=1443 AND VALUEWHEN(TIME=1449,REF(TIME,7))=1442 AND VALUEWHEN(TIME=1449,REF(TIME,8))=1441 AND VALUEWHEN(TIME=1449,REF(TIME,9))=1440 AND VALUEWHEN(TIME=1449,REF(TIME,10))=1439 AND VALUEWHEN(TIME=1449,REF(TIME,11))=1438 AND VALUEWHEN(TIME=1449,REF(TIME,12))=1437 AND VALUEWHEN(TIME=1449,REF(TIME,13))=1436 AND VALUEWHEN(TIME=1449,REF(TIME,14))=1435 AND VALUEWHEN(TIME=1449,REF(TIME,15))=1434 AND VALUEWHEN(TIME=1449,REF(TIME,16))=1433 AND VALUEWHEN(TIME=1449,REF(TIME,17))=1432 AND VALUEWHEN(TIME=1449,REF(TIME,18))=1431 AND VALUEWHEN(TIME=1449,REF(TIME,19))=1430 AND VALUEWHEN(TIME=1449,REF(TIME,20))=1429 AND VALUEWHEN(TIME=1449,REF(TIME,21))=1428 AND VALUEWHEN(TIME=1449,REF(TIME,22))=1427 AND VALUEWHEN(TIME=1449,REF(TIME,23))=1426 AND VALUEWHEN(TIME=1449,REF(TIME,24))=1425 AND VALUEWHEN(TIME=1449,REF(TIME,25))=1424 AND VALUEWHEN(TIME=1449,REF(TIME,26))=1423 AND VALUEWHEN(TIME=1449,REF(TIME,27))=1422 AND VALUEWHEN(TIME=1449,REF(TIME,28))=1421 AND VALUEWHEN(TIME=1449,REF(TIME,29))=1420;\nRTGOOD:=VALUEWHEN(TIME=1449,COUNT(C>0 AND ABS(C*100-ROUND(C*100))<=0.01,30));\nRTREADY:=RTCLK AND RTGOOD=30 AND RMC>0 AND VP20>0;\nAMDT:=VALUEWHEN(TIME=1130,DATE);\nAMBC:=VALUEWHEN(TIME=1130,B0);\nAMCLK:=VALUEWHEN(TIME=1130,COUNT(TIME>=930 AND TIME<=1130,121));\nAMGD:=VALUEWHEN(TIME=1130,COUNT(O>0 AND H>0 AND L>0 AND C>0 AND V>=0 AND H+0.0001>=MAX(MAX(O,C),L) AND L-0.0001<=MIN(O,C) AND ABS(O*100-ROUND(O*100))<=0.01 AND ABS(H*100-ROUND(H*100))<=0.01 AND ABS(L*100-ROUND(L*100))<=0.01 AND ABS(C*100-ROUND(C*100))<=0.01,121));\nAMHC:=VALUEWHEN(TIME=1130,HHV(IF(V>0,ROUND(H*100),0),121));\nAMLC:=VALUEWHEN(TIME=1130,LLV(IF(V>0,ROUND(L*100),999999999),121));\nAMVV:=VALUEWHEN(TIME=1130,SUM(V,121));\nAMQC:=ROUND(Q*100);\nAMREADY:=AMDT=DATE AND AMBC=121 AND AMCLK=121 AND AMGD=121 AND AMVV>0 AND AMHC>0 AND AMLC>0 AND AMLC<999999999 AND AMQC>0 AND VP20>0;\nAFDT:=VALUEWHEN(TIME=1420,DATE);\nAFCLK:=VALUEWHEN(TIME=1420,IF(REF(TIME,79)=1301,IF(REF(DATE,79)=DATE,1,0),0)+IF(REF(TIME,78)=1302,IF(REF(DATE,78)=DATE,1,0),0)+IF(REF(TIME,77)=1303,IF(REF(DATE,77)=DATE,1,0),0)+IF(REF(TIME,76)=1304,IF(REF(DATE,76)=DATE,1,0),0)+IF(REF(TIME,75)=1305,IF(REF(DATE,75)=DATE,1,0),0)+IF(REF(TIME,74)=1306,IF(REF(DATE,74)=DATE,1,0),0)+IF(REF(TIME,73)=1307,IF(REF(DATE,73)=DATE,1,0),0)+IF(REF(TIME,72)=1308,IF(REF(DATE,72)=DATE,1,0),0)+IF(REF(TIME,71)=1309,IF(REF(DATE,71)=DATE,1,0),0)+IF(REF(TIME,70)=1310,IF(REF(DATE,70)=DATE,1,0),0)+IF(REF(TIME,69)=1311,IF(REF(DATE,69)=DATE,1,0),0)+IF(REF(TIME,68)=1312,IF(REF(DATE,68)=DATE,1,0),0)+IF(REF(TIME,67)=1313,IF(REF(DATE,67)=DATE,1,0),0)+IF(REF(TIME,66)=1314,IF(REF(DATE,66)=DATE,1,0),0)+IF(REF(TIME,65)=1315,IF(REF(DATE,65)=DATE,1,0),0)+IF(REF(TIME,64)=1316,IF(REF(DATE,64)=DATE,1,0),0)+IF(REF(TIME,63)=1317,IF(REF(DATE,63)=DATE,1,0),0)+IF(REF(TIME,62)=1318,IF(REF(DATE,62)=DATE,1,0),0)+IF(REF(TIME,61)=1319,IF(REF(DATE,61)=DATE,1,0),0)+IF(REF(TIME,60)=1320,IF(REF(DATE,60)=DATE,1,0),0)+IF(REF(TIME,59)=1321,IF(REF(DATE,59)=DATE,1,0),0)+IF(REF(TIME,58)=1322,IF(REF(DATE,58)=DATE,1,0),0)+IF(REF(TIME,57)=1323,IF(REF(DATE,57)=DATE,1,0),0)+IF(REF(TIME,56)=1324,IF(REF(DATE,56)=DATE,1,0),0)+IF(REF(TIME,55)=1325,IF(REF(DATE,55)=DATE,1,0),0)+IF(REF(TIME,54)=1326,IF(REF(DATE,54)=DATE,1,0),0)+IF(REF(TIME,53)=1327,IF(REF(DATE,53)=DATE,1,0),0)+IF(REF(TIME,52)=1328,IF(REF(DATE,52)=DATE,1,0),0)+IF(REF(TIME,51)=1329,IF(REF(DATE,51)=DATE,1,0),0)+IF(REF(TIME,50)=1330,IF(REF(DATE,50)=DATE,1,0),0)+IF(REF(TIME,49)=1331,IF(REF(DATE,49)=DATE,1,0),0)+IF(REF(TIME,48)=1332,IF(REF(DATE,48)=DATE,1,0),0)+IF(REF(TIME,47)=1333,IF(REF(DATE,47)=DATE,1,0),0)+IF(REF(TIME,46)=1334,IF(REF(DATE,46)=DATE,1,0),0)+IF(REF(TIME,45)=1335,IF(REF(DATE,45)=DATE,1,0),0)+IF(REF(TIME,44)=1336,IF(REF(DATE,44)=DATE,1,0),0)+IF(REF(TIME,43)=1337,IF(REF(DATE,43)=DATE,1,0),0)+IF(REF(TIME,42)=1338,IF(REF(DATE,42)=DATE,1,0),0)+IF(REF(TIME,41)=1339,IF(REF(DATE,41)=DATE,1,0),0)+IF(REF(TIME,40)=1340,IF(REF(DATE,40)=DATE,1,0),0)+IF(REF(TIME,39)=1341,IF(REF(DATE,39)=DATE,1,0),0)+IF(REF(TIME,38)=1342,IF(REF(DATE,38)=DATE,1,0),0)+IF(REF(TIME,37)=1343,IF(REF(DATE,37)=DATE,1,0),0)+IF(REF(TIME,36)=1344,IF(REF(DATE,36)=DATE,1,0),0)+IF(REF(TIME,35)=1345,IF(REF(DATE,35)=DATE,1,0),0)+IF(REF(TIME,34)=1346,IF(REF(DATE,34)=DATE,1,0),0)+IF(REF(TIME,33)=1347,IF(REF(DATE,33)=DATE,1,0),0)+IF(REF(TIME,32)=1348,IF(REF(DATE,32)=DATE,1,0),0)+IF(REF(TIME,31)=1349,IF(REF(DATE,31)=DATE,1,0),0)+IF(REF(TIME,30)=1350,IF(REF(DATE,30)=DATE,1,0),0)+IF(REF(TIME,29)=1351,IF(REF(DATE,29)=DATE,1,0),0)+IF(REF(TIME,28)=1352,IF(REF(DATE,28)=DATE,1,0),0)+IF(REF(TIME,27)=1353,IF(REF(DATE,27)=DATE,1,0),0)+IF(REF(TIME,26)=1354,IF(REF(DATE,26)=DATE,1,0),0)+IF(REF(TIME,25)=1355,IF(REF(DATE,25)=DATE,1,0),0)+IF(REF(TIME,24)=1356,IF(REF(DATE,24)=DATE,1,0),0)+IF(REF(TIME,23)=1357,IF(REF(DATE,23)=DATE,1,0),0)+IF(REF(TIME,22)=1358,IF(REF(DATE,22)=DATE,1,0),0)+IF(REF(TIME,21)=1359,IF(REF(DATE,21)=DATE,1,0),0)+IF(REF(TIME,20)=1400,IF(REF(DATE,20)=DATE,1,0),0)+IF(REF(TIME,19)=1401,IF(REF(DATE,19)=DATE,1,0),0)+IF(REF(TIME,18)=1402,IF(REF(DATE,18)=DATE,1,0),0)+IF(REF(TIME,17)=1403,IF(REF(DATE,17)=DATE,1,0),0)+IF(REF(TIME,16)=1404,IF(REF(DATE,16)=DATE,1,0),0)+IF(REF(TIME,15)=1405,IF(REF(DATE,15)=DATE,1,0),0)+IF(REF(TIME,14)=1406,IF(REF(DATE,14)=DATE,1,0),0)+IF(REF(TIME,13)=1407,IF(REF(DATE,13)=DATE,1,0),0)+IF(REF(TIME,12)=1408,IF(REF(DATE,12)=DATE,1,0),0)+IF(REF(TIME,11)=1409,IF(REF(DATE,11)=DATE,1,0),0)+IF(REF(TIME,10)=1410,IF(REF(DATE,10)=DATE,1,0),0)+IF(REF(TIME,9)=1411,IF(REF(DATE,9)=DATE,1,0),0)+IF(REF(TIME,8)=1412,IF(REF(DATE,8)=DATE,1,0),0)+IF(REF(TIME,7)=1413,IF(REF(DATE,7)=DATE,1,0),0)+IF(REF(TIME,6)=1414,IF(REF(DATE,6)=DATE,1,0),0)+IF(REF(TIME,5)=1415,IF(REF(DATE,5)=DATE,1,0),0)+IF(REF(TIME,4)=1416,IF(REF(DATE,4)=DATE,1,0),0)+IF(REF(TIME,3)=1417,IF(REF(DATE,3)=DATE,1,0),0)+IF(REF(TIME,2)=1418,IF(REF(DATE,2)=DATE,1,0),0)+IF(REF(TIME,1)=1419,IF(REF(DATE,1)=DATE,1,0),0)+IF(REF(TIME,0)=1420,IF(REF(DATE,0)=DATE,1,0),0));\nAFGD:=VALUEWHEN(TIME=1420,COUNT(C>0 AND ABS(C*100-ROUND(C*100))<=0.01,80));\nAFCC:=VALUEWHEN(TIME=1420,ROUND(C*100));\nAFREADY:=AFDT=DATE AND AFCLK=80 AND AFGD=80 AND AFCC>0 AND VP20>0;\nAFP00:=VALUEWHEN(TIME=1420,ROUND(REF(C,79)*100));\nAFP01:=VALUEWHEN(TIME=1420,ROUND(REF(C,78)*100));\nAFP02:=VALUEWHEN(TIME=1420,ROUND(REF(C,77)*100));\nAFP03:=VALUEWHEN(TIME=1420,ROUND(REF(C,76)*100));\nAFP04:=VALUEWHEN(TIME=1420,ROUND(REF(C,75)*100));\nAFP05:=VALUEWHEN(TIME=1420,ROUND(REF(C,74)*100));\nAFP06:=VALUEWHEN(TIME=1420,ROUND(REF(C,73)*100));\nAFP07:=VALUEWHEN(TIME=1420,ROUND(REF(C,72)*100));\nAFP08:=VALUEWHEN(TIME=1420,ROUND(REF(C,71)*100));\nAFP09:=VALUEWHEN(TIME=1420,ROUND(REF(C,70)*100));\nAFP10:=VALUEWHEN(TIME=1420,ROUND(REF(C,69)*100));\nAFP11:=VALUEWHEN(TIME=1420,ROUND(REF(C,68)*100));\nAFP12:=VALUEWHEN(TIME=1420,ROUND(REF(C,67)*100));\nAFP13:=VALUEWHEN(TIME=1420,ROUND(REF(C,66)*100));\nAFP14:=VALUEWHEN(TIME=1420,ROUND(REF(C,65)*100));\nAFP15:=VALUEWHEN(TIME=1420,ROUND(REF(C,64)*100));\nAFP16:=VALUEWHEN(TIME=1420,ROUND(REF(C,63)*100));\nAFP17:=VALUEWHEN(TIME=1420,ROUND(REF(C,62)*100));\nAFP18:=VALUEWHEN(TIME=1420,ROUND(REF(C,61)*100));\nAFP19:=VALUEWHEN(TIME=1420,ROUND(REF(C,60)*100));\nAFP20:=VALUEWHEN(TIME=1420,ROUND(REF(C,59)*100));\nAFP21:=VALUEWHEN(TIME=1420,ROUND(REF(C,58)*100));\nAFP22:=VALUEWHEN(TIME=1420,ROUND(REF(C,57)*100));\nAFP23:=VALUEWHEN(TIME=1420,ROUND(REF(C,56)*100));\nAFP24:=VALUEWHEN(TIME=1420,ROUND(REF(C,55)*100));\nAFP25:=VALUEWHEN(TIME=1420,ROUND(REF(C,54)*100));\nAFP26:=VALUEWHEN(TIME=1420,ROUND(REF(C,53)*100));\nAFP27:=VALUEWHEN(TIME=1420,ROUND(REF(C,52)*100));\nAFP28:=VALUEWHEN(TIME=1420,ROUND(REF(C,51)*100));\nAFP29:=VALUEWHEN(TIME=1420,ROUND(REF(C,50)*100));\nAFP30:=VALUEWHEN(TIME=1420,ROUND(REF(C,49)*100));\nAFP31:=VALUEWHEN(TIME=1420,ROUND(REF(C,48)*100));\nAFP32:=VALUEWHEN(TIME=1420,ROUND(REF(C,47)*100));\nAFP33:=VALUEWHEN(TIME=1420,ROUND(REF(C,46)*100));\nAFP34:=VALUEWHEN(TIME=1420,ROUND(REF(C,45)*100));\nAFP35:=VALUEWHEN(TIME=1420,ROUND(REF(C,44)*100));\nAFP36:=VALUEWHEN(TIME=1420,ROUND(REF(C,43)*100));\nAFP37:=VALUEWHEN(TIME=1420,ROUND(REF(C,42)*100));\nAFP38:=VALUEWHEN(TIME=1420,ROUND(REF(C,41)*100));\nAFP39:=VALUEWHEN(TIME=1420,ROUND(REF(C,40)*100));\nAFP40:=VALUEWHEN(TIME=1420,ROUND(REF(C,39)*100));\nAFP41:=VALUEWHEN(TIME=1420,ROUND(REF(C,38)*100));\nAFP42:=VALUEWHEN(TIME=1420,ROUND(REF(C,37)*100));\nAFP43:=VALUEWHEN(TIME=1420,ROUND(REF(C,36)*100));\nAFP44:=VALUEWHEN(TIME=1420,ROUND(REF(C,35)*100));\nAFP45:=VALUEWHEN(TIME=1420,ROUND(REF(C,34)*100));\nAFP46:=VALUEWHEN(TIME=1420,ROUND(REF(C,33)*100));\nAFP47:=VALUEWHEN(TIME=1420,ROUND(REF(C,32)*100));\nAFP48:=VALUEWHEN(TIME=1420,ROUND(REF(C,31)*100));\nAFP49:=VALUEWHEN(TIME=1420,ROUND(REF(C,30)*100));\nAFP50:=VALUEWHEN(TIME=1420,ROUND(REF(C,29)*100));\nAFP51:=VALUEWHEN(TIME=1420,ROUND(REF(C,28)*100));\nAFP52:=VALUEWHEN(TIME=1420,ROUND(REF(C,27)*100));\nAFP53:=VALUEWHEN(TIME=1420,ROUND(REF(C,26)*100));\nAFP54:=VALUEWHEN(TIME=1420,ROUND(REF(C,25)*100));\nAFP55:=VALUEWHEN(TIME=1420,ROUND(REF(C,24)*100));\nAFP56:=VALUEWHEN(TIME=1420,ROUND(REF(C,23)*100));\nAFP57:=VALUEWHEN(TIME=1420,ROUND(REF(C,22)*100));\nAFP58:=VALUEWHEN(TIME=1420,ROUND(REF(C,21)*100));\nAFP59:=VALUEWHEN(TIME=1420,ROUND(REF(C,20)*100));\nAFP60:=VALUEWHEN(TIME=1420,ROUND(REF(C,19)*100));\nAFP61:=VALUEWHEN(TIME=1420,ROUND(REF(C,18)*100));\nAFP62:=VALUEWHEN(TIME=1420,ROUND(REF(C,17)*100));\nAFP63:=VALUEWHEN(TIME=1420,ROUND(REF(C,16)*100));\nAFP64:=VALUEWHEN(TIME=1420,ROUND(REF(C,15)*100));\nAFP65:=VALUEWHEN(TIME=1420,ROUND(REF(C,14)*100));\nAFP66:=VALUEWHEN(TIME=1420,ROUND(REF(C,13)*100));\nAFP67:=VALUEWHEN(TIME=1420,ROUND(REF(C,12)*100));\nAFP68:=VALUEWHEN(TIME=1420,ROUND(REF(C,11)*100));\nAFP69:=VALUEWHEN(TIME=1420,ROUND(REF(C,10)*100));\nAFP70:=VALUEWHEN(TIME=1420,ROUND(REF(C,9)*100));\nAFP71:=VALUEWHEN(TIME=1420,ROUND(REF(C,8)*100));\nAFP72:=VALUEWHEN(TIME=1420,ROUND(REF(C,7)*100));\nAFP73:=VALUEWHEN(TIME=1420,ROUND(REF(C,6)*100));\nAFP74:=VALUEWHEN(TIME=1420,ROUND(REF(C,5)*100));\nAFP75:=VALUEWHEN(TIME=1420,ROUND(REF(C,4)*100));\nAFP76:=VALUEWHEN(TIME=1420,ROUND(REF(C,3)*100));\nAFP77:=VALUEWHEN(TIME=1420,ROUND(REF(C,2)*100));\nAFP78:=VALUEWHEN(TIME=1420,ROUND(REF(C,1)*100));\n",
+  "expected_keys": 1815129,
+  "expected_original_valid": 1602413,
+  "newly_invalid_allowed": 0,
+  "window_labels": 80,
+  "maximum_new_fits": 4,
+  "definitions": "13:01至14:20共80条收盘分价，按时间保留前79条100*(分价/14:20分价-1)/原V01；锚点恒为0，合计129项。零量不跳位置；缺失、重复、坏分价不补值。",
+  "native": "14:20的VALUEWHEN与DATE守卫，80项显式REF逐根时点／日期守卫及分价COUNT守卫；AFP00至78用REF(C,79-i)定位。实际79字面数学和整数编码全量独立核准，144个旧固定原档探针重放实际窗口和未来排除。",
+  "quality": "原1815129键、原50所有值／元数据及1602413有效域须逐行相同，新增失效则先审计控制，不能进入本四新拟合计划。",
+  "native_probe_keys": [
+    {
+      "date": "2023-01-09",
+      "code": "sh.600310"
+    },
+    {
+      "date": "2023-01-13",
+      "code": "sz.001309"
+    },
+    {
+      "date": "2023-01-13",
+      "code": "sz.002666"
+    },
+    {
+      "date": "2023-01-18",
+      "code": "sz.002198"
+    },
+    {
+      "date": "2023-01-30",
+      "code": "sz.002181"
+    },
+    {
+      "date": "2023-01-31",
+      "code": "sz.002551"
+    },
+    {
+      "date": "2023-02-03",
+      "code": "sh.603336"
+    },
+    {
+      "date": "2023-02-03",
+      "code": "sz.002977"
+    },
+    {
+      "date": "2023-02-06",
+      "code": "sh.600995"
+    },
+    {
+      "date": "2023-02-22",
+      "code": "sz.002614"
+    },
+    {
+      "date": "2023-04-07",
+      "code": "sz.001339"
+    },
+    {
+      "date": "2023-04-10",
+      "code": "sh.600552"
+    },
+    {
+      "date": "2023-04-12",
+      "code": "sh.603722"
+    },
+    {
+      "date": "2023-04-17",
+      "code": "sh.600645"
+    },
+    {
+      "date": "2023-04-21",
+      "code": "sh.600941"
+    },
+    {
+      "date": "2023-05-04",
+      "code": "sz.001227"
+    },
+    {
+      "date": "2023-05-05",
+      "code": "sh.603889"
+    },
+    {
+      "date": "2023-05-09",
+      "code": "sh.603056"
+    },
+    {
+      "date": "2023-05-15",
+      "code": "sh.603556"
+    },
+    {
+      "date": "2023-05-16",
+      "code": "sh.600859"
+    },
+    {
+      "date": "2023-05-22",
+      "code": "sh.601377"
+    },
+    {
+      "date": "2023-05-23",
+      "code": "sh.600642"
+    },
+    {
+      "date": "2023-06-01",
+      "code": "sz.000650"
+    },
+    {
+      "date": "2023-06-20",
+      "code": "sh.603015"
+    },
+    {
+      "date": "2023-07-14",
+      "code": "sz.002032"
+    },
+    {
+      "date": "2023-07-21",
+      "code": "sz.002434"
+    },
+    {
+      "date": "2023-07-26",
+      "code": "sh.601198"
+    },
+    {
+      "date": "2023-08-22",
+      "code": "sh.603069"
+    },
+    {
+      "date": "2023-08-24",
+      "code": "sz.000683"
+    },
+    {
+      "date": "2023-08-28",
+      "code": "sz.002828"
+    },
+    {
+      "date": "2023-08-29",
+      "code": "sh.601100"
+    },
+    {
+      "date": "2023-09-22",
+      "code": "sh.600476"
+    },
+    {
+      "date": "2023-09-27",
+      "code": "sz.000636"
+    },
+    {
+      "date": "2023-09-28",
+      "code": "sz.002409"
+    },
+    {
+      "date": "2023-09-28",
+      "code": "sz.002413"
+    },
+    {
+      "date": "2023-10-09",
+      "code": "sh.601789"
+    },
+    {
+      "date": "2023-10-19",
+      "code": "sh.603878"
+    },
+    {
+      "date": "2023-10-24",
+      "code": "sh.603069"
+    },
+    {
+      "date": "2023-10-27",
+      "code": "sh.600105"
+    },
+    {
+      "date": "2023-11-15",
+      "code": "sh.600596"
+    },
+    {
+      "date": "2023-11-23",
+      "code": "sz.000088"
+    },
+    {
+      "date": "2023-11-23",
+      "code": "sz.002827"
+    },
+    {
+      "date": "2023-11-27",
+      "code": "sh.603728"
+    },
+    {
+      "date": "2023-12-05",
+      "code": "sh.601890"
+    },
+    {
+      "date": "2023-12-13",
+      "code": "sz.002281"
+    },
+    {
+      "date": "2023-12-18",
+      "code": "sz.000898"
+    },
+    {
+      "date": "2023-12-22",
+      "code": "sh.600036"
+    },
+    {
+      "date": "2023-12-29",
+      "code": "sh.605368"
+    },
+    {
+      "date": "2024-08-22",
+      "code": "sh.600056"
+    },
+    {
+      "date": "2025-09-17",
+      "code": "sh.600062"
+    },
+    {
+      "date": "2025-09-29",
+      "code": "sh.600073"
+    },
+    {
+      "date": "2024-10-21",
+      "code": "sh.600121"
+    },
+    {
+      "date": "2024-03-27",
+      "code": "sh.600241"
+    },
+    {
+      "date": "2024-04-17",
+      "code": "sh.600279"
+    },
+    {
+      "date": "2025-02-11",
+      "code": "sh.600350"
+    },
+    {
+      "date": "2025-11-18",
+      "code": "sh.600372"
+    },
+    {
+      "date": "2025-11-11",
+      "code": "sh.600383"
+    },
+    {
+      "date": "2024-07-15",
+      "code": "sh.600482"
+    },
+    {
+      "date": "2025-07-08",
+      "code": "sh.600572"
+    },
+    {
+      "date": "2024-01-08",
+      "code": "sh.600575"
+    },
+    {
+      "date": "2024-07-10",
+      "code": "sh.600596"
+    },
+    {
+      "date": "2025-07-03",
+      "code": "sh.600612"
+    },
+    {
+      "date": "2024-05-13",
+      "code": "sh.600725"
+    },
+    {
+      "date": "2024-05-06",
+      "code": "sh.600771"
+    },
+    {
+      "date": "2025-01-15",
+      "code": "sh.600810"
+    },
+    {
+      "date": "2024-09-30",
+      "code": "sh.600812"
+    },
+    {
+      "date": "2024-08-30",
+      "code": "sh.600834"
+    },
+    {
+      "date": "2024-12-24",
+      "code": "sh.600838"
+    },
+    {
+      "date": "2024-10-24",
+      "code": "sh.600875"
+    },
+    {
+      "date": "2025-11-26",
+      "code": "sh.600879"
+    },
+    {
+      "date": "2024-06-28",
+      "code": "sh.600918"
+    },
+    {
+      "date": "2025-12-17",
+      "code": "sh.600961"
+    },
+    {
+      "date": "2024-11-25",
+      "code": "sh.601700"
+    },
+    {
+      "date": "2025-07-25",
+      "code": "sh.601799"
+    },
+    {
+      "date": "2025-03-11",
+      "code": "sh.601816"
+    },
+    {
+      "date": "2025-10-30",
+      "code": "sh.601880"
+    },
+    {
+      "date": "2025-06-04",
+      "code": "sh.601881"
+    },
+    {
+      "date": "2024-05-17",
+      "code": "sh.601916"
+    },
+    {
+      "date": "2024-02-06",
+      "code": "sh.601919"
+    },
+    {
+      "date": "2025-03-20",
+      "code": "sh.603021"
+    },
+    {
+      "date": "2025-12-02",
+      "code": "sh.603027"
+    },
+    {
+      "date": "2024-11-05",
+      "code": "sh.603062"
+    },
+    {
+      "date": "2025-06-09",
+      "code": "sh.603066"
+    },
+    {
+      "date": "2025-04-21",
+      "code": "sh.603089"
+    },
+    {
+      "date": "2024-09-25",
+      "code": "sh.603126"
+    },
+    {
+      "date": "2024-02-20",
+      "code": "sh.603135"
+    },
+    {
+      "date": "2025-07-28",
+      "code": "sh.603181"
+    },
+    {
+      "date": "2024-03-27",
+      "code": "sh.603189"
+    },
+    {
+      "date": "2025-10-22",
+      "code": "sh.603213"
+    },
+    {
+      "date": "2024-09-30",
+      "code": "sh.603217"
+    },
+    {
+      "date": "2025-04-02",
+      "code": "sh.603276"
+    },
+    {
+      "date": "2025-10-09",
+      "code": "sh.603290"
+    },
+    {
+      "date": "2025-07-04",
+      "code": "sh.603331"
+    },
+    {
+      "date": "2024-08-29",
+      "code": "sh.603379"
+    },
+    {
+      "date": "2024-10-11",
+      "code": "sh.603477"
+    },
+    {
+      "date": "2024-12-11",
+      "code": "sh.603588"
+    },
+    {
+      "date": "2025-01-10",
+      "code": "sh.603611"
+    },
+    {
+      "date": "2025-06-27",
+      "code": "sh.603617"
+    },
+    {
+      "date": "2025-02-14",
+      "code": "sh.603668"
+    },
+    {
+      "date": "2025-04-02",
+      "code": "sh.603690"
+    },
+    {
+      "date": "2025-09-15",
+      "code": "sh.603833"
+    },
+    {
+      "date": "2024-04-29",
+      "code": "sh.605305"
+    },
+    {
+      "date": "2024-01-03",
+      "code": "sz.000032"
+    },
+    {
+      "date": "2024-12-06",
+      "code": "sz.000036"
+    },
+    {
+      "date": "2025-06-24",
+      "code": "sz.000408"
+    },
+    {
+      "date": "2024-09-23",
+      "code": "sz.000509"
+    },
+    {
+      "date": "2025-01-15",
+      "code": "sz.000530"
+    },
+    {
+      "date": "2024-09-25",
+      "code": "sz.000661"
+    },
+    {
+      "date": "2024-09-27",
+      "code": "sz.000665"
+    },
+    {
+      "date": "2025-01-10",
+      "code": "sz.000681"
+    },
+    {
+      "date": "2024-11-15",
+      "code": "sz.000726"
+    },
+    {
+      "date": "2025-02-17",
+      "code": "sz.000738"
+    },
+    {
+      "date": "2024-03-14",
+      "code": "sz.000836"
+    },
+    {
+      "date": "2024-04-19",
+      "code": "sz.000936"
+    },
+    {
+      "date": "2025-06-25",
+      "code": "sz.001258"
+    },
+    {
+      "date": "2025-02-10",
+      "code": "sz.001322"
+    },
+    {
+      "date": "2024-01-26",
+      "code": "sz.002001"
+    },
+    {
+      "date": "2025-04-11",
+      "code": "sz.002029"
+    },
+    {
+      "date": "2024-06-13",
+      "code": "sz.002104"
+    },
+    {
+      "date": "2024-11-18",
+      "code": "sz.002128"
+    },
+    {
+      "date": "2024-06-19",
+      "code": "sz.002189"
+    },
+    {
+      "date": "2025-10-23",
+      "code": "sz.002313"
+    },
+    {
+      "date": "2024-01-29",
+      "code": "sz.002329"
+    },
+    {
+      "date": "2025-05-13",
+      "code": "sz.002365"
+    },
+    {
+      "date": "2024-05-09",
+      "code": "sz.002368"
+    },
+    {
+      "date": "2025-05-13",
+      "code": "sz.002418"
+    },
+    {
+      "date": "2025-12-11",
+      "code": "sz.002426"
+    },
+    {
+      "date": "2024-04-03",
+      "code": "sz.002491"
+    },
+    {
+      "date": "2025-03-06",
+      "code": "sz.002491"
+    },
+    {
+      "date": "2025-10-13",
+      "code": "sz.002541"
+    },
+    {
+      "date": "2025-12-18",
+      "code": "sz.002603"
+    },
+    {
+      "date": "2025-10-16",
+      "code": "sz.002648"
+    },
+    {
+      "date": "2025-11-13",
+      "code": "sz.002679"
+    },
+    {
+      "date": "2024-02-23",
+      "code": "sz.002701"
+    },
+    {
+      "date": "2024-10-31",
+      "code": "sz.002722"
+    },
+    {
+      "date": "2024-01-24",
+      "code": "sz.002737"
+    },
+    {
+      "date": "2025-05-29",
+      "code": "sz.002766"
+    },
+    {
+      "date": "2024-03-26",
+      "code": "sz.002782"
+    },
+    {
+      "date": "2024-11-06",
+      "code": "sz.002783"
+    },
+    {
+      "date": "2025-12-17",
+      "code": "sz.002807"
+    },
+    {
+      "date": "2025-07-02",
+      "code": "sz.002855"
+    },
+    {
+      "date": "2025-01-21",
+      "code": "sz.002869"
+    },
+    {
+      "date": "2024-11-12",
+      "code": "sz.002882"
+    },
+    {
+      "date": "2024-01-23",
+      "code": "sz.003029"
+    }
+  ],
+  "folds": {
+    "2024h1": {
+      "training_start": "2023-01-01",
+      "training_end": "2024-01-01",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01"
+    },
+    "2024h2": {
+      "training_start": "2023-07-01",
+      "training_end": "2024-07-01",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01"
+    },
+    "2025h1": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    "2025h2": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "max_features": null
+  },
+  "old_model_roots": {
+    "2024h1": "data/research/tail_formula_stock_2024/models/2024h1/full",
+    "2024h2": "data/research/tail_formula_stock_2024/models/2024h2/full",
+    "2025h1": "data/research/tail_formula_morning_range/morning/2025h1",
+    "2025h2": "data/research/tail_formula_morning_range/morning/2025h2"
+  },
+  "original_selection_roots": {
+    "2024": "data/research/tail_formula_stock_2024/morning2024",
+    "2025": "data/research/tail_formula_morning_range/morning2025"
+  },
+  "evaluation_label_root": "data/research/tail_formula_before1000",
+  "prior_analysis_roots": [
+    "data/research/tail_formula_absolute_input_calibration/calibrated2025",
+    "data/research/tail_formula_absolute_input_calibration/comparison_views/fixed2025",
+    "data/research/tail_formula_absolute_input_calibration/comparison_views/industry2025",
+    "data/research/tail_formula_absolute_input_calibration/comparison_views/morning2025",
+    "data/research/tail_formula_absolute_input_calibration/comparison_views/range2025",
+    "data/research/tail_formula_absolute_input_calibration/comparison_views/relativecal2025",
+    "data/research/tail_formula_absolute_input_calibration/training2025",
+    "data/research/tail_formula_absolute_morning/absolute2025",
+    "data/research/tail_formula_absolute_morning/comparison_views/bins2025",
+    "data/research/tail_formula_absolute_morning/comparison_views/fixed2025",
+    "data/research/tail_formula_absolute_morning/comparison_views/flow2025",
+    "data/research/tail_formula_absolute_morning/comparison_views/price2025",
+    "data/research/tail_formula_absolute_morning/comparison_views/prior2025",
+    "data/research/tail_formula_absolute_zero_huber_2024",
+    "data/research/tail_formula_absolute_zero_huber_2025",
+    "data/research/tail_formula_absolute_zero_huber_recent",
+    "data/research/tail_formula_absolute_zero_squared_2024",
+    "data/research/tail_formula_absolute_zero_squared_2025",
+    "data/research/tail_formula_absolute_zero_squared_recent",
+    "data/research/tail_formula_amount_concentration_2024",
+    "data/research/tail_formula_amount_concentration_2025",
+    "data/research/tail_formula_amount_concentration_recent",
+    "data/research/tail_formula_amount_reference_2024",
+    "data/research/tail_formula_amount_reference_2025",
+    "data/research/tail_formula_amount_reference_recent",
+    "data/research/tail_formula_atr_target_2025",
+    "data/research/tail_formula_before1000/evaluation/full_base",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_cross_breadth_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_cross_breadth_weight_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_day_weight48_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_float_2025",
+    "data/research/tail_formula_before1000/evaluation/tail_formula_size_agreement_2025",
+    "data/research/tail_formula_before1000_model_2024",
+    "data/research/tail_formula_before1000_model_2025",
+    "data/research/tail_formula_before1000_model_recent",
+    "data/research/tail_formula_bipower_gap_2025",
+    "data/research/tail_formula_chrono_rounds_2024",
+    "data/research/tail_formula_chrono_rounds_2025",
+    "data/research/tail_formula_chrono_rounds_recent",
+    "data/research/tail_formula_class_balance_2025",
+    "data/research/tail_formula_confirmed_success/certificate2024",
+    "data/research/tail_formula_confirmed_success/certificate2025",
+    "data/research/tail_formula_cost_target5_2025",
+    "data/research/tail_formula_cross_dispersion_2024",
+    "data/research/tail_formula_cross_dispersion_2025",
+    "data/research/tail_formula_cross_dispersion_recent",
+    "data/research/tail_formula_cross_rotation_2024",
+    "data/research/tail_formula_cross_rotation_2025",
+    "data/research/tail_formula_cross_rotation_recent",
+    "data/research/tail_formula_daily_efficiency_2025",
+    "data/research/tail_formula_daily_extremes_2024",
+    "data/research/tail_formula_daily_extremes_2025",
+    "data/research/tail_formula_daily_extremes_recent",
+    "data/research/tail_formula_daily_logcorr_2025",
+    "data/research/tail_formula_daily_pressure_2024",
+    "data/research/tail_formula_daily_pressure_2025",
+    "data/research/tail_formula_daily_pressure_recent",
+    "data/research/tail_formula_daily_regression/control_2024",
+    "data/research/tail_formula_daily_regression/control_2025",
+    "data/research/tail_formula_daily_regression/regression_2024",
+    "data/research/tail_formula_daily_regression/regression_2025",
+    "data/research/tail_formula_daily_response_2024",
+    "data/research/tail_formula_daily_response_2025",
+    "data/research/tail_formula_daily_response_recent",
+    "data/research/tail_formula_date_quantile_2024",
+    "data/research/tail_formula_date_quantile_2025",
+    "data/research/tail_formula_date_quantile_recent",
+    "data/research/tail_formula_date_subsample_2024",
+    "data/research/tail_formula_date_subsample_2025",
+    "data/research/tail_formula_date_subsample_recent",
+    "data/research/tail_formula_dense_bars/bars_2025",
+    "data/research/tail_formula_dense_bars/control_2025",
+    "data/research/tail_formula_dense_bars/flow_2025",
+    "data/research/tail_formula_dense_bars/price_2025",
+    "data/research/tail_formula_dense_flow/control_2025",
+    "data/research/tail_formula_dense_flow/flow_2025",
+    "data/research/tail_formula_dense_flow/price_2025",
+    "data/research/tail_formula_dense_path/control_2024",
+    "data/research/tail_formula_dense_path/control_2025",
+    "data/research/tail_formula_dense_path/path_2024",
+    "data/research/tail_formula_dense_path/path_2025",
+    "data/research/tail_formula_dual_units_constant_2025",
+    "data/research/tail_formula_dual_units_dual_2025",
+    "data/research/tail_formula_early_opportunity_2024",
+    "data/research/tail_formula_early_opportunity_2025",
+    "data/research/tail_formula_early_opportunity_recent",
+    "data/research/tail_formula_endpoint_absolute_huber_2024",
+    "data/research/tail_formula_endpoint_absolute_huber_2025",
+    "data/research/tail_formula_endpoint_absolute_huber_recent",
+    "data/research/tail_formula_endpoint_absolute_squared_2024",
+    "data/research/tail_formula_endpoint_absolute_squared_2025",
+    "data/research/tail_formula_endpoint_absolute_squared_recent",
+    "data/research/tail_formula_endpoint_binary_2024",
+    "data/research/tail_formula_endpoint_binary_2025",
+    "data/research/tail_formula_endpoint_binary_recent",
+    "data/research/tail_formula_endpoint_huber_2024",
+    "data/research/tail_formula_endpoint_huber_2025",
+    "data/research/tail_formula_endpoint_huber_recent",
+    "data/research/tail_formula_endpoint_positive_binary_2024",
+    "data/research/tail_formula_endpoint_positive_binary_2025",
+    "data/research/tail_formula_endpoint_positive_binary_recent",
+    "data/research/tail_formula_endpoint_squared_2024",
+    "data/research/tail_formula_endpoint_squared_2025",
+    "data/research/tail_formula_endpoint_squared_recent",
+    "data/research/tail_formula_entry_friction_2025",
+    "data/research/tail_formula_equal_weight_2025",
+    "data/research/tail_formula_event_anchor_2025",
+    "data/research/tail_formula_exchange_context_constant_2025",
+    "data/research/tail_formula_exchange_context_venue_2025",
+    "data/research/tail_formula_exchange_experts_2025",
+    "data/research/tail_formula_executable_opportunity_2024",
+    "data/research/tail_formula_executable_opportunity_2025",
+    "data/research/tail_formula_executable_opportunity_recent",
+    "data/research/tail_formula_external_morning/activity_without_vwap",
+    "data/research/tail_formula_external_morning/base",
+    "data/research/tail_formula_external_morning/base_unknown",
+    "data/research/tail_formula_external_morning/detail_unknown",
+    "data/research/tail_formula_external_morning/eligible",
+    "data/research/tail_formula_external_morning/full",
+    "data/research/tail_formula_external_morning/neither",
+    "data/research/tail_formula_external_morning/outside_base",
+    "data/research/tail_formula_external_morning/recent_only",
+    "data/research/tail_formula_external_morning/vwap_only",
+    "data/research/tail_formula_external_morning/vwap_without_activity",
+    "data/research/tail_formula_feature_subsample/norm_2024",
+    "data/research/tail_formula_feature_subsample/norm_2025",
+    "data/research/tail_formula_feature_subsample/raw_2024",
+    "data/research/tail_formula_feature_subsample/raw_2025",
+    "data/research/tail_formula_financial_context_2025",
+    "data/research/tail_formula_finer_encoding_2024",
+    "data/research/tail_formula_finer_encoding_2025",
+    "data/research/tail_formula_finer_encoding_recent",
+    "data/research/tail_formula_flat_volume_2024",
+    "data/research/tail_formula_flat_volume_2025",
+    "data/research/tail_formula_flat_volume_recent",
+    "data/research/tail_formula_gap_semivariance_2024",
+    "data/research/tail_formula_gap_semivariance_2025",
+    "data/research/tail_formula_gap_semivariance_recent",
+    "data/research/tail_formula_half_consensus_2025/intersection",
+    "data/research/tail_formula_half_consensus_2025/newer",
+    "data/research/tail_formula_half_consensus_2025/older",
+    "data/research/tail_formula_half_consistent_consistent_2025",
+    "data/research/tail_formula_half_consistent_ordinary_2025",
+    "data/research/tail_formula_history_cdf_2024",
+    "data/research/tail_formula_history_cdf_2025",
+    "data/research/tail_formula_history_cdf_recent",
+    "data/research/tail_formula_index_morning/comparison_views/amountpath2025",
+    "data/research/tail_formula_index_morning/comparison_views/fixed2025",
+    "data/research/tail_formula_index_morning/comparison_views/flow2025",
+    "data/research/tail_formula_index_morning/comparison_views/price2025",
+    "data/research/tail_formula_index_morning/comparison_views/range2025",
+    "data/research/tail_formula_index_morning/early2025",
+    "data/research/tail_formula_index_morning/morning2025",
+    "data/research/tail_formula_index_morning_range/comparison_views/amountpath2025",
+    "data/research/tail_formula_index_morning_range/comparison_views/early2025",
+    "data/research/tail_formula_index_morning_range/comparison_views/fixed2025",
+    "data/research/tail_formula_index_morning_range/comparison_views/price2025",
+    "data/research/tail_formula_index_morning_range/comparison_views/range2025",
+    "data/research/tail_formula_index_morning_range/indexrange2025",
+    "data/research/tail_formula_index_morning_range/morning2025",
+    "data/research/tail_formula_industry_baseline/comparison_views/amountpath2025",
+    "data/research/tail_formula_industry_baseline/comparison_views/early2025",
+    "data/research/tail_formula_industry_baseline/comparison_views/fixed2025",
+    "data/research/tail_formula_industry_baseline/comparison_views/indexrange2025",
+    "data/research/tail_formula_industry_baseline/comparison_views/range2025",
+    "data/research/tail_formula_industry_baseline/industry2025",
+    "data/research/tail_formula_industry_baseline/morning2025",
+    "data/research/tail_formula_input_calibration/calibrated2025",
+    "data/research/tail_formula_input_calibration/comparison_views/fixed2025",
+    "data/research/tail_formula_input_calibration/comparison_views/indexrange2025",
+    "data/research/tail_formula_input_calibration/comparison_views/industry2025",
+    "data/research/tail_formula_input_calibration/comparison_views/morning2025",
+    "data/research/tail_formula_input_calibration/comparison_views/range2025",
+    "data/research/tail_formula_input_calibration/training2025",
+    "data/research/tail_formula_intraday_beta_2025",
+    "data/research/tail_formula_intraday_rank_rank_2024",
+    "data/research/tail_formula_intraday_rank_rank_2025",
+    "data/research/tail_formula_intraday_rank_rank_recent",
+    "data/research/tail_formula_intraday_rank_raw_2024",
+    "data/research/tail_formula_intraday_rank_raw_2025",
+    "data/research/tail_formula_intraday_rank_raw_recent",
+    "data/research/tail_formula_joint_reference_huber_2024",
+    "data/research/tail_formula_joint_reference_huber_2025",
+    "data/research/tail_formula_joint_reference_huber_recent",
+    "data/research/tail_formula_joint_reference_huber_removed",
+    "data/research/tail_formula_joint_reference_huber_removed_dates",
+    "data/research/tail_formula_joint_reference_squared_2024",
+    "data/research/tail_formula_joint_reference_squared_2025",
+    "data/research/tail_formula_joint_reference_squared_recent",
+    "data/research/tail_formula_joint_reference_squared_removed",
+    "data/research/tail_formula_joint_reference_squared_removed_dates",
+    "data/research/tail_formula_late_history_2024",
+    "data/research/tail_formula_late_history_2025",
+    "data/research/tail_formula_late_history_recent",
+    "data/research/tail_formula_leaf_transfer_average_2024",
+    "data/research/tail_formula_leaf_transfer_average_2025",
+    "data/research/tail_formula_leaf_transfer_average_recent",
+    "data/research/tail_formula_leaf_transfer_refit_2024",
+    "data/research/tail_formula_leaf_transfer_refit_2025",
+    "data/research/tail_formula_leaf_transfer_refit_recent",
+    "data/research/tail_formula_limit_breadth_2024",
+    "data/research/tail_formula_limit_breadth_2025",
+    "data/research/tail_formula_limit_breadth_recent",
+    "data/research/tail_formula_market_bins/bins2025",
+    "data/research/tail_formula_market_bins/comparison_views/control2025",
+    "data/research/tail_formula_market_bins/comparison_views/fixed2025",
+    "data/research/tail_formula_market_bins/comparison_views/flow2025",
+    "data/research/tail_formula_market_bins/comparison_views/price2025",
+    "data/research/tail_formula_market_bins/comparison_views/prior2025",
+    "data/research/tail_formula_market_bins/morning2025",
+    "data/research/tail_formula_market_direction_2025",
+    "data/research/tail_formula_market_dispersion_2024",
+    "data/research/tail_formula_market_dispersion_2025",
+    "data/research/tail_formula_market_dispersion_recent",
+    "data/research/tail_formula_market_experts_pooled_2024",
+    "data/research/tail_formula_market_experts_pooled_2025",
+    "data/research/tail_formula_market_experts_pooled_recent",
+    "data/research/tail_formula_market_experts_split_2024",
+    "data/research/tail_formula_market_experts_split_2025",
+    "data/research/tail_formula_market_experts_split_recent",
+    "data/research/tail_formula_market_reference/kept2024",
+    "data/research/tail_formula_market_reference/kept2025",
+    "data/research/tail_formula_market_reference/removed2024",
+    "data/research/tail_formula_market_reference/removed2025",
+    "data/research/tail_formula_market_sum_2025",
+    "data/research/tail_formula_market_turnover_2024",
+    "data/research/tail_formula_market_turnover_2025",
+    "data/research/tail_formula_market_turnover_recent",
+    "data/research/tail_formula_max_run_2025",
+    "data/research/tail_formula_max_run_recent",
+    "data/research/tail_formula_minute_vwap/comparison_views/bins2025",
+    "data/research/tail_formula_minute_vwap/comparison_views/fixed2025",
+    "data/research/tail_formula_minute_vwap/comparison_views/flow2025",
+    "data/research/tail_formula_minute_vwap/comparison_views/price2025",
+    "data/research/tail_formula_minute_vwap/comparison_views/prior2025",
+    "data/research/tail_formula_minute_vwap/morning2025",
+    "data/research/tail_formula_minute_vwap/vwap2025",
+    "data/research/tail_formula_minute_vwap_path/amountpath2025",
+    "data/research/tail_formula_minute_vwap_path/comparison_views/fixed2025",
+    "data/research/tail_formula_minute_vwap_path/comparison_views/flow2025",
+    "data/research/tail_formula_minute_vwap_path/comparison_views/price2025",
+    "data/research/tail_formula_minute_vwap_path/comparison_views/range2025",
+    "data/research/tail_formula_minute_vwap_path/comparison_views/vwap2025",
+    "data/research/tail_formula_minute_vwap_path/morning2025",
+    "data/research/tail_formula_minute_vwap_range/comparison_views/fixed2025",
+    "data/research/tail_formula_minute_vwap_range/comparison_views/flow2025",
+    "data/research/tail_formula_minute_vwap_range/comparison_views/price2025",
+    "data/research/tail_formula_minute_vwap_range/comparison_views/prior2025",
+    "data/research/tail_formula_minute_vwap_range/comparison_views/vwap2025",
+    "data/research/tail_formula_minute_vwap_range/morning2025",
+    "data/research/tail_formula_minute_vwap_range/range2025",
+    "data/research/tail_formula_morning_distribution/comparison_views/control2025",
+    "data/research/tail_formula_morning_distribution/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_distribution/comparison_views/low2025",
+    "data/research/tail_formula_morning_distribution/comparison_views/price2025",
+    "data/research/tail_formula_morning_distribution/comparison_views/volume2025",
+    "data/research/tail_formula_morning_distribution/distribution2025",
+    "data/research/tail_formula_morning_distribution/morning2025",
+    "data/research/tail_formula_morning_extrema_order/control2024",
+    "data/research/tail_formula_morning_extrema_order/control2025",
+    "data/research/tail_formula_morning_extrema_order/memory2024",
+    "data/research/tail_formula_morning_extrema_order/memory2025",
+    "data/research/tail_formula_morning_flow/comparison_views/control2025",
+    "data/research/tail_formula_morning_flow/comparison_views/distribution2025",
+    "data/research/tail_formula_morning_flow/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_flow/comparison_views/price2025",
+    "data/research/tail_formula_morning_flow/comparison_views/trend2025",
+    "data/research/tail_formula_morning_flow/flow2025",
+    "data/research/tail_formula_morning_flow/morning2025",
+    "data/research/tail_formula_morning_hold/comparison_views/control2025",
+    "data/research/tail_formula_morning_hold/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_hold/comparison_views/price2025",
+    "data/research/tail_formula_morning_hold/hold2025",
+    "data/research/tail_formula_morning_hold/morning2025",
+    "data/research/tail_formula_morning_low_volume/comparison_views/control2025",
+    "data/research/tail_formula_morning_low_volume/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_low_volume/comparison_views/morning2025",
+    "data/research/tail_formula_morning_low_volume/comparison_views/price2025",
+    "data/research/tail_formula_morning_low_volume/low2025",
+    "data/research/tail_formula_morning_low_volume/volume2025",
+    "data/research/tail_formula_morning_range/comparison_views/ew2025",
+    "data/research/tail_formula_morning_range/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_range/comparison_views/price2025",
+    "data/research/tail_formula_morning_range/control2025",
+    "data/research/tail_formula_morning_range/morning2025",
+    "data/research/tail_formula_morning_trend/comparison_views/control2025",
+    "data/research/tail_formula_morning_trend/comparison_views/distribution2025",
+    "data/research/tail_formula_morning_trend/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_trend/comparison_views/low2025",
+    "data/research/tail_formula_morning_trend/comparison_views/price2025",
+    "data/research/tail_formula_morning_trend/morning2025",
+    "data/research/tail_formula_morning_trend/trend2025",
+    "data/research/tail_formula_morning_volume/comparison_views/control2025",
+    "data/research/tail_formula_morning_volume/comparison_views/fixed2025",
+    "data/research/tail_formula_morning_volume/comparison_views/morning2025",
+    "data/research/tail_formula_morning_volume/comparison_views/price2025",
+    "data/research/tail_formula_morning_volume/hold2025",
+    "data/research/tail_formula_morning_volume/volume2025",
+    "data/research/tail_formula_no_float_2025",
+    "data/research/tail_formula_oob_leaf_2025",
+    "data/research/tail_formula_pairwise_2024",
+    "data/research/tail_formula_pairwise_2025",
+    "data/research/tail_formula_pairwise_center_2025",
+    "data/research/tail_formula_pairwise_recent",
+    "data/research/tail_formula_pairwise_scale_2025",
+    "data/research/tail_formula_path_area_2024",
+    "data/research/tail_formula_path_area_2025",
+    "data/research/tail_formula_path_area_recent",
+    "data/research/tail_formula_path_excursion_2024",
+    "data/research/tail_formula_path_excursion_2025",
+    "data/research/tail_formula_path_excursion_recent",
+    "data/research/tail_formula_path_order_2024",
+    "data/research/tail_formula_path_order_2025",
+    "data/research/tail_formula_path_order_recent",
+    "data/research/tail_formula_path_relative_2024",
+    "data/research/tail_formula_path_relative_2025",
+    "data/research/tail_formula_path_relative_recent",
+    "data/research/tail_formula_pca_axes_axis_2025",
+    "data/research/tail_formula_pca_axes_pca_2025",
+    "data/research/tail_formula_polynomial_ridge_linear_2024",
+    "data/research/tail_formula_polynomial_ridge_linear_2025",
+    "data/research/tail_formula_polynomial_ridge_linear_recent",
+    "data/research/tail_formula_polynomial_ridge_quadratic_2024",
+    "data/research/tail_formula_polynomial_ridge_quadratic_2025",
+    "data/research/tail_formula_polynomial_ridge_quadratic_recent",
+    "data/research/tail_formula_pool_executable/comparison_views/expanded_extra",
+    "data/research/tail_formula_pool_executable/comparison_views/expanded_full",
+    "data/research/tail_formula_pool_executable/comparison_views/expanded_original",
+    "data/research/tail_formula_pool_executable/comparison_views/fixed2025",
+    "data/research/tail_formula_pool_executable/comparison_views/old_executable",
+    "data/research/tail_formula_pool_executable/comparison_views/old_full",
+    "data/research/tail_formula_pool_executable/comparison_views/old_original",
+    "data/research/tail_formula_pool_executable/comparison_views/price2025",
+    "data/research/tail_formula_pool_executable/exec_extra",
+    "data/research/tail_formula_pool_executable/exec_full",
+    "data/research/tail_formula_pool_executable/exec_original",
+    "data/research/tail_formula_pool_scope/comparison_views/fixed2025",
+    "data/research/tail_formula_pool_scope/comparison_views/price2025",
+    "data/research/tail_formula_pool_scope/expanded_extra",
+    "data/research/tail_formula_pool_scope/expanded_full",
+    "data/research/tail_formula_pool_scope/expanded_original",
+    "data/research/tail_formula_pool_scope/old_full",
+    "data/research/tail_formula_pool_scope/old_original",
+    "data/research/tail_formula_positive_floor48/norm_2024",
+    "data/research/tail_formula_positive_floor48/norm_2025",
+    "data/research/tail_formula_positive_floor48/raw_2024",
+    "data/research/tail_formula_positive_floor48/raw_2025",
+    "data/research/tail_formula_price_curve_2025",
+    "data/research/tail_formula_price_impact_2024",
+    "data/research/tail_formula_price_impact_2025",
+    "data/research/tail_formula_price_impact_recent",
+    "data/research/tail_formula_price_volume_only_2025",
+    "data/research/tail_formula_prior_bar/comparison_views/control2025",
+    "data/research/tail_formula_prior_bar/comparison_views/fixed2025",
+    "data/research/tail_formula_prior_bar/comparison_views/flow2025",
+    "data/research/tail_formula_prior_bar/comparison_views/price2025",
+    "data/research/tail_formula_prior_bar/comparison_views/trend2025",
+    "data/research/tail_formula_prior_bar/morning2025",
+    "data/research/tail_formula_prior_bar/prior2025",
+    "data/research/tail_formula_prior_close_control_2025",
+    "data/research/tail_formula_prior_close_joint_2025",
+    "data/research/tail_formula_prior_trend_experts_2025",
+    "data/research/tail_formula_probability_linear48/norm_2024",
+    "data/research/tail_formula_probability_linear48/norm_2025",
+    "data/research/tail_formula_probability_linear48/raw_2024",
+    "data/research/tail_formula_probability_linear48/raw_2025",
+    "data/research/tail_formula_random_threshold_2024",
+    "data/research/tail_formula_random_threshold_2025",
+    "data/research/tail_formula_random_threshold_recent",
+    "data/research/tail_formula_range_change_2024",
+    "data/research/tail_formula_range_change_2025",
+    "data/research/tail_formula_range_change_recent",
+    "data/research/tail_formula_range_direction_2025",
+    "data/research/tail_formula_recency_weight_2024",
+    "data/research/tail_formula_recency_weight_2025",
+    "data/research/tail_formula_recency_weight_recent",
+    "data/research/tail_formula_reversal_change_control_2024",
+    "data/research/tail_formula_reversal_change_control_2025",
+    "data/research/tail_formula_reversal_change_control_recent",
+    "data/research/tail_formula_reversal_change_joint_2024",
+    "data/research/tail_formula_reversal_change_joint_2025",
+    "data/research/tail_formula_rising_population_2025",
+    "data/research/tail_formula_rising_population_control",
+    "data/research/tail_formula_rising_population_population",
+    "data/research/tail_formula_rotation_agreement/both",
+    "data/research/tail_formula_rotation_agreement/original_only",
+    "data/research/tail_formula_rotation_agreement/rotation_only",
+    "data/research/tail_formula_score_center_2024",
+    "data/research/tail_formula_score_center_2025",
+    "data/research/tail_formula_score_center_recent",
+    "data/research/tail_formula_score_scale_2025",
+    "data/research/tail_formula_serial_price_2024",
+    "data/research/tail_formula_serial_price_2025",
+    "data/research/tail_formula_serial_price_recent",
+    "data/research/tail_formula_session_volatility_both_2025",
+    "data/research/tail_formula_session_volatility_late_2025",
+    "data/research/tail_formula_signed_cubic_2025",
+    "data/research/tail_formula_size_baseline_daily_2025",
+    "data/research/tail_formula_size_baseline_size_2025",
+    "data/research/tail_formula_smooth_iteration_2025",
+    "data/research/tail_formula_smooth_network_linear_2025",
+    "data/research/tail_formula_smooth_network_smooth_2025",
+    "data/research/tail_formula_stock36_2024",
+    "data/research/tail_formula_stock36_2025",
+    "data/research/tail_formula_stock36_recent",
+    "data/research/tail_formula_stock_2024/agreement2024",
+    "data/research/tail_formula_stock_2024/comparison_views/fixed2024",
+    "data/research/tail_formula_stock_2024/mean2024",
+    "data/research/tail_formula_stock_2024/morning2024",
+    "data/research/tail_formula_stock_agreement/agreement2025",
+    "data/research/tail_formula_stock_agreement/comparison_views/fixed2025",
+    "data/research/tail_formula_stock_agreement/comparison_views/morning2025",
+    "data/research/tail_formula_stock_agreement/comparison_views/own2025",
+    "data/research/tail_formula_stock_agreement/comparison_views/range2025",
+    "data/research/tail_formula_stock_agreement/comparison_views/relativecal2025",
+    "data/research/tail_formula_stock_agreement/cross2025",
+    "data/research/tail_formula_stock_date_2025",
+    "data/research/tail_formula_stock_holdout/comparison_views/absolute2025",
+    "data/research/tail_formula_stock_holdout/comparison_views/absolutecal2025",
+    "data/research/tail_formula_stock_holdout/comparison_views/fixed2025",
+    "data/research/tail_formula_stock_holdout/comparison_views/morning2025",
+    "data/research/tail_formula_stock_holdout/comparison_views/range2025",
+    "data/research/tail_formula_stock_holdout/cross2025",
+    "data/research/tail_formula_stock_holdout/own2025",
+    "data/research/tail_formula_stock_library_control_2024",
+    "data/research/tail_formula_stock_library_control_2025",
+    "data/research/tail_formula_stock_library_control_recent",
+    "data/research/tail_formula_stock_library_joint_2024",
+    "data/research/tail_formula_stock_library_joint_2025",
+    "data/research/tail_formula_stock_library_joint_recent",
+    "data/research/tail_formula_stock_mean/agreement2025",
+    "data/research/tail_formula_stock_mean/comparison_views/cross2025",
+    "data/research/tail_formula_stock_mean/comparison_views/fixed2025",
+    "data/research/tail_formula_stock_mean/comparison_views/morning2025",
+    "data/research/tail_formula_stock_mean/comparison_views/own2025",
+    "data/research/tail_formula_stock_mean/comparison_views/range2025",
+    "data/research/tail_formula_stock_mean/mean2025",
+    "data/research/tail_formula_stock_relative/comparison_views/absolutecross2025",
+    "data/research/tail_formula_stock_relative/comparison_views/fixed2025",
+    "data/research/tail_formula_stock_relative/comparison_views/morning2025",
+    "data/research/tail_formula_stock_relative/comparison_views/range2025",
+    "data/research/tail_formula_stock_relative/comparison_views/relativecal2025",
+    "data/research/tail_formula_stock_relative/cross2025",
+    "data/research/tail_formula_stock_relative/own2025",
+    "data/research/tail_formula_stumps_2024",
+    "data/research/tail_formula_stumps_2025",
+    "data/research/tail_formula_stumps_recent",
+    "data/research/tail_formula_style_zscore_2024",
+    "data/research/tail_formula_style_zscore_2025",
+    "data/research/tail_formula_style_zscore_recent",
+    "data/research/tail_formula_subspace48_2024",
+    "data/research/tail_formula_subspace48_2025",
+    "data/research/tail_formula_subspace48_recent",
+    "data/research/tail_formula_symmetric_tree_asymmetric_2024",
+    "data/research/tail_formula_symmetric_tree_asymmetric_2025",
+    "data/research/tail_formula_symmetric_tree_asymmetric_recent",
+    "data/research/tail_formula_symmetric_tree_symmetric_2024",
+    "data/research/tail_formula_symmetric_tree_symmetric_2025",
+    "data/research/tail_formula_symmetric_tree_symmetric_recent",
+    "data/research/tail_formula_tail_ewtrend/comparison_views/fixed2025",
+    "data/research/tail_formula_tail_ewtrend/comparison_views/price2025",
+    "data/research/tail_formula_tail_ewtrend/comparison_views/regression2025",
+    "data/research/tail_formula_tail_ewtrend/control2025",
+    "data/research/tail_formula_tail_ewtrend/ew2025",
+    "data/research/tail_formula_tail_regression/control_2024",
+    "data/research/tail_formula_tail_regression/control_2025",
+    "data/research/tail_formula_tail_regression/regression_2024",
+    "data/research/tail_formula_tail_regression/regression_2025",
+    "data/research/tail_formula_top_pairs_2025",
+    "data/research/tail_formula_training_support_rejected_2024",
+    "data/research/tail_formula_training_support_rejected_2025",
+    "data/research/tail_formula_training_support_rejected_recent",
+    "data/research/tail_formula_training_support_supported_2024",
+    "data/research/tail_formula_training_support_supported_2025",
+    "data/research/tail_formula_training_support_supported_recent",
+    "data/research/tail_formula_tree_depth4_2025",
+    "data/research/tail_formula_units_history2024/constant",
+    "data/research/tail_formula_units_history2024/dual",
+    "data/research/tail_formula_units_history2024/raw",
+    "data/research/tail_formula_unscaled_prices_2025",
+    "data/research/tail_formula_update_cadence/monthly/2025",
+    "data/research/tail_formula_update_cadence/monthly/m01",
+    "data/research/tail_formula_update_cadence/monthly/m02",
+    "data/research/tail_formula_update_cadence/monthly/m03",
+    "data/research/tail_formula_update_cadence/monthly/m04",
+    "data/research/tail_formula_update_cadence/monthly/m05",
+    "data/research/tail_formula_update_cadence/monthly/m06",
+    "data/research/tail_formula_update_cadence/monthly/m07",
+    "data/research/tail_formula_update_cadence/monthly/m08",
+    "data/research/tail_formula_update_cadence/monthly/m09",
+    "data/research/tail_formula_update_cadence/monthly/m10",
+    "data/research/tail_formula_update_cadence/monthly/m11",
+    "data/research/tail_formula_update_cadence/monthly/m12",
+    "data/research/tail_formula_volume_lead_2024",
+    "data/research/tail_formula_volume_lead_2025",
+    "data/research/tail_formula_volume_lead_recent",
+    "data/research/tail_formula_volume_memory/control2024",
+    "data/research/tail_formula_volume_memory/control2025",
+    "data/research/tail_formula_volume_memory/memory2024",
+    "data/research/tail_formula_volume_memory/memory2025",
+    "data/research/tail_formula_volume_position_2025",
+    "data/research/tail_formula_volume_response_2025",
+    "data/research/tail_formula_vwap_path_2024",
+    "data/research/tail_formula_vwap_path_2025",
+    "data/research/tail_formula_vwap_path_recent",
+    "data/research/tail_formula_week_bagging_2025",
+    "data/research/tail_formula_weekday_2024",
+    "data/research/tail_formula_weekday_2025",
+    "data/research/tail_formula_weekday_recent",
+    "data/research/tail_formula_narrow_breakout/control2024",
+    "data/research/tail_formula_narrow_breakout/control2025",
+    "data/research/tail_formula_narrow_breakout/memory2024",
+    "data/research/tail_formula_narrow_breakout/memory2025"
+  ],
+  "planned_comparisons": [
+    [
+      "memory2024",
+      "control2024"
+    ],
+    [
+      "memory2025",
+      "control2025"
+    ],
+    [
+      "memory2024",
+      "original2024"
+    ],
+    [
+      "memory2025",
+      "original2025"
+    ]
+  ],
+  "cache_reuse": "22558已核准完整80标签原键优先复用，其余1792571原键窗口按64代码块提取，不重下载。分片重续只凭协议／提取代码／完整帧及来源校验一致的收据。",
+  "no_new_2026_prices_or_labels": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_publish_claim": true
+}
