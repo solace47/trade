@@ -21,7 +21,7 @@ PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io impo
 
 原始日线及分钟在`data/baostock/`、`data/hf/`。当前区间结构产物将写入`data/research/tail_formula_retained_interval/inputs/`，2024／2025尾段窗口复用`tail_formula_minute_pressure/parts/`，2023未缓存尾段在实际协议提交后提取。原50源为`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签不可混用。数据及机器产物由Git忽略。
 
-当前先执行`prepare`，核准原50及有效域不变后执行`protocols`；之后四折`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用，最多四个新模型。`freeze`后先提交联合SHA，才可`analyze`及`finish`，已完成阶段不可覆盖。
+`prepare`、`protocols`已完成且不得覆盖；下一步四折`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用，最多四个新模型。`freeze`后先提交联合SHA，才可`analyze`及`finish`，已完成阶段不可覆盖。
 
 [运行协议](../config/research-runtime.json)同时保留首次清理协议的原字节收据和当前研究绑定。ETF量级研究已完整失败，其最后源码／配置在Git `6bfed42`，完整产物仍在`data/research/tail_formula_etf_quantity/`；不得重复拟合或评价。
 
