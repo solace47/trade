@@ -1,16 +1,17 @@
 # 当前环境与复算
 
-已完成阶段及覆盖诊断均禁止重做。当前[研究入口](../scripts/run_tail_formula_phase_split.py)为同容量整体／分段预测。使用已有Python 3.12虚拟环境，依赖见`requirements.txt`。
+当前[输入入口](../scripts/run_tail_formula_external_pattern.py)及[固定名单／评价入口](../scripts/finish_tail_formula_external_pattern.py)已全部完成，禁止重复实验或覆盖收据。使用已有Python 3.12虚拟环境，依赖见requirements.txt。
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_phase_split.py --help
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_external_pattern.py --help
+PYTHONPATH=src:scripts .venv/bin/python scripts/finish_tail_formula_external_pattern.py --help
 ```
 
-输入协议先提交，再prepare；实际协议先提交，再lookup；十二分折配置与查重收据先提交，再逐折fit。所有模型freeze后先提交联合名单，才analyze、finish。已完成阶段不能覆盖或重做；当前进度及固定指纹见[当前方案](selection-formula.md)。
+输入协议先提交再prepare；来源门与实际执行协议先提交再freeze；四份完整年度名单共同提交后才analyze、finish。所有阶段禁止覆盖已完成产物。十分支诊断也已固定并完成，仅作事后失败解释；当前指纹见[固定收据](selection-formula.md)。
 
-原50输入精确复用`data/research/tail_formula_emotion_transition/inputs/`；新目标仅从已核准的2023严格窗口及`tail_formula_before1000`的2024—2025标签构造。两方案共用同一训练交集，缺参考保持未知；早于2024的历史只训练或初始化。新产物位于`data/research/tail_formula_phase_split/`，不扫描原分钟、不新增2026经济结果。
+产物位于data/research/tail_formula_external_pattern/：原50资格／决策股数复用已核准完整键，14:49前原始230分钟独立校验；两组施加同样前缀质量，坏来源仍保留未知。只解码2024—2025对应前缀，不新增2026模型行情。
 
-原始日线／分钟在`data/baostock/`和`data/hf/`，旧结果和查重缓存保留在忽略的`data/research/`。完整名单、全部元数据、适用标签及统计精确相同才复用；年度报告已含半年时不重复聚合，比较也查重。
+原始日线／分钟在data/baostock/和data/hf/；旧结果、原件和查重缓存保留于忽略的data/research/。完整名单、元数据、适用标签及统计精确相同才复用，年度已含半年时不重复聚合。
 
-失败来源、模型及评价的原字节协议可从相应Git恢复：情绪绝对目标`bbde01d`、情绪相对`bfbe762`、分钟开价`ceca953`、日内均幅`46004ad`、ETF总量`6bfed42`、尾段区间`884391c`。禁止重做。清理前完整源码与记录取`4b3bdda5db6470df4d8d61298501852f60b985a2`，复算须使用对应版本独立检出；旧14:50快照、10:00窗口、多日与月度回购不能替代当前边界。
+已结束方案从对应Git版本独立检出恢复，禁止重做：同容量整体／分段1e5793f、情绪绝对bbde01d、情绪相对bfbe762、分钟开价ceca953、日内均幅46004ad、ETF总量6bfed42、尾段区间884391c。十七个分段执行文件的原字节已逐项核准，恢复映射保存在当前运行收据。完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2；旧14:50快照、10:00窗口、多日和月度回购不能替代当前边界。

@@ -37,20 +37,6 @@
     "config/tail_formula_emotion_absolute_input_protocol.json": "081f5ac20dbf4a2b44226c73945ca4f3f3c7384e58f6fc7fd9d0738f4b6756aa",
     "config/tail_formula_emotion_absolute_model_protocol.json": "26a492ef997e6485e964224545246631de0c61ef48c269482094ac8398c8ad0b",
     "config/tail_formula_failure_review_protocol.json": "d062513fcba96a514ce4020263c45d69175d90ecc1fbc32ab328dc57dc52089e",
-    "config/tail_formula_phase_split/2024h1_after_close.json": "6476f84044d07c9f24152621b4878d3ab98bd2af367efa8bd549876630d17921",
-    "config/tail_formula_phase_split/2024h1_net.json": "368955324594c7f1ffa2b7eac3fb9c75d6356d330158b1ac58ef413fa3d44cd8",
-    "config/tail_formula_phase_split/2024h1_tail_with_cost.json": "619830008cdfe22dded6c45d25227574929412d35975518e49dd43f4da4b21a8",
-    "config/tail_formula_phase_split/2024h2_after_close.json": "9f29347441dc33bb8404d5001ffac6347109057911cee33b443fe6739df4625e",
-    "config/tail_formula_phase_split/2024h2_net.json": "4a32e07d66472fc702dd262c5438ac4852876bd73ecb81765470070645adb6ea",
-    "config/tail_formula_phase_split/2024h2_tail_with_cost.json": "4b95da540cacda73ffdcb51f2d24f74cf1761e6d20c3c1192275016afa7b9950",
-    "config/tail_formula_phase_split/2025h1_after_close.json": "b4aec8a45372f78dc37c4163734876193b85862e301a7cce821855b7734257c2",
-    "config/tail_formula_phase_split/2025h1_net.json": "fc8297ba4282676a0fb38e9cb6f7dd87bc1d7348c27f0db9427730d31cefcf08",
-    "config/tail_formula_phase_split/2025h1_tail_with_cost.json": "028bee4a58359215be58d5660de06e6cf8977164061ab6060ee9c0e38cc27c5a",
-    "config/tail_formula_phase_split/2025h2_after_close.json": "6978967c27c6da0153130477f81688f9c3665c916da9793e51edf2e362311b18",
-    "config/tail_formula_phase_split/2025h2_net.json": "ebe068463e8e941baf8099a940ea0f8129a2a5a9be1926364c897def4e60c14f",
-    "config/tail_formula_phase_split/2025h2_tail_with_cost.json": "57e82dcc0a7e61be0f92dd0eab60c8a4a57640630676a6c19698bb3f8d858d12",
-    "config/tail_formula_phase_split_input_protocol.json": "5120d7e88a68d990cb2b96395f1ff407fa02fc92987790d3ec3ee8811b27367c",
-    "config/tail_formula_phase_split_model_protocol.json": "1c3bc178fcb13a427176aa27020b0b4e5f6328bac92329be1ee17e2fd7e1fefd",
     "config/tail_formula_price_reference_audit.json": "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe",
     "scripts/audit_tail_formula_price_reference.py": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
     "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
@@ -59,7 +45,6 @@
     "scripts/find_existing_tail_formula_models.py": "011c505b226f5ea1a7c5d393868690682c2eb659ff6aa15385cbf55ab93e993e",
     "scripts/review_tail_formula_failures.py": "5d3ec496cba6641a0d429b359102587d1011e161dd4f540534c45f7148a27bfb",
     "scripts/review_tail_formula_score_gate.py": "0154438307a52e47c4b168158fdb81d603dcb6e8628ec3d2741cf7e3dcbe4604",
-    "scripts/run_tail_formula_phase_split.py": "4cebe9436be35154d115eb079c9a889d68d0189fb57b101d5892cecd09bf7b89",
     "scripts/tail_formula_analysis_reuse.py": "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
@@ -70,15 +55,20 @@
     "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
     "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
     "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8",
-    "src/trade_research/tail_formula_phase_split.py": "d58c00298a40f6c7e3709660895c3fc1698baf7f7f034a31a9fe652c8ba0d93c",
     "src/trade_research/tail_formula_relative.py": "9a6cd4fffe2960ee85b703c801295a02f2cc988e6e301ecda70203aa1ebc95ba",
     "tests/test_research_runtime.py": "a30049b608173aca901c82411a3649f475b8f296704156f695c0bb869ff15d4d",
     "tests/test_tail_formula_definition_protocol.py": "c3d2d83c4ee4e6f3066ef23b73b15de9bbdfdfb0dd1cf0aa56d33218979e60ed",
     "tests/test_tail_formula_opportunity_targets.py": "b4a273ce620be2f7e8e999e23585838a8e81842d21ed84393ea367d222c83f78",
-    "tests/test_tail_formula_phase_split.py": "67345520359936afa6f9466c9aef913bcc584c37c29092c5cbdd4adf355c981b",
     "tests/test_tail_formula_price_reference.py": "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397",
     "tests/test_tail_formula_shared_unknowns.py": "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de",
-    "tests/test_tail_formula_sql_names.py": "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035"
+    "tests/test_tail_formula_sql_names.py": "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035",
+    "config/tail_formula_external_pattern_protocol.json": "faaed8e71d1643887a9c14c4f5416f1268e0e0f2db661d0fc7017e7a657d19f1",
+    "config/tail_formula_external_pattern_execution.json": "f645d120dc2ac0ea9f5a2baacfe6812664f6e62528b0f353fd6e744e2ac51fc4",
+    "scripts/run_tail_formula_external_pattern.py": "f78bc5d4adb9d1f9aa13579f2b1634c4be7e4b53987ffdc4340f3b5f72ae16bf",
+    "scripts/finish_tail_formula_external_pattern.py": "5edb619b47736f86754241e8025fb634d44e449a5ae10baab59baf2a011649b3",
+    "scripts/review_tail_formula_external_branches.py": "86b3c3f3727d863da8aab6e496d6b91676579a95b498ebf57cc63e155b7b6a8b",
+    "src/trade_research/tail_formula_external_pattern.py": "e9d2b9ea5f97361d4f921d1d23d7f1e66023c7b622109385db1bc1a8b849eb90",
+    "tests/test_tail_formula_external_pattern.py": "c6fa0cb32a4f90e2260e3cb7bfd73d94e757adfe50384ba5380e0161175008ce"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -220,7 +210,14 @@
     "data/research/tail_formula_phase_split/joint_selection_freeze.json": "f03933d46f854ddfc6449533287990895835e1b9df2b899a7a77c3f6062ba7a2",
     "data/research/tail_formula_phase_split/score_gate_diagnosis_protocol.json": "30c0fe03d7ba81c8767e3eb18c0231e518b5256b19efc2fe2ebd5397d7098525",
     "data/research/tail_formula_phase_split/score_gate_diagnosis.json": "a88ca2b3cb752b9f2ba23bdee97f68dca9b091725003b9d43c37edcef0daaae6",
-    "data/research/tail_formula_phase_split/source_gate.json": "6d13ff85c6470354944767cff4579e848bdb7fba0968afaf48f52c33f36e57c4"
+    "data/research/tail_formula_phase_split/source_gate.json": "6d13ff85c6470354944767cff4579e848bdb7fba0968afaf48f52c33f36e57c4",
+    "data/research/tail_formula_external_pattern/source_gate.json": "14c933497dc1af08056587e081c3f43fbf5e6984cde2c850b34cb740a49b2c3f",
+    "data/research/tail_formula_external_pattern/joint_selection_freeze.json": "7ce8227365087e926d1b094028ab169c3b4856a254ce20d4d4a3eca6f05b413b",
+    "data/research/tail_formula_external_pattern/complete_results_manifest.json": "40cbecf8769e3c7463ef623dc72906cdd44825a8a1f7ac487823e01a2c3a59f9",
+    "data/research/tail_formula_external_pattern/branch_diagnosis_protocol.json": "ce89864e445bee5ff89c54cf3be1d20b538ca65500e910af537953262f310223",
+    "data/research/tail_formula_external_pattern/branch_diagnosis.json": "1e7799b700b8f6a8b4dc76ee29f20fd3da520d7a540b94c2b46ada3e2f7ca632",
+    "data/research/tail_formula_external_pattern/branch_daily.parquet": "0997b9f764b6af5e16f9830cfabe79f6ea670ee251ddb7b076773a20f2d71028",
+    "data/research/tail_formula_external_pattern/retired_phase_files.json": "eb5270df1075858ec550e8747603f315c0e46ba32a9b1ab78364e4c5e832759b"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -231,12 +228,13 @@
     "data/research/cleanup_runtime_emotion_source_complete.json": "f6c4a2a93d2d26659aec75d3d8487c24d2d9bd8844fd4386eff78943a2f44e10",
     "data/research/cleanup_runtime_emotion_relative_complete.json": "166d1ce2d0e064145318c2a2293f7e41740a92080677870ece03c6d84ea87b4a",
     "data/research/cleanup_runtime_emotion_absolute_initial.json": "833d5514e3bba2c7d44c0dda8511f1a8f3d7ec3ff676cce9ce7890c6059b49f8",
-    "data/research/cleanup_runtime_phase_split_complete.json": "2014c0c105ecd200cd4d9cefbcf8ef01ca65811a585267cff818d40d7e8917ff"
+    "data/research/cleanup_runtime_phase_split_complete.json": "2014c0c105ecd200cd4d9cefbcf8ef01ca65811a585267cff818d40d7e8917ff",
+    "data/research/tail_formula_external_pattern/prior_cleaned_runtime.json": "f51af2ed2f8a89e35c84b1a5c6d58166f400a105664bd95ad14bf978540968d1"
   },
-  "previous_completed_study_revision": "bbde01d",
-  "current_study": "tail_formula_phase_split_complete",
+  "previous_completed_study_revision": "1e5793f",
+  "current_study": "tail_formula_external_pattern_complete",
   "research_definition_changed": true,
-  "rationale": "同容量整体与分段预测已完整失败，覆盖诊断亦完成；保留当前入口和通用核验，移除旧情绪执行代码与分折配置，历史协议仅作固定来源元数据。",
+  "rationale": "公开固定分时规则的两年及四半年、同质量控制和全部十分支诊断完整失败；删除已结束分段模型执行支线，原字节逐项从Git1e5793f核准可恢复。研究定义及原名单不变，保留原件与完成缓存。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -468,14 +466,66 @@
     },
     "tests/test_tail_formula_emotion_inputs.py": {
       "1bf23f281dd05bfb51b2df40fc2ec85c899b856f101fddfb7c6e52a9c85de6ff": "bbde01d"
+    },
+    "config/tail_formula_phase_split/2025h1_after_close.json": {
+      "b4aec8a45372f78dc37c4163734876193b85862e301a7cce821855b7734257c2": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h2_after_close.json": {
+      "9f29347441dc33bb8404d5001ffac6347109057911cee33b443fe6739df4625e": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2025h1_net.json": {
+      "fc8297ba4282676a0fb38e9cb6f7dd87bc1d7348c27f0db9427730d31cefcf08": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h2_net.json": {
+      "4a32e07d66472fc702dd262c5438ac4852876bd73ecb81765470070645adb6ea": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h1_tail_with_cost.json": {
+      "619830008cdfe22dded6c45d25227574929412d35975518e49dd43f4da4b21a8": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h2_tail_with_cost.json": {
+      "4b95da540cacda73ffdcb51f2d24f74cf1761e6d20c3c1192275016afa7b9950": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2025h2_after_close.json": {
+      "6978967c27c6da0153130477f81688f9c3665c916da9793e51edf2e362311b18": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2025h2_tail_with_cost.json": {
+      "57e82dcc0a7e61be0f92dd0eab60c8a4a57640630676a6c19698bb3f8d858d12": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h1_net.json": {
+      "368955324594c7f1ffa2b7eac3fb9c75d6356d330158b1ac58ef413fa3d44cd8": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2024h1_after_close.json": {
+      "6476f84044d07c9f24152621b4878d3ab98bd2af367efa8bd549876630d17921": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2025h2_net.json": {
+      "ebe068463e8e941baf8099a940ea0f8129a2a5a9be1926364c897def4e60c14f": "1e5793f"
+    },
+    "config/tail_formula_phase_split/2025h1_tail_with_cost.json": {
+      "028bee4a58359215be58d5660de06e6cf8977164061ab6060ee9c0e38cc27c5a": "1e5793f"
+    },
+    "config/tail_formula_phase_split_input_protocol.json": {
+      "5120d7e88a68d990cb2b96395f1ff407fa02fc92987790d3ec3ee8811b27367c": "1e5793f"
+    },
+    "config/tail_formula_phase_split_model_protocol.json": {
+      "1c3bc178fcb13a427176aa27020b0b4e5f6328bac92329be1ee17e2fd7e1fefd": "1e5793f"
+    },
+    "scripts/run_tail_formula_phase_split.py": {
+      "4cebe9436be35154d115eb079c9a889d68d0189fb57b101d5892cecd09bf7b89": "1e5793f"
+    },
+    "src/trade_research/tail_formula_phase_split.py": {
+      "d58c00298a40f6c7e3709660895c3fc1698baf7f7f034a31a9fe652c8ba0d93c": "1e5793f"
+    },
+    "tests/test_tail_formula_phase_split.py": {
+      "67345520359936afa6f9466c9aef913bcc584c37c29092c5cbdd4adf355c981b": "1e5793f"
     }
   },
   "new_fits_performed_at_protocol": 0,
   "validation": {
-    "pytest_passed": 22,
-    "completed_fits": 12,
+    "new_fits": 0,
     "complete_annual_lists": 4,
-    "complete_comparisons": 6,
-    "score_gate_diagnosis_passed": true
+    "complete_comparisons": 2,
+    "all_ten_branch_diagnosis_passed": true,
+    "branch_summaries": 240,
+    "retired_files": 17
   }
 }
