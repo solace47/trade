@@ -43,10 +43,10 @@
     "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
     "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
     "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
-    "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
+    "scripts/find_existing_tail_formula_models.py": "011c505b226f5ea1a7c5d393868690682c2eb659ff6aa15385cbf55ab93e993e",
     "scripts/run_tail_formula_emotion_absolute.py": "96c293336500170b13d7dcc771523b87222b1d097a02842a784a1bafc1d78ee6",
     "scripts/tail_formula_analysis_reuse.py": "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b",
-    "scripts/tail_formula_pipeline.py": "882caecf6a781e74c014888a71c4e5bbf2881a0a67e59a108ff046adb7cf2040",
+    "scripts/tail_formula_pipeline.py": "8fdcc998b97c0e44a1e0b292e55adaa63d971333eed6f015e852d8b2c3e30f2a",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
     "scripts/verify_tail_formula_additive.py": "f3e0487f5e859ad2669ebd3d788f1f959b2cd0e39fc6c5f39b2623fc9aafdef8",
@@ -62,7 +62,7 @@
     "tests/test_research_runtime.py": "a30049b608173aca901c82411a3649f475b8f296704156f695c0bb869ff15d4d",
     "tests/test_tail_formula_definition_protocol.py": "c3d2d83c4ee4e6f3066ef23b73b15de9bbdfdfb0dd1cf0aa56d33218979e60ed",
     "tests/test_tail_formula_emotion_inputs.py": "1bf23f281dd05bfb51b2df40fc2ec85c899b856f101fddfb7c6e52a9c85de6ff",
-    "tests/test_tail_formula_opportunity_targets.py": "2fe3257d5c3adcf9e1c719dfb09488f8916436bb06c9a8e754e2aad49a9d55ac",
+    "tests/test_tail_formula_opportunity_targets.py": "b4a273ce620be2f7e8e999e23585838a8e81842d21ed84393ea367d222c83f78",
     "tests/test_tail_formula_price_reference.py": "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397",
     "tests/test_tail_formula_shared_unknowns.py": "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de",
     "tests/test_tail_formula_sql_names.py": "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035"
@@ -212,7 +212,8 @@
     "data/research/cleanup_runtime_intraday_scale_complete.json": "1b7a118596e0113975ecd6d78f2d7c7446a5d725831e1fc5f841b7ccd2e5d220",
     "data/research/cleanup_runtime_minute_open_complete.json": "e6ec9ad21c27dd1761f8b814d7a6d6a7116917d43706d808c5979726a56de64a",
     "data/research/cleanup_runtime_emotion_source_complete.json": "f6c4a2a93d2d26659aec75d3d8487c24d2d9bd8844fd4386eff78943a2f44e10",
-    "data/research/cleanup_runtime_emotion_relative_complete.json": "166d1ce2d0e064145318c2a2293f7e41740a92080677870ece03c6d84ea87b4a"
+    "data/research/cleanup_runtime_emotion_relative_complete.json": "166d1ce2d0e064145318c2a2293f7e41740a92080677870ece03c6d84ea87b4a",
+    "data/research/cleanup_runtime_emotion_absolute_initial.json": "833d5514e3bba2c7d44c0dda8511f1a8f3d7ec3ff676cce9ce7890c6059b49f8"
   },
   "previous_completed_study_revision": "bfbe762",
   "current_study": "tail_formula_emotion_absolute",
@@ -413,7 +414,7 @@
   },
   "new_fits_performed_at_protocol": 0,
   "validation": {
-    "pytest_passed": 21,
+    "pytest_passed": 23,
     "cli_help_verified": true,
     "reused_inputs_exact": true
   }

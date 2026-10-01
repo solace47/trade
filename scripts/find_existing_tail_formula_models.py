@@ -10,6 +10,49 @@ import json
 from pathlib import Path
 import subprocess
 
+MODEL_CORE = ['trees','bias','parameters','thresholds','training_start','training_end',
+              'feature_names','rows','days','last_observation']
+
+
+def verification_registry():
+    files=subprocess.check_output(['rg','--files','--no-ignore','-g','model_verification.json',
+                                   'data/research'],text=True).splitlines()
+    registry={}
+    for file in sorted(files):
+        path=Path(file)
+        if any('2026' in p or 'q1' in p.lower() for p in path.parts):
+            continue
+        digest=hashlib.sha256(path.read_bytes()).hexdigest()
+        registry.setdefault(digest,path.parent)
+    return registry
+
+
+def confirmed_target(root, registry, receipts, seen=()):
+    """Resolve direct target arithmetic or an exact, hash-linked proof reuse."""
+    root=Path(root)
+    raw=(root/'model_report.json').read_bytes()
+    proof_raw=(root/'model_verification.json').read_bytes()
+    m=json.loads(raw);v=json.loads(proof_raw)
+    digest=hashlib.sha256(proof_raw).hexdigest()
+    assert digest not in seen, 'Cyclic model verification reuse'
+    assert v['passed'] and v['model_report_sha256']==hashlib.sha256(raw).hexdigest()
+    assert not m.get('new_2026_prices_read',False) and not v.get('new_2026_prices_read',False)
+    receipts[str(root/'model_report.json')]=hashlib.sha256(raw).hexdigest()
+    receipts[str(root/'model_verification.json')]=digest
+    if v.get('all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt'):
+        assert v['variant']==m['variant'] and v['variant'] in ['relative','absolute']
+        return v['variant']
+    exact = v.get('exact_all_training_values_targets_weights_parameters_and_equations_before_reuse') or (
+        v.get('exact_input_target_weight_and_parameter_equivalence_before_proof_reuse')
+        and v.get('all_original_arithmetic_checks_reused'))
+    assert exact, 'An undeclared target requires independent arithmetic evidence'
+    parent=registry[v['reused_model_verification_sha256']]
+    target=confirmed_target(parent,registry,receipts,seen+(digest,))
+    source=json.loads((parent/'model_report.json').read_text())
+    assert all(m[k]==source[k] for k in MODEL_CORE), 'Reused proof has a different model core'
+    assert m['variant']==target
+    return target
+
 
 def find(protocol, variant=None, training_event=None):
     p = json.loads(protocol.read_text())

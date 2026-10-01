@@ -14,7 +14,7 @@ from tail_formula_reports import checked_selection
 from audit_tail_formula_reference_coverage import audit
 from compare_tail_formula_same_dates import compare
 from compare_tail_formula_shared_unknowns import compare as shared_compare
-from find_existing_tail_formula_models import find
+from find_existing_tail_formula_models import find, verification_registry, confirmed_target
 import tail_formula_reports as market
 import tail_formula_analysis_reuse as reuse_common
 
@@ -61,7 +61,7 @@ def protocols():
         t = base.training(start=spec['training_start'], end=spec['training_end'])
         assert t.next_date.max() < spec['evaluation_start']
         counts[fold] = dict(rows=len(t),days=t.date.nunique(),last_observation=t.next_date.max())
-    records = []
+    records = []; registry=verification_registry(); target_receipts={}
     for arm, expressions in ARMS.items():
         for fold, spec in p['folds'].items():
             q = dict(master_protocol_sha256=sha(study.PROTOCOL), execution_protocol_sha256=sha(EXECUTION),
@@ -77,11 +77,7 @@ def protocols():
             # Do not hide undeclared targets by filtering on a newly named variant.
             for candidate in lookup['matches']:
                 root = Path(candidate['root'])
-                m = json.loads((root / 'model_report.json').read_text())
-                v = json.loads((root / 'model_verification.json').read_text())
-                assert v['passed'] and v['model_report_sha256'] == sha(root / 'model_report.json')
-                assert m['variant'] == v['variant'] == 'relative', 'Audit absolute or undeclared target before reusing or fitting'
-                assert v['all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt']
+                assert confirmed_target(root,registry,target_receipts)=='relative', 'Audit equivalent absolute target before fitting'
             records.append(dict(arm=arm,fold=fold,protocol_sha256=sha(file),
                 all_target_lookup=lookup,lookup={**lookup,'matches':[]},
                 existing_targets_independently_verified_relative=True))
@@ -89,6 +85,7 @@ def protocols():
         master_protocol_sha256=sha(study.PROTOCOL),execution_protocol_sha256=sha(EXECUTION),
         counts=counts,records=records,all_eight_protocols_before_any_fit=True,
         maximum_new_fits=8,same_absolute_target_controls_required=True,new_group_outcomes_read=False,
+        target_proof_source_hashes=target_receipts,
         new_2026_prices_read=False,no_exit_rules=True))
     return dict(counts=counts,existing_control_candidates={r['fold']:len(r['lookup']['matches'])
         for r in records if r['arm']=='control'},prefit_sha256=sha(study.ROOT / 'prefit_lookup_verification.json'))
