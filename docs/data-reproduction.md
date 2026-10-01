@@ -8,7 +8,7 @@ PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_emotion_absolut
 PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_emotion_absolute.py protocols
 ```
 
-实际输入／目标、模型与运行协议先提交，再生成八分折查重。分折配置及查重收据先提交才fit；八模型freeze后先提交联合名单，再analyze、finish。完成产物不能覆盖或重做。
+实际输入／目标、模型与运行协议先提交，再生成八分折查重。分折配置及查重收据先提交才fit；八模型freeze后先提交联合名单，再analyze、finish。本轮已完整结束且失败，完成产物不能覆盖或重做；后续须独立协议及查重。
 
 不重新生成情绪输入，不扫描原分钟；精确使用`data/research/tail_formula_emotion_transition/inputs/`中的50／52与原训练标签。新产物位于`data/research/tail_formula_emotion_absolute/`。目标改变须有同目标控制，不能复用相对控制代替绝对控制；未知不补零，所有训练观察严格早于评价起点。
 
