@@ -73,7 +73,7 @@
     "data/research/tail_formula_tail_regression/regression_2025/analysis_verification.json": "1d782e07b318f01291406fc63502af657a57e68161b40c28ff732c37c9b930a8",
     "data/research/tail_formula_tail_regression/regression_2025/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
     "data/research/tail_formula_tail_regression/regression_2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
-    "scripts/review_tail_formula_failures.py": "20bfc88379a0d692a6e180b7ecd7d9b10c80f82fa95b76addbbeb6bb09be138c",
+    "scripts/review_tail_formula_failures.py": "5d3ec496cba6641a0d429b359102587d1011e161dd4f540534c45f7148a27bfb",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8"
   },
@@ -144,8 +144,19 @@
     "weighting": "先对同日有完整参考和正有限桥接价格者等权汇总，再日期等权；记录缺参考、未知、未买入与价格桥不可用，不补零。",
     "interpretation": "收盘至09:59包含隔夜与早盘，不能称纯隔夜；成本项是既有净参考与原始价格差，不是新增卖出策略；股数与价位只作原标签复用。",
     "verification": "全部逐股恒等式与pandas按日汇总均由独立DuckDB SQL重建；不据分解结果另筛选股票或改变公式。",
-    "new_price_bridge_results_not_yet_read": true,
-    "new_2026_prices_allowed": false
+    "new_price_bridge_results_not_yet_read": false,
+    "new_2026_prices_allowed": false,
+    "baseline_output_root": "data/research/tail_formula_failure_review/price_bridge_base",
+    "same_date_baseline_bridge_not_yet_read": true,
+    "baseline_pool": "完整原选择表中与原入选日期相同的所有键；只用于原名单的同日对照，不按成交或未来价格择股、择日。"
   },
-  "first_diagnostic_complete": true
+  "first_diagnostic_complete": true,
+  "completed_price_bridge": {
+    "path": "data/research/tail_formula_failure_review/price_bridge/review.json",
+    "sha256": "0a511a1e9d0dfe305b2b90ad577a2d4c2bfa5a020662fd8d21bcedd8a578e679",
+    "protocol_snapshot": "data/research/tail_formula_failure_review/frozen_price_bridge_protocol.json",
+    "protocol_sha256": "d3dce17de8dbb59e350656e3d7afe2a67e1e5c1fd0bb8401414583dd04b628b6",
+    "implementation_snapshot": "data/research/tail_formula_failure_review/frozen_price_bridge_implementation.py",
+    "implementation_sha256": "20bfc88379a0d692a6e180b7ecd7d9b10c80f82fa95b76addbbeb6bb09be138c"
+  }
 }

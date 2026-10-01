@@ -133,7 +133,7 @@ def review():
     return dict(passed=True, roots=len(p['roots']), review_sha256=sha(root / 'review.json'))
 
 
-def price_bridge():
+def price_bridge(base_same_dates=False):
     p = json.loads(PROTOCOL.read_text())
     assert subprocess.check_output(['git', 'show', f'HEAD:{PROTOCOL}']) == PROTOCOL.read_bytes()
     check_sources(p['source_hashes'])
@@ -143,7 +143,13 @@ def price_bridge():
         assert sha(Path(prior[file])) == prior[field]
     assert json.loads(Path(prior['path']).read_text())['passed']
     spec = p['price_bridge']
-    root = Path(spec['output_root'])
+    if base_same_dates:
+        prior_bridge = p['completed_price_bridge']
+        for file, field in [('path', 'sha256'), ('protocol_snapshot', 'protocol_sha256'),
+                            ('implementation_snapshot', 'implementation_sha256')]:
+            assert sha(Path(prior_bridge[file])) == prior_bridge[field]
+        assert json.loads(Path(prior_bridge['path']).read_text())['passed']
+    root = Path(spec['baseline_output_root'] if base_same_dates else spec['output_root'])
     assert not root.exists(), 'Keep completed price bridges immutable'
     con = duckdb.connect()
     frames = []
@@ -156,9 +162,14 @@ def price_bridge():
             field + str(bps) for bps in spec['costs_bps'] for field in
             ['known', 'sensitive_known', 'mark_0959_return']]]
         labels = pd.read_parquet(source / 'full_labels.parquet', columns=cols)
-        chosen = labels.merge(selection.loc[selection.selected, ['date', 'code']],
+        joined = labels.merge(selection[['date', 'code', 'selected']],
                               on=['date', 'code'], validate='one_to_one')
-        assert len(chosen) == int(selection.selected.sum())
+        assert len(joined) == len(selection)
+        chosen_dates = selection.loc[selection.selected, 'date'].unique()
+        chosen = joined.loc[joined.date.isin(chosen_dates) if base_same_dates else joined.selected]
+        assert set(chosen.date.unique()) == set(chosen_dates)
+        if not base_same_dates:
+            assert len(chosen) == int(selection.selected.sum())
         assert chosen.date.ge('2024-01-01').all() and chosen.date.lt('2026-01-01').all()
         for bps in spec['costs_bps']:
             for sensitive in spec['source_sensitive_views']:
@@ -207,7 +218,8 @@ def price_bridge():
                 frames.append(daily)
                 for year in ['2024', '2025']:
                     d = daily.loc[daily.date.str.startswith(year)]
-                    s = dict(source=name, year=year, bps=bps, sensitive=sensitive, days=len(d))
+                    s = dict(source=name, arm='base_same_dates' if base_same_dates else 'formula',
+                             year=year, bps=bps, sensitive=sensitive, days=len(d))
                     s.update({k: int(d[k].sum()) for k in ['rows'] + counts})
                     s.update({k: finite(d[k].mean()) for k in metrics})
                     records.append(s)
@@ -222,6 +234,7 @@ def price_bridge():
         bridge_daily_sha256=sha(target), summaries=records,
         all_identities_and_daily_metrics_sql_verified=True,
         close_to_0959_is_not_pure_overnight=True, new_models=0, new_selections=0,
+        arm='base_same_dates' if base_same_dates else 'formula',
         new_raw_prices_read=False, new_2026_prices_read=False, no_exit_rules=True))
     return dict(passed=True, roots=len(p['roots']), review_sha256=sha(root / 'review.json'))
 
@@ -229,6 +242,8 @@ def price_bridge():
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('phase', choices=['review', 'price-bridge'], default='review', nargs='?')
+    parser.add_argument('phase', choices=['review', 'price-bridge', 'price-bridge-base'], default='review', nargs='?')
     args = parser.parse_args()
-    print(json.dumps(price_bridge() if args.phase == 'price-bridge' else review(), ensure_ascii=False))
+    result = (price_bridge(base_same_dates=args.phase == 'price-bridge-base')
+              if args.phase.startswith('price-bridge') else review())
+    print(json.dumps(result, ensure_ascii=False))
