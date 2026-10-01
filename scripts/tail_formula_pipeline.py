@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import numpy as np
 import pandas as pd
-from trade_research import tail_formula_emotion_transition as study
+from trade_research import tail_formula_emotion_absolute as study
 from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_relative as relative
 from trade_research import tail_formula_boundary_evaluation as evaluation
@@ -48,6 +48,7 @@ def checked():
 
 def protocols():
     p, _ = checked(); assert not (study.ROOT / 'prefit_lookup_verification.json').exists()
+    study.ROOT.mkdir(parents=True, exist_ok=True)
     receipts = {str(study.INPUTS / f): sha(study.INPUTS / f) for f in
                 ['feature_report.json','feature_verification.json','native_input_verification.json',
                  'full_label_report.json','full_label_verification.json']}
@@ -67,18 +68,27 @@ def protocols():
                 arm=arm,fold=fold,**spec,expected_training_rows=counts[fold]['rows'],
                 expected_training_days=counts[fold]['days'],expected_last_observation=counts[fold]['last_observation'],
                 expected_features=len(expressions),feature_names=list(expressions),parameters=p['parameters'],
-                model_max_depth=3,threshold=.995,target='relative',input_receipts=receipts,
+                model_max_depth=3,threshold=.995,target=study.TARGET,input_receipts=receipts,
+                reused_feature_protocol_sha256=p['reused_feature_protocol_sha256'],
                 no_training_period_selection=True,new_2026_prices_allowed=False,no_exit_rules=True,cleanup_runtime_sha256=sha(RUNTIME))
             file = Path('config') / study.STEM / (arm+'_'+fold+'.json')
             assert not file.exists(); file.parent.mkdir(parents=True, exist_ok=True); save_json(file,q)
-            records.append(dict(arm=arm,fold=fold,protocol_sha256=sha(file),lookup=find(file,'relative')))
-            if arm == 'control':
-                assert any(c['root'] == p['old_model_roots'][fold] for c in records[-1]['lookup']['matches'])
-    assert not any(r['lookup']['matches'] for r in records if r['arm']=='memory'), 'Audit equivalent candidates before fitting'
+            lookup = find(file)
+            # Do not hide undeclared targets by filtering on a newly named variant.
+            for candidate in lookup['matches']:
+                root = Path(candidate['root'])
+                m = json.loads((root / 'model_report.json').read_text())
+                v = json.loads((root / 'model_verification.json').read_text())
+                assert v['passed'] and v['model_report_sha256'] == sha(root / 'model_report.json')
+                assert m['variant'] == v['variant'] == 'relative', 'Audit absolute or undeclared target before reusing or fitting'
+                assert v['all_targets_integer_inputs_day_weights_residual_means_and_variances_rebuilt']
+            records.append(dict(arm=arm,fold=fold,protocol_sha256=sha(file),
+                all_target_lookup=lookup,lookup={**lookup,'matches':[]},
+                existing_targets_independently_verified_relative=True))
     save_json(study.ROOT / 'prefit_lookup_verification.json',dict(passed=True,
         master_protocol_sha256=sha(study.PROTOCOL),execution_protocol_sha256=sha(EXECUTION),
         counts=counts,records=records,all_eight_protocols_before_any_fit=True,
-        maximum_new_fits=4,exact_control_reuse_first=True,new_group_outcomes_read=False,
+        maximum_new_fits=8,same_absolute_target_controls_required=True,new_group_outcomes_read=False,
         new_2026_prices_read=False,no_exit_rules=True))
     return dict(counts=counts,existing_control_candidates={r['fold']:len(r['lookup']['matches'])
         for r in records if r['arm']=='control'},prefit_sha256=sha(study.ROOT / 'prefit_lookup_verification.json'))
@@ -93,6 +103,7 @@ def setup(arm,fold):
     assert q['master_protocol_sha256'] == sha(study.PROTOCOL) and q['execution_protocol_sha256'] == sha(EXECUTION)
     runtime=json.loads(RUNTIME.read_text())
     assert q['cleanup_runtime_sha256']==runtime.get('fixed_fit_runtime_sha256',sha(RUNTIME))
+    assert q['target']==study.TARGET
     assert q['arm']==arm and q['fold']==fold and q['feature_names']==list(ARMS[arm])
     assert q['parameters']==p['parameters'] and all(q[k]==v for k,v in p['folds'][fold].items())
     for file,digest in q['input_receipts'].items(): assert sha(Path(file))==digest,file
@@ -101,67 +112,19 @@ def setup(arm,fold):
     return p, q, next(r for r in pre['records'] if r['arm']==arm and r['fold']==fold)
 
 
-def reuse_control(p,q,record):
-    """Reuse only after full training values, target and day weights agree."""
-    if not record['lookup']['matches']:
-        return False
-    parent = Path(p['old_model_roots'][q['fold']])
-    assert any(r['root']==str(parent) for r in record['lookup']['matches']), 'Audit nonstandard equivalent controls'
-    m = json.loads((parent / 'model_report.json').read_text())
-    for kind in ['model','score']:
-        v = json.loads((parent / (kind+'_verification.json')).read_text())
-        assert v['passed'] and v[kind+'_report_sha256']==sha(parent / (kind+'_report.json'))
-    old_input = Path('data/research/tail_formula_stock_2024/inputs') if q['fold'].startswith('2024') else study.prior.INPUTS
-    old = pd.read_parquet(old_input / 'features.parquet',columns=[*study.META,*study.CONTROL])
-    fresh = relative.training('relative')
-    c = base.conn(); c.register('old_features',old)
-    columns = ','.join('f.'+n for n in study.CONTROL)
-    prior = c.sql(f'''WITH labels AS(SELECT date,code,next_date,opportunity15,
-        opportunity15-avg(opportunity15) OVER(PARTITION BY date) AS target
-        FROM read_parquet('{old_input}/full_labels.parquet') WHERE known15
-          AND date>='{q['training_start']}' AND next_date<'{q['training_end']}')
-        SELECT date,code,next_date,opportunity15,target,1./count(*) OVER(PARTITION BY date) AS w,{columns}
-        FROM old_features f JOIN labels USING(date,code) WHERE formula_input_valid ORDER BY date,code''').df()
-    c.close()
-    names = ['date','code','next_date','opportunity15',*study.CONTROL]
-    pd.testing.assert_frame_equal(fresh[names],prior[names],check_exact=True,check_dtype=False)
-    np.testing.assert_allclose(fresh.target,prior.target,rtol=0,atol=2e-12)
-    np.testing.assert_array_equal(1/fresh.groupby('date').code.transform('size'),prior.w)
-    assert len(fresh)==m['rows']==q['expected_training_rows']
-    assert fresh.date.nunique()==m['days']==q['expected_training_days']
-    assert fresh.next_date.max()==m['last_observation']==q['expected_last_observation']
-    for name in ['feature_names','training_start','training_end']:
-        assert m[name]==q[name]
-    assert all(m['parameters'][k]==v for k,v in p['parameters'].items())
-    base.ROOT.mkdir(parents=True,exist_ok=True)
-    updated = dict(m,protocol_sha256=sha(base.PROTOCOL),feature_report_sha256=sha(study.INPUTS / 'feature_report.json'),
-        label_report_sha256=sha(study.INPUTS / 'full_label_report.json'),no_model_fit_performed=True,
-        reused_source_root=str(parent),reused_model_report_sha256=sha(parent / 'model_report.json'))
-    for name in ['trees','bias','parameters','thresholds']:
-        assert updated[name]==m[name]
-    save_json(base.ROOT / 'model_report.json',updated)
-    save_json(base.ROOT / 'control_reuse_verification.json',dict(passed=True,
-        source_hashes={str(parent/f):sha(parent/f) for f in ['model_report.json','model_verification.json']},
-        all_training_values_target_and_date_weights_equal=True,no_fit_performed=True,
-        evaluation_scores_not_used_to_decide_reuse=True,new_2026_prices_read=False))
-    return True
-
-
 def fit(arm,fold):
     p,q,record = setup(arm,fold)
     assert not (base.ROOT / 'model_report.json').exists()
-    reused = arm=='control' and reuse_control(p,q,record)
-    if arm == 'control':
-        assert reused, 'The frozen protocol permits no new control fits'
+    reused = False
     if not reused:
         assert not record['lookup']['matches'], 'Do not repeat an unaudited equivalent fit'
-        relative.model('relative')
+        relative.model(study.TARGET)
     m = json.loads((base.ROOT / 'model_report.json').read_text())
     assert m['rows']==q['expected_training_rows'] and m['days']==q['expected_training_days']
     assert m['last_observation']==q['expected_last_observation']<q['evaluation_start']
     assert m['feature_names']==list(ARMS[arm])
     assert all(m['parameters'][k]==v for k,v in p['parameters'].items())
-    relative.verify_model('relative')
+    relative.verify_model(study.TARGET)
     base.scores(); verify_scores(expected_expressions=ARMS[arm],definition_protocol=study.PROTOCOL)
     return dict(arm=arm,fold=fold,reused=reused,rows=m['rows'],days=m['days'],last_observation=m['last_observation'],
         changed_input_nodes=changed_nodes(m) if arm=='memory' else 0)
@@ -226,13 +189,13 @@ def freeze():
         selections.append(dict(group=group,root=str(root),rows=len(out),selected=r['selected'],days=r['days']))
         for file in ['selection.parquet','selection_report.json','selection_verification.json']:
             receipts[str(root / file)] = sha(root / file)
-    assert sum(item['new_fit'] for item in models) == 4
+    assert sum(item['new_fit'] for item in models) == 8
     save_json(joint,dict(passed=True,protocol_sha256=sha(study.PROTOCOL),execution_protocol_sha256=sha(EXECUTION),
         source_hashes=receipts,selections=selections,models=models,
         all_four_half_models_each_arm_and_four_full_year_frames_fixed_together=True,
         no_new_group_outcomes_read=True,new_2026_prices_read=False,no_exit_rules=True,
         software_compilation_verified=False,native_source_parity_verified=False,
-        cleanup_runtime_sha256=sha(RUNTIME),maximum_new_fits=4,no_new_control_fits=True,
+        cleanup_runtime_sha256=sha(RUNTIME),maximum_new_fits=8,same_absolute_target_controls=True,
         native_cross_security_helper_required=True))
     return dict(joint_sha256=sha(joint),selections=selections,models=models)
 

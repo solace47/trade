@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 from trade_research.research_io import save_json, sha
 
-ROOT = Path('data/research/tail_formula_emotion_transition')
+ROOT = Path('data/research/tail_formula_emotion_absolute')
 FEATURES = SOURCE = ROOT / 'inputs'
-PROTOCOL = Path('config/tail_formula_emotion_transition_model_protocol.json')
+PROTOCOL = Path('config/tail_formula_emotion_absolute_model_protocol.json')
 
 def load(name):
     return json.loads((ROOT/name).read_text())
@@ -51,7 +51,10 @@ def native_definitions(fr, expected_expressions, definition_protocol=None):
         else:
             # Both arms were declared before preparation; a renamed memory arm
             # need not contain the control definitions in its report dictionary.
-            assert sha(definition_protocol)==q['master_protocol_sha256']==fr['protocol_sha256']
+            assert sha(definition_protocol)==q['master_protocol_sha256']
+            if fr['protocol_sha256'] != q['master_protocol_sha256']:
+                assert fr['protocol_sha256'] == q['reused_feature_protocol_sha256']
+                assert all(expressions.get(n)==v for n,v in expected_expressions.items())
             arms=json.loads(definition_protocol.read_text())['arms']
             assert list(arms[q['arm']].items())==list(expected_expressions.items())
         expressions=expected_expressions

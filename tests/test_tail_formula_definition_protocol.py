@@ -25,3 +25,19 @@ def test_wrong_arm_or_changed_master_cannot_supply_definitions(tmp_path,monkeypa
     with pytest.raises(AssertionError):verify.native_definitions(report,{'NEW':'Q/IV20'},master)
     master.write_text(master.read_text()+'\n')
     with pytest.raises(AssertionError):verify.native_definitions(report,{'OLD':'Q/VP20'},master)
+
+
+def test_reused_features_require_declared_receipt_and_equal_expressions(tmp_path,monkeypatch):
+    master=tmp_path/'master.json'
+    master.write_text(json.dumps({'arms':{'control':{'OLD':'Q/VP20'}}}))
+    fold=tmp_path/'fold.json'
+    fold.write_text(json.dumps({'master_protocol_sha256':sha(master),
+        'reused_feature_protocol_sha256':'prior-fixed-protocol',
+        'expected_features':1,'arm':'control'}))
+    monkeypatch.setattr(verify,'PROTOCOL',fold)
+    report={'protocol_sha256':'prior-fixed-protocol','expressions':{'OLD':'Q/VP20'}}
+    assert verify.native_definitions(report,{'OLD':'Q/VP20'},master)=={'OLD':'Q/VP20'}
+    with pytest.raises(AssertionError):
+        verify.native_definitions({**report,'protocol_sha256':'other'}, {'OLD':'Q/VP20'},master)
+    with pytest.raises(AssertionError):
+        verify.native_definitions({**report,'expressions':{'OLD':'Q/OTHER'}}, {'OLD':'Q/VP20'},master)

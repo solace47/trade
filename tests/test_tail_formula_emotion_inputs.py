@@ -1,5 +1,5 @@
 import numpy as np
-from trade_research.tail_formula_emotion_transition import transition_atoms
+from trade_research.tail_formula_emotion_inputs import transition_atoms
 
 
 def test_equal_marginal_breadth_can_have_different_transitions():
