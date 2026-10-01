@@ -361,7 +361,14 @@
     "data/research/tail_formula_absolute_input_calibration/training2025/full_labels.parquet": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
     "data/research/tail_formula_absolute_input_calibration/training2025/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
     "data/research/tail_formula_absolute_input_calibration/training2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
-    "config/tail_formula_history_boundary_recheck_evaluation.json": "170eff54b81d1d2a6437819848efcee9d4995e2ebe4f0b140c5cb5df8b94e8ee"
+    "config/tail_formula_history_boundary_recheck_evaluation.json": "170eff54b81d1d2a6437819848efcee9d4995e2ebe4f0b140c5cb5df8b94e8ee",
+    "data/research/tail_formula_history_boundary_recheck/joint_selection_freeze.json": "3edaf85118631c77cda901f7d9de1898ab69d3d9a8f9aab25d28ee8f949c04f8",
+    "data/research/tail_formula_history_boundary_recheck/rule2024/selection.parquet": "99d4cf525cb015cda6e6f38a9c0056046c66591c1fb98b525176e29fe688b36a",
+    "data/research/tail_formula_history_boundary_recheck/rule2024/selection_report.json": "eab1da6298d437eb790d242e60431900d50f9b4dfabde02ca662c878a38ac147",
+    "data/research/tail_formula_history_boundary_recheck/rule2024/selection_verification.json": "bc44f067ac645b4f8f734520feef26e93a9d5867f8b949b598872522aa71b0f6",
+    "data/research/tail_formula_history_boundary_recheck/rule2025/selection.parquet": "2a7af09689ddb5e09fc73a9a2edf099125f4e52b27e69b495dc33c7132a834b1",
+    "data/research/tail_formula_history_boundary_recheck/rule2025/selection_report.json": "7848305955a10af0bd3a31787059151693708eada32ae1b3c9895aa92e0488a5",
+    "data/research/tail_formula_history_boundary_recheck/rule2025/selection_verification.json": "93dcb31d6c41d78600de17a67c61068504372fc8a0235f4261917112c2adb15f"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -386,7 +393,7 @@
     "data/research/tail_formula_history_boundary_recheck/prior_preparation_runtime.json": "026537c782480e8af6d03cdd0f779e5d95a14f5b026fc44ce7d9d78322283b43"
   },
   "previous_completed_study_revision": "1b9f085",
-  "current_study": "tail_formula_history_boundary_recheck_evaluation_fixed",
+  "current_study": "tail_formula_history_boundary_recheck_complete_lists_fixed",
   "research_definition_changed": true,
   "rationale": "旧30根10:00评价有正参考；原模型及完整名单未见29根09:59结果。只补同口径完整评价，严禁新拟合、改阈值或挑未来子样本。",
   "new_2026_prices_read": false,
