@@ -1,0 +1,20 @@
+{
+  "input_protocol_sha256": "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9",
+  "source_hashes": {
+    "config/tail_formula_profit_rule_search_protocol.json": "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9",
+    "src/trade_research/tail_formula_profit_rule_search.py": "57b6c5a1e26a933aaf1ceccb4f4b97abfa7d4dcf45126ed003598eb54bb9dcc2",
+    "scripts/run_tail_formula_profit_rule_search.py": "70f6283fc3550086b4634f6ec408f6ba00351f00401b76439099873d8eaa6707",
+    "tests/test_tail_formula_profit_rule_search.py": "7cde0dcb2e885829ae4a286b68be334fdee724cf68efef5c913be32d6af525fa",
+    "scripts/run_tail_formula_rule_search.py": "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a",
+    "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79"
+  },
+  "tests_passed": 26,
+  "all_candidate_SQL_statistics_and_search_layers_beams_final_gates_verified_before_four_models_finish": true,
+  "no_new_atomic_conditions": true,
+  "no_new_input_features": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
