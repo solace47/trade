@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-当前[研究入口](../scripts/run_tail_formula_phase_split.py)为同容量整体／分段预测。使用已有Python 3.12虚拟环境，依赖见`requirements.txt`。
+已完成阶段及覆盖诊断均禁止重做。当前[研究入口](../scripts/run_tail_formula_phase_split.py)为同容量整体／分段预测。使用已有Python 3.12虚拟环境，依赖见`requirements.txt`。
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
