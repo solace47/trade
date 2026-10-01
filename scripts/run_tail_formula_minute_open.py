@@ -1,7 +1,7 @@
-"""Run the fixed same-width prior intraday-range study."""
+"""Run the fixed active-pair minute-open decomposition."""
 import argparse
 import json
-from trade_research import tail_formula_intraday_scale as study
+from trade_research import tail_formula_minute_open as study
 import tail_formula_pipeline as pipeline
 
 if __name__ == '__main__':

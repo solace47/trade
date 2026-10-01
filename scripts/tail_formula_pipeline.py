@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import numpy as np
 import pandas as pd
-from trade_research import tail_formula_intraday_scale as study
+from trade_research import tail_formula_minute_open as study
 from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_relative as relative
 from trade_research import tail_formula_boundary_evaluation as evaluation
