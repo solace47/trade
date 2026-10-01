@@ -68,7 +68,14 @@
     "scripts/finish_tail_formula_external_pattern.py": "5edb619b47736f86754241e8025fb634d44e449a5ae10baab59baf2a011649b3",
     "scripts/review_tail_formula_external_branches.py": "86b3c3f3727d863da8aab6e496d6b91676579a95b498ebf57cc63e155b7b6a8b",
     "src/trade_research/tail_formula_external_pattern.py": "e9d2b9ea5f97361d4f921d1d23d7f1e66023c7b622109385db1bc1a8b849eb90",
-    "tests/test_tail_formula_external_pattern.py": "c6fa0cb32a4f90e2260e3cb7bfd73d94e757adfe50384ba5380e0161175008ce"
+    "tests/test_tail_formula_external_pattern.py": "c6fa0cb32a4f90e2260e3cb7bfd73d94e757adfe50384ba5380e0161175008ce",
+    "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
+    "scripts/run_tail_formula_rule_search.py": "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a",
+    "scripts/finish_tail_formula_rule_search.py": "71ef7204ca4c862b3b034738b995310793bee5ed553a5e53bd758beebc202028",
+    "scripts/review_tail_formula_rule_training.py": "da690363fa478a49b9acabd0aa65e13d72b72e9286242aa47e3e0739a7719e26",
+    "tests/test_tail_formula_rule_search.py": "de6e8aa42d63bb61585002115cb0e796b9c91b8ab109407c7c198fb5b39453ea",
+    "scripts/run_tail_formula_rule_reference_gate.py": "571316c05c01aae54897b7bcc003bf46a3f7f288df8da7d3a9a044e7dad2e251",
+    "scripts/finish_tail_formula_rule_reference_gate.py": "9c6f899592e0688c1ec4cb7e136d22acc75380f79375f2f5a428d0ceb0e3804f"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -217,7 +224,16 @@
     "data/research/tail_formula_external_pattern/branch_diagnosis_protocol.json": "ce89864e445bee5ff89c54cf3be1d20b538ca65500e910af537953262f310223",
     "data/research/tail_formula_external_pattern/branch_diagnosis.json": "1e7799b700b8f6a8b4dc76ee29f20fd3da520d7a540b94c2b46ada3e2f7ca632",
     "data/research/tail_formula_external_pattern/branch_daily.parquet": "0997b9f764b6af5e16f9830cfabe79f6ea670ee251ddb7b076773a20f2d71028",
-    "data/research/tail_formula_external_pattern/retired_phase_files.json": "eb5270df1075858ec550e8747603f315c0e46ba32a9b1ab78364e4c5e832759b"
+    "data/research/tail_formula_external_pattern/retired_phase_files.json": "eb5270df1075858ec550e8747603f315c0e46ba32a9b1ab78364e4c5e832759b",
+    "config/tail_formula_rule_search_protocol.json": "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f",
+    "config/tail_formula_rule_search_execution.json": "dbb8f60ef3de771a07d2c6529810144fea52ee580907b177e6929e045e1ea4ec",
+    "config/tail_formula_rule_search_evaluation.json": "c6cbd53805fee4fd849e30ba738b56cd0b2e85a4b0ba6ed5064ef1c96c942906",
+    "config/tail_formula_rule_reference_gate_protocol.json": "ed3f95e09bfaffb38d4c351890e82988d4ed9cd207742fe6d2f206dd9a5b06f8",
+    "config/tail_formula_rule_reference_gate_execution.json": "c4937e4eeb60698e794b89d72b03e5e168f16bd6b86638d99feb873dca1950c2",
+    "config/tail_formula_rule_reference_gate_evaluation.json": "b646f36502c7b25e373d01ac4ebb25de02806f5fc4f3351e780877fc69d91cd9",
+    "data/research/tail_formula_rule_search/complete_results_manifest.json": "70dbd2610b0e6f4d848c21b343aeb0cc6726530beb8322617286b7c5e3132801",
+    "data/research/tail_formula_rule_search/training_reference_diagnosis.json": "489cb1eee69ac76f18b5a0b14f962d485f2e9ba21ddf8c81d869b3d16b37c799",
+    "data/research/tail_formula_rule_reference_gate/complete_results_manifest.json": "c17b9948a861128ba002ba6de52f80f72fd38c1a4bbaf70cd35cb0c00289904b"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -229,12 +245,13 @@
     "data/research/cleanup_runtime_emotion_relative_complete.json": "166d1ce2d0e064145318c2a2293f7e41740a92080677870ece03c6d84ea87b4a",
     "data/research/cleanup_runtime_emotion_absolute_initial.json": "833d5514e3bba2c7d44c0dda8511f1a8f3d7ec3ff676cce9ce7890c6059b49f8",
     "data/research/cleanup_runtime_phase_split_complete.json": "2014c0c105ecd200cd4d9cefbcf8ef01ca65811a585267cff818d40d7e8917ff",
-    "data/research/tail_formula_external_pattern/prior_cleaned_runtime.json": "f51af2ed2f8a89e35c84b1a5c6d58166f400a105664bd95ad14bf978540968d1"
+    "data/research/tail_formula_external_pattern/prior_cleaned_runtime.json": "f51af2ed2f8a89e35c84b1a5c6d58166f400a105664bd95ad14bf978540968d1",
+    "data/research/tail_formula_rule_reference_gate/prior_cleaned_runtime.json": "64e14bcfff6cfcd3fafd0f683e3fd97b6b2b3dda9327945998aeb37f0ea2d754"
   },
-  "previous_completed_study_revision": "1e5793f",
-  "current_study": "tail_formula_external_pattern_complete",
+  "previous_completed_study_revision": "350923a",
+  "current_study": "tail_formula_rule_reference_gate_complete",
   "research_definition_changed": true,
-  "rationale": "公开固定分时规则的两年及四半年、同质量控制和全部十分支诊断完整失败；删除已结束分段模型执行支线，原字节逐项从Git1e5793f核准可恢复。研究定义及原名单不变，保留原件与完成缓存。",
+  "rationale": "三条件机会学习及同候选库训练盈利门槛均完整失败；八组训练反思区分目标偏差与跨期失效。保留完整失败及两组控制，下一项固定同规模盈利搜索路径检验，不新增2026行情。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -521,11 +538,12 @@
   },
   "new_fits_performed_at_protocol": 0,
   "validation": {
-    "new_fits": 0,
-    "complete_annual_lists": 4,
-    "complete_comparisons": 2,
-    "all_ten_branch_diagnosis_passed": true,
-    "branch_summaries": 240,
+    "rule_model_fits": 4,
+    "profit_guard_selector_fits": 4,
+    "new_profit_guard_tree_fits": 0,
+    "complete_profit_guard_comparisons": 4,
+    "rule_and_profit_guard_full_receipts_verified": true,
+    "tests_passed": 24,
     "retired_files": 17
   }
 }
