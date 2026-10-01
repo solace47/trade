@@ -1,0 +1,19 @@
+{
+  "input_protocol_sha256": "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f",
+  "source_hashes": {
+    "config/tail_formula_rule_search_protocol.json": "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f",
+    "scripts/run_tail_formula_rule_search.py": "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a",
+    "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
+    "tests/test_tail_formula_rule_search.py": "de6e8aa42d63bb61585002115cb0e796b9c91b8ab109407c7c198fb5b39453ea",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "data/research/tail_formula_rule_search/prior_model_lookup.json": "d82bb8082b08c0590a1a202ea4eb8c558f6a31ed8b6fc9101f9d6d08df0d1a4a",
+    "data/research/tail_formula_rule_search/prior_semantic_lookup.json": "73dd836a3c3e1622833e6f50b5219eeffb7ef66b1a60017517aced78c7db8ba0"
+  },
+  "implementation": "完整训练候选的NumPy按日计数，SQL编码／严格成熟标签／分位次序统计，整数位集合逐候选重建全部搜索层、下界及排序；未知不写成已知失败。",
+  "tests_passed": 24,
+  "all_four_fits_before_any_new_annual_economics": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
