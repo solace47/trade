@@ -33,7 +33,8 @@ def supported(halves, protocol):
     return all(h['days'] >= protocol['minimum_signal_days_each_training_half']
         and h['known'] >= protocol['minimum_known_opportunity_rows_each_training_half']
         and h['reference_days'] >= protocol['minimum_reference_days_each_training_half']
-        and h['reference_rows'] >= protocol['minimum_known_reference_rows_each_training_half'] for h in halves)
+        and h['reference_rows'] >= protocol['minimum_known_reference_rows_each_training_half']
+        for h in halves[:protocol.get('training_segments',2)])
 
 
 def qualifies(halves):
@@ -70,17 +71,18 @@ def learn(x, atoms, date_ids, half_ids, known, success, reference_known, referen
                 trace.append(record)
                 if not record['eligible']:
                     continue
-                values = [h['reference'] for h in halves]
+                active = halves[:protocol.get('training_segments',2)]
+                values = [h['reference'] for h in active]
                 scale = protocol['objective_integer_scale']
                 record.update(minimum_integer=int(np.floor(min(values)*scale+.5)),
                               mean_integer=int(np.floor(np.mean(values)*scale+.5)))
                 if protocol.get('robust_objective',False):
-                    median = [h['reference_median'] for h in halves]
-                    clipped = [h['reference_clipped'] for h in halves]
+                    median = [h['reference_median'] for h in active]
+                    clipped = [h['reference_clipped'] for h in active]
                     record['robust_ranks'] = [int(np.floor(v*scale+.5)) for v in
                         [min(median),np.mean(median),min(clipped),np.mean(clipped)]]
                 layer.append(record)
-                if qualifies(halves) and (chosen is None or ranking(record) < ranking(chosen)):
+                if qualifies(active) and (chosen is None or ranking(record) < ranking(chosen)):
                     chosen = record
         layer.sort(key=ranking)
         beam = layer[:protocol['beam_width']]

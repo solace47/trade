@@ -1,0 +1,24 @@
+{
+  "input_protocol_sha256": "77eb66babe520127eceec01161158f0a8d5450b2e8ba8f79c1aba4fa14c43441",
+  "source_hashes": {
+    "scripts/run_tail_formula_chronological_rule_gate.py": "0f44c9fb6b931930edb73f1d113071f58ed4f472ebd293cba60d9b3808bc12d3",
+    "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
+    "src/trade_research/tail_formula_profit_rule_search.py": "e47953f5388fdf85e912601820151c5b1dd04a6250ff7e4ea0348bea8aab0fc8",
+    "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4"
+  },
+  "tests_passed": 30,
+  "selector_fits": 4,
+  "new_tree_fits": 0,
+  "new_input_features": 0,
+  "verification": "发现段所有字段编码、已知标签、净参考、原子分位与常数剔除、每个候选、所有层/路径和最终发现选择独立SQL重建；校验只能核准唯一发现规则、一次通过/拒绝，不回挑。",
+  "half_boundary_purged": true,
+  "validation_arrays_not_passed_to_learn": true,
+  "all_four_models_before_new_annual_economics": true,
+  "no_full_year_refit": true,
+  "new_2026_prices_read": false,
+  "no_exit_rules": true
+}

@@ -11,6 +11,7 @@ import pandas as pd
 from trade_research import tail_formula_baseline as original
 from trade_research import tail_formula_additive as numeric
 from trade_research import tail_formula_profit_rule_search as rules
+from trade_research.tail_formula_rule_search import atom_list
 from trade_research.research_io import check_sources, save_json, sha
 from run_tail_formula_rule_search import condition_key
 
@@ -90,24 +91,26 @@ def independent_audit(con, atoms, trace, best, chosen, p, fold):
             eligible = all(h['days'] >= p['minimum_signal_days_each_training_half']
                 and h['known'] >= p['minimum_known_opportunity_rows_each_training_half']
                 and h['reference_days'] >= p['minimum_reference_days_each_training_half']
-                and h['reference_rows'] >= p['minimum_known_reference_rows_each_training_half'] for h in halves)
+                and h['reference_rows'] >= p['minimum_known_reference_rows_each_training_half']
+                for h in halves[:p.get('training_segments',2)])
             assert eligible == record['eligible']
             if eligible:
-                values = [h['reference'] for h in halves]
+                active = halves[:p.get('training_segments',2)]
+                values = [h['reference'] for h in active]
                 scale = p['objective_integer_scale']
                 item = dict(record, conditions=key, halves=halves,
                     minimum_integer=int(math.floor(min(values)*scale+.5)),
-                    mean_integer=int(math.floor(math.fsum(values)/2*scale+.5)))
+                    mean_integer=int(math.floor(math.fsum(values)/len(values)*scale+.5)))
                 assert (item['minimum_integer'], item['mean_integer']) == (record['minimum_integer'], record['mean_integer'])
                 if p.get('robust_objective',False):
-                    medians=[h['reference_median'] for h in halves]
-                    clipped=[h['reference_clipped'] for h in halves]
+                    medians=[h['reference_median'] for h in active]
+                    clipped=[h['reference_clipped'] for h in active]
                     item['robust_ranks']=[int(math.floor(v*scale+.5)) for v in
-                        [min(medians),math.fsum(medians)/2,min(clipped),math.fsum(clipped)/2]]
+                        [min(medians),math.fsum(medians)/len(medians),min(clipped),math.fsum(clipped)/len(clipped)]]
                     assert item['robust_ranks']==record['robust_ranks']
                 layer.append(item)
                 if all(h['reference']>0 and h['lower']>.5 and (not p.get('robust_objective',False)
-                    or (h['reference_median']>0 and h['reference_clipped']>0 and h['positive_reference_fraction']>.5)) for h in halves):
+                    or (h['reference_median']>0 and h['reference_clipped']>0 and h['positive_reference_fraction']>.5)) for h in active):
                     if rebuilt_chosen is None or rank(item) < rank(rebuilt_chosen):
                         rebuilt_chosen = item
             examined += 1
@@ -128,6 +131,57 @@ def independent_audit(con, atoms, trace, best, chosen, p, fold):
         search_layers_beams_all_ranks_and_final_quality_gate_independently_rebuilt=True)
 
 
+def chronological_validation_once(fold,chosen,f,targets,p):
+    if chosen is None:
+        return None,dict(discovery_rule=None,validation_rules_examined=0,passed=False,
+                         no_alternative_after_failure=True)
+    scope=f.formula_input_valid & f.date.ge(fold['split']) & f.date.lt(fold['training_end'])
+    visible,label=f.loc[scope].reset_index(drop=True),targets.loc[scope].reset_index(drop=True)
+    conditions=condition_key(chosen['conditions'])
+    x=numeric.encode(visible)
+    dates,day_ids=np.unique(visible.date.to_numpy(),return_inverse=True)
+    known=(label.known15 & label.next_date.lt(fold['training_end'])).to_numpy()
+    success=known & label.opportunity15.eq(1).to_numpy()
+    reference_known=known & label.target_valid.to_numpy() & np.isfinite(label.net.to_numpy())
+    reference=np.expm1(label.net.to_numpy()/100)
+    stats=rules.statistics(rules.masks(x,conditions),day_ids,np.zeros(len(dates),dtype=int),
+                           known,success,reference_known,reference,robust=True)[0]
+    con=numeric.conn()
+    con.register('validation_visible',visible[['date','code',*p['feature_names']]])
+    encoding=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in p['feature_names'])
+    terms=' AND '.join(f"{p['feature_names'][j]} {'<=' if op==0 else '>'} {cut}" for j,op,cut in conditions)
+    independent=con.sql(f'''WITH encoded AS(SELECT date,code,{encoding} FROM validation_visible),
+        selected AS(SELECT e.date,e.code,
+          coalesce(t.known15 AND t.next_date<'{fold['training_end']}',false) AS known,
+          coalesce(t.known15 AND t.next_date<'{fold['training_end']}' AND t.opportunity15=1,false) AS success,
+          CASE WHEN t.known15 AND t.next_date<'{fold['training_end']}' AND t.target_valid AND isfinite(t.net)
+            THEN exp(t.net/100)-1 ELSE NULL END AS reference
+        FROM encoded e LEFT JOIN read_parquet('{TARGETS}') t USING(date,code) WHERE {terms}),
+        daily AS(SELECT date,count(*) AS rows,sum(known::INT) AS known,sum(success::INT) AS success,
+            count(reference) AS reference_rows,avg(reference) AS reference FROM selected GROUP BY date)
+        SELECT count(*) AS days,coalesce(sum(rows),0) AS rows,coalesce(sum(known),0) AS known,
+          coalesce(sum(success),0) AS success,avg(success*1.0/rows) AS lower,
+          count(reference) AS reference_days,coalesce(sum(reference_rows),0) AS reference_rows,
+          avg(reference) AS reference,median(reference) AS reference_median,
+          avg(least(greatest(reference,-.03),.03)) FILTER(WHERE reference IS NOT NULL) AS reference_clipped,
+          avg((reference>0)::INT) AS positive_reference_fraction FROM daily''').df().iloc[0]
+    con.close()
+    for name,value in stats.items():
+        target=independent[name]
+        if name in ['days','rows','known','success','reference_days','reference_rows']:
+            assert value==int(target)
+        else:
+            assert (value is None)==pd.isna(target)
+            if value is not None:
+                assert abs(value-float(target))<=2e-12
+    passed=rules.supported([stats],p) and rules.qualifies([stats])
+    receipt=dict(discovery_rule_conditions=conditions,validation_rules_examined=1,
+        validation_scope_start=fold['split'],validation_label_cutoff=fold['training_end'],
+        statistics=stats,passed=passed,no_alternative_after_failure=True,no_full_year_refit=True,
+        independent_SQL_verified=True)
+    return chosen if passed else None,receipt
+
+
 def fit_all():
     p, _ = checked()
     f, targets = original.original(), pd.read_parquet(TARGETS)
@@ -140,25 +194,31 @@ def fit_all():
         root.mkdir()
         prior = Path(p['original_bank']) / fold['id']
         original_model = json.loads((prior / 'model_report.json').read_text())
+        chronological=p.get('chronological_gate',False)
+        training_end=fold['split'] if chronological else fold['training_end']
         atoms = list(condition_key(original_model['atoms']))
-        scope = f.formula_input_valid & f.date.ge(fold['training_start']) & f.date.lt(fold['training_end'])
+        scope = f.formula_input_valid & f.date.ge(fold['training_start']) & f.date.lt(training_end)
         train, label = f.loc[scope].reset_index(drop=True), targets.loc[scope].reset_index(drop=True)
         x = numeric.encode(train)
         dates, day_ids = np.unique(train.date.to_numpy(),return_inverse=True)
         half_ids = (dates >= fold['split']).astype(int)
-        known = (label.next_date.lt(fold['training_end']) & label.known15).to_numpy()
+        known = (label.next_date.lt(training_end) & label.known15).to_numpy()
         success = known & label.opportunity15.eq(1).to_numpy()
         reference_known = known & label.target_valid.to_numpy() & np.isfinite(label.net.to_numpy())
         reference = np.expm1(label.net.to_numpy()/100)
-        assert len(train) == original_model['rows'] and int(known.sum()) == original_model['mature_known']
+        if chronological:
+            assert p['training_segments']==1 and p['robust_objective']
+            atoms=atom_list(x,p['atomic_training_quantiles'])
+        else:
+            assert len(train) == original_model['rows'] and int(known.sum()) == original_model['mature_known']
         assert np.isfinite(reference[reference_known]).all()
         con = numeric.conn()
         con.register('visible',train[['date','code',*p['feature_names']]])
         enc = ','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS {n}' for n in p['feature_names'])
         con.execute(f'''CREATE TABLE observations AS SELECT v.date,v.code,{enc},
-            coalesce(t.next_date<'{fold['training_end']}' AND t.known15,false) AS known,
-            coalesce(t.next_date<'{fold['training_end']}' AND t.known15 AND t.opportunity15=1,false) AS success,
-            CASE WHEN t.next_date<'{fold['training_end']}' AND t.known15 AND t.target_valid AND isfinite(t.net)
+            coalesce(t.next_date<'{training_end}' AND t.known15,false) AS known,
+            coalesce(t.next_date<'{training_end}' AND t.known15 AND t.opportunity15=1,false) AS success,
+            CASE WHEN t.next_date<'{training_end}' AND t.known15 AND t.target_valid AND isfinite(t.net)
             THEN exp(t.net/100)-1 ELSE NULL END AS reference
             FROM visible v LEFT JOIN read_parquet('{TARGETS}') t USING(date,code)''')
         independent = con.sql('SELECT * FROM observations ORDER BY date,code').df()
@@ -172,23 +232,53 @@ def fit_all():
         trace,best,chosen = rules.learn(x,atoms,day_ids,half_ids,known,success,reference_known,reference,p,progress)
         audit = independent_audit(con,atoms,trace,best,chosen,p,fold)
         con.close()
+        discovery_rule=chosen
+        validation=None
+        if chronological:
+            cuts=numeric.conn()
+            cuts.register('discovery',independent[p['feature_names']])
+            independent_atoms=[]
+            for j,name in enumerate(p['feature_names']):
+                for cut in sorted(set(int(cuts.sql(f'''SELECT {name} FROM discovery ORDER BY {name} LIMIT 1
+                    OFFSET (SELECT floor((count(*)-1)*{q})::BIGINT FROM discovery)''').fetchone()[0])
+                                     for q in p['atomic_training_quantiles'])):
+                    for operator in [0,1]:
+                        count=cuts.sql(f'SELECT count(*) FROM discovery WHERE {name} {"<=" if operator==0 else ">"} {cut}').fetchone()[0]
+                        if 0<count<len(train):
+                            independent_atoms.append((j,operator,cut))
+            cuts.close()
+            assert atoms==independent_atoms
+            chosen,validation=chronological_validation_once(fold,discovery_rule,f,targets,p)
         save_json(root/'search_trace.json',trace)
         report = dict(protocol_sha256=sha(PROTOCOL),execution_protocol_sha256=sha(EXECUTION),
-            variant='robust_profit_same_atomic_condition_search' if p.get('robust_objective',False)
-                else 'profit_directed_same_atomic_condition_search',fold=fold,feature_names=p['feature_names'],
+            variant='one_discovery_rule_one_chronological_gate' if chronological else
+                ('robust_profit_same_atomic_condition_search' if p.get('robust_objective',False)
+                else 'profit_directed_same_atomic_condition_search'),fold=fold,feature_names=p['feature_names'],
             rows=len(train),days=len(dates),mature_known=int(known.sum()),mature_reference=int(reference_known.sum()),
             last_observation=str(label.loc[known,'next_date'].max()),atoms=atoms,
             original_model_report_sha256=sha(prior/'model_report.json'),best_training_rule=best,chosen_rule=chosen,
             search_trace_sha256=sha(root/'search_trace.json'),new_input_features=0,new_atomic_conditions=0,
             new_2026_prices_read=False,no_exit_rules=True,training_metric_is_not_held_out_economics=True)
+        if chronological:
+            report.update(discovery_start=fold['training_start'],discovery_end=training_end,
+                discovery_rule=discovery_rule,validation_once=validation,
+                atomic_thresholds_from_discovery_only=True,new_atomic_conditions=len(atoms),
+                no_validation_inputs_passed_to_search=True,no_full_year_refit=True)
+            audit.update(discovery_quantiles_and_nonconstant_atoms_SQL_rebuilt=True,
+                         validation_one_rule_SQL_verified=validation is None or validation.get('independent_SQL_verified',True))
         assert report['last_observation'] < fold['evaluation_start']
+        if chronological:
+            assert report['last_observation'] < training_end
         save_json(root/'model_report.json',report)
         save_json(root/'model_verification.json',dict(passed=True,model_report_sha256=sha(root/'model_report.json'),**audit))
         reports.append(dict(fold=fold['id'],candidates=len(trace),chosen=chosen,model_report_sha256=sha(root/'model_report.json')))
+        if chronological:
+            reports[-1].update(atoms=len(atoms),validation_once_passed=validation['passed'])
         print(json.dumps(dict(fold_finished=fold['id'],chosen=chosen['conditions'] if chosen else None)),flush=True)
     save_json(ROOT/'all_models_verified.json',dict(passed=True,folds=reports,protocol_sha256=sha(PROTOCOL),
         execution_protocol_sha256=sha(EXECUTION),all_four_models_before_new_economics=True,
-        selector_fits=4,new_tree_fits=0,new_2026_prices_read=False))
+        selector_fits=4,new_tree_fits=0,new_2026_prices_read=False,
+        new_atomic_conditions=sum(r.get('atoms',0) for r in reports)))
     return dict(folds=[dict(fold=r['fold'],candidates=r['candidates'],chosen=r['chosen']['conditions'] if r['chosen'] else None) for r in reports])
 
 

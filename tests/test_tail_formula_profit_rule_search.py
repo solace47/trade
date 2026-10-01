@@ -46,3 +46,44 @@ def test_robust_variant_rejects_positive_mean_supported_by_rare_jumps():
                           dict(protocol(),robust_objective=True))
     assert mean_choice is not None
     assert robust_choice is None
+
+
+def test_single_discovery_segment_does_not_require_a_fictitious_second_segment():
+    x=np.tile([[1],[0]],(4,1))
+    days=np.repeat(np.arange(4),2)
+    known=np.ones(len(x),dtype=bool)
+    reference=np.tile([.02,-.01],4)
+    settings=dict(protocol(),training_segments=1,robust_objective=True)
+    trace,_,choice=learn(x,[(0,1,0)],days,np.zeros(4,dtype=int),known,known,known,reference,settings)
+    assert choice is not None and choice['conditions']==((0,1,0),)
+    assert trace[0]['halves'][1]['days']==0
+
+
+def test_single_validation_rejects_without_choosing_profitable_alternative(tmp_path,monkeypatch):
+    import pandas as pd
+    import run_tail_formula_profit_rule_search as runner
+    names=list(runner.original.EXPRESSIONS)
+    visible=pd.DataFrame(np.zeros((8,len(names))),columns=names)
+    visible['C06']=np.tile([1.,0.],4)
+    visible['date']=np.repeat(['2024-07-01','2024-07-02','2024-07-03','2024-07-04'],2)
+    visible['code']=np.tile(['sh.600001','sh.600002'],4)
+    visible['formula_input_valid']=True
+    labels=visible[['date','code']].copy()
+    labels['next_date']='2024-07-05'
+    labels.loc[6,'next_date']='2025-01-01'
+    labels['known15']=True
+    labels['opportunity15']=np.tile([False,True],4)
+    labels['target_valid']=True
+    labels['net']=100*np.log1p(np.tile([-.01,.05],4))
+    path=tmp_path/'targets.parquet'
+    labels.to_parquet(path,index=False)
+    monkeypatch.setattr(runner,'TARGETS',path)
+    chosen={'conditions':[[names.index('C06'),1,10000]]}
+    settings=dict(protocol(),training_segments=1,feature_names=names)
+    accepted,receipt=runner.chronological_validation_once(
+        dict(split='2024-07-01',training_end='2025-01-01'),chosen,visible,labels,settings)
+    assert accepted is None and receipt['validation_rules_examined']==1
+    assert receipt['no_alternative_after_failure'] and receipt['independent_SQL_verified']
+    assert receipt['statistics']['known']==3 and receipt['statistics']['reference_days']==3
+    assert receipt['statistics']['days']==4
+    assert abs(receipt['statistics']['reference']+.01)<1e-12
