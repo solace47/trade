@@ -21,7 +21,7 @@ PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io impo
 
 原始日线及分钟在`data/baostock/`、`data/hf/`。当前日内尺度产物写入`data/research/tail_formula_intraday_scale/inputs/`；只从固定日线原件重建此前20日日内均幅，原50源与训练标签精确复用。7列训练标签与69列经济标签不可混用。已结束区间方案及参考价审计的原件／收据仍在data，源码可取Git `884391c`；数据及机器产物由Git忽略。
 
-当前日内尺度已完成`prepare`、`protocols`、全部四控制复用／四新模型及`freeze`，不得重做或覆盖。联合SHA提交后再运行`analyze`及`finish`；完成阶段不可重复拟合或评价。
+当前日内尺度全部阶段已完成且失败，不得重做或覆盖。下一开价分拆目前只有意向；实际源码与协议提交前不得生成新分拆输入或拟合。
 
 `control/2024h1`评分定义校验曾中断，已按修复协议仅补独立评分验证；原模型、模型验证、评分和分折协议原字节保持，不得重新`fit`。
 
