@@ -1,0 +1,34 @@
+{
+  "study": "尾盘市场情绪的股票身份转换",
+  "trigger": "用户明确提醒核心是选股效果，要求研究市场情绪；当前开价分拆任一预定条件失败后继续本方向",
+  "reason": "旧CB01/CB02仅两时点上涨占比及其差；旧横截面轮动为价格协方差。相同边际家数可以有不同弱转强/强转弱数量，转换包含新增联合信息。不得称主力身份。",
+  "source_gate_only": true,
+  "source_hashes": {
+    "data/research/tail_formula_long48/inputs/base_report.json": "c78469ac0a3836cc655626e185f1e61cf99b153d82f34474598e2f222fdf7bdb",
+    "data/research/tail_formula_long48/inputs/universe.parquet": "6050c4bc68942154dd18a41cf88e33131f606ae6e1786165499e38d02269c6af",
+    "data/research/next_day_winner/base_report.json": "e10ba91524073ea77cb3a5aafa249e277f1647f30c3f91a09c9d8a76cf597c96",
+    "data/research/next_day_winner/visible_base.parquet": "eb479c3924f1402ba08fea60f9a1181f9ff14f49eb94e6aa3f4983fee66ef926",
+    "data/research/next_day_winner/independent_base_checks.json": "a0887d47fd9788acfa080386b8b1c443762f90074a10241ca63e6c2a8b234150",
+    "data/research/tail_formula_cross_breadth/feature_report.json": "464ab44487b31bb89cd7a498aa0ed4c84b3e6e5b71399481edd8f6f707a25529",
+    "data/research/tail_formula_cross_breadth/feature_verification.json": "ef7eae067e7ca0281eb5437bbd12ce6da2f026196320177273769614cc6f7909",
+    "data/research/tail_formula_cross_breadth/coverage_verification.json": "7c54aae86cf8436921c72251ad21cc1101696108e6c2b794034486bcb3377dd9",
+    "data/research/tail_formula_cross_rotation/feature_report.json": "3e1a064c761f30f605ce59b045b7491803a11a922e32110d7f5e2aa0382b69ff",
+    "data/research/tail_formula_cross_rotation/feature_verification.json": "daa2c0c390725d137dc9196539238ec4bcfe880363e36106a10f8d058161ae82"
+  },
+  "metadata": "先检查2023与2024—2025既有覆盖主板缓存的历史成员/字段/可见性是否同口径；不冒称交易所全市场。原缓存已经筛选的规则全部记录，不凭事后完整性补成员或填坏价。",
+  "scope": "本库覆盖的当时非ST、非停牌、上市至少60交易日主板；日内正累计量额、正参考价，排除92/688/300/301。2023训练，收益自2024。",
+  "clock": "当日14:20与14:49标签，截至14:50；聚合股票输入不晚于14:49，不引用随后成交、收盘或次日值。",
+  "states": "以整数分价格与当日正式preclose相比：负为p<pc，零为p=pc，正为p>pc；状态坏或源缺失保留未知，不能删除坏成员来改善广度。",
+  "features": {
+    "EMREPAIR": "100*N(p20<pc AND p49>pc)/N(eligible_members)",
+    "EMFADE": "100*N(p20>pc AND p49<pc)/N(eligible_members)"
+  },
+  "zero_and_gate": "分母为全部合资格已知覆盖成员；未发生转换是已知0，源/状态未知不是0。每日不少于2000成员；有未知资格/坏价先报告并停止，固定同质量控制之后再拟合。",
+  "native": "用同口径主板辅助指标逐股输出合资格/弱转强/强转弱，再INSUM聚合；历史成员、状态、加载深度及客户端对齐未经验证不发布。",
+  "next_actual_protocol": "来源门通过后固定原50对新增情绪52、四个此前一年训练折、64树深3叶300/lr.05/seed20260927/relative/日期等权/q995；完整训练值相等才复用四原控制，最多四新模型。范围改变先另固定同质量控制，不能直接套旧模型。",
+  "evaluation": "全部八模型及四完整年度名单共同提交之后，检查四半年各20日/09:59参考均正、两年机会超过控制且3%不利不高、两年共享未知下界周区间严格正。",
+  "no_new_features_fits_scores_or_economics_yet": true,
+  "no_sell_rules": true,
+  "no_multiday_test": true,
+  "no_new_2026_prices": true
+}
