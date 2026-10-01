@@ -1,0 +1,92 @@
+{
+  "objective": "在进一步选股拟合之前，全量审计原50项的此前20个活跃股日参考价变化及原始波动项；只做输入诊断，不依据收益择样。",
+  "implementation_sha256": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
+  "source_hashes": {
+    "scripts/audit_tail_formula_price_reference.py": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
+    "tests/test_tail_formula_price_reference.py": "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "data/research/tail_formula_stock_2024/inputs/features.parquet": "9b3edf988981f82aef9f5415c7b72f740b62e2e98fd5e93b6bfa0f2cd245c7f7",
+    "data/research/tail_formula_stock_2024/inputs/feature_report.json": "a365c16deca5a37b24cfc42642ff96d8a24dee3635f7a92786fb99a738d66310",
+    "data/research/tail_formula_morning_range/inputs/features.parquet": "1874d835d630c4b13352cac8635286b2b5e21e55653e4490f3700805edb62412",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_long48/inputs/source_manifest.json": "c416c17b2d14f35ef316139612002f1bbedd810ea6e64ec653c2a19c9c26a0c4",
+    "data/research/tail_formula_long48/inputs/universe.parquet": "6050c4bc68942154dd18a41cf88e33131f606ae6e1786165499e38d02269c6af",
+    "data/research/tail_formula_long48/inputs/base_report.json": "c78469ac0a3836cc655626e185f1e61cf99b153d82f34474598e2f222fdf7bdb",
+    "data/research/tail_formula_1000/features.parquet": "5d561ee3602fff007799ed47e560ab036d78343cd7bfd1defc2f1232206f0cc4",
+    "data/research/tail_formula_1000/feature_report.json": "546bf061fe83f65743f7190a7234d43d94dc0a605590cdae819c1136f788d6a8",
+    "data/research/independent_signal_source_probe/minute_source_audit_20261001.json": "916f8bd67c3dd12584e3dd943748fa9a491d246e8c8c76ee5798ab81be932ac3",
+    "data/research/tail_formula_headroom/source_gate.json": "b813305cf9bdb0d53e5dd4a102569b5aa3c26a9b559806f5921051fa82ea0336",
+    "data/research/independent_signal_source_probe/baostock_price_reference_official_20261001.json": "3694ce90bb878dacae438a5830eb0aabbde2e7e95fc198af6f2fbe1972c683b3",
+    "data/research/independent_signal_source_probe/tdx_corporate_adjustment_functions_20261001.json": "551669fac5c8111b48711b36f671f218faa1e39a65eb0aee96b4098cd630df4d"
+  },
+  "features": [
+    {
+      "file": "data/research/tail_formula_stock_2024/inputs/features.parquet",
+      "first": "2023-01-01",
+      "end": "2024-01-01"
+    },
+    {
+      "file": "data/research/tail_formula_morning_range/inputs/features.parquet",
+      "first": "2024-01-01",
+      "end": "2026-01-01"
+    }
+  ],
+  "references": [
+    {
+      "file": "data/research/tail_formula_long48/inputs/universe.parquet",
+      "first": "2023-01-01",
+      "end": "2024-01-01"
+    },
+    {
+      "file": "data/research/tail_formula_1000/features.parquet",
+      "first": "2024-01-01",
+      "end": "2026-01-01"
+    }
+  ],
+  "daily_manifests": [
+    {
+      "file": "data/research/tail_formula_long48/inputs/source_manifest.json",
+      "field": "daily_sha256"
+    },
+    {
+      "file": "data/research/tail_formula_1000/feature_report.json",
+      "field": "source_sha256"
+    }
+  ],
+  "daily_template": "data/baostock/market_2020_2026/daily/{code}.parquet",
+  "warmup_first": "2021-06-01",
+  "signal_first": "2023-01-01",
+  "signal_last": "2025-12-30",
+  "expected_keys": 1815129,
+  "expected_valid": 1602413,
+  "definitions": {
+    "prior_window": "严格此前20个tradestatus=1股日，包含坏的活跃原行、不跳到更远好行；与原协议同语义，不能据此推断正常限价状态",
+    "reset": "abs(当日原件preclose−此前活跃股日原件close)>0.005，须两日价格质量及本日preclose有限正；这是来源参照变化，不直接称除权事件",
+    "source_good": "原OHLC有限正且整分、H>=max(OHLC)、L<=min(OHLC)、adjustflag=3、成交量正。preclose按提供方4位字段允许非整分，不能随意修正",
+    "original_V01": "100*mean(此前20日 max(H−L,abs(H−此前实际C),abs(L−此前实际C)))/决策日原正式preclose，原有效域每键须与原50的V01误差<=2e-10",
+    "reference_diagnostic": "此前20日TR仅把每根参考C换为该日preclose；没有把全部历史价格调整到同一股本基准，不称完成复权或可直接代替V01",
+    "unknown": "少于20个已知参考变化状态保持未知；不把未知视为无除权，不按任何盘后或收益条件删原键"
+  },
+  "verification": "逐股pandas滚动和独立SQL窗口重建全部状态；原全部键及有效数量固定，报告原V01不符、参考未知和六半年范围，不改模型或选择表",
+  "previous_studies_checked": [
+    "weekday",
+    "own_stock_tail_volume_surprise",
+    "volume_history",
+    "volume_lead",
+    "retained_interval",
+    "ETF_quantity"
+  ],
+  "source_audits": {
+    "independent_minutes_sha256": "916f8bd67c3dd12584e3dd943748fa9a491d246e8c8c76ee5798ab81be932ac3",
+    "headroom_source_gate_sha256": "b813305cf9bdb0d53e5dd4a102569b5aa3c26a9b559806f5921051fa82ea0336"
+  },
+  "native_boundary": "通达信官方列出DIVFACTOR、SPLITBARS、SPLIT；完整因子算法、历史权息表和客户端同源对齐尚未验证。本审计不生成原生选股公式。",
+  "maximum_fits": 0,
+  "read_outcomes": false,
+  "new_2026_values_allowed": false,
+  "change_selected_lists": false,
+  "change_original_inputs": false,
+  "no_publish_claim": true,
+  "protocol_must_be_committed_before_new_audit_states": true,
+  "tests": "4项合成检查已通过：时序、坏行、停牌与未来价格不影响先前状态"
+}
