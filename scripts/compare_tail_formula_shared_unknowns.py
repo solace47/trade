@@ -7,9 +7,9 @@ import duckdb
 import numpy as np
 import pandas as pd
 
-from trade_research.corporate_cash import save_json, sha
-from trade_research.reference_gain_accounting import weekly_interval
-from verify_tick_flow_analysis import interval
+from trade_research.research_io import save_json, sha
+from tail_formula_statistics import weekly_interval
+from tail_formula_statistics import interval
 
 
 def daily_bounds(rows):

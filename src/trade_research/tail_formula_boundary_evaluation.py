@@ -1,19 +1,17 @@
-"""Date-weighted opportunity reports with an explicitly named reference minute."""
-import argparse
+"""Date-weighted next-morning opportunities; reference values are not realized profits."""
 import json
 from pathlib import Path
-
+from types import SimpleNamespace
 import numpy as np
 import pandas as pd
+from .research_io import save_json, sha
+from tail_formula_statistics import weekly_interval
 
-from . import tail_formula_before1000 as source
-from .corporate_cash import save_json, sha
-from .reference_gain_accounting import weekly_interval
-
-METRICS = ['rate', 'lower', 'upper', 'one_percent_rate', 'any_rate',
-           'mean_reference', 'negative_reference', 'adverse_mean', 'bad3']
-PERIODS = ['2024H1', '2024H2', '2025H1', '2025H2', '2024', '2025']
-
+source = SimpleNamespace(ROOT=Path('data/research/tail_formula_before1000'),
+                         PROTOCOL=Path('config/tail_formula_etf_quantity_model_protocol.json'))
+METRICS = ['rate','lower','upper','one_percent_rate','any_rate',
+           'mean_reference','negative_reference','adverse_mean','bad3']
+PERIODS = ['2024H1','2024H2','2025H1','2025H2','2024','2025']
 
 def number(x):
     return float(x) if pd.notna(x) and np.isfinite(x) else None
@@ -34,39 +32,6 @@ def attach_labels(root):
         if not path.exists():
             path.symlink_to((source.ROOT / name).resolve())
         assert sha(path) == sha(source.ROOT / name)
-
-
-def prepare():
-    p = source.checked_protocol()
-    roots = []
-    for name, receipt in p['selections'].items():
-        root = source.ROOT / 'evaluation' / name; root.mkdir(parents=True, exist_ok=True)
-        original = Path('data/research') / name
-        for file in ['selection.parquet', 'selection_report.json', 'selection_verification.json']:
-            path = root / file
-            if not path.exists():
-                path.symlink_to((original / file).resolve())
-            assert sha(path) == sha(original / file)
-        attach_labels(root); roots.append(str(root))
-    root = source.ROOT / 'evaluation' / 'full_base'; root.mkdir(parents=True, exist_ok=True)
-    if not (root / 'selection_report.json').exists():
-        keys = pd.read_parquet(source.original.ROOT / 'observation_keys.parquet')
-        out = keys[['date', 'code', 'half', 'decision_shares']].copy()
-        out['board'] = 'main'; out['selected'] = True
-        out.to_parquet(root / 'selection.parquet', index=False, compression='zstd')
-        save_json(root / 'selection_report.json', dict(protocol_sha256=sha(source.PROTOCOL),
-            selection_sha256=sha(root / 'selection.parquet'), selected=len(out), all_original_keys=True))
-    expected = pd.read_parquet(source.original.ROOT / 'observation_keys.parquet', columns=['date', 'code'])
-    got = pd.read_parquet(root / 'selection.parquet')
-    pd.testing.assert_frame_equal(got[['date', 'code']], expected, check_exact=True)
-    assert got.selected.all()
-    save_json(root / 'selection_verification.json', dict(passed=True,
-        selection_report_sha256=sha(root / 'selection_report.json'), all_original_keys_verified=True,
-        no_outcome_based_selection=True))
-    attach_labels(root); roots.append(str(root))
-    save_json(source.ROOT / 'evaluation_manifest.json', dict(protocol_sha256=sha(source.PROTOCOL), roots=roots,
-        selections_unchanged=True, original_unknowns_unchanged=True, outcomes_not_used_for_selection=True))
-    return roots
 
 
 def daily_summary(rows, bps, sensitive):
@@ -141,11 +106,3 @@ def analyze(root, protocol=source.PROTOCOL):
              new_2026_prices_read=bool(rows.date.ge('2026-01-01').any()), no_exit_rules=True)
     save_json(root / 'analysis_report.json', r)
     return {k: v for k, v in r.items() if k != 'summaries'}
-
-
-if __name__ == '__main__':
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage', choices=['prepare', 'analyze'])
-    p.add_argument('--root', type=Path)
-    a = p.parse_args()
-    print(json.dumps(prepare() if a.stage == 'prepare' else analyze(a.root), ensure_ascii=False, indent=2))

@@ -1,9 +1,0 @@
-{
-  "reason": "导出前全量变量名检查发现当前10点锚点ITP10与第10历史分母同名；当前锚点改为ITMORN，数学定义、历史数值、有效性和数据指纹完全未改。",
-  "before_report_sha256": "c42a616730ccad3c1a6bf27d949ae8c3bd43d62b38462820c57a0276be7e3252",
-  "after_report_sha256": "2e09d6dd86279f6454750d506acef71e48c9b5ae5678baa4653422dac81a205b",
-  "original_report_preserved": "data/research/tail_formula_intraday_rank/feature_report_before_native_name_fix.json",
-  "no_models_fit": true,
-  "new_group_outcomes_read": false,
-  "new_2026_prices_read": false
-}

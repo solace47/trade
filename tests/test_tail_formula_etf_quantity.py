@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from trade_research import tail_formula_etf_activity as timing
+from trade_research import tail_formula_baseline as timing
 from trade_research import tail_formula_etf_quantity as study
 
 

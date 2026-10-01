@@ -1,76 +1,37 @@
-# 环境与复算
+# 当前环境与复算
 
-在仓库根目录执行。当前状态见[研究入口](research-status.md)，结果表见[策略结果](strategy-results.md)，各版本原始冻结步骤见[公式研究索引](selection-formula.md#已完成研究索引)。
-
-## 环境
-
-已有`.venv`可直接使用。新环境按`requirements.txt`固定版本安装：
+当前研究只从[唯一入口](../scripts/run_tail_formula_etf_quantity.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
 
 ```sh
-python3 -m venv .venv
+python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-模块统一使用`PYTHONPATH=src .venv/bin/python -m trade_research.<模块>`，脚本使用`PYTHONPATH=src .venv/bin/python scripts/<文件>.py`。已有冻结产物拒绝覆盖；复核不需要重新下载、拟合或聚合。
-
-## 数据位置
-
-| 内容 | 本地位置 |
-| --- | --- |
-| 日线、历史状态、原始分钟及下载清单 | `data/`各来源目录；锁定版本与下载SHA以原收据为准 |
-| 旧14:50全市场快照／持有期／问题日 | `data/research/market_snapshots_ci/`、`market_outcomes_ci/`、`market_issues_ci/` |
-| 当前14:49原始前缀 | `data/research/minute_prefix_1449/` |
-| 原生公式各版本 | `data/research/tail_formula_*/` |
-| 最新前股日联合输入与完整年度结果 | `data/research/tail_formula_prior_bar/` |
-| 分钟量额各版／当前接续 | `data/research/tail_formula_minute_vwap*/`；实际阶段及产物以[当前状态](research-status.md)为准 |
-
-`data/`受Git忽略，仓库本身不包含完整行情和研究产物。不能删除本地收据再运行旧命令来重选版本；文件名、数量相同也不证明来源或结果相同。
-
-## 最近完成版本的核对
-
-最近完成的三版本2024复核协议位于`config/tail_formula_stock_2024_*`，输入入口为`trade_research.tail_formula_stock_2024_inputs`，模型／评价入口为`scripts/run_tail_formula_stock_2024.py`。六模型与三版评分、完整名单及五对照已固定；2023只训练，不报告其经济结果。
-
-先读取现有报告，不重复执行生产阶段：
+已有环境无需重装。基础检查：
 
 ```sh
-PYTHONPATH=src .venv/bin/python - <<'PYCODE'
-import json
-from pathlib import Path
-from trade_research.corporate_cash import sha
-root = Path('data/research/tail_formula_stock_2024')
-for name in ['joint_selection_freeze.json', 'stock_2024_gate.json', 'complete_results_manifest.json']:
-    path = root / name
-    report = json.loads(path.read_text())
-    assert report['passed']
-    print(name, sha(path))
-print('跨年否证门：', json.loads((root / 'stock_2024_gate.json').read_text())['selectors'])
-PYCODE
+PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_etf_quantity.py --help
+PYTHONPATH=src:scripts .venv/bin/python scripts/verify_research_runtime.py
 ```
 
-报告中的`passed`表示阶段核准，不能解释为策略通过。该入口先用`configure()`，再调用`checked_scores(fold, arm)`及`shared.checked_joint()`核对输入／模型／评分／校准和联合名单，不运行新经济汇总。三个年度摘要都已含两半年，不重复聚合；旧48控制由`comparison_views/fixed2024/analysis_reuse.json`绑定原完整帧、标签和统计。原2025失败门保持，当前两项跨年否证门也未通过。
+最后一项只读核对清理后代码、清理前固定定义、输入指纹及原控制模型评分，不拟合、不生成新选股名单、不重算选股经济结果。
 
-随后完成的原50同日十箱诊断协议为`config/tail_formula_daily_order_protocol.json`，入口`scripts/audit_tail_formula_daily_order.py`，现有报告在`data/research/tail_formula_daily_order/`。核对`ranking_report.json`与`analysis_report.json`及对应verification，摘要包含两年／四半年／两档成本／敏感性；不重分箱、预测或聚合。条件AUC不能当作利润，2024不可估计日期完整保留，十箱不是十个待选公式。
+## 当前产物与阶段
 
-最新三指数绝对参考条件在`data/research/tail_formula_market_reference/`，原入口`scripts/run_tail_formula_market_reference.py`，完成比较用`scripts/finish_tail_formula_market_reference.py`及其固定适配协议。只读`complete_results_manifest.json`、`finish_repair_verification.json`、`market_reference_gate.json`与`forecast_calendar_coverage_verification.json`；四组年度摘要已经含两半年。两次调用错误与旧适配源保存在`repair/`，不运行旧finish重复生产。
+原始日线及分钟在`data/baostock/`、`data/hf/`；当前52项产物在`data/research/tail_formula_etf_quantity/inputs/`。旧控制依赖`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签是不同文件，不能混用。全部数据与机器产物由Git忽略，不会随源码推送。
 
-需要复算已有版本时，先核对该版协议／源码／输入指纹及既有阶段报告。不同家族的命令和验证器不能互换；例如上午分布独立核准和高点保持原生核准须用其冻结包装脚本，不能改用曾失败的直接入口。
+`prepare`已经完成且禁止覆盖，下一步是`protocols`，之后按固定四折分别运行`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用；最多四个新增模型。`freeze`完成后须先把联合SHA记入当前方案并提交，随后才能`analyze`与`finish`。
 
-## 新研究顺序
-
-先固定输入，再独立核准全部键、特征和原生表达；使用已经结束的训练标签，固定模型和完整名单，提交联合收据后才评价。复用前比较完整选择表、元数据、全部适用标签、摘要和日表指纹；相同则绑定旧报告，不重做汇总。年度报告已含两半年，不另重复聚合。
-
-当前评价只读09:31—09:59；旧30根窗口、2026已暴露结果和旧固定退出实验不能当成当前的新验证。当前接续阶段只在[研究状态](research-status.md)维护，不能把历史命令当新任务执行。
+清理后[运行协议](../config/research-runtime.json)绑定当前源码及既有输入；此前输入／模型协议保持原字节。其引用的旧源码通过Git历史验证，当前代码另有完整指纹及等价核验，避免删除旧入口后失去来源追踪或重做已完成输入。
 
 ## 历史复算
 
-清理前固定版本为`96d34f694d06c1e317c29e10643013478fb34ece`。完整旧文档、精确冻结参数、异常修正记录和旧复算命令均保留在Git历史；不另复制一套归档文件：
+清理前版本由运行协议的`archive_revision`指明，也记录于[当前方案](selection-formula.md)。旧实验代码、配置和详细记录从该版本读取：
 
 ```sh
-git show 96d34f694d06c1e317c29e10643013478fb34ece:docs/selection-formula.md
-git show 96d34f694d06c1e317c29e10643013478fb34ece:docs/input-gates.md
-git show 96d34f694d06c1e317c29e10643013478fb34ece:docs/data-reproduction.md
+git show 4b3bdda:docs/selection-formula.md
+git show 4b3bdda:scripts/run_tail_formula_volume_memory.py
 ```
 
-[旧公式过程稿](https://github.com/solace47/trade/blob/96d34f694d06c1e317c29e10643013478fb34ece/docs/selection-formula.md)、[旧输入过程稿](https://github.com/solace47/trade/blob/96d34f694d06c1e317c29e10643013478fb34ece/docs/input-gates.md)和[旧复算命令](https://github.com/solace47/trade/blob/96d34f694d06c1e317c29e10643013478fb34ece/docs/data-reproduction.md)可直接查阅。已结束专题的结果已合并到[策略结果](strategy-results.md#旧固定退出实验的口径与门槛)；公告、分笔、题材和大涨画像保留在[反向研究](next-day-winner.md)。
-
-研究代码、冻结配置、许可证和原始数据均保留。它们被来源指纹或旧产物引用，删除／修改会使历史复核失效；当前精简的是重复说明和已结束过程日志。
+历史脚本应在对应版本的独立检出中复算，不能混入当前运行目录或覆盖已核验产物。原始行情、完成收据和查重缓存仍保留；旧14:50快照、10:00窗口及多日持有结果不替代当前边界。

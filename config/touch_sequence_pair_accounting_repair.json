@@ -1,8 +1,0 @@
-{
-  "original_analysis_sha256": "0f7f726dd4c92ff013415cd30be1133154c6140ff0a72f91af2148c5feb7b415",
-  "repair": "从原信号日期重建所有配对行的半年字段；1,846个未配者必须计入4,143个主组分母。旧结果完整归档，选股、对照、收益和费用不变。",
-  "expected_primary": 4143,
-  "expected_matched": 2297,
-  "expected_unmatched": 1846,
-  "new_outcomes_requested": false
-}

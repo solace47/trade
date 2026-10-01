@@ -8,10 +8,10 @@ import numpy as np
 import pandas as pd
 
 from . import tail_formula_additive as base
-from . import tail_formula_etf_activity as timing
-from . import tail_formula_morning_range as prior
-from . import tail_formula_volume_memory as original_source
-from .corporate_cash import save_json, sha
+from . import tail_formula_baseline as timing
+from . import tail_formula_baseline as prior
+from . import tail_formula_baseline as original_source
+from .research_io import save_json, sha, check_sources, check_runtime
 
 STEM = 'tail_formula_etf_quantity'
 ROOT = Path('data/research') / STEM
@@ -54,8 +54,8 @@ def checked():
     assert p['native_header']==HEADER and p['etf_helper']==ETF_HELPER
     assert p['maximum_new_fits']==4 and p['window_labels']==228 and p['history_dates']==20
     assert not p['new_2026_prices_allowed']
-    for file,digest in p['source_hashes'].items():
-        assert sha(Path(file))==digest,file
+    check_runtime()
+    check_sources(p['source_hashes'])
     gate=json.loads(Path(p['conditional_gate']).read_text())
     assert gate['passed'] and not gate['supports_further_validation']
     text=subprocess.run(['git','show','HEAD:docs/selection-formula.md'],text=True,capture_output=True,check=True).stdout

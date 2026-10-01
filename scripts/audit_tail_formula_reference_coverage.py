@@ -7,7 +7,7 @@ import duckdb
 import numpy as np
 import pandas as pd
 
-from trade_research.corporate_cash import save_json, sha
+from trade_research.research_io import save_json, sha
 
 
 def audit(root, years=(2025,)):
