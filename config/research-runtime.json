@@ -76,9 +76,7 @@
     "src/trade_research/tail_formula_profit_rule_search.py": "2a286f10f11796a14256a0fb8dc6e66ccdcd21de0746e1f9f75702ca7f0e0097",
     "scripts/run_tail_formula_profit_rule_search.py": "5f54b9648b8de8572129ac16629418d4ddd7eceabcd465a22b9f0e93e87b080c",
     "scripts/finish_tail_formula_profit_rule_search.py": "27ebbc2377f4211bc513c5154852d37db180ee0f80e502a6acc20b94da88989d",
-    "scripts/run_tail_formula_robust_profit_rule_search.py": "902b7a75dcfe94c09974e99177d2ed18ed8f771fe03606622b8bf6b26f2e68a0",
     "tests/test_tail_formula_profit_rule_search.py": "1653f58dd8dc15abaafbe7468f710b14a2865f00620a07c55cca145d15314a21",
-    "scripts/finish_tail_formula_robust_profit_rule_search.py": "25c7919b76e3464ce2486e09ca453438efce568246998174cd7902a07ec133a8",
     "scripts/run_tail_formula_rule_persistence.py": "81acc61f662492450e57ab56c3ff0659a1580f565c7802683fe9577c00745444",
     "scripts/finish_tail_formula_rule_persistence.py": "a3f12056d4d20f3b21b51fd936b3ffa66287beef9e9c952f94ba53b9856b5452",
     "tests/test_tail_formula_rule_persistence.py": "d4196012611627d9a97653b45326ba3b3b1260092be100c9c01358e3dd00d889"
@@ -247,16 +245,18 @@
     "config/tail_formula_profit_rule_search_protocol.json": "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9",
     "config/tail_formula_profit_rule_search_execution.json": "b4449e8cadb12448b2a5940828f9284222efa5611428c93cead6e60b43decb6e",
     "config/tail_formula_profit_rule_search_evaluation.json": "78de363a5cc9f90f82ea658303188d8198a7a047827d63d604b012cfb70994c3",
-    "config/tail_formula_robust_profit_rule_search_protocol.json": "f07e8be397f47d87e3a0cdef57085280214a2a4229171537bfb1f27e90c9f252",
-    "config/tail_formula_robust_profit_rule_search_execution.json": "16173bf133aa74fcc76f55e1837df53f32b5c291cc68c98ea7640170b4d06e4b",
     "data/research/research_method_sources_20261002/overnight_scope_followup.json": "ce84e574cb458c9c389a1419d8dba193c137fb6f8d12b0604f735a9619c3873d",
-    "config/tail_formula_robust_profit_rule_search_evaluation.json": "b14518a254216ce4902ba367e78742b837f1095ae97dc0a0125080a763db7a69",
     "data/research/tail_formula_robust_profit_rule_search/all_models_verified.json": "2f59ed9a579f0169f1353c80bc5559af88ebfb6bb60da0021309815fb1570f7a",
     "data/research/tail_formula_robust_profit_rule_search/joint_selection_freeze.json": "2a936580e6e308f999142b460e8cffa9214f6bb955006aaff1b341d9912d23d9",
     "data/research/tail_formula_robust_profit_rule_search/complete_results_manifest.json": "21f2d63a5d854ce88889a1509d3d575fc690e40ae7ca0ffbbe8121101f3033c3",
     "config/tail_formula_rule_persistence_protocol.json": "a0ec665e37a4e35fed71c305d288ab63ac3be27a111dc0eb4d9078a6eb3e79e9",
     "config/tail_formula_rule_persistence_execution.json": "6f7e3f29cdba6359f157d085528dd8256941e3cc299260ec35f7eef49996a880",
-    "data/research/tail_formula_rule_persistence/prior_scope_lookup.json": "4bc23c313b680316145a9402ce30e93d25f1f062f1eb4f89f3a2c4571e85e2a0"
+    "data/research/tail_formula_rule_persistence/prior_scope_lookup.json": "4bc23c313b680316145a9402ce30e93d25f1f062f1eb4f89f3a2c4571e85e2a0",
+    "config/tail_formula_rule_persistence_evaluation.json": "88c742f4665caa37c0d2cca4954ee4174ebe5c7a07bc78169c7e732622b3ec7d",
+    "data/research/tail_formula_rule_persistence/all_models_verified.json": "9b68b08c610fcd11ad865053e6a2829c855111fe10937fcf9fe3e59689dfe003",
+    "data/research/tail_formula_rule_persistence/joint_selection_freeze.json": "53ea301a4eca8532e1ccd233b1e2a4ca6d7074201663bfb4c32fa9690544d389",
+    "data/research/tail_formula_rule_persistence/complete_results_manifest.json": "b0577138ceca3047bd59a47836a7f9497876fdf332cedb518d1e3142981ee305",
+    "data/research/research_method_sources_20261002/search_selection_bias_review.json": "73367c9455b436ae045731ccdb808fdbf3d9759dca549cbee046a1b139cc570a"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -273,12 +273,13 @@
     "data/research/tail_formula_robust_profit_rule_search/prior_cleaned_runtime.json": "1531aa19f09ca79f74c5698dd1db2c697f8f02206141b95836bf87fc9510f619",
     "data/research/tail_formula_robust_profit_rule_search/prior_archive_runtime.json": "056111801e2ce19c85f7d7004e114ced33c31578bda31672cc3756a187642b4c",
     "data/research/tail_formula_robust_profit_rule_search/prior_fit_runtime.json": "c88c09d56798164175be549ef40ca173a903740cda8e9bd7ecd0e7b390c3e93b",
-    "data/research/tail_formula_rule_persistence/prior_runtime.json": "87d1ba8b1c98490955e9e9c455467fd0ba358d855150d8c6a5788fb1d29f74e8"
+    "data/research/tail_formula_rule_persistence/prior_runtime.json": "87d1ba8b1c98490955e9e9c455467fd0ba358d855150d8c6a5788fb1d29f74e8",
+    "data/research/tail_formula_rule_persistence/prior_binding_runtime.json": "04ffca62f2f01d7f04c447534eb4336ed217f8ad2bbe68bdae422b2133f04a8a"
   },
-  "previous_completed_study_revision": "bc0c97d",
-  "current_study": "tail_formula_rule_persistence_binding",
+  "previous_completed_study_revision": "e13a9b5",
+  "current_study": "tail_formula_rule_persistence_complete",
   "research_definition_changed": true,
-  "rationale": "不新增拟合或金融信号，只检验既有三条件跨期继续使用；完整范围和四组绑定先固定，名单共同提交后才评价。",
+  "rationale": "既有三条件延续使用完整失败，H2参考在5/15基点都负；下一项只检验搜索段与一次校验段隔离。旧时间选轮数已读，不冒称时间校验新方法。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -597,6 +598,21 @@
     },
     "scripts/finish_tail_formula_profit_rule_search.py": {
       "c88b9c483ca2f763365f1118e853c6f8ea15a63b3e4ef2cb122c5d3e498cdf59": "bc0c97d"
+    },
+    "scripts/run_tail_formula_robust_profit_rule_search.py": {
+      "902b7a75dcfe94c09974e99177d2ed18ed8f771fe03606622b8bf6b26f2e68a0": "e13a9b5"
+    },
+    "scripts/finish_tail_formula_robust_profit_rule_search.py": {
+      "25c7919b76e3464ce2486e09ca453438efce568246998174cd7902a07ec133a8": "e13a9b5"
+    },
+    "config/tail_formula_robust_profit_rule_search_protocol.json": {
+      "f07e8be397f47d87e3a0cdef57085280214a2a4229171537bfb1f27e90c9f252": "e13a9b5"
+    },
+    "config/tail_formula_robust_profit_rule_search_execution.json": {
+      "16173bf133aa74fcc76f55e1837df53f32b5c291cc68c98ea7640170b4d06e4b": "e13a9b5"
+    },
+    "config/tail_formula_robust_profit_rule_search_evaluation.json": {
+      "b14518a254216ce4902ba367e78742b837f1095ae97dc0a0125080a763db7a69": "e13a9b5"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -610,6 +626,10 @@
     "additional_retired_files": 8,
     "completed_robust_fits": 4,
     "completed_robust_comparisons": 8,
-    "completed_robust_source_fingerprints": 115
+    "completed_robust_source_fingerprints": 115,
+    "completed_rule_persistence_new_fits": 0,
+    "completed_rule_persistence_comparisons": 10,
+    "completed_rule_persistence_source_fingerprints": 133,
+    "additional_robust_retired_files": 5
   }
 }
