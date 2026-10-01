@@ -77,9 +77,9 @@ def prepare():
     con = base.conn()
     con.register('raw', pd.concat(labels, ignore_index=True))
     sql = con.sql('''SELECT date,code,next_date,
-        known15 AND isfinite(mark_0959_return15) AND mark_0959_return15>-1
+        coalesce(known15 AND isfinite(mark_0959_return15) AND mark_0959_return15>-1
             AND isfinite(day_close) AND day_close>0 AND isfinite(price_0959)
-            AND price_0959>0 AND source_valid_0959 AS target_valid,
+            AND price_0959>0 AND source_valid_0959,false) AS target_valid,
         CASE WHEN target_valid THEN 100*ln(1+mark_0959_return15) END AS net,
         CASE WHEN target_valid THEN 100*ln(price_0959/day_close) END AS after_close,
         net-after_close AS tail_with_cost FROM raw ORDER BY date,code''').df()
