@@ -1,0 +1,21 @@
+{
+  "input_protocol_sha256": "faaed8e71d1643887a9c14c4f5416f1268e0e0f2db661d0fc7017e7a657d19f1",
+  "source_hashes": {
+    "config/tail_formula_external_pattern_protocol.json": "faaed8e71d1643887a9c14c4f5416f1268e0e0f2db661d0fc7017e7a657d19f1",
+    "scripts/finish_tail_formula_external_pattern.py": "5edb619b47736f86754241e8025fb634d44e449a5ae10baab59baf2a011649b3",
+    "scripts/run_tail_formula_external_pattern.py": "f78bc5d4adb9d1f9aa13579f2b1634c4be7e4b53987ffdc4340f3b5f72ae16bf",
+    "src/trade_research/tail_formula_external_pattern.py": "e9d2b9ea5f97361d4f921d1d23d7f1e66023c7b622109385db1bc1a8b849eb90",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "data/research/tail_formula_external_pattern/source_gate.json": "14c933497dc1af08056587e081c3f43fbf5e6984cde2c850b34cb740a49b2c3f",
+    "data/research/tail_formula_external_pattern/prefix_features.parquet": "170961615cc7a301f10b3f7e016460af46e7c37af0650c63123aa67fad59936d",
+    "data/research/tail_formula_external_pattern/prefix_summary.parquet": "60537a0f2699419a476f3b9b7bfd65cc9725b3eb1137cbf1047bcdd3cc7bbcb5",
+    "data/research/tail_formula_phase_split/prior_comparison_receipts_verified.json": "7b2be2990eda68dbc69f84e255af2b1eca6194f40dc5f2aa99d77f3ba12243a3"
+  },
+  "source_gate_sha256": "14c933497dc1af08056587e081c3f43fbf5e6984cde2c850b34cb740a49b2c3f",
+  "new_fits": 0,
+  "all_annual_lists_before_outcomes": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
