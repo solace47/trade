@@ -4,7 +4,7 @@ import numpy as np
 from .tail_formula_rule_search import masks
 
 
-def statistics(selected, date_ids, half_ids, known, success, reference_known, reference):
+def statistics(selected, date_ids, half_ids, known, success, reference_known, reference, robust=False):
     n = len(half_ids)
     count = np.bincount(date_ids[selected], minlength=n)
     identified = np.bincount(date_ids[selected & known], minlength=n)
@@ -21,6 +21,11 @@ def statistics(selected, date_ids, half_ids, known, success, reference_known, re
             lower=float(np.mean(good[signal_days]/count[signal_days])) if signal_days.any() else None,
             reference_days=int(price_days.sum()), reference_rows=int(prices[price_days].sum()),
             reference=float(np.mean(totals[price_days]/prices[price_days])) if price_days.any() else None))
+        if robust:
+            values = totals[price_days]/prices[price_days]
+            result[-1].update(reference_median=float(np.median(values)) if len(values) else None,
+                reference_clipped=float(np.mean(np.clip(values,-.03,.03))) if len(values) else None,
+                positive_reference_fraction=float(np.mean(values>0)) if len(values) else None)
     return result
 
 
@@ -32,10 +37,14 @@ def supported(halves, protocol):
 
 
 def qualifies(halves):
-    return all(h['reference'] is not None and h['reference'] > 0 and h['lower'] > .5 for h in halves)
+    return all(h['reference'] is not None and h['reference'] > 0 and h['lower'] > .5
+        and ('reference_median' not in h or (h['reference_median']>0 and h['reference_clipped']>0
+             and h['positive_reference_fraction']>.5)) for h in halves)
 
 
 def ranking(record):
+    if 'robust_ranks' in record:
+        return (*(-n for n in record['robust_ranks']),sum(h['rows'] for h in record['halves']),record['conditions'])
     return (-record['minimum_integer'], -record['mean_integer'],
             sum(h['rows'] for h in record['halves']), record['conditions'])
 
@@ -55,7 +64,8 @@ def learn(x, atoms, date_ids, half_ids, known, success, reference_known, referen
                 if conditions in seen:
                     continue
                 seen.add(conditions)
-                halves = statistics(parent_flag & flag, date_ids, half_ids, known, success, reference_known, reference)
+                halves = statistics(parent_flag & flag, date_ids, half_ids, known, success, reference_known, reference,
+                                    robust=protocol.get('robust_objective',False))
                 record = dict(depth=depth, conditions=conditions, eligible=supported(halves, protocol), halves=halves)
                 trace.append(record)
                 if not record['eligible']:
@@ -64,6 +74,11 @@ def learn(x, atoms, date_ids, half_ids, known, success, reference_known, referen
                 scale = protocol['objective_integer_scale']
                 record.update(minimum_integer=int(np.floor(min(values)*scale+.5)),
                               mean_integer=int(np.floor(np.mean(values)*scale+.5)))
+                if protocol.get('robust_objective',False):
+                    median = [h['reference_median'] for h in halves]
+                    clipped = [h['reference_clipped'] for h in halves]
+                    record['robust_ranks'] = [int(np.floor(v*scale+.5)) for v in
+                        [min(median),np.mean(median),min(clipped),np.mean(clipped)]]
                 layer.append(record)
                 if qualifies(halves) and (chosen is None or ranking(record) < ranking(chosen)):
                     chosen = record

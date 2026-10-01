@@ -31,3 +31,18 @@ def test_search_can_expand_parent_that_fails_final_opportunity_gate():
     assert chosen['conditions'] == ((0, 1, 0), (1, 1, 0))
     assert all(h['lower'] == .5 for r in trace if r['depth'] == 1 for h in r['halves'])
     assert all(h['reference'] == .03 and h['lower'] == 1 for h in chosen['halves'])
+
+
+def test_robust_variant_rejects_positive_mean_supported_by_rare_jumps():
+    x=np.tile([[1],[0]],(30,1))
+    dates=np.repeat(np.arange(30),2)
+    halves=np.repeat([0,1],15)
+    known=np.ones(len(x),dtype=bool)
+    reference=np.full(len(x),-.001)
+    reference[[0,30]]=.12
+    atoms=[(0,1,0)]
+    _,_,mean_choice=learn(x,atoms,dates,halves,known,known,known,reference,protocol())
+    _,_,robust_choice=learn(x,atoms,dates,halves,known,known,known,reference,
+                          dict(protocol(),robust_objective=True))
+    assert mean_choice is not None
+    assert robust_choice is None

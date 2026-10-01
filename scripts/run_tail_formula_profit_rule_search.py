@@ -34,6 +34,8 @@ def checked():
 def independent_audit(con, atoms, trace, best, chosen, p, fold):
     seen, beam, rebuilt_best, rebuilt_chosen, examined = set(), [], None, None, 0
     def rank(r):
+        if 'robust_ranks' in r:
+            return (*(-n for n in r['robust_ranks']),sum(h['rows'] for h in r['halves']),r['conditions'])
         return (-r['minimum_integer'], -r['mean_integer'], sum(h['rows'] for h in r['halves']), r['conditions'])
     for depth in range(1, p['max_conditions'] + 1):
         expected = set()
@@ -57,21 +59,28 @@ def independent_audit(con, atoms, trace, best, chosen, p, fold):
                 SELECT (date>='{fold['split']}')::INT AS half,count(*) AS days,sum(rows) AS rows,
                 sum(known) AS known,sum(success) AS success,avg(success*1.0/rows) AS lower,
                 count(reference) AS reference_days,sum(reference_rows) AS reference_rows,
-                avg(reference) AS reference FROM daily GROUP BY half ORDER BY half''').df()
+                avg(reference) AS reference,median(reference) AS reference_median,
+                avg(least(greatest(reference,-.03),.03)) FILTER(WHERE reference IS NOT NULL) AS reference_clipped,
+                avg((reference>0)::INT) AS positive_reference_fraction FROM daily GROUP BY half ORDER BY half''').df()
             halves = []
             for half in [0, 1]:
                 row = table.loc[table.half.eq(half)]
                 h = dict(days=0, rows=0, known=0, success=0, lower=None,
                          reference_days=0, reference_rows=0, reference=None)
+                if p.get('robust_objective',False):
+                    h.update(reference_median=None,reference_clipped=None,positive_reference_fraction=None)
                 if not row.empty:
                     row = row.iloc[0]
                     for name in ['days', 'rows', 'known', 'success', 'reference_days', 'reference_rows']:
                         h[name] = int(row[name])
                     h['lower'] = float(row['lower'])
                     h['reference'] = float(row.reference) if pd.notna(row.reference) else None
+                    if p.get('robust_objective',False):
+                        for name in ['reference_median','reference_clipped','positive_reference_fraction']:
+                            h[name] = float(row[name]) if pd.notna(row[name]) else None
                 target = record['halves'][half]
                 for name in h:
-                    if name in ['lower', 'reference']:
+                    if name in ['lower','reference','reference_median','reference_clipped','positive_reference_fraction']:
                         assert (h[name] is None) == (target[name] is None)
                         if h[name] is not None:
                             assert abs(h[name] - target[name]) <= 2e-12
@@ -90,8 +99,15 @@ def independent_audit(con, atoms, trace, best, chosen, p, fold):
                     minimum_integer=int(math.floor(min(values)*scale+.5)),
                     mean_integer=int(math.floor(math.fsum(values)/2*scale+.5)))
                 assert (item['minimum_integer'], item['mean_integer']) == (record['minimum_integer'], record['mean_integer'])
+                if p.get('robust_objective',False):
+                    medians=[h['reference_median'] for h in halves]
+                    clipped=[h['reference_clipped'] for h in halves]
+                    item['robust_ranks']=[int(math.floor(v*scale+.5)) for v in
+                        [min(medians),math.fsum(medians)/2,min(clipped),math.fsum(clipped)/2]]
+                    assert item['robust_ranks']==record['robust_ranks']
                 layer.append(item)
-                if all(h['reference'] > 0 and h['lower'] > .5 for h in halves):
+                if all(h['reference']>0 and h['lower']>.5 and (not p.get('robust_objective',False)
+                    or (h['reference_median']>0 and h['reference_clipped']>0 and h['positive_reference_fraction']>.5)) for h in halves):
                     if rebuilt_chosen is None or rank(item) < rank(rebuilt_chosen):
                         rebuilt_chosen = item
             examined += 1
@@ -158,7 +174,8 @@ def fit_all():
         con.close()
         save_json(root/'search_trace.json',trace)
         report = dict(protocol_sha256=sha(PROTOCOL),execution_protocol_sha256=sha(EXECUTION),
-            variant='profit_directed_same_atomic_condition_search',fold=fold,feature_names=p['feature_names'],
+            variant='robust_profit_same_atomic_condition_search' if p.get('robust_objective',False)
+                else 'profit_directed_same_atomic_condition_search',fold=fold,feature_names=p['feature_names'],
             rows=len(train),days=len(dates),mature_known=int(known.sum()),mature_reference=int(reference_known.sum()),
             last_observation=str(label.loc[known,'next_date'].max()),atoms=atoms,
             original_model_report_sha256=sha(prior/'model_report.json'),best_training_rule=best,chosen_rule=chosen,
