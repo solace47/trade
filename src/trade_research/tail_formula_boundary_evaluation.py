@@ -8,7 +8,7 @@ from .research_io import save_json, sha
 from tail_formula_statistics import weekly_interval
 
 source = SimpleNamespace(ROOT=Path('data/research/tail_formula_before1000'),
-                         PROTOCOL=Path('config/tail_formula_etf_quantity_model_protocol.json'))
+                         PROTOCOL=Path('config/tail_formula_intraday_scale_model_protocol.json'))
 METRICS = ['rate','lower','upper','one_percent_rate','any_rate',
            'mean_reference','negative_reference','adverse_mean','bad3']
 PERIODS = ['2024H1','2024H2','2025H1','2025H2','2024','2025']

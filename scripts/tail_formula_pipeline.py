@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import numpy as np
 import pandas as pd
-from trade_research import tail_formula_retained_interval as study
+from trade_research import tail_formula_intraday_scale as study
 from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_relative as relative
 from trade_research import tail_formula_boundary_evaluation as evaluation
@@ -25,6 +25,11 @@ ARMS = {'control': study.CONTROL, 'memory': study.EXPRESSIONS}
 
 
 KEYS = study.META[:-1]
+
+
+def changed_nodes(model):
+    positions = {i for i,name in enumerate(model['feature_names']) if name not in study.CONTROL}
+    return sum(v in positions for tree in model['trees'] for v in tree['feature'])
 
 
 def checked():
@@ -151,7 +156,7 @@ def fit(arm,fold):
     relative.verify_model('relative')
     base.scores(); verify_scores(expected_expressions=ARMS[arm])
     return dict(arm=arm,fold=fold,reused=reused,rows=m['rows'],days=m['days'],last_observation=m['last_observation'],
-        new_feature_nodes=sum(v >= 50 for t in m['trees'] for v in t['feature']) if arm=='memory' else 0)
+        changed_input_nodes=changed_nodes(m) if arm=='memory' else 0)
 
 
 def freeze():
@@ -191,7 +196,7 @@ def freeze():
             models.append(dict(arm=arm,fold=fold,new_fit=not m.get('no_model_fit_performed',False),
                 rows=m['rows'],days=m['days'],last_observation=m['last_observation'],
                 selected=int(values.sum()),signal_days=d.loc[values,'date'].nunique(),
-                new_feature_nodes=sum(v >= 50 for t in m['trees'] for v in t['feature']) if arm=='memory' else 0))
+                changed_input_nodes=changed_nodes(m) if arm=='memory' else 0))
             for file in ['model_report.json','model_verification.json','score_report.json','score_verification.json','scores.parquet','frozen_numeric_core.tdx']:
                 receipts[str(root / file)] = sha(root / file)
             receipts[str(base.PROTOCOL)] = sha(base.PROTOCOL)

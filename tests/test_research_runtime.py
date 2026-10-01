@@ -23,3 +23,13 @@ def test_runtime_rejects_changed_code_or_existing_input(tmp_path, monkeypatch, f
     changed.write_bytes(b'changed')
     with pytest.raises(AssertionError, match=file_name):
         research_io.check_runtime(committed=False)
+
+
+def test_retired_source_requires_its_exact_digest_and_revision(tmp_path,monkeypatch):
+    runtime=tmp_path/'runtime.json';runtime.write_text(json.dumps(dict(historical_source_paths=[],
+        additional_archived_sources={'retired.py':{'correct':'fixed-commit'}})))
+    monkeypatch.setattr(research_io,'RUNTIME',runtime)
+    monkeypatch.setattr(research_io,'archived_sha',lambda revision,file:'correct' if revision=='fixed-commit' else 'other')
+    research_io.check_sources({'retired.py':'correct'})
+    with pytest.raises(AssertionError,match='retired.py'):
+        research_io.check_sources({'retired.py':'wrong'})

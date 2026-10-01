@@ -29,9 +29,10 @@ def check_sources(sources):
         if Path(file).exists() and sha(Path(file)) == digest:
             continue
         if file in runtime['historical_source_paths']:
-            assert archived_sha(runtime['archive_revision'], file) == digest, file
-        else:
-            raise AssertionError(file)
+            if archived_sha(runtime['archive_revision'], file) == digest:
+                continue
+        revision = runtime.get('additional_archived_sources', {}).get(file, {}).get(digest)
+        assert revision is not None and archived_sha(revision, file) == digest, file
 
 
 def check_runtime(*, committed=True):

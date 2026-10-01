@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-当前研究只从[唯一入口](../scripts/run_tail_formula_retained_interval.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
+当前拟合研究只从[唯一入口](../scripts/run_tail_formula_intraday_scale.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
 
 ```sh
 python3.12 -m venv .venv
@@ -11,7 +11,7 @@ python3.12 -m venv .venv
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_retained_interval.py --help
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_intraday_scale.py --help
 PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io import check_runtime; check_runtime()'
 ```
 
@@ -19,9 +19,9 @@ PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io impo
 
 ## 当前产物与阶段
 
-原始日线及分钟在`data/baostock/`、`data/hf/`。当前区间结构产物将写入`data/research/tail_formula_retained_interval/inputs/`，2024／2025尾段窗口复用`tail_formula_minute_pressure/parts/`，2023未缓存尾段在实际协议提交后提取。原50源为`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签不可混用。数据及机器产物由Git忽略。
+原始日线及分钟在`data/baostock/`、`data/hf/`。当前日内尺度产物写入`data/research/tail_formula_intraday_scale/inputs/`；只从固定日线原件重建此前20日日内均幅，原50源与训练标签精确复用。7列训练标签与69列经济标签不可混用。已结束区间方案及参考价审计的原件／收据仍在data，源码可取Git `884391c`；数据及机器产物由Git忽略。
 
-`prepare`、`protocols`已完成且不得覆盖；四折`fit`与`freeze`也已完成，`analyze`与`finish`也已完成，不得重复拟合或评价。下一步只准备限价余量来源审计，实际协议提交前不生成其新输入。控制只能精确复用，最多四个新模型。`freeze`后先提交联合SHA，才可`analyze`及`finish`，已完成阶段不可覆盖。
+当前日内尺度尚未执行`prepare`。实际协议提交后依次运行`prepare`、`protocols`；核准输入并提交八份分折协议后再`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用，最多四个新模型。全部折完成后`freeze`，先提交联合SHA，再运行`analyze`及`finish`；已完成阶段不可覆盖或重复拟合。
 
 [运行协议](../config/research-runtime.json)同时保留首次清理协议的原字节收据和当前研究绑定。ETF量级研究已完整失败，其最后源码／配置在Git `6bfed42`，完整产物仍在`data/research/tail_formula_etf_quantity/`；不得重复拟合或评价。
 
