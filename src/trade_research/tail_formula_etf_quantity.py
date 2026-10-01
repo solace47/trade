@@ -122,7 +122,7 @@ def prepare():
             np.testing.assert_array_equal(block.timestamp.dt.hour*100+block.timestamp.dt.minute,timing.WINDOW_CLOCKS)
         dates=group.size().index.to_numpy();v=raw.volume.to_numpy(float).reshape(len(dates),228)
         total=v.sum(axis=1);good=(np.isfinite(v)&(v>=0)).all(axis=1)
-        mean=pd.Series(total).shift(1).rolling(20,min_periods=20).mean().to_numpy()
+        mean=pd.Series(total).shift(1).rolling(20,min_periods=20).mean().to_numpy(copy=True)
         history_good=pd.Series(good.astype(int)).shift(1).rolling(20,min_periods=20).sum().eq(20).to_numpy()
         mean[~history_good]=np.nan
         valid=good & history_good

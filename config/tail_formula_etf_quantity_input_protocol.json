@@ -57,7 +57,7 @@
     "data/research/independent_signal_source_probe/etf_quantity_time_audit.json": "432116746768b3b241973eef980a7e989248664d280ecab48bcd26eb631638d6",
     "data/research/independent_signal_source_probe/tdx_quantity_history_functions_exact.json": "24ce1eecde808d5e4c0ebe1c93806d8d99387f5755cebc4dcb4d669ab368f0e4",
     "config/tail_formula_etf_quantity_intent.json": "427810fcbd1a9a20dbf074a8174c0e34b0e6870a04378514f847f6bdbf2ae104",
-    "src/trade_research/tail_formula_etf_quantity.py": "3fe071d0ed3009c51286f8acf97efcd8d95bbfa21cc03e8d4a6b8af559752f25",
+    "src/trade_research/tail_formula_etf_quantity.py": "cadffee5d370b9e54133975682328b67ec74a9b9472c7d5782f51988b2bf4845",
     "scripts/run_tail_formula_etf_quantity.py": "914f9fc7d0d182712f0a7ec0108ee97de92d05666356dc5f9562534ed5a4b87a",
     "tests/test_tail_formula_etf_quantity.py": "c6809137caa2c4b6be34e5c8e99527d75775dacf8058a7d745f0480a02e25c98",
     "data/research/tail_formula_etf_activity/complete_results_manifest.json": "febc29c45990e5ab661e99d47104e6f1e6eb9a774c015777dd6c08c63d2a4604",
@@ -788,5 +788,16 @@
   "no_exit_rules": true,
   "no_publish_claim": true,
   "history_dates": 20,
-  "original_T0_previously_exposed": true
+  "original_T0_previously_exposed": true,
+  "execution_repair": {
+    "reason": "只复制Pandas只读均量数组，数学／窗口／参数均不变",
+    "initial_versions": {
+      "input": "feb5abdeb9f0da90dff02c4bde65517fd91a4dcd37c5829407b93bf749d3631a",
+      "model": "919899298880a07b3db67197948d347e34ae90ef18840db45be0d4b194f372cf",
+      "source": "3fe071d0ed3009c51286f8acf97efcd8d95bbfa21cc03e8d4a6b8af559752f25"
+    },
+    "initial_failure_receipt_sha256": "95db9dd60194f12c90ac49f5a903300365703a8781f679bac136294946844c6a",
+    "raw_warm_volume_and_M20_already_reached_before_failure": true,
+    "no_feature_outputs_or_models_or_economics_before_repair": true
+  }
 }
