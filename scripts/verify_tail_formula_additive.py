@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 from trade_research.research_io import save_json, sha
 
-ROOT = Path('data/research/tail_formula_minute_open')
+ROOT = Path('data/research/tail_formula_emotion_transition')
 FEATURES = SOURCE = ROOT / 'inputs'
-PROTOCOL = Path('config/tail_formula_minute_open_model_protocol.json')
+PROTOCOL = Path('config/tail_formula_emotion_transition_model_protocol.json')
 
 def load(name):
     return json.loads((ROOT/name).read_text())

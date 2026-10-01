@@ -9,8 +9,8 @@ from trade_research import tail_formula_boundary_evaluation as evaluation
 from trade_research.research_io import save_json, sha
 from tail_formula_reports import checked_selection, checked_analysis
 
-PROTOCOL = Path('config/tail_formula_minute_open_model_protocol.json')
-inputs = SimpleNamespace(ROOT=Path('data/research/tail_formula_minute_open'))
+PROTOCOL = Path('config/tail_formula_emotion_transition_model_protocol.json')
+inputs = SimpleNamespace(ROOT=Path('data/research/tail_formula_emotion_transition'))
 
 def checked_joint():
     raise RuntimeError('Bind the current study and joint receipt before analysis')

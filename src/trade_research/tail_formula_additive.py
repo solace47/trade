@@ -8,8 +8,8 @@ from .research_io import save_json, sha
 from .tail_formula_baseline import INPUTS as FEATURES, EXPRESSIONS, HEADER
 
 SOURCE = FEATURES
-ROOT = Path('data/research/tail_formula_minute_open')
-PROTOCOL = Path('config/tail_formula_minute_open_model_protocol.json')
+ROOT = Path('data/research/tail_formula_emotion_transition')
+PROTOCOL = Path('config/tail_formula_emotion_transition_model_protocol.json')
 QUANTILES = [.97,.98,.99,.995,.998,.999,.9995]
 
 def conn():

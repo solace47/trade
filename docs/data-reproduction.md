@@ -1,37 +1,15 @@
 # 当前环境与复算
 
-当前拟合研究只从[唯一入口](../scripts/run_tail_formula_minute_open.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
-
-```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-```
-
-已有环境无需重装。基础检查：
+当前只从[唯一入口](../scripts/run_tail_formula_emotion_transition.py)运行市场情绪来源核准。仓库根目录已有Python 3.12虚拟环境；依赖版本见`requirements.txt`，已有环境无需重装。
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_minute_open.py --help
-PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io import check_runtime; check_runtime()'
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_emotion_transition.py --help
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_emotion_transition.py source-audit
 ```
 
-最后一项只读核对当前固定源码、配置和已有输入指纹，不拟合或生成新结果。旧控制的完整训练值、目标、权重和评分在四折复用阶段核准。
+来源协议及运行指纹先提交，再核准原日线状态和筛选前价格缓存。输出在`data/research/tail_formula_emotion_transition/`；该阶段不能拟合或读新分组经济结果。完成产物禁止覆盖或重做。来源门通过后另提交实际输入和模型协议。
 
-## 当前产物与阶段
+原始日线／分钟保留在`data/baostock/`和`data/hf/`，全部旧结果与查重缓存在忽略的`data/research/`。分钟开价代码／协议从Git `ceca953`取回，日内均幅取`46004ad`，ETF总量取`6bfed42`，尾段区间取`884391c`。这些实验已完整失败；不要再拟合或评价。
 
-原始日线及分钟在`data/baostock/`、`data/hf/`。当前开价分拆产物写入`data/research/tail_formula_minute_open/inputs/`；来源指纹覆盖3,223个原件与99份旧尾段缓存，原50项和7列训练标签精确复用。69列经济标签不用于训练。已结束日内均幅源码／协议可取Git `46004ad`，原件与结果仍在data。
-
-分钟开价分拆已完整完成并失败，以下流程只说明已固定的阶段，不得重复运行。输入核准和八份分折协议先于`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只精确复用，最多四新模型。全部折后`freeze`，先提交联合SHA，再`analyze`及`finish`。全部完成阶段已保存，四项条件均失败；市场情绪先按已提交意向核准来源，尚未授权新模型拟合。
-
-[运行协议](../config/research-runtime.json)同时保留首次清理协议的原字节收据和当前研究绑定。ETF量级研究已完整失败，其最后源码／配置在Git `6bfed42`，完整产物仍在`data/research/tail_formula_etf_quantity/`；不得重复拟合或评价。
-
-## 历史复算
-
-清理前版本由运行协议的`archive_revision`指明，也记录于[当前方案](selection-formula.md)。旧实验代码、配置和详细记录从该版本读取：
-
-```sh
-git show 4b3bdda:docs/selection-formula.md
-git show 4b3bdda:scripts/run_tail_formula_volume_memory.py
-```
-
-历史脚本应在对应版本的独立检出中复算，不能混入当前运行目录或覆盖已核验产物。原始行情、完成收据和查重缓存仍保留；旧14:50快照、10:00窗口及多日持有结果不替代当前边界。
+清理前完整源码和详细记录取`4b3bdda5db6470df4d8d61298501852f60b985a2`，历史复算在对应版本独立检出中进行。旧14:50快照、10:00窗口、多日持有和月度回购结果不替代当前边界。运行协议保留历次原字节收据与确切归档版本，仅精确一致的完整训练值、目标、权重、名单、元数据和统计才可复用。

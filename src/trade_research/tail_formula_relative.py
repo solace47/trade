@@ -7,7 +7,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from . import tail_formula_additive as base
 from .research_io import save_json, sha
 
-PROTOCOL = Path('config/tail_formula_minute_open_model_protocol.json')
+PROTOCOL = Path('config/tail_formula_emotion_transition_model_protocol.json')
 
 def training_scope():
     from datetime import date
