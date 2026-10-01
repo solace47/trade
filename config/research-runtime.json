@@ -37,15 +37,16 @@
     "src/trade_research/tail_formula_additive.py": "2042397f01b6be2035df782403996568a45c21ae09806d687fb3ec4944be94e6",
     "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
     "src/trade_research/tail_formula_boundary_evaluation.py": "7691d33156261a97bde9c5ce0f13e07d626a09c0374b32325b0b7186851ba869",
-    "src/trade_research/tail_formula_emotion_transition.py": "e5f1fc4a926e3d93bc191ffb851af331c6e6f72e80b44bf578eeb8de82764ddf",
+    "src/trade_research/tail_formula_emotion_transition.py": "5b562078b8f0640293a3e7e8f49538f5699a0826d8352f35f817a2f0d89929bc",
     "src/trade_research/tail_formula_relative.py": "2ec686c90d3b7a3cc504a73e0d70d4f0ee4568b3ff1e394392243d509d6a4913",
     "scripts/audit_tail_formula_price_reference.py": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
     "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
     "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
     "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
     "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
-    "scripts/run_tail_formula_emotion_transition.py": "07fe3ff65f6ea7cb496f05957760d6b7fe290b69dbfac78ab8255be7fa941d1e",
+    "scripts/run_tail_formula_emotion_transition.py": "f27728a1a585bb009fa9188b51b3e15b2e896c68519570a1084c80c57f0c26cf",
     "scripts/tail_formula_analysis_reuse.py": "47ee6e77fefa7a904ae52db05e9ebf2c579c873512314292eccd9006ae816447",
+    "scripts/tail_formula_pipeline.py": "835ad08418b9582db3829f8aa51767ab71d724563dccc888ca17d98741dd7fb6",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
     "scripts/verify_tail_formula_additive.py": "54960df1fe4fa8446168131468031b9b17da89496925e072312ff61cfba59117",
@@ -58,7 +59,9 @@
     "tests/test_tail_formula_sql_names.py": "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035",
     "config/formula_exclusions.json": "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535",
     "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "config/tail_formula_emotion_transition_input_protocol.json": "229a8786360f1f7de8461587870cec1f1a6442d96ca67f747b270cd2b0a225ac",
     "config/tail_formula_emotion_transition_intent.json": "335535bc335e9da73f7ac85da9067a7e78368dd7acd142087b6991b1fe798d93",
+    "config/tail_formula_emotion_transition_model_protocol.json": "66fa2c0d340cfa23a2df1f2a28412380b1cff24c73092afac2f3af367a42e2f0",
     "config/tail_formula_emotion_transition_source_protocol.json": "2cd84813c1ddbd65812b8612337b58996104160f87946c2101c0609c55766f57",
     "config/tail_formula_headroom_intent.json": "c659b60f1dcca5125536d4981fadc58c25618d15ec558a64b2fc337e131d9689",
     "config/tail_formula_price_reference_audit.json": "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe"
@@ -184,19 +187,24 @@
     "data/research/emotion_transition_source_inventory.json": "4e7a1fa827fff1ddff9860004ea006875712d716023119fd9d4cf278f3dcf4b7",
     "data/research/tail_formula_minute_open/complete_results_manifest.json": "69762093c96971f87a8eccc144312087e93bd7d52c896fd12c814c0619b2bd3b",
     "data/research/tail_formula_minute_open/memory_gate.json": "0d9bc7f36ecf2d90fe24c09b4d60a632ef64364c7fd9cc46011f6f375d30fdc9",
-    "data/research/tail_formula_minute_open/joint_selection_freeze.json": "d43a2580e7d34f831a73d5a747008adde31f2a2a3483bd57f03b36d4488fa671"
+    "data/research/tail_formula_minute_open/joint_selection_freeze.json": "d43a2580e7d34f831a73d5a747008adde31f2a2a3483bd57f03b36d4488fa671",
+    "data/research/cleanup_runtime_emotion_source_complete.json": "f6c4a2a93d2d26659aec75d3d8487c24d2d9bd8844fd4386eff78943a2f44e10",
+    "data/research/tail_formula_emotion_transition/source_gate.json": "8a1ac98175ff2405a3b0ec631e6aed046ec37dbcdf8aa93b279dfa814b72646c",
+    "data/research/tail_formula_emotion_transition/source_members.parquet": "1fcad5e50f509f2cf44a4ed0330bb74676988d1ae9ffe45cdc6b94a576751d7b",
+    "data/research/tail_formula_emotion_transition/source_dates.parquet": "0cf1ae98b15078e39d57ad2a4212922b32940d8e09f7de30e53b6cb4b7bdc00b"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
     "data/research/cleanup_runtime_retained_interval.json": "038f59e57e596dd17a75bfb3637902f1457de6f3993d2e8cbb59a200fab6c3b2",
     "data/research/cleanup_runtime_intraday_scale_initial.json": "75c1e3d6387fc92399efcfb3461c4ee59680462b3ba81f5f6d61ff53e781fbe5",
     "data/research/cleanup_runtime_intraday_scale_complete.json": "1b7a118596e0113975ecd6d78f2d7c7446a5d725831e1fc5f841b7ccd2e5d220",
-    "data/research/cleanup_runtime_minute_open_complete.json": "e6ec9ad21c27dd1761f8b814d7a6d6a7116917d43706d808c5979726a56de64a"
+    "data/research/cleanup_runtime_minute_open_complete.json": "e6ec9ad21c27dd1761f8b814d7a6d6a7116917d43706d808c5979726a56de64a",
+    "data/research/cleanup_runtime_emotion_source_complete.json": "f6c4a2a93d2d26659aec75d3d8487c24d2d9bd8844fd4386eff78943a2f44e10"
   },
   "previous_completed_study_revision": "ceca953",
   "current_study": "tail_formula_emotion_transition",
   "research_definition_changed": true,
-  "rationale": "分钟开价完整失败后改为用户要求的市场情绪来源门；使用筛选前前缀和原日线状态，不能用旧可买股票池代替市场。源门阶段禁止新模型与分组经济结果。",
+  "rationale": "情绪来源门通过；先以不变相对目标检验两项新联合状态的增量，四控制精确复用，最多四新模型。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -204,10 +212,10 @@
       "f18d79f6c484f18045f661373d63356364757457c3ac7ea589f79567f230d4ea": "884391c"
     },
     "config/formula_exclusions.json": {
-      "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535": "ceca953"
+      "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535": "3213999"
     },
     "config/tail_formula_baseline.json": {
-      "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033": "ceca953"
+      "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033": "3213999"
     },
     "config/tail_formula_retained_interval_input_protocol.json": {
       "e2fc31c44da35a5f4fc9f44db9f4600ab50e2e0935d3d163801f5b5ec5c288f0": "884391c"
@@ -225,16 +233,16 @@
       "a18720c069f18e30ff8401697ebc3287b958198df98f511275169b36a8ab6633": "884391c"
     },
     "scripts/audit_tail_formula_reference_coverage.py": {
-      "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa": "ceca953"
+      "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa": "3213999"
     },
     "scripts/compare_tail_formula_same_dates.py": {
-      "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963": "ceca953"
+      "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963": "3213999"
     },
     "scripts/compare_tail_formula_shared_unknowns.py": {
-      "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139": "ceca953"
+      "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139": "3213999"
     },
     "scripts/find_existing_tail_formula_models.py": {
-      "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0": "ceca953"
+      "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0": "3213999"
     },
     "scripts/run_tail_formula_retained_interval.py": {
       "24dbfdca86a184fe77e1c6be3ddc237b28807450f512ee9dce4b714903e82e48": "884391c"
@@ -242,7 +250,8 @@
     "scripts/tail_formula_analysis_reuse.py": {
       "207f01e3f155ace5e88e0462e20af6aa0e47810d5ae048b951dbb404ecd6861c": "884391c",
       "3a265fd0f48ad0df70a9404b6526e2537719a0d68167cc010640368f27bc6f09": "46004ad",
-      "0f66976db722e64fea677d44d0cf55233043f616441e437aae8e1018bcc849c1": "ceca953"
+      "0f66976db722e64fea677d44d0cf55233043f616441e437aae8e1018bcc849c1": "ceca953",
+      "47ee6e77fefa7a904ae52db05e9ebf2c579c873512314292eccd9006ae816447": "3213999"
     },
     "scripts/tail_formula_pipeline.py": {
       "5fa64b3b3743645df15edcf8754a1ddbef3df1f454d4d3a7bddfb1f0708f218c": "884391c",
@@ -251,60 +260,64 @@
       "9c79657fa72e6716f66a7434f86cfad941dbab8359179032ce143011f0561587": "ceca953"
     },
     "scripts/tail_formula_reports.py": {
-      "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994": "ceca953"
+      "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994": "3213999"
     },
     "scripts/tail_formula_statistics.py": {
-      "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f": "ceca953"
+      "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f": "3213999"
     },
     "scripts/verify_tail_formula_additive.py": {
       "b84c74de27bbab0abb1628bb174b402f4142c486a5db89a05e9dcf737d3c909e": "5b40024",
       "70edb5505d896c66005ea061ec26c296be0a469d22b82ba16b282bf241c1cabb": "46004ad",
-      "6a9dd40d483787e54ad49942197323a7ab3818657c398d4d3a93d1946c01117c": "ceca953"
+      "6a9dd40d483787e54ad49942197323a7ab3818657c398d4d3a93d1946c01117c": "ceca953",
+      "54960df1fe4fa8446168131468031b9b17da89496925e072312ff61cfba59117": "3213999"
     },
     "scripts/verify_tail_formula_before1000.py": {
-      "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234": "ceca953"
+      "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234": "3213999"
     },
     "src/trade_research/__init__.py": {
-      "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54": "ceca953"
+      "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54": "3213999"
     },
     "src/trade_research/research_io.py": {
       "5696138ef93018d15ffb40eaff0b110daf722deea964c75c7139a52e01985968": "884391c",
       "d0abf85be017895ff4009dd491e61f52690404e8421f6b668500ca7c75067674": "5b40024",
-      "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79": "ceca953"
+      "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79": "3213999"
     },
     "src/trade_research/tail_formula_additive.py": {
       "45062c64b1186891a4c947b36613a05d66d346d8387ab9531b701171a982af57": "884391c",
       "6f31e07f34a2480af66f915db19051202a35a8acff32ddb222c1da96df74122c": "46004ad",
-      "d476c859a6dadab4b2ada52bc7440d239ae5f45a0c1129f0c8373ab62d56a6cd": "ceca953"
+      "d476c859a6dadab4b2ada52bc7440d239ae5f45a0c1129f0c8373ab62d56a6cd": "ceca953",
+      "2042397f01b6be2035df782403996568a45c21ae09806d687fb3ec4944be94e6": "3213999"
     },
     "src/trade_research/tail_formula_baseline.py": {
-      "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27": "ceca953"
+      "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27": "3213999"
     },
     "src/trade_research/tail_formula_boundary_evaluation.py": {
       "d2fe96654249e90f757e91a5cf9a55f4a28d4ee3e49527130c54339515d32eb8": "884391c",
       "fde1cc1c309e62eb74331ca746623113c72da4872e3ec442ed820f6cd986512b": "46004ad",
-      "50e40f70f831a9fa93e572d954a5021650d5432c26953a0622642b736f20103e": "ceca953"
+      "50e40f70f831a9fa93e572d954a5021650d5432c26953a0622642b736f20103e": "ceca953",
+      "7691d33156261a97bde9c5ce0f13e07d626a09c0374b32325b0b7186851ba869": "3213999"
     },
     "src/trade_research/tail_formula_relative.py": {
       "e9f46d230d301a0332c7bad630ca884515db9d98d3bbb8b270ef19b05196cee4": "884391c",
       "5f88bf65615adaef5d7948c9969795629efa87750b9e38ff1704962fde19f628": "46004ad",
-      "65ac67ee5cef7c75e05261921aee0e078504f6ef6834319505526da71818785e": "ceca953"
+      "65ac67ee5cef7c75e05261921aee0e078504f6ef6834319505526da71818785e": "ceca953",
+      "2ec686c90d3b7a3cc504a73e0d70d4f0ee4568b3ff1e394392243d509d6a4913": "3213999"
     },
     "src/trade_research/tail_formula_retained_interval.py": {
       "261d9d1a1aae9e364229022a53f289bec5a4e3877e6177cbbbb4a7e3fed7d67b": "884391c"
     },
     "tests/test_research_runtime.py": {
       "aacc9193b84252e51fb781725accb8142e586f977cd68d155b9a065ae587e776": "884391c",
-      "a30049b608173aca901c82411a3649f475b8f296704156f695c0bb869ff15d4d": "ceca953"
+      "a30049b608173aca901c82411a3649f475b8f296704156f695c0bb869ff15d4d": "3213999"
     },
     "tests/test_tail_formula_retained_interval.py": {
       "61136ca7478cd413989d6a80b69bb2cc89cb2dd2d468b3e7405890cd529616d2": "884391c"
     },
     "tests/test_tail_formula_shared_unknowns.py": {
-      "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de": "ceca953"
+      "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de": "3213999"
     },
     "tests/test_tail_formula_sql_names.py": {
-      "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035": "ceca953"
+      "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035": "3213999"
     },
     "src/trade_research/tail_formula_intraday_scale.py": {
       "939e2cfbb6d1cde40a4d1df326e90ab9c9b61275271a026c46d41e4d950a64d8": "46004ad"
@@ -313,10 +326,10 @@
       "de798ac80aff7b03407cf467b6a1c4ff062b2248fca0eb9393e0a8147e2b6cba": "46004ad"
     },
     "scripts/audit_tail_formula_price_reference.py": {
-      "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693": "ceca953"
+      "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693": "3213999"
     },
     "tests/test_tail_formula_price_reference.py": {
-      "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397": "ceca953"
+      "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397": "3213999"
     },
     "tests/test_tail_formula_intraday_scale.py": {
       "3d9ef32a02e81c6de0a28dc58626f22ea61dc53f60daa5d2c55988bf2778b2e8": "46004ad"
@@ -325,7 +338,7 @@
       "c8facc2ab06e08f00994031db15da22daeace7b86cfe4973e3ca442407e5b7e7": "46004ad"
     },
     "config/tail_formula_price_reference_audit.json": {
-      "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe": "ceca953"
+      "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe": "3213999"
     },
     "config/tail_formula_intraday_scale_input_protocol.json": {
       "1fe688eec153f5763c92b25b6710dda3971a97b3c2997ca2e19335f1eaf6b888": "46004ad"
@@ -334,7 +347,7 @@
       "d8f42bd99e4f5623f84b47c9ba3386da061f6ef5e0246c84ac7a4464ea1ef810": "46004ad"
     },
     "tests/test_tail_formula_definition_protocol.py": {
-      "7bc8836a0ea9709551dea4246eb78f3cb02e7c63503bd75902011ce1172711e9": "ceca953"
+      "7bc8836a0ea9709551dea4246eb78f3cb02e7c63503bd75902011ce1172711e9": "3213999"
     },
     "config/tail_formula_intraday_scale_verification_patch.json": {
       "67197c9dcc831ed82a57ae8959689a7d31014d46957069e96d0016c8e80a8d0b": "46004ad"
@@ -356,6 +369,24 @@
     },
     "config/tail_formula_minute_open_model_protocol.json": {
       "2f75bcb2a6fbe19bedd1397de8b4a044a76e6ba2ced8a0e1d00ebe2691ddd447": "ceca953"
+    },
+    "src/trade_research/tail_formula_emotion_transition.py": {
+      "e5f1fc4a926e3d93bc191ffb851af331c6e6f72e80b44bf578eeb8de82764ddf": "3213999"
+    },
+    "scripts/run_tail_formula_emotion_transition.py": {
+      "07fe3ff65f6ea7cb496f05957760d6b7fe290b69dbfac78ab8255be7fa941d1e": "3213999"
+    },
+    "tests/test_tail_formula_emotion_transition.py": {
+      "9195ec2dd0c39fe368114b899fc045b13fa52cb6c6fd00b7511e22b068d54c44": "3213999"
+    },
+    "config/tail_formula_emotion_transition_intent.json": {
+      "335535bc335e9da73f7ac85da9067a7e78368dd7acd142087b6991b1fe798d93": "3213999"
+    },
+    "config/tail_formula_emotion_transition_source_protocol.json": {
+      "2cd84813c1ddbd65812b8612337b58996104160f87946c2101c0609c55766f57": "3213999"
+    },
+    "config/tail_formula_headroom_intent.json": {
+      "c659b60f1dcca5125536d4981fadc58c25618d15ec558a64b2fc337e131d9689": "3213999"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -363,6 +394,7 @@
   "validation": {
     "pytest_passed": 17,
     "cli_help_verified": true,
-    "source_gate_only": true
+    "source_gate_only": false,
+    "source_gate_passed": true
   }
 }
