@@ -4,7 +4,7 @@ from pathlib import Path
 import subprocess
 import numpy as np
 import pandas as pd
-from trade_research import tail_formula_etf_quantity as study
+from trade_research import tail_formula_retained_interval as study
 from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_relative as relative
 from trade_research import tail_formula_boundary_evaluation as evaluation
@@ -186,7 +186,7 @@ def freeze():
             text = base.native_core(m,cut['threshold'],ARMS[arm],study.HEADER)
             assert text.count('CORE:SC>')==1
             if arm == 'memory':
-                text = text.replace('CORE:SC>', 'CORE:QVREADY AND SC>')
+                text = text.replace('CORE:SC>', 'CORE:'+study.NATIVE_GATE+' AND SC>')
             core.write_text(text)
             models.append(dict(arm=arm,fold=fold,new_fit=not m.get('no_model_fit_performed',False),
                 rows=m['rows'],days=m['days'],last_observation=m['last_observation'],
@@ -220,7 +220,7 @@ def freeze():
         no_new_group_outcomes_read=True,new_2026_prices_read=False,no_exit_rules=True,
         software_compilation_verified=False,native_source_parity_verified=False,
         cleanup_runtime_sha256=sha(RUNTIME),maximum_new_fits=4,no_new_control_fits=True,
-        native_cross_security_helper_required='YJETFL'))
+        native_cross_security_helper_required=None))
     return dict(joint_sha256=sha(joint),selections=selections,models=models)
 
 

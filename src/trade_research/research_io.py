@@ -26,15 +26,22 @@ def archived_sha(revision, file):
 def check_sources(sources):
     runtime = json.loads(RUNTIME.read_text())
     for file, digest in sources.items():
+        if Path(file).exists() and sha(Path(file)) == digest:
+            continue
         if file in runtime['historical_source_paths']:
             assert archived_sha(runtime['archive_revision'], file) == digest, file
         else:
-            assert sha(Path(file)) == digest, file
+            raise AssertionError(file)
 
 
 def check_runtime(*, committed=True):
     r = json.loads(RUNTIME.read_text())
-    assert r['research_definition_changed'] is False and r['new_fits_performed'] == 0
+    if r.get('schema_version',1) == 1:
+        assert r['research_definition_changed'] is False and r['new_fits_performed'] == 0
+    else:
+        assert r['schema_version'] == 2
+        for file,digest in r['prior_runtime_receipts'].items():
+            assert sha(Path(file)) == digest, file
     assert r['new_2026_prices_read'] is False
     for file, digest in r['source_hashes'].items():
         assert sha(Path(file)) == digest, file

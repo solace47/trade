@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-当前研究只从[唯一入口](../scripts/run_tail_formula_etf_quantity.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
+当前研究只从[唯一入口](../scripts/run_tail_formula_retained_interval.py)运行，使用仓库根目录、Python 3.12及`requirements.txt`固定版本。首次准备环境：
 
 ```sh
 python3.12 -m venv .venv
@@ -11,19 +11,19 @@ python3.12 -m venv .venv
 
 ```sh
 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_etf_quantity.py --help
-PYTHONPATH=src:scripts .venv/bin/python scripts/verify_research_runtime.py
+PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_retained_interval.py --help
+PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io import check_runtime; check_runtime()'
 ```
 
-最后一项只读核对清理后代码、清理前固定定义、输入指纹及原控制模型评分，不拟合、不生成新选股名单、不重算选股经济结果。
+最后一项只读核对当前固定源码、配置和已有输入指纹，不拟合或生成新结果。旧控制的完整训练值、目标、权重和评分在四折复用阶段核准。
 
 ## 当前产物与阶段
 
-原始日线及分钟在`data/baostock/`、`data/hf/`；当前52项产物在`data/research/tail_formula_etf_quantity/inputs/`。旧控制依赖`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签是不同文件，不能混用。全部数据与机器产物由Git忽略，不会随源码推送。
+原始日线及分钟在`data/baostock/`、`data/hf/`。当前区间结构产物将写入`data/research/tail_formula_retained_interval/inputs/`，2024／2025尾段窗口复用`tail_formula_minute_pressure/parts/`，2023未缓存尾段在实际协议提交后提取。原50源为`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签不可混用。数据及机器产物由Git忽略。
 
-`prepare`已经完成且禁止覆盖，`protocols`、四控制复用、四个新`fit`及`freeze`也已完成；`analyze`与`finish`亦已结束，不得重拟合或重复评价。下一轮实际入口固定前不得执行新的原始窗口。控制只能精确复用；最多四个新增模型。`freeze`完成后须先把联合SHA记入当前方案并提交，随后才能`analyze`与`finish`。
+当前先执行`prepare`，核准原50及有效域不变后执行`protocols`；之后四折`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用，最多四个新模型。`freeze`后先提交联合SHA，才可`analyze`及`finish`，已完成阶段不可覆盖。
 
-清理后[运行协议](../config/research-runtime.json)绑定当前源码及既有输入；此前输入／模型协议保持原字节。其引用的旧源码通过Git历史验证，当前代码另有完整指纹及等价核验，避免删除旧入口后失去来源追踪或重做已完成输入。
+[运行协议](../config/research-runtime.json)同时保留首次清理协议的原字节收据和当前研究绑定。ETF量级研究已完整失败，其最后源码／配置在Git `6bfed42`，完整产物仍在`data/research/tail_formula_etf_quantity/`；不得重复拟合或评价。
 
 ## 历史复算
 

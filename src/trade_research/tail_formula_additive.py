@@ -8,8 +8,8 @@ from .research_io import save_json, sha
 from .tail_formula_baseline import INPUTS as FEATURES, EXPRESSIONS, HEADER
 
 SOURCE = FEATURES
-ROOT = Path('data/research/tail_formula_etf_quantity')
-PROTOCOL = Path('config/tail_formula_etf_quantity_model_protocol.json')
+ROOT = Path('data/research/tail_formula_retained_interval')
+PROTOCOL = Path('config/tail_formula_retained_interval_model_protocol.json')
 QUANTILES = [.97,.98,.99,.995,.998,.999,.9995]
 
 def conn():
