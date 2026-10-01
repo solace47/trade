@@ -14,7 +14,8 @@ REPAIR = Path('config/tail_formula_market_reference_finish_repair.json')
 def per_year_compare(spec, receipt):
     year = Path(spec['left']).name[-4:]
     assert year in ['2024', '2025'] and Path(spec['right']).name.endswith(year)
-    adapted = dict(receipt, signal_range=['2024-01-01', '2024-12-31'] if year == '2024' else None)
+    adapted = dict(receipt, protocol_sha256=sha(study.PROTOCOL),
+        signal_range=['2024-01-01', '2024-12-31'] if year == '2024' else None)
     return comparator.compare(spec, adapted)
 
 

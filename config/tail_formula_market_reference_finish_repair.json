@@ -1,9 +1,9 @@
 {
-  "reason": "原共享未知工具拒绝两年合并signal_range；依完整名单所属年份使用工具原支持的单年守卫，2024显式范围、2025原默认。",
+  "reason": "原共享未知工具拒绝两年合并signal_range；依完整名单所属年份使用工具原支持的单年守卫，2024显式范围、2025原默认。 首个共享未知比较在保存前因调用缺protocol_sha256停止；适配层补入未改的主协议指纹。",
   "unchanged_protocol_sha256": "db4bd7e9fd7cf962bd3697bd5605592a122cb03e287d1be1f9528bc8c1bc9cbb",
   "unchanged_joint_sha256": "bf23132a0dac726b00ba2df44ad41ffcdf1e1e5f07f3bae2f7afc962a62f9493",
   "source_hashes": {
-    "scripts/finish_tail_formula_market_reference.py": "836700ad1b6bc891e7f829daa60108d3092d99cef60b4df881e83a2d4fba6b9a",
+    "scripts/finish_tail_formula_market_reference.py": "ac13f072198cc10fde96d592853f2a533862f93ecdcdca76c0fc4019ada1f059",
     "scripts/run_tail_formula_market_reference.py": "bc5f2aa88c6fba8203e296f3b13ef6952a87f5fff3875517571de9b32fed27a4",
     "scripts/compare_tail_formula_shared_unknowns.py": "40e142c38e1b01c38b5e663d0c109f268137eac11a6f3b38539bb5b101312c19",
     "data/research/tail_formula_market_reference/repair/original_finish_range_error.log": "b211006a5b5866c82b27332edb8ae7f2bb70d4fac2a2adb278bccc5568a1f016",
@@ -33,11 +33,16 @@
     "data/research/tail_formula_market_reference/removed2025/analysis_report.json": "5d0bf0e707ffadc18629b8452fc44e933e642c26dc4a750801e21bb571c1a64f",
     "data/research/tail_formula_market_reference/removed2025/analysis_verification.json": "e5abedf8f5d4893c034da810d2086459e82f50ac4ee18a8184e12a3abb5dff5f",
     "data/research/tail_formula_market_reference/removed2025/daily_summary.parquet": "4c27833c03c318b80002f5d3dc04f59a1883bb8c88e993e553ac490caed06ec8",
-    "data/research/tail_formula_market_reference/same_dates_kept2024_minus_original2024.json": "33a932fdd926dde4781aa3b86a9a4124d28045085f3dbbba4d3e710c0247d350"
+    "data/research/tail_formula_market_reference/same_dates_kept2024_minus_original2024.json": "33a932fdd926dde4781aa3b86a9a4124d28045085f3dbbba4d3e710c0247d350",
+    "data/research/tail_formula_market_reference/repair/initial_finish_adapter.py": "836700ad1b6bc891e7f829daa60108d3092d99cef60b4df881e83a2d4fba6b9a",
+    "data/research/tail_formula_market_reference/repair/initial_finish_repair.json": "fd199553f9294b02bce047097ab9fe9faf5b6c65d55b4f18434c6b530b5260f0",
+    "data/research/tail_formula_market_reference/repair/missing_comparison_receipt_error.log": "e68d61e8558fd8ba5a685e87fd354be4d214857c9d79cf288cce481e0eaf48b3"
   },
   "no_model_selection_target_or_gate_change": true,
   "no_rerun_of_models_scores_selections_or_annual_aggregations": true,
   "forecast_coverage": "另核已有MSE所含完整日历日期；已有CI是已知参考条件区间，缺目标日期保留且完整日历区间为空，不补出新价格。",
   "new_2026_prices_allowed": false,
-  "no_exit_rules": true
+  "no_exit_rules": true,
+  "previous_repair_protocol_sha256": "fd199553f9294b02bce047097ab9fe9faf5b6c65d55b4f18434c6b530b5260f0",
+  "only_call_year_guard_and_required_comparison_receipt_adapted": true
 }
