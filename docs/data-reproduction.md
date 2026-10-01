@@ -23,6 +23,8 @@ PYTHONPATH=src:scripts .venv/bin/python -c 'from trade_research.research_io impo
 
 当前日内尺度已完成`prepare`、`protocols`，不得重做或覆盖。八份分折协议提交后运行`fit --arm control|memory --fold 2024h1|2024h2|2025h1|2025h2`。控制只能精确复用，最多四个新模型。全部折完成后`freeze`，先提交联合SHA，再运行`analyze`及`finish`；已完成阶段不可覆盖或重复拟合。
 
+`control/2024h1`已保存模型、模型验证和评分，仅缺评分验证。修复协议固定这些原字节；从`pipeline.setup('control','2024h1')`绑定后，只运行独立`verify_scores(expected_expressions=study.CONTROL,definition_protocol=study.PROTOCOL)`，不得重新`fit`。其余折按正常入口执行。
+
 [运行协议](../config/research-runtime.json)同时保留首次清理协议的原字节收据和当前研究绑定。ETF量级研究已完整失败，其最后源码／配置在Git `6bfed42`，完整产物仍在`data/research/tail_formula_etf_quantity/`；不得重复拟合或评价。
 
 ## 历史复算

@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 from trade_research.research_io import save_json, sha
 
-ROOT = Path('data/research/tail_formula_etf_quantity')
+ROOT = Path('data/research/tail_formula_intraday_scale')
 FEATURES = SOURCE = ROOT / 'inputs'
-PROTOCOL = Path('config/tail_formula_etf_quantity_model_protocol.json')
+PROTOCOL = Path('config/tail_formula_intraday_scale_model_protocol.json')
 
 def load(name):
     return json.loads((ROOT/name).read_text())
@@ -37,7 +37,28 @@ def connection():
     return c
 
 
-def scores(expected_expressions=None, encoding_multiplier=1):
+def native_definitions(fr, expected_expressions, definition_protocol=None):
+    expressions=fr.get('expressions',fr.get('native_expressions'))
+    assert isinstance(expressions,dict) and expressions
+    if 'expressions' in fr and 'native_expressions' in fr:
+        assert list(fr['expressions'].items())==list(fr['native_expressions'].items())
+    if expected_expressions is not None:
+        q=json.loads(PROTOCOL.read_text())
+        assert expected_expressions and len(expected_expressions)==q['expected_features']
+        if definition_protocol is None:
+            assert all(name in expressions and expression==expressions[name]
+                       for name,expression in expected_expressions.items())
+        else:
+            # Both arms were declared before preparation; a renamed memory arm
+            # need not contain the control definitions in its report dictionary.
+            assert sha(definition_protocol)==q['master_protocol_sha256']==fr['protocol_sha256']
+            arms=json.loads(definition_protocol.read_text())['arms']
+            assert list(arms[q['arm']].items())==list(expected_expressions.items())
+        expressions=expected_expressions
+    return expressions
+
+
+def scores(expected_expressions=None, encoding_multiplier=1, definition_protocol=None):
     r=load('score_report.json');m=load('model_report.json');v=load('model_verification.json')
     assert encoding_multiplier in [1,10] and json.loads(PROTOCOL.read_text()).get('encoding_multiplier',1)==encoding_multiplier
     assert v['passed'] and v['model_report_sha256']==sha(ROOT/'model_report.json')
@@ -46,18 +67,7 @@ def scores(expected_expressions=None, encoding_multiplier=1):
         assert r[key]==sha(path)
     fr=json.loads((FEATURES/'feature_report.json').read_text())
     assert fr['features_sha256']==sha(FEATURES/'features.parquet')
-    expressions=fr.get('expressions',fr.get('native_expressions'))
-    assert isinstance(expressions,dict) and expressions
-    if 'expressions' in fr and 'native_expressions' in fr:
-        assert list(fr['expressions'].items())==list(fr['native_expressions'].items())
-    if expected_expressions is not None:
-        # A predeclared control can use an exact projection of a shared table.
-        # Require the same native definitions; never infer the subset from a model.
-        assert expected_expressions and all(
-            name in expressions and expression == expressions[name]
-            for name, expression in expected_expressions.items())
-        assert len(expected_expressions) == json.loads(PROTOCOL.read_text())['expected_features']
-        expressions = expected_expressions
+    expressions=native_definitions(fr,expected_expressions,definition_protocol)
     assert m['feature_names']==list(expressions)
     c=connection()
     multiplier='' if encoding_multiplier==1 else '10*'
@@ -125,8 +135,8 @@ def scores(expected_expressions=None, encoding_multiplier=1):
     return result
 
 
-def verify_scores(expected_expressions=None, encoding_multiplier=1):
+def verify_scores(expected_expressions=None, encoding_multiplier=1, definition_protocol=None):
     global ROOT, FEATURES, SOURCE, PROTOCOL
     from trade_research import tail_formula_additive as base
     ROOT, FEATURES, SOURCE, PROTOCOL = base.ROOT, base.FEATURES, base.SOURCE, base.PROTOCOL
-    return scores(expected_expressions, encoding_multiplier)
+    return scores(expected_expressions, encoding_multiplier, definition_protocol)

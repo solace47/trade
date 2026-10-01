@@ -43,6 +43,8 @@ def check_runtime(*, committed=True):
         assert r['schema_version'] == 2
         for file,digest in r['prior_runtime_receipts'].items():
             assert sha(Path(file)) == digest, file
+        if 'fixed_fit_runtime_sha256' in r:
+            assert r['fixed_fit_runtime_sha256'] in r['prior_runtime_receipts'].values()
     assert r['new_2026_prices_read'] is False
     for file, digest in r['source_hashes'].items():
         assert sha(Path(file)) == digest, file

@@ -36,6 +36,13 @@ def checked():
     p = study.checked(); e = json.loads(EXECUTION.read_text())
     assert e['input_protocol_sha256'] == sha(study.PROTOCOL)
     check_sources(e['source_hashes'])
+    patch=Path('config')/(study.STEM+'_verification_patch.json')
+    if patch.exists():
+        v=json.loads(patch.read_text())
+        assert subprocess.check_output(['git','show',f'HEAD:{patch}'])==patch.read_bytes()
+        assert v['input_protocol_sha256']==sha(study.PROTOCOL) and v['model_protocol_sha256']==sha(EXECUTION)
+        check_sources(v['source_hashes']);check_sources(v['checkpoint_receipts'])
+        assert v['no_feature_model_score_selection_or_economic_change'] and v['new_fits_performed']==0
     return p, e
 
 
@@ -84,7 +91,8 @@ def setup(arm,fold):
     base.PROTOCOL = relative.PROTOCOL = Path('config') / study.STEM / (arm+'_'+fold+'.json')
     q = json.loads(base.PROTOCOL.read_text())
     assert q['master_protocol_sha256'] == sha(study.PROTOCOL) and q['execution_protocol_sha256'] == sha(EXECUTION)
-    assert q['cleanup_runtime_sha256']==sha(RUNTIME)
+    runtime=json.loads(RUNTIME.read_text())
+    assert q['cleanup_runtime_sha256']==runtime.get('fixed_fit_runtime_sha256',sha(RUNTIME))
     assert q['arm']==arm and q['fold']==fold and q['feature_names']==list(ARMS[arm])
     assert q['parameters']==p['parameters'] and all(q[k]==v for k,v in p['folds'][fold].items())
     for file,digest in q['input_receipts'].items(): assert sha(Path(file))==digest,file
@@ -154,7 +162,7 @@ def fit(arm,fold):
     assert m['feature_names']==list(ARMS[arm])
     assert all(m['parameters'][k]==v for k,v in p['parameters'].items())
     relative.verify_model('relative')
-    base.scores(); verify_scores(expected_expressions=ARMS[arm])
+    base.scores(); verify_scores(expected_expressions=ARMS[arm],definition_protocol=study.PROTOCOL)
     return dict(arm=arm,fold=fold,reused=reused,rows=m['rows'],days=m['days'],last_observation=m['last_observation'],
         changed_input_nodes=changed_nodes(m) if arm=='memory' else 0)
 

@@ -1,0 +1,29 @@
+{
+  "input_protocol_sha256": "1fe688eec153f5763c92b25b6710dda3971a97b3c2997ca2e19335f1eaf6b888",
+  "model_protocol_sha256": "d8f42bd99e4f5623f84b47c9ba3386da061f6ef5e0246c84ac7a4464ea1ef810",
+  "prior_runtime_sha256": "75c1e3d6387fc92399efcfb3461c4ee59680462b3ba81f5f6d61ff53e781fbe5",
+  "source_hashes": {
+    "scripts/verify_tail_formula_additive.py": "70edb5505d896c66005ea061ec26c296be0a469d22b82ba16b282bf241c1cabb",
+    "scripts/tail_formula_pipeline.py": "ed8de7b094bdeadb807d55399c301f98711561e8f78b1dadf62339ca4a2b7de9",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "tests/test_tail_formula_definition_protocol.py": "7bc8836a0ea9709551dea4246eb78f3cb02e7c63503bd75902011ce1172711e9"
+  },
+  "checkpoint_receipts": {
+    "data/research/tail_formula_intraday_scale/control/2024h1/model_report.json": "898c25d8b834ab774c0a0fa55f58086bc5b3edfec1ee32860b9e1bd4956d0018",
+    "data/research/tail_formula_intraday_scale/control/2024h1/model_verification.json": "7eefe72f0a09dc92ea77f64ca22c0af66d505c82dd2d140dc5591c1b8a85d469",
+    "data/research/tail_formula_intraday_scale/control/2024h1/control_reuse_verification.json": "f69fa9683f7db0a751ee467d186a10f1e821320d92331903337d488a34b47631",
+    "data/research/tail_formula_intraday_scale/control/2024h1/score_report.json": "0feb6fc69cd2885a3bf6156be7e13d0a9cd5787998533b2d72b02a7e5ed93749",
+    "data/research/tail_formula_intraday_scale/control/2024h1/scores.parquet": "e05111f8981a061503573df86b832e861abfc1a3a55009c45c86d89a9dd4175c",
+    "data/research/tail_formula_intraday_scale/inputs/feature_report.json": "79baf1048f697735cd315cb8829f244c75feaef6889e46eca29e563a5194044b",
+    "data/research/tail_formula_intraday_scale/inputs/feature_verification.json": "cfcaae1bdfac6ae0452dec1a6dd98ff6de9f14ca3d6e8a5f853ab30c1edf4dd2",
+    "data/research/tail_formula_intraday_scale/inputs/native_input_verification.json": "53d41edcebe7f0ad286663223d9478f128c60a413573ccb3ccf36912420a8604",
+    "data/research/tail_formula_intraday_scale/inputs/features.parquet": "6a75042d295258955ad24e3e260336488a5572246e4984f34526371e886ac0f5",
+    "data/research/tail_formula_intraday_scale/prefit_lookup_verification.json": "b7a12aec545de9e048799aab57948c980d7fc1103c1d9a94f1e8d2a9580bf777"
+  },
+  "reason": "复用控制的原字段不在改名后的memory表达式字典；独立评分检查按事先固定完整arm定义核准，不改变任何模型或评分",
+  "no_feature_model_score_selection_or_economic_change": true,
+  "new_fits_performed": 0,
+  "no_new_economics_read": true,
+  "new_2026_prices_read": false,
+  "continuation": "仅补control/2024h1缺失score_verification；不重新生成模型或评分，再执行其余未完成折"
+}

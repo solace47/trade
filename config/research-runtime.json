@@ -37,11 +37,11 @@
     "src/trade_research/tail_formula_relative.py": "5f88bf65615adaef5d7948c9969795629efa87750b9e38ff1704962fde19f628",
     "src/trade_research/__init__.py": "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54",
     "src/trade_research/tail_formula_intraday_scale.py": "939e2cfbb6d1cde40a4d1df326e90ab9c9b61275271a026c46d41e4d950a64d8",
-    "src/trade_research/research_io.py": "d0abf85be017895ff4009dd491e61f52690404e8421f6b668500ca7c75067674",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
     "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
     "scripts/run_tail_formula_intraday_scale.py": "de798ac80aff7b03407cf467b6a1c4ff062b2248fca0eb9393e0a8147e2b6cba",
     "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
-    "scripts/tail_formula_pipeline.py": "e2d251fc3ae87d12a50c657eca9cb8fb3e15bf5ce6637086ab77efaf0d62f1f3",
+    "scripts/tail_formula_pipeline.py": "ed8de7b094bdeadb807d55399c301f98711561e8f78b1dadf62339ca4a2b7de9",
     "scripts/audit_tail_formula_price_reference.py": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
     "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
     "scripts/tail_formula_analysis_reuse.py": "3a265fd0f48ad0df70a9404b6526e2537719a0d68167cc010640368f27bc6f09",
@@ -49,7 +49,7 @@
     "scripts/verify_tail_formula_before1000.py": "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
-    "scripts/verify_tail_formula_additive.py": "b84c74de27bbab0abb1628bb174b402f4142c486a5db89a05e9dcf737d3c909e",
+    "scripts/verify_tail_formula_additive.py": "70edb5505d896c66005ea061ec26c296be0a469d22b82ba16b282bf241c1cabb",
     "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
     "tests/test_tail_formula_shared_unknowns.py": "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de",
     "tests/test_tail_formula_price_reference.py": "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397",
@@ -61,7 +61,9 @@
     "config/tail_formula_intraday_scale_intent.json": "c8facc2ab06e08f00994031db15da22daeace7b86cfe4973e3ca442407e5b7e7",
     "config/tail_formula_price_reference_audit.json": "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe",
     "config/tail_formula_intraday_scale_input_protocol.json": "1fe688eec153f5763c92b25b6710dda3971a97b3c2997ca2e19335f1eaf6b888",
-    "config/tail_formula_intraday_scale_model_protocol.json": "d8f42bd99e4f5623f84b47c9ba3386da061f6ef5e0246c84ac7a4464ea1ef810"
+    "config/tail_formula_intraday_scale_model_protocol.json": "d8f42bd99e4f5623f84b47c9ba3386da061f6ef5e0246c84ac7a4464ea1ef810",
+    "tests/test_tail_formula_definition_protocol.py": "7bc8836a0ea9709551dea4246eb78f3cb02e7c63503bd75902011ce1172711e9",
+    "config/tail_formula_intraday_scale_verification_patch.json": "67197c9dcc831ed82a57ae8959689a7d31014d46957069e96d0016c8e80a8d0b"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -165,11 +167,22 @@
     "data/research/tail_formula_retained_interval/memory_gate.json": "0d9bc7f36ecf2d90fe24c09b4d60a632ef64364c7fd9cc46011f6f375d30fdc9",
     "data/research/tail_formula_retained_interval/inputs/full_labels.parquet": "fd7b19cb1b343e4aeda3c281487642ba214c4cd5dc0de8a8abfa655921d99b60",
     "data/research/tail_formula_retained_interval/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
-    "data/research/tail_formula_retained_interval/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639"
+    "data/research/tail_formula_retained_interval/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639",
+    "data/research/tail_formula_intraday_scale/control/2024h1/model_report.json": "898c25d8b834ab774c0a0fa55f58086bc5b3edfec1ee32860b9e1bd4956d0018",
+    "data/research/tail_formula_intraday_scale/control/2024h1/model_verification.json": "7eefe72f0a09dc92ea77f64ca22c0af66d505c82dd2d140dc5591c1b8a85d469",
+    "data/research/tail_formula_intraday_scale/control/2024h1/control_reuse_verification.json": "f69fa9683f7db0a751ee467d186a10f1e821320d92331903337d488a34b47631",
+    "data/research/tail_formula_intraday_scale/control/2024h1/score_report.json": "0feb6fc69cd2885a3bf6156be7e13d0a9cd5787998533b2d72b02a7e5ed93749",
+    "data/research/tail_formula_intraday_scale/control/2024h1/scores.parquet": "e05111f8981a061503573df86b832e861abfc1a3a55009c45c86d89a9dd4175c",
+    "data/research/tail_formula_intraday_scale/inputs/feature_report.json": "79baf1048f697735cd315cb8829f244c75feaef6889e46eca29e563a5194044b",
+    "data/research/tail_formula_intraday_scale/inputs/feature_verification.json": "cfcaae1bdfac6ae0452dec1a6dd98ff6de9f14ca3d6e8a5f853ab30c1edf4dd2",
+    "data/research/tail_formula_intraday_scale/inputs/native_input_verification.json": "53d41edcebe7f0ad286663223d9478f128c60a413573ccb3ccf36912420a8604",
+    "data/research/tail_formula_intraday_scale/inputs/features.parquet": "6a75042d295258955ad24e3e260336488a5572246e4984f34526371e886ac0f5",
+    "data/research/tail_formula_intraday_scale/prefit_lookup_verification.json": "b7a12aec545de9e048799aab57948c980d7fc1103c1d9a94f1e8d2a9580bf777"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
-    "data/research/cleanup_runtime_retained_interval.json": "038f59e57e596dd17a75bfb3637902f1457de6f3993d2e8cbb59a200fab6c3b2"
+    "data/research/cleanup_runtime_retained_interval.json": "038f59e57e596dd17a75bfb3637902f1457de6f3993d2e8cbb59a200fab6c3b2",
+    "data/research/cleanup_runtime_intraday_scale_initial.json": "75c1e3d6387fc92399efcfb3461c4ee59680462b3ba81f5f6d61ff53e781fbe5"
   },
   "previous_completed_study_revision": "6bfed42",
   "current_study": "tail_formula_intraday_scale",
@@ -182,10 +195,10 @@
       "f18d79f6c484f18045f661373d63356364757457c3ac7ea589f79567f230d4ea": "884391c"
     },
     "config/formula_exclusions.json": {
-      "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535": "884391c"
+      "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535": "5b40024"
     },
     "config/tail_formula_baseline.json": {
-      "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033": "884391c"
+      "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033": "5b40024"
     },
     "config/tail_formula_retained_interval_input_protocol.json": {
       "e2fc31c44da35a5f4fc9f44db9f4600ab50e2e0935d3d163801f5b5ec5c288f0": "884391c"
@@ -203,73 +216,108 @@
       "a18720c069f18e30ff8401697ebc3287b958198df98f511275169b36a8ab6633": "884391c"
     },
     "scripts/audit_tail_formula_reference_coverage.py": {
-      "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa": "884391c"
+      "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa": "5b40024"
     },
     "scripts/compare_tail_formula_same_dates.py": {
-      "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963": "884391c"
+      "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963": "5b40024"
     },
     "scripts/compare_tail_formula_shared_unknowns.py": {
-      "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139": "884391c"
+      "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139": "5b40024"
     },
     "scripts/find_existing_tail_formula_models.py": {
-      "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0": "884391c"
+      "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0": "5b40024"
     },
     "scripts/run_tail_formula_retained_interval.py": {
       "24dbfdca86a184fe77e1c6be3ddc237b28807450f512ee9dce4b714903e82e48": "884391c"
     },
     "scripts/tail_formula_analysis_reuse.py": {
-      "207f01e3f155ace5e88e0462e20af6aa0e47810d5ae048b951dbb404ecd6861c": "884391c"
+      "207f01e3f155ace5e88e0462e20af6aa0e47810d5ae048b951dbb404ecd6861c": "884391c",
+      "3a265fd0f48ad0df70a9404b6526e2537719a0d68167cc010640368f27bc6f09": "5b40024"
     },
     "scripts/tail_formula_pipeline.py": {
-      "5fa64b3b3743645df15edcf8754a1ddbef3df1f454d4d3a7bddfb1f0708f218c": "884391c"
+      "5fa64b3b3743645df15edcf8754a1ddbef3df1f454d4d3a7bddfb1f0708f218c": "884391c",
+      "e2d251fc3ae87d12a50c657eca9cb8fb3e15bf5ce6637086ab77efaf0d62f1f3": "5b40024"
     },
     "scripts/tail_formula_reports.py": {
-      "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994": "884391c"
+      "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994": "5b40024"
     },
     "scripts/tail_formula_statistics.py": {
-      "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f": "884391c"
+      "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f": "5b40024"
     },
     "scripts/verify_tail_formula_additive.py": {
-      "b84c74de27bbab0abb1628bb174b402f4142c486a5db89a05e9dcf737d3c909e": "884391c"
+      "b84c74de27bbab0abb1628bb174b402f4142c486a5db89a05e9dcf737d3c909e": "5b40024"
     },
     "scripts/verify_tail_formula_before1000.py": {
-      "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234": "884391c"
+      "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234": "5b40024"
     },
     "src/trade_research/__init__.py": {
-      "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54": "884391c"
+      "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54": "5b40024"
     },
     "src/trade_research/research_io.py": {
-      "5696138ef93018d15ffb40eaff0b110daf722deea964c75c7139a52e01985968": "884391c"
+      "5696138ef93018d15ffb40eaff0b110daf722deea964c75c7139a52e01985968": "884391c",
+      "d0abf85be017895ff4009dd491e61f52690404e8421f6b668500ca7c75067674": "5b40024"
     },
     "src/trade_research/tail_formula_additive.py": {
-      "45062c64b1186891a4c947b36613a05d66d346d8387ab9531b701171a982af57": "884391c"
+      "45062c64b1186891a4c947b36613a05d66d346d8387ab9531b701171a982af57": "884391c",
+      "6f31e07f34a2480af66f915db19051202a35a8acff32ddb222c1da96df74122c": "5b40024"
     },
     "src/trade_research/tail_formula_baseline.py": {
-      "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27": "884391c"
+      "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27": "5b40024"
     },
     "src/trade_research/tail_formula_boundary_evaluation.py": {
-      "d2fe96654249e90f757e91a5cf9a55f4a28d4ee3e49527130c54339515d32eb8": "884391c"
+      "d2fe96654249e90f757e91a5cf9a55f4a28d4ee3e49527130c54339515d32eb8": "884391c",
+      "fde1cc1c309e62eb74331ca746623113c72da4872e3ec442ed820f6cd986512b": "5b40024"
     },
     "src/trade_research/tail_formula_relative.py": {
-      "e9f46d230d301a0332c7bad630ca884515db9d98d3bbb8b270ef19b05196cee4": "884391c"
+      "e9f46d230d301a0332c7bad630ca884515db9d98d3bbb8b270ef19b05196cee4": "884391c",
+      "5f88bf65615adaef5d7948c9969795629efa87750b9e38ff1704962fde19f628": "5b40024"
     },
     "src/trade_research/tail_formula_retained_interval.py": {
       "261d9d1a1aae9e364229022a53f289bec5a4e3877e6177cbbbb4a7e3fed7d67b": "884391c"
     },
     "tests/test_research_runtime.py": {
-      "aacc9193b84252e51fb781725accb8142e586f977cd68d155b9a065ae587e776": "884391c"
+      "aacc9193b84252e51fb781725accb8142e586f977cd68d155b9a065ae587e776": "884391c",
+      "a30049b608173aca901c82411a3649f475b8f296704156f695c0bb869ff15d4d": "5b40024"
     },
     "tests/test_tail_formula_retained_interval.py": {
       "61136ca7478cd413989d6a80b69bb2cc89cb2dd2d468b3e7405890cd529616d2": "884391c"
     },
     "tests/test_tail_formula_shared_unknowns.py": {
-      "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de": "884391c"
+      "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de": "5b40024"
     },
     "tests/test_tail_formula_sql_names.py": {
-      "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035": "884391c"
+      "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035": "5b40024"
+    },
+    "src/trade_research/tail_formula_intraday_scale.py": {
+      "939e2cfbb6d1cde40a4d1df326e90ab9c9b61275271a026c46d41e4d950a64d8": "5b40024"
+    },
+    "scripts/run_tail_formula_intraday_scale.py": {
+      "de798ac80aff7b03407cf467b6a1c4ff062b2248fca0eb9393e0a8147e2b6cba": "5b40024"
+    },
+    "scripts/audit_tail_formula_price_reference.py": {
+      "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693": "5b40024"
+    },
+    "tests/test_tail_formula_price_reference.py": {
+      "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397": "5b40024"
+    },
+    "tests/test_tail_formula_intraday_scale.py": {
+      "3d9ef32a02e81c6de0a28dc58626f22ea61dc53f60daa5d2c55988bf2778b2e8": "5b40024"
+    },
+    "config/tail_formula_intraday_scale_intent.json": {
+      "c8facc2ab06e08f00994031db15da22daeace7b86cfe4973e3ca442407e5b7e7": "5b40024"
+    },
+    "config/tail_formula_price_reference_audit.json": {
+      "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe": "5b40024"
+    },
+    "config/tail_formula_intraday_scale_input_protocol.json": {
+      "1fe688eec153f5763c92b25b6710dda3971a97b3c2997ca2e19335f1eaf6b888": "5b40024"
+    },
+    "config/tail_formula_intraday_scale_model_protocol.json": {
+      "d8f42bd99e4f5623f84b47c9ba3386da061f6ef5e0246c84ac7a4464ea1ef810": "5b40024"
     }
   },
   "new_fits_performed_at_protocol": 0,
   "no_new_intraday_scale_values_read_before_protocol": true,
-  "validation": "15项合成/共用检查已通过；原50完整值不变；旧运行字节及退役源码从884391c绑定，不复算旧经济结果"
+  "validation": "15项合成/共用检查已通过；原50完整值不变；旧运行字节及退役源码从884391c绑定，不复算旧经济结果",
+  "fixed_fit_runtime_sha256": "75c1e3d6387fc92399efcfb3461c4ee59680462b3ba81f5f6d61ff53e781fbe5"
 }
