@@ -80,15 +80,17 @@ def raw():
 
 
 def checked_raw():
-    checked(); r = json.loads((INPUTS / 'raw_report.json').read_text())
-    assert r['protocol_sha256'] == sha(PROTOCOL)
+    p, _ = checked(); r = json.loads((INPUTS / 'raw_report.json').read_text())
+    if r['protocol_sha256'] != sha(PROTOCOL):
+        assert r['protocol_sha256'] == p['raw_extraction_protocol_sha256']
+        assert sha(INPUTS / 'raw_report.json') == p['reused_raw_report_sha256']
     for file, digest in r['parts_sha256'].items(): assert sha(Path(file)) == digest, file
     return r
 
 
 def aggregates():
-    r = checked_raw(); c = base.conn(); c.read_parquet(list(r['parts_sha256'])).create_view('raw')
-    d = c.sql('''WITH b AS(SELECT *,coalesce(timestamp=date_trunc('minute',timestamp)
+    r = checked_raw(); frames = []
+    query = '''WITH b AS(SELECT *,coalesce(timestamp=date_trunc('minute',timestamp)
         AND isfinite(open) AND isfinite(high) AND isfinite(low) AND isfinite(close) AND isfinite(volume)
         AND least(open,high,low,close)>0 AND volume>=0 AND high+.0001>=greatest(open,close,low)
         AND low-.0001<=least(open,close) AND abs(open-round(open,2))<=.0001 AND abs(high-round(high,2))<=.0001
@@ -97,7 +99,12 @@ def aggregates():
         count(*) FILTER(WHERE good) AS good_bars,count(*) FILTER(WHERE volume>0) AS active,
         max(floor(high*100+.5)) FILTER(WHERE volume>0) AS high_cents,
         min(floor(low*100+.5)) FILTER(WHERE volume>0) AS low_cents
-        FROM b GROUP BY date,code ORDER BY date,code''').df(); c.close()
+        FROM b GROUP BY date,code ORDER BY date,code'''
+    for file in r['parts_sha256']:
+        c = base.conn(); c.read_parquet(file).create_view('raw')
+        frames.append(c.sql(query).df()); c.close()
+    d = pd.concat(frames, ignore_index=True).sort_values(['date', 'code']).reset_index(drop=True)
+    assert not d.duplicated(['date', 'code']).any(), 'Raw parts must contain disjoint stock-day groups'
     return d
 
 

@@ -5,7 +5,7 @@
     "config/tail_formula_stock_2024_intent.json": "b158e4388f10cf463f01c049f9d8304bb44650206fbed62e26361f76b50806f6",
     "data/research/tail_formula_stock_2024/metadata_lookup_verification.json": "e47d4e887895a67e64782f235e0d06516d5538d9924e6c35595dd2a3f1721027",
     "data/research/tail_formula_stock_mean/complete_results_manifest.json": "bd4285e80d9f2964d5f0d3545705da9a1d050e727de844f3e6f8edb93d466c01",
-    "src/trade_research/tail_formula_stock_2024_inputs.py": "6f906b6767586ea0d370f905b538ca0dc90ee6e4db2bf490c383c6bdd76bf1e4",
+    "src/trade_research/tail_formula_stock_2024_inputs.py": "09e770dee7f719b1d0af9a7c80efb5da8f61847d95d0b2421967e0d88fd626cc",
     "tests/test_tail_formula_stock_2024_inputs.py": "39346f4b7989307c959f89ee71c08504a3dd5d033cb96be229d4d867dd86d430",
     "src/trade_research/tail_formula_morning_range.py": "9cadae8b90ea49818ad2df73d009a96eb15f311017090cfe8a508805c08076f2",
     "src/trade_research/tail_formula_float.py": "a791d7570b8d6385d2d38862a34ec11432dfa1c87b535b5cd01f779eaa465c6f",
@@ -19,7 +19,8 @@
     "data/research/tail_formula_quarter_history2024/inputs/history_2023/full_label_verification.json": "2dc817e87d3339bb6da99c6791653ad3a90bedc7a7e95a54ec3413cd058e146a",
     "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
     "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
-    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c"
+    "data/research/tail_formula_morning_range/inputs/native_input_verification.json": "d60ad5e21d254843fd41f72dde035e73d2bf662d9f3b80314848267500c0234c",
+    "data/research/tail_formula_stock_2024/aggregation_memory_repair.json": "71509d2ee764c749d9328a3d83ddc2ca76e54d937cfc11991fe012099617a9e0"
   },
   "conditional_completion": "data/research/tail_formula_stock_mean/complete_results_manifest.json",
   "expressions": {
@@ -89,5 +90,8 @@
   "new_2026_prices_allowed": false,
   "no_exit_rules": true,
   "software_compilation_verified": false,
-  "native_source_parity_verified": false
+  "native_source_parity_verified": false,
+  "raw_extraction_protocol_sha256": "914264fd8dbbdf20460ed2289aee93068ca599ba38a22f91599a5ee7cd753180",
+  "reused_raw_report_sha256": "65efc928c89d6dacb7f4ac00f04eae38efda40f6003c85454be1ebfe942b6de6",
+  "aggregation_resource_policy": "按原49分片、互不重叠股票日分别聚合，原SQL字面和提取实现AST完全一致，保留原原始收据，不重复提取。"
 }
