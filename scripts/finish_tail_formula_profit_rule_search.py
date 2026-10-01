@@ -85,8 +85,9 @@ def finish():
     manifest = json.loads(destination.read_text())
     manifest['source_hashes'].update(receipts)
     manifest['comparisons'].extend(pairs)
-    manifest.update(selector_fits=4,new_tree_fits=0,new_input_features=0,new_atomic_conditions=0,
-                    complete_two_year_four_half_comparisons_with_all_three_controls=True)
+    manifest.update(selector_fits=execution.get('selector_fits',4),new_tree_fits=0,new_input_features=0,new_atomic_conditions=0,
+                    complete_two_year_four_half_comparisons_with_all_three_controls=True,
+                    control_families=1+len(execution['additional_controls']))
     check_sources(manifest['source_hashes'])
     save_json(destination,manifest)
     return dict(complete_sha256=sha(destination),criteria=manifest['criteria'],

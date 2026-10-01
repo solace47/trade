@@ -117,8 +117,9 @@ def freeze():
         receipts[str(path)] = sha(path)
     save_json(destination, dict(passed=True, input_protocol_sha256=sha(fit.PROTOCOL),
         execution_protocol_sha256=sha(EXECUTION), source_hashes=receipts, selections=lists,
-        all_four_learned_rules_and_complete_annual_lists_frozen_together=True,
-        fits_completed=4, new_economic_outcomes_read=False, new_2026_prices_read=False))
+        all_four_learned_rules_and_complete_annual_lists_frozen_together=p.get('selector_fits',4)>0,
+        all_four_rule_scopes_and_complete_annual_lists_frozen_together=True,
+        fits_completed=p.get('selector_fits',4), new_economic_outcomes_read=False, new_2026_prices_read=False))
     return dict(joint_sha256=sha(destination), selections=lists)
 
 
@@ -232,7 +233,7 @@ def finish():
     check_sources(receipts)
     save_json(destination, dict(passed=True, input_protocol_sha256=sha(fit.PROTOCOL),
         execution_protocol_sha256=sha(EXECUTION), joint_sha256=sha(ROOT/'joint_selection_freeze.json'),
-        source_hashes=receipts, comparisons=pairs, criteria=criteria, fits_completed=4,
+        source_hashes=receipts, comparisons=pairs, criteria=criteria, fits_completed=e.get('selector_fits',4),
         complete_2024_and_2025_results=True, new_2026_prices_read=False, no_exit_rules=True))
     return dict(complete_sha256=sha(destination), criteria=criteria, fingerprint_count=len(receipts))
 
