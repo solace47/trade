@@ -51,6 +51,8 @@ PYCODE
 
 随后完成的原50同日十箱诊断协议为`config/tail_formula_daily_order_protocol.json`，入口`scripts/audit_tail_formula_daily_order.py`，现有报告在`data/research/tail_formula_daily_order/`。核对`ranking_report.json`与`analysis_report.json`及对应verification，摘要包含两年／四半年／两档成本／敏感性；不重分箱、预测或聚合。条件AUC不能当作利润，2024不可估计日期完整保留，十箱不是十个待选公式。
 
+最新三指数绝对参考条件在`data/research/tail_formula_market_reference/`，原入口`scripts/run_tail_formula_market_reference.py`，完成比较用`scripts/finish_tail_formula_market_reference.py`及其固定适配协议。只读`complete_results_manifest.json`、`finish_repair_verification.json`、`market_reference_gate.json`与`forecast_calendar_coverage_verification.json`；四组年度摘要已经含两半年。两次调用错误与旧适配源保存在`repair/`，不运行旧finish重复生产。
+
 需要复算已有版本时，先核对该版协议／源码／输入指纹及既有阶段报告。不同家族的命令和验证器不能互换；例如上午分布独立核准和高点保持原生核准须用其冻结包装脚本，不能改用曾失败的直接入口。
 
 ## 新研究顺序
