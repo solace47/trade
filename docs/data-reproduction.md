@@ -21,7 +21,7 @@ PYTHONPATH=src:scripts .venv/bin/python scripts/verify_research_runtime.py
 
 原始日线及分钟在`data/baostock/`、`data/hf/`；当前52项产物在`data/research/tail_formula_etf_quantity/inputs/`。旧控制依赖`tail_formula_stock_2024`与`tail_formula_morning_range`；7列训练标签与69列经济标签是不同文件，不能混用。全部数据与机器产物由Git忽略，不会随源码推送。
 
-`prepare`已经完成且禁止覆盖，`protocols`、四控制复用、四个新`fit`及`freeze`也已完成；下一步仅接续`analyze`与`finish`，不得重拟合。控制只能精确复用；最多四个新增模型。`freeze`完成后须先把联合SHA记入当前方案并提交，随后才能`analyze`与`finish`。
+`prepare`已经完成且禁止覆盖，`protocols`、四控制复用、四个新`fit`及`freeze`也已完成；`analyze`与`finish`亦已结束，不得重拟合或重复评价。下一轮实际入口固定前不得执行新的原始窗口。控制只能精确复用；最多四个新增模型。`freeze`完成后须先把联合SHA记入当前方案并提交，随后才能`analyze`与`finish`。
 
 清理后[运行协议](../config/research-runtime.json)绑定当前源码及既有输入；此前输入／模型协议保持原字节。其引用的旧源码通过Git历史验证，当前代码另有完整指纹及等价核验，避免删除旧入口后失去来源追踪或重做已完成输入。
 
