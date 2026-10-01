@@ -1,0 +1,39 @@
+{
+  "objective": "仅完整成熟可核准目标未通过时，接续上午极值的时间顺序；已有上午高低价幅度不同于高低先后，既有29根尾盘极值顺序失败不重复。",
+  "conditional_gate": "data/research/tail_formula_confirmed_success/certificate_gate.json",
+  "execute_only_if_supports_further_validation_false": true,
+  "hypothesis": "相同上午高低范围、相同14:49相对位置，可以来自先跌后修复或先冲高后回落；补充极值先后及最近低点距上午结束多久，检验对次晨机会是否有额外帮助。不能称主力身份。",
+  "data": "优先复用已有2023与2024—2025的09:30—11:30、121条原OHLCV缓存；只对已固定原50键，保留零量和坏行；先只审计缓存来源、日期标签覆盖和旧定义，不重复提取。",
+  "features": {
+    "AMORD": "100*(最新正量最高分价出现标签位置-最新正量最低分价出现标签位置)/120",
+    "AMLAGE": "100*(120-最新正量最低分价出现标签位置)/120"
+  },
+  "semantic": "位置0为09:30、120为11:30；最高取high、最低取low，均先转分，只用正volume；并列取最近，极值同一根允许顺序为0；zero-volume不参与极值。",
+  "native": "在11:30从121根显式REF高低/V比较已完成上午极值，取符合条件的最小向后距离，使用平衡MIN组合，不依赖HHVBARS/LLVBARS未核准的并列规则；VALUEWHEN保留到14:49。",
+  "stage": "本意向不生成新价格特征或模型；先核准全源字节、键、标签和旧家族差异；实际生产/数学/模型/经济协议另固定后才读新数值。",
+  "controls": "原50全部数值、元数据、有效域应精确保持，原四模型和两年度名单复用；若有效域不同先停止输入核准，不悄悄变成交集研究。新项不叠加失败的可核准目标或其他扩展。",
+  "proposed_folds": [
+    "2024h1",
+    "2024h2",
+    "2025h1",
+    "2025h2"
+  ],
+  "maximum_proposed_new_fits": 4,
+  "proposed_model": "原已知机会减全known日期基线；原一年窗、日期等权、整数输入、64树深3叶300/0.05/seed20260927、训练q995，全部名单提交后再评价。",
+  "economic_scope": "只09:31—09:59连续三根机会／1%空间／09:59参考／3%不利，未知和未买入完整保留；2024以后评价、2025探索。",
+  "source_hashes": {
+    "config/tail_formula_confirmed_success_protocol.json": "46d4c364a49d01c7f603dd9194ea704c274c22738467f62605736792b7da6a41",
+    "src/trade_research/tail_formula_morning_range.py": "9cadae8b90ea49818ad2df73d009a96eb15f311017090cfe8a508805c08076f2",
+    "src/trade_research/tail_formula_morning_trend.py": "fd1de6df2e6ba1458f3a7b8b59c9bd6f797012effeacbe92668124d7813584d6",
+    "src/trade_research/tail_formula_morning_distribution.py": "464cbbbafd664d3d1c51286c1a665fbb583cae3bcdec8aa25d154673f7d14428",
+    "src/trade_research/tail_formula_stock_2024_inputs.py": "09e770dee7f719b1d0af9a7c80efb5da8f61847d95d0b2421967e0d88fd626cc",
+    "data/research/tail_formula_stock_2024/inputs/raw_report.json": "65efc928c89d6dacb7f4ac00f04eae38efda40f6003c85454be1ebfe942b6de6",
+    "data/research/tail_formula_morning_range/inputs/raw_report.json": "dbcc4e1369a4d3b91bc8d7e23892f48677d4e4933208a386aea7a8d258ee9e10",
+    "data/research/tail_formula_stock_2024/inputs/feature_report.json": "a365c16deca5a37b24cfc42642ff96d8a24dee3635f7a92786fb99a738d66310",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc"
+  },
+  "no_new_raw_extraction": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_publish_claim": true
+}
