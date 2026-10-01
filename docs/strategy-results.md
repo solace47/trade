@@ -56,6 +56,8 @@ ETF总量异常52项两年共享未知下界周区间为[−2.369，+1.972]／[�
 
 旧`tail_formula_tail_regression`是尾盘价格轨迹特征，不能当收益目标实验。真正的09:59收益目标在`tail_formula_endpoint_robust`等：2025相对平方／Huber目标参考−0.418%／−0.302%，绝对目标两者均空；既有盈利空间、时长与联合质量目标也已有记录。不重复拟合或宣称仅换目标即可修复。
 
-[日内动量论文](https://www.sciencedirect.com/science/article/pii/S1057521919302741)预测当天尾段；[隔夜反转论文](https://www.tandfonline.com/doi/abs/10.1080/00036846.2024.2387365)使用当天已知的隔夜变化。它们不能直接证明前一天尾盘可买收益。[最后一小时研究](https://www.acem.sjtu.edu.cn/ueditor/jsp/upload/file/20230705/1688558855821058862.pdf)在旧CSI300／ETF样本发现尾盘动量未延续次日首半小时；这是价格桥诊断动机，不能称已在本库复现。[隔夜／日内异常研究](https://www.sciencedirect.com/science/article/pii/S0927538X23000732)提示还须区分月度组合、日内与跨夜贡献。这里只核查到摘要及相关原文片段，没有冒称全文已读。
+[日内动量论文](https://www.sciencedirect.com/science/article/pii/S1057521919302741)预测当天尾段；[隔夜反转论文](https://www.tandfonline.com/doi/abs/10.1080/00036846.2024.2387365)使用当天已知的隔夜变化，均不能直接证明前一天尾盘可买收益。[最后一小时研究](https://www.acem.sjtu.edu.cn/ueditor/jsp/upload/file/20230705/1688558855821058862.pdf)原PDF相关正文和表13已复核：2012—2017指数次日预测不显著，ETF末半小时有10%水平弱预测，不能把引言概括扩成完全不存在延续。完整末半小时含14:49后行情，次日首半小时从开盘计，均不等同本研究输入和参考。[隔夜／日内异常研究](https://www.sciencedirect.com/science/article/pii/S0927538X23000732)属于不同的月度组合问题；其他来源仍只核查摘要／片段。
+
+该论文的ETF日内买卖假设也不能照搬普通二级买入份额；[上交所规则](https://star.sse.com.cn/assortment/fund/etf/rules/c/c_20150911_3985181.shtml)和[2012年沪深300ETF说明](https://investor.szse.cn/warning/riskedu/t20120412_550504.html)区分买卖与申赎。原PDF`dd86e94527af72c4941c3b1dcdaa57ebe308d24f43dff19e8f2d9de353c1191c`，复核收据`e4cefaa8a301df6ddc8f31528af3a9a98e38795f57c5bc9ed3b563b847cf5e10`；没有冒称全文32页已读或执行论文策略。
 
 [Qlib](https://github.com/microsoft/qlib/blob/main/qlib/contrib/data/handler.py)可参考分层交易与费用约束，但默认日线目标不对应本项目时段；[AlphaGen](https://github.com/ICT-FinD-Lab/alphagen/blob/master/README.md)可参考公式表达式和自定义计算接口，IC／RankIC不直接代表可买收益。未运行外部代码，也未取得这些项目适用本任务的盈利证据。七项来源及阅读范围收据`f2b3217df35757b1971e308fd86753bbb0eb0820b37f455f66259af298c0fa68`。
