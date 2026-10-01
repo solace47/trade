@@ -133,5 +133,102 @@ def review():
     return dict(passed=True, roots=len(p['roots']), review_sha256=sha(root / 'review.json'))
 
 
+def price_bridge():
+    p = json.loads(PROTOCOL.read_text())
+    assert subprocess.check_output(['git', 'show', f'HEAD:{PROTOCOL}']) == PROTOCOL.read_bytes()
+    check_sources(p['source_hashes'])
+    prior = p['completed_review']
+    for file, field in [('path', 'sha256'), ('protocol_snapshot', 'protocol_sha256'),
+                        ('implementation_snapshot', 'implementation_sha256')]:
+        assert sha(Path(prior[file])) == prior[field]
+    assert json.loads(Path(prior['path']).read_text())['passed']
+    spec = p['price_bridge']
+    root = Path(spec['output_root'])
+    assert not root.exists(), 'Keep completed price bridges immutable'
+    con = duckdb.connect()
+    frames = []
+    records = []
+    receipts = dict(p['source_hashes'])
+    for name in p['roots']:
+        source = Path('data/research') / name
+        selection, _ = checked_analysis(source)
+        cols = ['date', 'code', 'known_no_trade', *spec['price_fields'], *[
+            field + str(bps) for bps in spec['costs_bps'] for field in
+            ['known', 'sensitive_known', 'mark_0959_return']]]
+        labels = pd.read_parquet(source / 'full_labels.parquet', columns=cols)
+        chosen = labels.merge(selection.loc[selection.selected, ['date', 'code']],
+                              on=['date', 'code'], validate='one_to_one')
+        assert len(chosen) == int(selection.selected.sum())
+        assert chosen.date.ge('2024-01-01').all() and chosen.date.lt('2026-01-01').all()
+        for bps in spec['costs_bps']:
+            for sensitive in spec['source_sensitive_views']:
+                r = chosen.copy()
+                r['known'] = r[f'sensitive_known{bps}' if sensitive else f'known{bps}']
+                r['reference'] = r[f'mark_0959_return{bps}'].where(r.known)
+                good = np.isfinite(r[spec['price_fields']]).all(axis=1) & r[spec['price_fields']].gt(0).all(axis=1)
+                r['bridge_known'] = r.reference.notna() & good
+                r['missing_reference'] = r.known & r.reference.isna()
+                r['unavailable_bridge'] = r.reference.notna() & ~good
+                r['unknown'] = ~r.known & ~r.known_no_trade
+                v = r.loc[r.bridge_known]
+                r['buy_to_close'] = np.log(v.day_close / v.entry_vwap)
+                r['close_to_0959'] = np.log(v.price_0959 / v.day_close)
+                r['cost_term'] = np.log1p(v.reference) - np.log(v.price_0959 / v.entry_vwap)
+                r['net_reference_log'] = np.log1p(v.reference)
+                r['decision_to_entry'] = np.log(v.entry_vwap / v.price_1449)
+                metrics = ['buy_to_close', 'close_to_0959', 'cost_term',
+                           'net_reference_log', 'decision_to_entry']
+                counts = ['bridge_known', 'known', 'missing_reference',
+                          'unavailable_bridge', 'unknown', 'known_no_trade']
+                np.testing.assert_allclose(r.buy_to_close + r.close_to_0959 + r.cost_term,
+                                           r.net_reference_log, rtol=0, atol=1e-14, equal_nan=True)
+                con.register('r', r)
+                sql = con.sql('''SELECT date, count(*) AS rows,
+                    sum(CAST(bridge_known AS INT)) AS bridge_known,
+                    sum(CAST(known AS INT)) AS known,
+                    sum(CAST(known AND reference IS NULL AS INT)) AS missing_reference,
+                    sum(CAST(reference IS NOT NULL AND NOT bridge_known AS INT)) AS unavailable_bridge,
+                    sum(CAST(NOT known AND NOT known_no_trade AS INT)) AS unknown,
+                    sum(CAST(known_no_trade AS INT)) AS known_no_trade,
+                    avg(CASE WHEN bridge_known THEN ln(day_close/entry_vwap) END) AS buy_to_close,
+                    avg(CASE WHEN bridge_known THEN ln(price_0959/day_close) END) AS close_to_0959,
+                    avg(CASE WHEN bridge_known THEN ln(1+reference)-ln(price_0959/entry_vwap) END) AS cost_term,
+                    avg(CASE WHEN bridge_known THEN ln(1+reference) END) AS net_reference_log,
+                    avg(CASE WHEN bridge_known THEN ln(entry_vwap/price_1449) END) AS decision_to_entry
+                    FROM r GROUP BY date ORDER BY date''').df()
+                daily = r.groupby('date').agg({**{k: 'sum' for k in counts},
+                                              **{k: 'mean' for k in metrics}}).reset_index()
+                daily['rows'] = r.groupby('date').size().to_numpy()
+                pd.testing.assert_frame_equal(daily[['date', 'rows'] + counts + metrics],
+                    sql[['date', 'rows'] + counts + metrics], check_dtype=False, rtol=0, atol=1e-14)
+                daily['bps'] = bps
+                daily['sensitive'] = sensitive
+                daily['source'] = name
+                frames.append(daily)
+                for year in ['2024', '2025']:
+                    d = daily.loc[daily.date.str.startswith(year)]
+                    s = dict(source=name, year=year, bps=bps, sensitive=sensitive, days=len(d))
+                    s.update({k: int(d[k].sum()) for k in ['rows'] + counts})
+                    s.update({k: finite(d[k].mean()) for k in metrics})
+                    records.append(s)
+        for file in ['selection.parquet', 'full_labels.parquet', 'daily_summary.parquet']:
+            receipts[str(source / file)] = sha(source / file)
+    con.close()
+    root.mkdir()
+    target = root / 'bridge_daily.parquet'
+    pd.concat(frames, ignore_index=True).to_parquet(target, index=False, compression='zstd')
+    save_json(root / 'review.json', dict(passed=True, protocol_sha256=sha(PROTOCOL),
+        implementation_sha256=sha(Path(__file__)), source_hashes=receipts,
+        bridge_daily_sha256=sha(target), summaries=records,
+        all_identities_and_daily_metrics_sql_verified=True,
+        close_to_0959_is_not_pure_overnight=True, new_models=0, new_selections=0,
+        new_raw_prices_read=False, new_2026_prices_read=False, no_exit_rules=True))
+    return dict(passed=True, roots=len(p['roots']), review_sha256=sha(root / 'review.json'))
+
+
 if __name__ == '__main__':
-    print(json.dumps(review(), ensure_ascii=False))
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('phase', choices=['review', 'price-bridge'], default='review', nargs='?')
+    args = parser.parse_args()
+    print(json.dumps(price_bridge() if args.phase == 'price-bridge' else review(), ensure_ascii=False))

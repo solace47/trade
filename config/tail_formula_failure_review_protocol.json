@@ -73,7 +73,7 @@
     "data/research/tail_formula_tail_regression/regression_2025/analysis_verification.json": "1d782e07b318f01291406fc63502af657a57e68161b40c28ff732c37c9b930a8",
     "data/research/tail_formula_tail_regression/regression_2025/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
     "data/research/tail_formula_tail_regression/regression_2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
-    "scripts/review_tail_formula_failures.py": "a60ecdc30b20ba7192af4f50f1599be4091c2eb72c00ccb15dc3768fe62f5e48",
+    "scripts/review_tail_formula_failures.py": "20bfc88379a0d692a6e180b7ecd7d9b10c80f82fa95b76addbbeb6bb09be138c",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8"
   },
@@ -102,11 +102,50 @@
   "independent_verification": "pandas按日汇总和独立DuckDB SQL分别计算全部新拆解数值；重建原日汇总与报告核对",
   "target_change_is_not_assumed_to_fix_failure": true,
   "original_results_previously_seen": true,
-  "new_diagnostic_groups_not_yet_read": true,
+  "new_diagnostic_groups_not_yet_read": false,
   "new_model_fits": 0,
   "new_selection_frames": 0,
   "new_raw_prices_allowed": false,
   "new_2026_prices_allowed": false,
   "no_exit_rules": true,
-  "output_root": "data/research/tail_formula_failure_review"
+  "output_root": "data/research/tail_formula_failure_review",
+  "wording_erratum": {
+    "previous_protocol": "data/research/tail_formula_failure_review/frozen_protocol.json",
+    "previous_protocol_sha256": "fcf71cb17050046488c1c5ecf02fb6f84c7fc4b2e1749a8f15d5e68f68936c25",
+    "tail_regression_means_price_path_features_not_return_target": true,
+    "roots_counts_labels_and_numerical_diagnostics_unchanged": true
+  },
+  "completed_review": {
+    "path": "data/research/tail_formula_failure_review/review.json",
+    "sha256": "abfeec4dbf348f07ad465a94c9aeaedd23c605353ec944183fa7a3288e626a3d",
+    "protocol_snapshot": "data/research/tail_formula_failure_review/frozen_protocol.json",
+    "protocol_sha256": "fcf71cb17050046488c1c5ecf02fb6f84c7fc4b2e1749a8f15d5e68f68936c25",
+    "implementation_snapshot": "data/research/tail_formula_failure_review/frozen_implementation.py",
+    "implementation_sha256": "a60ecdc30b20ba7192af4f50f1599be4091c2eb72c00ccb15dc3768fe62f5e48"
+  },
+  "price_bridge": {
+    "objective": "同一十份原名单的含费09:59参考拆成买入至收盘、收盘至09:59及成本，不改变原名单或研究卖法。",
+    "output_root": "data/research/tail_formula_failure_review/price_bridge",
+    "price_fields": [
+      "price_1449",
+      "entry_vwap",
+      "day_close",
+      "price_0959"
+    ],
+    "costs_bps": [
+      5,
+      15
+    ],
+    "source_sensitive_views": [
+      false,
+      true
+    ],
+    "fixed_bridge": "逐股ln(1+mark_0959_return)=ln(day_close/entry_vwap)+ln(price_0959/day_close)+[ln(1+mark_0959_return)-ln(price_0959/entry_vwap)]；另列ln(entry_vwap/price_1449)，不归入买入后收益。",
+    "weighting": "先对同日有完整参考和正有限桥接价格者等权汇总，再日期等权；记录缺参考、未知、未买入与价格桥不可用，不补零。",
+    "interpretation": "收盘至09:59包含隔夜与早盘，不能称纯隔夜；成本项是既有净参考与原始价格差，不是新增卖出策略；股数与价位只作原标签复用。",
+    "verification": "全部逐股恒等式与pandas按日汇总均由独立DuckDB SQL重建；不据分解结果另筛选股票或改变公式。",
+    "new_price_bridge_results_not_yet_read": true,
+    "new_2026_prices_allowed": false
+  },
+  "first_diagnostic_complete": true
 }
