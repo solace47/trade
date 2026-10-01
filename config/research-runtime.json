@@ -72,17 +72,13 @@
     "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
     "scripts/run_tail_formula_rule_search.py": "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a",
     "scripts/finish_tail_formula_rule_search.py": "71ef7204ca4c862b3b034738b995310793bee5ed553a5e53bd758beebc202028",
-    "scripts/review_tail_formula_rule_training.py": "da690363fa478a49b9acabd0aa65e13d72b72e9286242aa47e3e0739a7719e26",
     "tests/test_tail_formula_rule_search.py": "de6e8aa42d63bb61585002115cb0e796b9c91b8ab109407c7c198fb5b39453ea",
-    "scripts/run_tail_formula_rule_reference_gate.py": "571316c05c01aae54897b7bcc003bf46a3f7f288df8da7d3a9a044e7dad2e251",
-    "scripts/finish_tail_formula_rule_reference_gate.py": "9c6f899592e0688c1ec4cb7e136d22acc75380f79375f2f5a428d0ceb0e3804f",
     "src/trade_research/tail_formula_profit_rule_search.py": "2a286f10f11796a14256a0fb8dc6e66ccdcd21de0746e1f9f75702ca7f0e0097",
     "scripts/run_tail_formula_profit_rule_search.py": "5f54b9648b8de8572129ac16629418d4ddd7eceabcd465a22b9f0e93e87b080c",
     "scripts/finish_tail_formula_profit_rule_search.py": "c88b9c483ca2f763365f1118e853c6f8ea15a63b3e4ef2cb122c5d3e498cdf59",
     "scripts/run_tail_formula_robust_profit_rule_search.py": "902b7a75dcfe94c09974e99177d2ed18ed8f771fe03606622b8bf6b26f2e68a0",
     "tests/test_tail_formula_profit_rule_search.py": "1653f58dd8dc15abaafbe7468f710b14a2865f00620a07c55cca145d15314a21",
-    "scripts/review_tail_formula_training_market.py": "c9a6e7f8e6ad9df2b7510a666b875851a56869eb8f807ec714432d477d3773fe",
-    "scripts/review_tail_formula_training_concentration.py": "2c5f4479bb3b00726255bbfac4ccce1d5b72b8dc1a62cb4e712384c39ab82b0b"
+    "scripts/finish_tail_formula_robust_profit_rule_search.py": "25c7919b76e3464ce2486e09ca453438efce568246998174cd7902a07ec133a8"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -235,9 +231,6 @@
     "config/tail_formula_rule_search_protocol.json": "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f",
     "config/tail_formula_rule_search_execution.json": "dbb8f60ef3de771a07d2c6529810144fea52ee580907b177e6929e045e1ea4ec",
     "config/tail_formula_rule_search_evaluation.json": "c6cbd53805fee4fd849e30ba738b56cd0b2e85a4b0ba6ed5064ef1c96c942906",
-    "config/tail_formula_rule_reference_gate_protocol.json": "ed3f95e09bfaffb38d4c351890e82988d4ed9cd207742fe6d2f206dd9a5b06f8",
-    "config/tail_formula_rule_reference_gate_execution.json": "c4937e4eeb60698e794b89d72b03e5e168f16bd6b86638d99feb873dca1950c2",
-    "config/tail_formula_rule_reference_gate_evaluation.json": "b646f36502c7b25e373d01ac4ebb25de02806f5fc4f3351e780877fc69d91cd9",
     "data/research/tail_formula_rule_search/complete_results_manifest.json": "70dbd2610b0e6f4d848c21b343aeb0cc6726530beb8322617286b7c5e3132801",
     "data/research/tail_formula_rule_search/training_reference_diagnosis.json": "489cb1eee69ac76f18b5a0b14f962d485f2e9ba21ddf8c81d869b3d16b37c799",
     "data/research/tail_formula_rule_reference_gate/complete_results_manifest.json": "c17b9948a861128ba002ba6de52f80f72fd38c1a4bbaf70cd35cb0c00289904b",
@@ -267,12 +260,13 @@
     "data/research/cleanup_runtime_phase_split_complete.json": "2014c0c105ecd200cd4d9cefbcf8ef01ca65811a585267cff818d40d7e8917ff",
     "data/research/tail_formula_external_pattern/prior_cleaned_runtime.json": "f51af2ed2f8a89e35c84b1a5c6d58166f400a105664bd95ad14bf978540968d1",
     "data/research/tail_formula_rule_reference_gate/prior_cleaned_runtime.json": "64e14bcfff6cfcd3fafd0f683e3fd97b6b2b3dda9327945998aeb37f0ea2d754",
-    "data/research/tail_formula_robust_profit_rule_search/prior_cleaned_runtime.json": "1531aa19f09ca79f74c5698dd1db2c697f8f02206141b95836bf87fc9510f619"
+    "data/research/tail_formula_robust_profit_rule_search/prior_cleaned_runtime.json": "1531aa19f09ca79f74c5698dd1db2c697f8f02206141b95836bf87fc9510f619",
+    "data/research/tail_formula_robust_profit_rule_search/prior_archive_runtime.json": "056111801e2ce19c85f7d7004e114ced33c31578bda31672cc3756a187642b4c"
   },
   "previous_completed_study_revision": "24a883f",
   "current_study": "tail_formula_robust_profit_rule_search_fitting",
   "research_definition_changed": true,
-  "rationale": "平均净参考搜索完整失败；全部24组同日拆解及集中度核准，H2训练均值受少数大涨日支撑。事先固定同规模中位数与截尾目标；旧平均实现字节可从Git24a883f恢复，不重做旧拟合。",
+  "rationale": "平均净参考搜索完整失败；全部24组同日拆解及集中度核准，H2训练均值受少数大涨日支撑。事先固定同规模中位数与截尾目标；旧平均实现字节可从Git24a883f恢复，不重做旧拟合。 删除八个已结束且无当前运行依赖的执行文件，原字节逐项由Gitf6abbcb核准，结果与原件保留。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -561,6 +555,30 @@
     },
     "scripts/run_tail_formula_profit_rule_search.py": {
       "70f6283fc3550086b4634f6ec408f6ba00351f00401b76439099873d8eaa6707": "24a883f"
+    },
+    "scripts/run_tail_formula_rule_reference_gate.py": {
+      "571316c05c01aae54897b7bcc003bf46a3f7f288df8da7d3a9a044e7dad2e251": "f6abbcb"
+    },
+    "scripts/finish_tail_formula_rule_reference_gate.py": {
+      "9c6f899592e0688c1ec4cb7e136d22acc75380f79375f2f5a428d0ceb0e3804f": "f6abbcb"
+    },
+    "config/tail_formula_rule_reference_gate_protocol.json": {
+      "ed3f95e09bfaffb38d4c351890e82988d4ed9cd207742fe6d2f206dd9a5b06f8": "f6abbcb"
+    },
+    "config/tail_formula_rule_reference_gate_execution.json": {
+      "c4937e4eeb60698e794b89d72b03e5e168f16bd6b86638d99feb873dca1950c2": "f6abbcb"
+    },
+    "config/tail_formula_rule_reference_gate_evaluation.json": {
+      "b646f36502c7b25e373d01ac4ebb25de02806f5fc4f3351e780877fc69d91cd9": "f6abbcb"
+    },
+    "scripts/review_tail_formula_rule_training.py": {
+      "da690363fa478a49b9acabd0aa65e13d72b72e9286242aa47e3e0739a7719e26": "f6abbcb"
+    },
+    "scripts/review_tail_formula_training_market.py": {
+      "c9a6e7f8e6ad9df2b7510a666b875851a56869eb8f807ec714432d477d3773fe": "f6abbcb"
+    },
+    "scripts/review_tail_formula_training_concentration.py": {
+      "2c5f4479bb3b00726255bbfac4ccce1d5b72b8dc1a62cb4e712384c39ab82b0b": "f6abbcb"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -570,6 +588,7 @@
     "training_market_groups": 24,
     "training_concentration_groups": 24,
     "current_robust_fits_at_protocol": 0,
-    "tests_passed": 27
+    "tests_passed": 27,
+    "additional_retired_files": 8
   }
 }
