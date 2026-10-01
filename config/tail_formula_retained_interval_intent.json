@@ -1,0 +1,77 @@
+{
+  "objective": "ETF总量异常52项若完整失败，检验尾段三根K线首尾不重叠且截至1449仍保留的区间结构。此意向在ETF本轮分组经济结果之前固定。",
+  "conditional_gate": "data/research/tail_formula_etf_quantity/memory_gate.json",
+  "execute_only_if_supports_further_validation_false": true,
+  "hypothesis": "既有高低价坐标需要多层比较才能表达后续回补。将三根K线首尾价格区间的剩余位移压缩成两项，检验是否改善次晨机会，不追加失败ETF变量。",
+  "definition": {
+    "window_labels": [
+      "14:21",
+      "14:49"
+    ],
+    "window_size": 29,
+    "third_positions": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "formation": "第j-2、j-1、j三根均正成交，j=2..28；三根首尾严格不重叠。中间一根可能已经成交于该区间，因此不能称全程没有成交的真缺口。",
+    "up_remaining_width": "max(0, min(active lows at j..28)-high at j-2)",
+    "down_remaining_width": "max(0, low at j-2-max(active highs at j..28))",
+    "summary": "分别取27个上／下剩余宽度的最大值，不求和，避免重复区间累加。",
+    "price_units": "floor(100*price+0.5)整分计算；严格相等为0。",
+    "normalization": "100*maximum_remaining_width/(floor(100*Q+0.5)*VP20)，沿用原50的Q和此前20日波动。",
+    "outputs": [
+      "RGUP",
+      "RGDOWN"
+    ],
+    "features": 52
+  },
+  "quality": "29条必须同日、完整唯一14:21—14:49时钟，H/L/C有限正、整分、H>=C>=L，V有限非负整数。零成交不作形成证据或后续极值；完整已知且无结构=0，缺行或坏行=未知。原50有效域变化须停止拟合。",
+  "reuse": "2024/2025已核准HLCV尾段缓存优先复用，字段及原件曾暴露，不称新信息或盲测；此前未缓存的2023 H/L训练窗口须在实际协议和源指纹固定后读取。不得重复采集当前两年原件。",
+  "novelty_audit": {
+    "archive_revision": "4b3bdda5db6470df4d8d61298501852f60b985a2",
+    "source_hashes": {
+      "src/trade_research/tail_formula_gap_semivariance.py": "c77675963d7294eea7250d97034f95eb39c45000f7c421ca00f823cac6af0d92",
+      "src/trade_research/tail_formula_bipower_gap.py": "9056178b0b654788ca4076f791318d50a8bcddaf0c59a395b2681e2bd625ca49",
+      "src/trade_research/tail_formula_dense_bars.py": "91a81982bd16eecc5ce47d2f04d6330cece0009ca2ba2d4a5d2def444fbcc190",
+      "src/trade_research/tail_formula_minute_pressure.py": "d3d749af218db161b49f9efb54bc6c68363bf0c01835cbd7347baf73eef9a276"
+    },
+    "existing_gap_semivariance": "严格此前20日的隔夜开盘／前收盘正负二阶矩；不是本轮盘中区间结构。",
+    "existing_bipower_gap": "尾段29根收盘收益平方和与相邻绝对收益积；不是高低价首尾区间比较。",
+    "existing_dense_bars": "2025已检验29根全部H/L坐标，原始数据相同；本轮是这些数据的结构化函数而非新源。",
+    "claim": "截至此意向未找到同定义旧实验；实际协议前仍须查模型和完成收据。"
+  },
+  "native": "分钟侧固定29条和同日守卫，REF及LLV/HHV只引用1449前的实际记录；VALUEWHEN保存1449宽度，按活跃量掩码排除零成交。全部数学及编码需独立SQL重建，客户端编译和数据对齐另核。",
+  "models": "原50加RGUP/RGDOWN；四折严格此前一年，同日相对机会目标、日等权、64树深3叶300、lr.05、seed20260927、q995不变。四原控制须训练值、目标和权重完全一致才复用，最多四新拟合。",
+  "evaluation": "四份完整年度名单一起提交之后，才评价2024/2025次晨0931—0959；股票1449／指数1448标签，1450决策、1452—1455约两万元原分钟容量模拟，费用5/15基点，未知、未买入及独有日全部保留。",
+  "acceptance": "四半年至少20信号日且参考均正，两年机会高于同质量控制且3%不利不高，两年共享未知增量下界周区间严格正。",
+  "prior_failures_not_retuned": true,
+  "no_new_2026_values_or_labels": true,
+  "no_exit_rules": true,
+  "no_trader_identity_or_order_imbalance_claim": true,
+  "no_publish_claim": true
+}
