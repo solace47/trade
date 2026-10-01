@@ -3,8 +3,11 @@
   "conditional_gate": "data/research/tail_formula_etf_activity/memory_gate.json",
   "execute_only_if_supports_further_validation_false": true,
   "hypothesis": "相同成交份额可以对应完全不同的总量。检验每ETF截至1448的228条总量相对其严格此前20个交易日同前缀总量均值的异常程度，不追加失败的四份额。",
-  "fixed_instruments": ["SH510300", "SH510500"],
-  "source": "继续使用固定Hub revision 4b7e48c1e8265cc7d25baee55879dd5bbb24f74d的两份canonical parquet；全文件指纹已锁定。先仅检查2022-11-01至2025-12-31的身份和timestamp，2022尾段只暖启动，不计算新经济；实际输入协议须先于新增总量及历史量值。",
+  "fixed_instruments": [
+    "SH510300",
+    "SH510500"
+  ],
+  "source": "继续使用固定Hub revision 4b7e48c1e8265cc7d25baee55879dd5bbb24f74d的两份canonical parquet；全文件指纹已锁定。先仅检查2022-11-01至2025-12-31的身份和timestamp，2022尾段只暖启动，不计算新经济；原2023—2025前缀量及T0求和已在份额核准中暴露，不能重称未读；实际新协议须先于2022暖启动量、M20及异常值。",
   "definition": "原50加两项共52。每ETF T0为0931—1130与1301—1448共228条量和，M20为恰好此前20个ETF交易日同前缀总量均值；输出100*(T0-M20)/(T0+M20)，两者均已知0时定义0。当前和20个此前前缀须完整唯一且有限非负，不跳坏日补远日，不把缺失填0。正倍数单位在整个21日窗口应保持值及编码。",
   "native_reference": "ETF分钟辅助指标保存1448总量，使用实际日期边界和可变REFV偏移依次引用20个此前日期最后记录上的已知前缀及有效标志，不假定240或241条一天。当前及全部20前缀守卫均须通过，股票1449引用两个ETF的数值与当日日期；昨日回填无效。官方函数目录与实际数学先核准，客户端数据／时效另核。",
   "scope": "全部原1815129键、原50值、元数据及1602413有效域须精确不变；新增失效完整记录后停止四新拟合，不冒用原控制。",
@@ -14,5 +17,6 @@
   "acceptance": "四半年各至少20信号日且参考均正，两年机会高于控制且不利不高于控制，两年共享未知同日下界周区间严格正；不由结果改变参数。",
   "no_new_2026_values_or_labels": true,
   "no_exit_rules": true,
-  "no_trader_identity_claim": true
+  "no_trader_identity_claim": true,
+  "prior_exposure": "原T0已用于份额归一，原2023—2025分钟量已读取；此次不重复旧份额实验，只新增跨日M20和异常。未缓存的总量可从同一锁定原档重建，但不能称新盲测。"
 }
