@@ -1,0 +1,87 @@
+{
+  "intent_sha256": "548573952aa2b41c24db7dddd7c240ba913398406db1a1e7a52cd0476f73949f",
+  "objective": "只核对原50完整元数据与成熟known／确定未买入／未知域，先证明新目标有不同资料覆盖，不读取机会0/1、收益、分数或新选股分组。",
+  "input_columns": [
+    "date",
+    "code",
+    "half",
+    "board",
+    "decision_shares",
+    "formula_input_valid"
+  ],
+  "label_columns": [
+    "date",
+    "code",
+    "next_date",
+    "known15",
+    "known_no_trade"
+  ],
+  "feature_files": [
+    "data/research/tail_formula_stock_2024/inputs/features.parquet",
+    "data/research/tail_formula_morning_range/inputs/features.parquet"
+  ],
+  "label_file": "data/research/tail_formula_morning_range/inputs/full_labels.parquet",
+  "folds": {
+    "2024h1": {
+      "training_start": "2023-01-01",
+      "training_end": "2024-01-01",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01"
+    },
+    "2024h2": {
+      "training_start": "2023-07-01",
+      "training_end": "2024-07-01",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01"
+    },
+    "2025h1": {
+      "training_start": "2024-01-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    "2025h2": {
+      "training_start": "2024-07-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  },
+  "parameters": {
+    "n_estimators": 64,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "learning_rate": 0.05,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error",
+    "max_features": null
+  },
+  "expected_original_keys": 1815129,
+  "metadata_scope": "保留全2023至2025原键；标签状态只投影date<2025-07-01，严格按原next_date已关闭后算成熟。缺日期、等于或早于信号、等于或晚于训练截止一律不自动赋负事件。",
+  "calendar": "只取2023-01-01至2025-07-01交易日元数据；已知目标必须对应下一市场日。延迟和空日期单列，后续模型须明确策略，不悄悄改变旧成熟域。",
+  "dedup": "仅拟合元数据候选查询；实际标签生成和模型拟合须另固定完整执行协议并做全目标核对。",
+  "source_hashes": {
+    "scripts/audit_tail_formula_confirmed_success.py": "19b8c7d1b30d69c888d4005bb6c6552ff7acfdb0f819d268680dbc739d6b5b38",
+    "scripts/find_existing_tail_formula_models.py": "4192ec22ed242406d42dd24820518a90a1738d9ce25ac74a43cabc3c65c882d0",
+    "src/trade_research/tail_formula_executable_opportunity.py": "e6f8bdccedb1a244590b7c6d20def10c07393d26e124f25a675b9104fd7e5095",
+    "src/trade_research/tail_formula_pool_executable.py": "02dd030d86c8bc0ba47656f4a8673ee2c2be3880d7695effc3d2c0a0054027aa",
+    "data/research/tail_formula_volume_memory/memory_gate.json": "52f9cbe116b6c7b326e6b3afd398d27f2fb858cd387a75b933908b3f1dfb4ca4",
+    "data/research/tail_formula_volume_memory/complete_results_manifest.json": "bc606b20ebf122f47b91a4fa6c2bacbf0f2a8b81ca81fdba2632c1c71aa60d62",
+    "data/baostock/market_2020_2026/metadata/calendar.parquet": "25d81e17d9e32f25fc7f61cda244f2ea2df818e6a1c1669d0e8bfcf1c1696400",
+    "data/research/tail_formula_stock_2024/inputs/features.parquet": "9b3edf988981f82aef9f5415c7b72f740b62e2e98fd5e93b6bfa0f2cd245c7f7",
+    "data/research/tail_formula_stock_2024/inputs/feature_report.json": "a365c16deca5a37b24cfc42642ff96d8a24dee3635f7a92786fb99a738d66310",
+    "data/research/tail_formula_stock_2024/inputs/feature_verification.json": "ca2fb79e83daf7a898a09b08efe2e2407219fced64c7ae4510a2d3667fede233",
+    "data/research/tail_formula_morning_range/inputs/features.parquet": "1874d835d630c4b13352cac8635286b2b5e21e55653e4490f3700805edb62412",
+    "data/research/tail_formula_morning_range/inputs/feature_report.json": "25c80264c7f7ad05bd9384393cfd3aa1635bff5f004a40ab008ca24b0142a8cc",
+    "data/research/tail_formula_morning_range/inputs/feature_verification.json": "68e6896e07c155fe9ac623a15b5cad704a2ba21df698aaa8dab55e7df01477ca",
+    "data/research/tail_formula_morning_range/inputs/full_labels.parquet": "fd7b19cb1b343e4aeda3c281487642ba214c4cd5dc0de8a8abfa655921d99b60",
+    "data/research/tail_formula_morning_range/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
+    "data/research/tail_formula_morning_range/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639"
+  },
+  "no_opportunity_value_reads": true,
+  "no_return_value_reads": true,
+  "no_new_group_evaluation": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
