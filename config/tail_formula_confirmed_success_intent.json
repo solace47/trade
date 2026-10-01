@@ -1,0 +1,30 @@
+{
+  "objective": "仅在有限量价参考未通过后，核查成熟未知排除是否导致训练选择偏差，检验可核准成功事件下界目标；没有把未知实际机会或收益补成零。",
+  "conditional_gate": "data/research/tail_formula_volume_memory/memory_gate.json",
+  "execute_only_if_supports_further_validation_false": true,
+  "distinction": "旧可买事件目标保留known15或known_no_trade，未知仍丢出拟合；新目标保留原50有效输入内全部已结束观察股票日，学习是否取得可核准且覆盖成本的机会证据。不同于新增信息、扩池、单独风险过滤或绝对已知机会分类。",
+  "input": "原50原有效交集，不叠加量价参考；全部原始键与元数据保留，严格14:49可见；收益评价仍2024以后、09:31至09:59。",
+  "target_interval": "已知0/1=[op,op]；确定未买入=[0,0]；未知=[0,1]。训练下界证据指示量，仅known15且opportunity15=1为1，其他成熟样本没有可核准成功证据为0；它不是未知真实机会为0，也不是未知收益为零。",
+  "target": "全成熟基础池下界证据指示量减日期均值，再连原有效输入、按日期等权。只拟合这一明确目标，不搜索未知惩罚系数、上界场景或组合阈值。",
+  "maturity": "各标签既有next_date严格早于训练终点。必须先逐日验证全池next_date语义、空值及观察关闭状态；不得因next_date缺失推断已知失败，不能按未来成交或结果可用性筛实时输入。",
+  "audit": "先只核对来源和成熟域、各状态覆盖、现有目标精确查重。数值标签与模型执行须另固定完整源和协议；未知对应的原标签一直保留未知，经济评价继续完整上下界与共享未知比较。",
+  "proposed_folds": [
+    "2024h1",
+    "2024h2",
+    "2025h1",
+    "2025h2"
+  ],
+  "maximum_proposed_new_fits": 4,
+  "no_new_raw_prices": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "no_publish_claim": true,
+  "source_hashes": {
+    "src/trade_research/tail_formula_executable_opportunity.py": "e6f8bdccedb1a244590b7c6d20def10c07393d26e124f25a675b9104fd7e5095",
+    "src/trade_research/tail_formula_pool_executable.py": "02dd030d86c8bc0ba47656f4a8673ee2c2be3880d7695effc3d2c0a0054027aa",
+    "config/tail_formula_volume_memory_protocol.json": "669d3b5ded7adaac6a4bc1f6eabdeea363aa922a1cf897b6fa3b50f3446f32c5",
+    "data/research/tail_formula_morning_range/inputs/full_label_report.json": "271748dd99f4d898b2891000ca1b7c2792184375e3bea1928d954904b88bbaa2",
+    "data/research/tail_formula_morning_range/inputs/full_label_verification.json": "6d1d9c057f13abf6ef4de75e59664a3fb52c4abc67d81d788c5d19b38e92c639",
+    "data/research/tail_formula_morning_range/inputs/full_labels.parquet": "fd7b19cb1b343e4aeda3c281487642ba214c4cd5dc0de8a8abfa655921d99b60"
+  }
+}
