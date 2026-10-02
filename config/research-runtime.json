@@ -975,7 +975,24 @@
     "data/research/tail_formula_order_target/models/whole_window/2025h2/model_verification.json": "4aa1a04a26b9f5b95d2d488d6150098575d2b9a1c0f05f256c3bd90f4520588a",
     "data/research/tail_formula_order_target/all_models_verified.json": "4fa44c99d36771c05652fc42dfc2d13d4350d5a76697f256754dff21cf280192",
     "data/research/tail_formula_order_target/models.log": "0585d823af681ae4f8389822e33395bf7ec58160312e8b4544be3f6f537d26b8",
-    "data/research/tail_formula_order_target/user_stop_checkpoint.json": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44"
+    "data/research/tail_formula_order_target/user_stop_checkpoint.json": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44",
+    "data/research/tail_formula_order_target/ordered2024/selection.parquet": "6e2470b5f068da84ce74a56c5d72ed005651c10b25223e435885460bf56d2b27",
+    "data/research/tail_formula_order_target/ordered2024/selection_report.json": "a41c3017557837b982f58c5fbe8f55604167d2275df41680dfab8c1b02720f3d",
+    "data/research/tail_formula_order_target/ordered2024/selection_verification.json": "18d5ecc109444c721f725ed9e212d3401a7c4d149b51433321c958cbf51e221a",
+    "data/research/tail_formula_order_target/ordered2025/selection.parquet": "da887a7ee642cd592f44cbcd5efe3956e708c752a4b672e9d49c8b97089533a8",
+    "data/research/tail_formula_order_target/ordered2025/selection_report.json": "32adc2a8b5398182fbb915bea49a0e39b123be495c9a72fac14bd305694ab9d2",
+    "data/research/tail_formula_order_target/ordered2025/selection_verification.json": "6b8a31af6a393f946971d7b87952c4db41283fd14c293caf54b9868c79f88455",
+    "data/research/tail_formula_order_target/whole_window2024/selection.parquet": "8c09d6f3cff5396c496ea7b3c9d0c73dadb75a7e9086fe69442d80717c7de347",
+    "data/research/tail_formula_order_target/whole_window2024/selection_report.json": "f7c33cb376991e15d951d469344410f7413d4daa464da91fd1df60d1da73f83c",
+    "data/research/tail_formula_order_target/whole_window2024/selection_verification.json": "5af55eee77be81c4b6923b6c00f8500a81777cae590da01bbbf964b9c9e5eb07",
+    "data/research/tail_formula_order_target/whole_window2025/selection.parquet": "478191c053d3c3663bf1a2ed57e26287725e646c544cf4780a308337d61a573c",
+    "data/research/tail_formula_order_target/whole_window2025/selection_report.json": "719b61a9455ebef3a4995c9a1f65bac1d363c96fa4bb0e409aaa34bcde9afb80",
+    "data/research/tail_formula_order_target/whole_window2025/selection_verification.json": "10d5427513107472d654782cd0a4e750980813b9370d8bbff0e4203186c2d32f",
+    "data/research/tail_formula_order_target/score_verification.json": "148ffacaabc049ee6b4dd522c5eaeea69a656705b96efec2334532e55d237ebd",
+    "data/research/tail_formula_order_target/selection_equivalence_lookup.json": "db299ddfcd7aa2021d8cd840fd1772df43cc037746020598c3753f0f982b04c0",
+    "data/research/tail_formula_order_target/joint_selection_freeze.json": "be33827980b5407e8145aefe080459c316abef3163fee981b82c41b60830a3a7",
+    "data/research/tail_formula_order_target/selection_freeze.log": "7b437b7f68a2864270a421df2b459c67332f8d8b49f9525e912b7ec93a66d83d",
+    "data/research/tail_formula_order_target/user_resume_receipt.json": "65214173c49582ed3e169a4f01900012c07721ffa5652a94a4079330b61f2422"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1039,12 +1056,13 @@
     "data/research/tail_formula_order_target/prior_runtime.json": "7db0355b70102307ec5cd29784d87fe34788b35d705f79beff88c8ad1993c585",
     "data/research/tail_formula_order_target/before_execution_runtime.json": "533d03a478bbb096e3d0cbdc300eb27ab3d50a8601c1338a53ee883ef8e78f99",
     "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10",
-    "data/research/tail_formula_order_target/before_user_stop_runtime.json": "b9bd015d16fa726bf5f9616f2a28f6f3d4798cb2d2bf1a45ff5beb3e26729d4e"
+    "data/research/tail_formula_order_target/before_user_stop_runtime.json": "b9bd015d16fa726bf5f9616f2a28f6f3d4798cb2d2bf1a45ff5beb3e26729d4e",
+    "data/research/tail_formula_order_target/before_resume_runtime.json": "90faa09f4b01a00be4881933021fb3e32a85e67609b3a775ab98cc1c7070e157"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_target_models_verified_paused_at_user_request_before_lists_and_economics",
+  "current_study": "tail_formula_order_target_resumed_four_complete_lists_fixed_before_economics",
   "research_definition_changed": true,
-  "rationale": "同50输入和原有效域，空间先到目标与全窗质量对照已完成固定的八模型拟合及独立核准。用户要求下一次提交后停止；保存停点，不生成新名单或读取新选股经济结果。",
+  "rationale": "用户明确恢复研究；复用上次八个核准模型，零新拟合，四个完整年度名单及全部查重已核准并共同固定，随后按原协议评价。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -1638,10 +1656,12 @@
     "order_target_independently_verified_models": 8,
     "order_target_model_manifest_sha256": "4fa44c99d36771c05652fc42dfc2d13d4350d5a76697f256754dff21cf280192",
     "order_target_user_stop_receipt_sha256": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44",
-    "order_target_new_selection_lists_generated": false,
+    "order_target_new_selection_lists_generated": true,
     "order_target_new_selection_economics_read": false,
-    "order_target_paused_by_user": true,
-    "order_target_model_process_completed": true
+    "order_target_paused_by_user": false,
+    "order_target_model_process_completed": true,
+    "order_target_user_resumed": true,
+    "order_target_joint_selection_sha256": "be33827980b5407e8145aefe080459c316abef3163fee981b82c41b60830a3a7"
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
