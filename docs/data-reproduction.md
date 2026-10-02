@@ -1,16 +1,15 @@
 # 当前环境与复算
 
-当前为[原件趋势回调盘中适配入口](../scripts/run_tail_formula_trend_reversion_literal.py)。旧历史模型严格次晨补齐已完成，结果不重做。Python 3.12虚拟环境及依赖见requirements.txt；完成的阶段禁止重复或覆盖结果。
+Python 3.12虚拟环境与依赖见requirements.txt。当前29项检查：
 
 ```sh
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_trend_reversion_literal.py --help
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
 ```
 
-匹配模型轮prefit、八次fit、freeze、analyze、finish已经完整完成，禁止重复拟合或覆盖结果。直接规则freeze、analyze、finish也全部结束，零拟合、两年度及六比较完整核准；不得重复或更改已固定条件追求正结果。输入／模型／评价协议均先提交，全部名单共同固定后才读经济分组；全量窗口及现金、模型节点与分数、四年度和四比较已独立核准。年度报告已含半年，不重复聚合。旧控制只读复用，完整名单、元数据、适用标签与统计全部相同才复用。
+已结束阶段不重复拟合、聚合或覆盖。完整年度名单及协议先提交，输入、标记、元数据、适用标签、全部经济统计与比较均独立核准；精确相同才复用。报价参考不等于实际兑现收益。
 
-当前规则在data/research/tail_formula_trend_reversion_literal/，prepare／freeze／analyze／finish全部完成且失败，不重复或覆盖。此前四条件在tail_formula_shakeout_literal/；协议及两年名单先固定，严格次晨两年度及两比较已完整核准且失败，不重复或覆盖。此前直接规则在tail_formula_cost_history_literal/（执行稿从Git 2e123ab恢复），原来源与输入在tail_formula_cost_history/；32股试点在tail_formula_cost_history_probe/。旧完整补齐在tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
+三组外部固定规则在data/research/tail_formula_shakeout_literal/、tail_formula_trend_reversion_literal/、tail_formula_candle_gate_literal/；现金语义审查在tail_formula_entry_semantics_reflection/。全部已完成，当前7个专用执行／协议文件字节从Git 13d2c5c恢复。原件版本与阅读范围、结果及现金定义见[失败索引](strategy-results.md)。
 
-原始日线／分钟在data/baostock/和data/hf/，全部结果、原件和查重缓存在忽略的data/research/。2025暴露探索；不新增2026经济评价、卖出、多日持有或月度回购研究。
+原始日线／分钟在data/baostock/与data/hf/，原件／结果／查重缓存保留于忽略的data/research/。旧14个历史报价／补齐文件从2e123ab恢复，11个时间门／延续文件从1b9f085恢复，稳健实现e13a9b5、平均实现24a883f、后过滤f6abbcb；完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2。其他逐文件版本、SHA及当前环境见[固定收据](selection-formula.md)和config/research-runtime.json；复算需独立检出对应版本，不能覆盖旧结果。
 
-已结束方案从对应Git版本独立检出恢复，禁止重做：本次删除14个历史报价输入／匹配／直接规则／严格补齐执行、协议及专用测试文件，字节从2e123ab恢复；已删11个单次时间门及延续执行／测试文件1b9f085，稳健入口e13a9b5，平均实现24a883f，八个后过滤／诊断执行文件f6abbcb，同容量整体／分段1e5793f、情绪绝对bbde01d、情绪相对bfbe762、分钟开价ceca953、日内均幅46004ad、ETF总量6bfed42、尾段区间884391c。完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2；字节归档映射与当前收据见[固定收据](selection-formula.md)。
+2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。

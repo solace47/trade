@@ -76,11 +76,7 @@
     "src/trade_research/tail_formula_profit_rule_search.py": "e47953f5388fdf85e912601820151c5b1dd04a6250ff7e4ea0348bea8aab0fc8",
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
-    "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/run_tail_formula_shakeout_literal.py": "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931",
-    "scripts/run_tail_formula_trend_reversion_literal.py": "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13",
-    "scripts/audit_tail_formula_entry_semantics.py": "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9",
-    "scripts/run_tail_formula_candle_gate_literal.py": "9eb15f2d6fb8374abca6d6c08dc153642346698d906c168dfbbdf80b78607043"
+    "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -614,7 +610,6 @@
     "data/research/tail_formula_cost_history_literal/learned_same_dates_2025.json": "f546fed3a982b88160704bf5bdd404940855dfad972ef3fb53500591fc7b3f44",
     "data/research/tail_formula_cost_history_literal/learned_shared_unknowns_2025.json": "879f5bbe93b97087ca8f7835de6b05cc4b90db5a95d270d6f6465f3f772ce103",
     "data/research/tail_formula_cost_history_literal/complete_results_manifest.json": "6f567c17b7980cc22c14dca3f45c14d638079f64dc680bdd1a290b5c06c06ee6",
-    "config/tail_formula_shakeout_literal_protocol.json": "7a28b712a00fdc8af1fc372de5aed057d4d9758a9de11c1d1f9b7b8ee5586cd9",
     "data/research/tail_formula_shakeout_literal/prior_registry.json": "c2c42b2d0a4faa2a78784dd86b82aa45ee63930c135fd7c23fc209abb7f678f0",
     "data/research/tail_formula_shakeout_literal/source_review.json": "78786cbfeb7a989d64525647217d32dab6e1964d8ffc0420ef413be7e58afa05",
     "data/research/tail_formula_shakeout_literal/joint_selection_freeze.json": "1fe6eb20e1ad94070e0112121d94d18ef99e3bebe334f2237d758040c69b2a8d",
@@ -626,7 +621,6 @@
     "data/research/tail_formula_shakeout_literal/rule2025/selection.parquet": "87164ce1ff742821c4aa4df4167bebdb1f680d758cd10107322ee16d8e1d12ef",
     "data/research/tail_formula_shakeout_literal/rule2025/selection_report.json": "56618ffb5f7ac92358f751f33c3a2e648a66fd73eb1f95bd7f0f238959210800",
     "data/research/tail_formula_shakeout_literal/rule2025/selection_verification.json": "1733664edf68208b72b357a1c72a7eda93036e238c2a85b0edf6f51b6bae367f",
-    "scripts/run_tail_formula_shakeout_literal.py": "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931",
     "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
     "data/research/tail_formula_prior_bar/inputs/prior_bar_primitives.parquet": "08432dae76719d587385ef0c74437e20c79047c813921c085232acdfd4fc6ec0",
     "data/research/tail_formula_prior_bar/inputs/features.parquet": "d92166182420d9a8b49f044dae0e353a7812fa57524b65ad730e4828e477f3eb",
@@ -653,7 +647,6 @@
     "data/research/tail_formula_shakeout_literal/complete_results_manifest.json": "65e7ca1c244a40469183f4826ce70e79e979673778f48e4d99b00c570a36e15c",
     "data/research/research_method_sources_20261002/daily_technical_deeper_review.json": "28ea4e48589fd1284551ee39b30246dd1668d1b647b29b8f889c9b334e2bb9d6",
     "data/research/tail_formula_shakeout_literal/retired_source_receipt.json": "47e6882aff8bafc63cf7404640858a72f303d8ffae0470d42b9ddd565e8b97e2",
-    "config/tail_formula_trend_reversion_literal_protocol.json": "dc3bb522df962b4168e528e9400ccaa084f73dc7fe387834a7a3bb673a8d27ef",
     "data/research/tail_formula_trend_reversion_literal/prior_registry.json": "c4ece9d755c11d1e39acdb49d2d5728d853d656e974036ac0b2d034fbe01f1bb",
     "data/research/tail_formula_trend_reversion_literal/source_review.json": "825838a00f27f988c6ad4513de4cce586a817524bd328d72d49d3b6383e50e6b",
     "data/research/tail_formula_trend_reversion_literal/input_report.json": "cfc60b3e47ecdcc44b9780a29e4cc8b83de3c8ef3c98c94f8d120cfab2afd145",
@@ -673,7 +666,6 @@
     "data/research/tail_formula_trend_reversion_literal/matched2025/selection.parquet": "bf57a3ee9d48001f2ba38e81305dc4110e932aeb13abfde52321bad565fdc702",
     "data/research/tail_formula_trend_reversion_literal/matched2025/selection_report.json": "077f4162dba17b17928fb77d2f9beaf45a2a7bce53d2091e305c2f9476f58c76",
     "data/research/tail_formula_trend_reversion_literal/matched2025/selection_verification.json": "f8b5cc9a716afe9b8d24921fd61582a9a220920cfaea482444f4126bc313da64",
-    "scripts/run_tail_formula_trend_reversion_literal.py": "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13",
     "data/research/limitup_premium_environment/history.parquet": "fba4830d011cfa990de7bb28e607256064a0299ff4c752c2e4cabd395b5d0721",
     "data/research/tail_formula_prior_bar/daily_cache_date_coverage_verification.json": "934c3061b004ceb9a895bd5d53a50735f02bb085d715b25cd3ad21806071c884",
     "data/research/research_method_sources_20261002/github_followup/sequoia_x/sequoia_x/strategy/trend_mean_reversion.py": "e8000708c51d0a67044116b66291fc023cd71ec94bd6bccce1b7d0bcc0dbd296",
@@ -710,7 +702,6 @@
     "data/research/tail_formula_trend_reversion_literal/complete_results_manifest.json": "2369ab614a216c54db27b861cee758fd6a623ef60f1f8b8b0e6c9c9e9abae7ff",
     "data/research/tail_formula_entry_semantics_reflection/protocol.json": "8a65bae42839a92411b2d3cb3ea34e1c075dc491d3bea6087025e75891ca0ea2",
     "data/research/tail_formula_entry_semantics_reflection/verification.json": "76efd3c835994db83a3859923d2787274aca09c03687bd6c0c0c11ffee58e752",
-    "config/tail_formula_candle_gate_literal_protocol.json": "27f454ba05ec063070f48d679f0b6e00cf2992f240919db8ce635e8561549f87",
     "data/research/tail_formula_candle_gate_literal/prior_registry.json": "90e0b2fdec4d1b7a9550d4c7af2f464eb55185158af4e0c91f4b25b8a9631f8a",
     "data/research/tail_formula_candle_gate_literal/source_review.json": "00f729216bbc9a142a31ccebb3cecca249cc8e93a6c3c1c49e46ccb9b029e878",
     "data/research/tail_formula_candle_gate_literal/input_verification.json": "c03a7af266ff193b39de10d7a2f016607e569b026e264e197cf5621dcf57853d",
@@ -749,8 +740,6 @@
     "src/trade_research/tail_formula_profit_rule_search.py": "e47953f5388fdf85e912601820151c5b1dd04a6250ff7e4ea0348bea8aab0fc8",
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/audit_tail_formula_entry_semantics.py": "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9",
-    "scripts/run_tail_formula_candle_gate_literal.py": "9eb15f2d6fb8374abca6d6c08dc153642346698d906c168dfbbdf80b78607043",
     "data/research/research_method_sources_20261002/github_followup/yishiqiu/src/trading_agent/features/candles.py": "3ce3d09ad3b4659b84ddf2b7aba016c1938e68589b54abe4cdf5d1b00dfdaaed",
     "data/research/research_method_sources_20261002/github_followup/yishiqiu/src/trading_agent/market_scanner/pattern_gate.py": "493240ecc0698a8a3f558b3b654969d155a4d615d7bb5621452c2e21f8856543",
     "data/research/research_method_sources_20261002/github_followup/yishiqiu/src/trading_agent/market_scanner/service.py": "1b228b3f4f6dc2243cbef90ef452d13b00bd4999c7146a0c309b528f6ae05d3b",
@@ -773,7 +762,8 @@
     "data/research/tail_formula_candle_gate_literal/rule2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
     "data/research/tail_formula_candle_gate_literal/selection_gate.json": "f4a4d3431e2719dd31028097a1039bcca1ede60ab12cab73a994b74036759c7d",
     "data/research/tail_formula_candle_gate_literal/analysis_dispatch_verification.json": "8b5e6c18c6b40b1d1d0b47f56a721577fd31e97a6dd54a71101cf725e0085065",
-    "data/research/tail_formula_candle_gate_literal/complete_results_manifest.json": "728900ce69a343dcbc5484088253ada32d1bce447aba121f0c995d975efda1c0"
+    "data/research/tail_formula_candle_gate_literal/complete_results_manifest.json": "728900ce69a343dcbc5484088253ada32d1bce447aba121f0c995d975efda1c0",
+    "data/research/tail_formula_candle_gate_literal/retired_source_receipt.json": "1de8e95ef1fb94e867ec81601de99be31a6df1475c9cb6533f3a6669e6d00c2b"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -818,10 +808,11 @@
     "data/research/tail_formula_entry_semantics_reflection/audit_runtime.json": "2eb93d314fd5fb8dee8b8fa6a4e0d3af831f1e3b01d26ec254aaf760330434e7",
     "data/research/tail_formula_candle_gate_literal/prior_runtime.json": "dc38fd2f3c0bc6eeeb9307b0a795de2818284c39946371368c557f3426b503af",
     "data/research/tail_formula_candle_gate_literal/protocol_runtime.json": "268106456476690c3da6058ee46107dded6083731cadc546dec19b1ae5af25bd",
-    "data/research/tail_formula_candle_gate_literal/fixed_list_runtime.json": "16c1a94c0672fd06a8576f7d6667e455a84abcb30cf07a76147f71331d3ef889"
+    "data/research/tail_formula_candle_gate_literal/fixed_list_runtime.json": "16c1a94c0672fd06a8576f7d6667e455a84abcb30cf07a76147f71331d3ef889",
+    "data/research/tail_formula_candle_gate_literal/completed_runtime.json": "4772c238828805bcecce1b1dabdb1d685ce6672aa451de41bd7390cc0a1c5e7b"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_candle_gate_literal_failed_completed",
+  "current_study": "tail_formula_three_literal_sources_failed_and_retired",
   "research_definition_changed": true,
   "rationale": "原件阳线十字／锤子形态固定条件，两年及四半年参考全负，5基点年度仍负；只通过覆盖，四项质量失败，零拟合。",
   "new_2026_prices_read": false,
@@ -1273,7 +1264,26 @@
       "4d0cc23d705bfeee39c76c2857ceff6330c3d931f381ea9df4330964b4c02215": "2e123ab34fc84fd22ff7cd2205010bf8ce439fe9"
     },
     "scripts/run_tail_formula_trend_reversion_literal.py": {
-      "b2929210a4d45442686e8df2b95e42c902788deaaabc63674f1729804130622d": "e911ebe"
+      "b2929210a4d45442686e8df2b95e42c902788deaaabc63674f1729804130622d": "e911ebe",
+      "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "scripts/run_tail_formula_shakeout_literal.py": {
+      "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "scripts/audit_tail_formula_entry_semantics.py": {
+      "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "scripts/run_tail_formula_candle_gate_literal.py": {
+      "9eb15f2d6fb8374abca6d6c08dc153642346698d906c168dfbbdf80b78607043": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "config/tail_formula_shakeout_literal_protocol.json": {
+      "7a28b712a00fdc8af1fc372de5aed057d4d9758a9de11c1d1f9b7b8ee5586cd9": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "config/tail_formula_trend_reversion_literal_protocol.json": {
+      "dc3bb522df962b4168e528e9400ccaa084f73dc7fe387834a7a3bb673a8d27ef": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "config/tail_formula_candle_gate_literal_protocol.json": {
+      "27f454ba05ec063070f48d679f0b6e00cf2992f240919db8ce635e8561549f87": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -1326,7 +1336,8 @@
     "completed_candle_gate_literal_fits": 0,
     "completed_candle_gate_literal_comparisons": 2,
     "completed_candle_gate_literal_fingerprints": 106,
-    "completed_candle_gate_literal_quality_criteria_passed": 0
+    "completed_candle_gate_literal_quality_criteria_passed": 0,
+    "additional_literal_and_cash_ended_files_retired": 7
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
