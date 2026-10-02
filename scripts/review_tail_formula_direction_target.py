@@ -1,4 +1,5 @@
-"""Frozen ranking and target-centering diagnosis; no new fits or selections."""
+"""Frozen direction ranking and threshold diagnosis; no new fits or selections."""
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -34,10 +35,10 @@ def main():
     columns=['date','code','next_date','known15','known_no_trade','direction','positive_before','space_before']
     valid=f.loc[f.formula_input_valid].merge(t[columns],on=['date','code'],validate='one_to_one')
     frames={y:checked_selection(Path(root)) for y,root in p['selections'].items()}
-    ranks=[];classes=[];rank_summaries=[];class_summaries=[];gates=[];sources=dict(p['source_hashes'])
+    ranks=[];classes=[];rank_summaries=[];class_summaries=[];gates=[];tails=[];tail_summaries=[];sources=dict(p['source_hashes'])
     for fold in p['folds']:
         m=json.loads((Path(fold['model_root'])/'model_report.json').read_text())
-        assert m['variant']=='relative' and m['training_allowed_utility_values']==[-1,0,1]
+        assert m['variant']==p.get('variant','relative') and m['training_allowed_utility_values']==[-1,0,1]
         assert m['last_observation']<fold['evaluation_start'] and len(m['thresholds'])==1 and m['thresholds'][0]['training_quantile']==.995
         for scope in ['training','evaluation']:
             start,end=fold[scope+'_start'],fold[scope+'_end'];q=valid.loc[valid.date.ge(start)&valid.date.lt(end)].copy()
@@ -54,7 +55,8 @@ def main():
             ex=c.sql('SELECT date,code,'+equation+' AS score FROM encoded ORDER BY date,code').df();c.close()
             pd.testing.assert_frame_equal(q[['date','code']].reset_index(drop=True),ex[['date','code']],check_exact=True)
             np.testing.assert_allclose(q.model_score,ex.score,rtol=0,atol=2e-11)
-            q['chosen']=q.model_score.gt(m['thresholds'][0]['threshold'])
+            threshold=max(m['thresholds'][0]['threshold'],p['minimum_score_threshold']) if 'minimum_score_threshold' in p else m['thresholds'][0]['threshold']
+            q['chosen']=q.model_score.gt(threshold)
             if scope=='evaluation':
                 flags=frames[start[:4]].loc[lambda z:z.date.ge(start)&z.date.lt(end),['date','code','selected']]
                 merged=q[['date','code','chosen']].merge(flags,on=['date','code'],validate='one_to_one')
@@ -63,6 +65,28 @@ def main():
                 assert int(q.known15.sum())==m['rows']
                 np.testing.assert_allclose(np.quantile(q.loc[q.known15,'model_score'],.995),m['thresholds'][0]['threshold'],rtol=0,atol=2e-10)
             gates.append(dict(fold=fold['id'],scope=scope,rows=len(q),known=int(q.known15.sum()),unknown=int((~q.known15&~q.known_no_trade).sum()),no_trade=int(q.known_no_trade.sum()),chosen=int(q.chosen.sum()),chosen_known=int((q.chosen&q.known15).sum()),chosen_unknown=int((q.chosen&~q.known15&~q.known_no_trade).sum()),chosen_no_trade=int((q.chosen&q.known_no_trade).sum())))
+            if p.get('diagnose_threshold_concentration',False):
+                a=q.copy();a['observed_direction']=a.direction.where(a.known15)
+                a['selected_score']=a.model_score.where(a.chosen)
+                a['selected_direction']=a.observed_direction.where(a.chosen)
+                a['selected_known']=a.chosen&a.known15
+                a['selected_unknown']=a.chosen&~a.known15&~a.known_no_trade
+                a['selected_no_trade']=a.chosen&a.known_no_trade
+                d=a.groupby('date').agg(rows=('code','size'),known=('known15','sum'),selected=('chosen','sum'),selected_known=('selected_known','sum'),selected_unknown=('selected_unknown','sum'),selected_no_trade=('selected_no_trade','sum'),mean_score=('model_score','mean'),max_score=('model_score','max'),mean_direction=('observed_direction','mean'),selected_mean_score=('selected_score','mean'),selected_mean_direction=('selected_direction','mean')).reset_index()
+                c=numeric.conn();c.register('tail_rows',a)
+                ex=c.sql('''SELECT date,count(*) AS rows,sum(known15::INT) AS known,sum(chosen::INT) AS selected,
+                    sum((chosen AND known15)::INT) AS selected_known,
+                    sum((chosen AND NOT known15 AND NOT known_no_trade)::INT) AS selected_unknown,
+                    sum((chosen AND known_no_trade)::INT) AS selected_no_trade,
+                    avg(model_score) AS mean_score,max(model_score) AS max_score,
+                    avg(CASE WHEN known15 THEN direction ELSE NULL END) AS mean_direction,
+                    avg(CASE WHEN chosen THEN model_score ELSE NULL END) AS selected_mean_score,
+                    avg(CASE WHEN chosen AND known15 THEN direction ELSE NULL END) AS selected_mean_direction
+                    FROM tail_rows GROUP BY date ORDER BY date''').df();c.close()
+                pd.testing.assert_frame_equal(d,ex,check_dtype=False,rtol=0,atol=2e-11)
+                selected=d.loc[d.selected.gt(0)];total=int(d.selected.sum())
+                tail_summaries.append(dict(fold=fold['id'],scope=scope,days=len(d),selected_days=len(selected),selected_rows=total,training_threshold=m['thresholds'][0]['threshold'],effective_threshold=threshold,minimum_score_guard_changed=threshold!=m['thresholds'][0]['threshold'],largest_day_fraction=float(selected.selected.max()/total) if total else None,median_daily=float(selected.selected.median()) if total else None,max_daily=int(selected.selected.max()) if total else None,maximum_score=float(d.max_score.max()) if len(d) else None,zero_signal_days=int(d.selected.eq(0).sum()),threshold_dates_retrospective_diagnosis_only=True))
+                d['fold']=fold['id'];d['scope']=scope;tails.append(d)
             observed=q.loc[q.known15].copy();assert observed.future_source_mean.notna().all()
             for scorer in ['model','V01','negative_V01']:
                 part=observed[['date','code','positive_before','space_before']].copy()
@@ -87,8 +111,12 @@ def main():
         print(json.dumps(dict(diagnosis_verified=fold['id'])),flush=True)
     for name,parts in [('rank_daily',ranks),('class_daily',classes)]:
         path=ROOT/(name+'.parquet');pd.concat(parts,ignore_index=True).to_parquet(path,index=False,compression='zstd');sources[str(path)]=sha(path)
-    save_json(ROOT/'report.json',dict(passed=True,protocol_sha256=sha(PROTOCOL),source_hashes=sources,rank_summaries=rank_summaries,class_summaries=class_summaries,gate_summaries=gates,all_scores_and_eval_flags_SQL_verified=True,all_rank_pairs_ties_and_class_counts_SQL_verified=True,future_source_means_retrospective_only_not_selection_inputs=True,ordinal_alias_not_training_utility=True,new_fits=0,new_selection_lists=0,new_2026_prices_read=False,no_exit_rules=True,not_economic_profit_or_formula_validation=True))
+    if tails:
+        path=ROOT/'threshold_daily.parquet';pd.concat(tails,ignore_index=True).to_parquet(path,index=False,compression='zstd');sources[str(path)]=sha(path)
+    save_json(ROOT/'report.json',dict(passed=True,protocol_sha256=sha(PROTOCOL),source_hashes=sources,rank_summaries=rank_summaries,class_summaries=class_summaries,gate_summaries=gates,threshold_summaries=tail_summaries,all_scores_and_eval_flags_SQL_verified=True,all_rank_pairs_ties_and_class_counts_SQL_verified=True,all_threshold_daily_counts_and_means_SQL_verified=bool(tails),future_source_means_retrospective_only_not_selection_inputs=True,ordinal_alias_not_training_utility=True,new_fits=0,new_selection_lists=0,new_2026_prices_read=False,no_exit_rules=True,not_economic_profit_or_formula_validation=True))
     print(json.dumps(dict(report_sha256=sha(ROOT/'report.json'),rank_groups=len(rank_summaries),class_groups=len(class_summaries))),flush=True)
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    a=argparse.ArgumentParser();a.add_argument('--protocol',type=Path,default=PROTOCOL);args=a.parse_args()
+    PROTOCOL=args.protocol;p=json.loads(PROTOCOL.read_text());ROOT=Path(p.get('output_root',ROOT));main()

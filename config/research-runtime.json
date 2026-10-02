@@ -86,11 +86,12 @@
     "scripts/run_tail_formula_direction_target.py": "4a15dc87dd1855b2dee0a37bd182cc5990e82074086fed4b9b5b25e7f1494ccc",
     "scripts/tail_formula_order_statistics.py": "aa6c76fb920345f59707716bde1f6313acda71bd6ea8adb6c1be12cdf54c491d",
     "config/tail_formula_direction_target_execution.json": "bcbe4e88b0f0814befa6cae3239035cb23e68abc0c7bbb9995f24e0edfa5964f",
-    "scripts/review_tail_formula_direction_target.py": "2283efde77ed25bf623fcd298fa71e7f3a6e7d4a7b37d05ad607fa22ea239951",
+    "scripts/review_tail_formula_direction_target.py": "e034c3f28588a59239d8f7a5f179d164b5d8995803f59efd7bbcabb25b695f51",
     "scripts/tail_formula_rank_statistics.py": "0a359206b51fda80dad35bc4ab3e23bf39761f8d428e400d589f870c730377cd",
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
     "config/tail_formula_direction_target_review.json": "f586ced7d6c2f899021c69ce3d9ab4d269083f073a5173e9c0ca235fb209aa57",
-    "config/tail_formula_direction_absolute_execution.json": "e42298d23073c43a275dd6e3cdb11828c1039e496f5b91e778be4e29a36ecea6"
+    "config/tail_formula_direction_absolute_execution.json": "e42298d23073c43a275dd6e3cdb11828c1039e496f5b91e778be4e29a36ecea6",
+    "config/tail_formula_direction_absolute_review.json": "fc272ab910174ef70bda4ecdc13c90c3bc6c7fa041dc7699c2ca8e04a748c45b"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1281,7 +1282,11 @@
     "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_report.json": "dd244c8e50c4d83da7a27dae8b2cf3e18d664a83abe3b192cf1605fc5137ab4d",
     "data/research/tail_formula_direction_absolute/absolute_direction2025/selection.parquet": "99d4cf525cb015cda6e6f38a9c0056046c66591c1fb98b525176e29fe688b36a",
     "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_verification.json": "64ecac6c17121889ed179f352ef5893abc2ce70955078b66e920df86ed5c1f08",
-    "data/research/tail_formula_direction_absolute/joint_selection_freeze.json": "8d45926a2649a1c8b673ec3e2886cbeac7642db8623f5c51d1db48e0ef400f29"
+    "data/research/tail_formula_direction_absolute/joint_selection_freeze.json": "8d45926a2649a1c8b673ec3e2886cbeac7642db8623f5c51d1db48e0ef400f29",
+    "data/research/tail_formula_direction_absolute/economic_daily.parquet": "538def7c366e706deddd9b4f8eb05f2a180dfac7e4f92df2366411162b20915e",
+    "data/research/tail_formula_direction_absolute/paired_daily.parquet": "5068029778681f3744e5a41049593860a749d6208cff9a338aca7d48609ceeee",
+    "data/research/tail_formula_direction_absolute/economic_report.json": "ecbad2fb34060a6614aef33e57efeb6f6fd0ef176e60a747c58262b04fbb40c3",
+    "data/research/tail_formula_direction_absolute/complete_receipt.json": "c5b8a164d99d16f001b08126eb34c50ddb6f19b3b3bcee64e91109252cf1e1db"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1365,10 +1370,11 @@
     "data/research/tail_formula_direction_input_receipts/before_absolute_runtime.json": "d1fb0cf3ad07f430f10e8aab2ec17f3aab58852ab037583d17152094dea69b94",
     "data/research/tail_formula_direction_absolute/before_preparation_runtime.json": "62adcda66f9d188ac556e37d1b7f71bca5bc7aa4e17af967cadc866c604d58d2",
     "data/research/tail_formula_direction_absolute/before_models_runtime.json": "9d40f81249607884b821f2c7e2ba5e8f48ecbef716a6e660bb5666dc67446a88",
-    "data/research/tail_formula_direction_absolute/before_selections_runtime.json": "416aa31d0bf56deb934ae506ccd3395ea555a4ad619f58225b937995abc49c46"
+    "data/research/tail_formula_direction_absolute/before_selections_runtime.json": "416aa31d0bf56deb934ae506ccd3395ea555a4ad619f58225b937995abc49c46",
+    "data/research/tail_formula_direction_absolute/before_economics_runtime.json": "6375efa0626f26e66cca6bb6d5a3a91a9599ae2de4c186dc67c9877db912dcbd"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "absolute_symmetric_direction_joint_lists_fixed_before_full_economics",
+  "current_study": "absolute_direction_failed_full_economics_and_fixed_zero_fit_threshold_review",
   "research_definition_changed": true,
   "rationale": "相对方向评分排序了避险而未改善1%空间；2025H1原方向仍负却因源均值更负而中心化为正。检验取消源中心化及正方向门，原净机会检验不变。",
   "new_2026_prices_read": false,
@@ -1935,6 +1941,9 @@
     },
     "scripts/run_tail_formula_direction_target.py": {
       "3de6e814c62044dbadef763a27d0cdc8a2ba7a7b3d18654c380838e786051fac": "490e60990b48f5665ebaf6eee2e5f6ab03d6f924"
+    },
+    "scripts/review_tail_formula_direction_target.py": {
+      "2283efde77ed25bf623fcd298fa71e7f3a6e7d4a7b37d05ad607fa22ea239951": "242da4d"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -2120,7 +2129,12 @@
       0,
       25
     ],
-    "direction_absolute_new_economic_groups_read": false
+    "direction_absolute_new_economic_groups_read": true,
+    "direction_absolute_complete_receipt_sha256": "c5b8a164d99d16f001b08126eb34c50ddb6f19b3b3bcee64e91109252cf1e1db",
+    "direction_absolute_economic_groups": 48,
+    "direction_absolute_paired_comparisons": 4,
+    "direction_absolute_acceptance_conditions_passed": 0,
+    "direction_absolute_review_new_fits": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"

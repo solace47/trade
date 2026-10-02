@@ -1,0 +1,93 @@
+{
+  "objective": "诊断取消中心化后的同日排序与训练分位门集中度；完整经济检查已失败，不新拟合、选股或调阈值。",
+  "completed_receipt": "data/research/tail_formula_direction_absolute/complete_receipt.json",
+  "features": "data/research/tail_formula_order_target/features.parquet",
+  "targets": "data/research/tail_formula_order_target/targets.parquet",
+  "direction_labels": "data/research/tail_formula_direction_target/training_labels/full_labels.parquet",
+  "selections": {
+    "2024": "data/research/tail_formula_direction_absolute/absolute_direction2024",
+    "2025": "data/research/tail_formula_direction_absolute/absolute_direction2025"
+  },
+  "folds": [
+    {
+      "id": "2024h1",
+      "training_start": "2023-01-01",
+      "split": "2023-07-01",
+      "training_end": "2024-01-01",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01",
+      "model_root": "data/research/tail_formula_direction_absolute/models/2024h1"
+    },
+    {
+      "id": "2024h2",
+      "training_start": "2023-07-01",
+      "split": "2024-01-01",
+      "training_end": "2024-07-01",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01",
+      "model_root": "data/research/tail_formula_direction_absolute/models/2024h2"
+    },
+    {
+      "id": "2025h1",
+      "training_start": "2024-01-01",
+      "split": "2024-07-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01",
+      "model_root": "data/research/tail_formula_direction_absolute/models/2025h1"
+    },
+    {
+      "id": "2025h2",
+      "training_start": "2024-07-01",
+      "split": "2025-01-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01",
+      "model_root": "data/research/tail_formula_direction_absolute/models/2025h2"
+    }
+  ],
+  "maximum_new_fits": 0,
+  "new_selection_lists": 0,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "views": "四折训练／评价；模型、V01及负V01对照，原15基点正机会先到／空间先到排序与原方向序关系，未定义日期保留。",
+  "centering_diagnosis": "原全源日期均值只作事后对照；直接方向模型不使用该均值。保留旧诊断输出便于逐项比较，不能把事后均值当可见市场信号。",
+  "ordinal_alias": "为复用已验证的序比较，把-1／0／+1严格单调标为-3／0／+1；只用于序对计数，幅度不进入计算，绝非训练惩罚。",
+  "source_hashes": {
+    "scripts/review_tail_formula_direction_target.py": "e034c3f28588a59239d8f7a5f179d164b5d8995803f59efd7bbcabb25b695f51",
+    "scripts/tail_formula_rank_statistics.py": "0a359206b51fda80dad35bc4ab3e23bf39761f8d428e400d589f870c730377cd",
+    "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
+    "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
+    "scripts/verify_tail_formula_additive.py": "f3e0487f5e859ad2669ebd3d788f1f959b2cd0e39fc6c5f39b2623fc9aafdef8",
+    "data/research/tail_formula_order_target/features.parquet": "609a226f1c61382d4bdaafc56cdb0f9c4b61ccee4bbfe9c484b47e700f455785",
+    "data/research/tail_formula_order_target/targets.parquet": "bc949967cab9f277022dbef211cc4b401ba4d56d18c92fa4b97af9b064fdc816",
+    "data/research/tail_formula_direction_target/training_labels/full_labels.parquet": "5a43d26bb168d68a73e9dec78690a7b90025f8c9f801c57b1fd43db6fb4b9e1e",
+    "data/research/tail_formula_direction_absolute/complete_receipt.json": "c5b8a164d99d16f001b08126eb34c50ddb6f19b3b3bcee64e91109252cf1e1db",
+    "data/research/tail_formula_direction_absolute/all_models_verified.json": "c3f1b59b9c1ed5a3fa78cf9450e719ba67b69540a981e3ed539811716d1761af",
+    "data/research/tail_formula_direction_absolute/joint_selection_freeze.json": "8d45926a2649a1c8b673ec3e2886cbeac7642db8623f5c51d1db48e0ef400f29",
+    "data/research/tail_formula_direction_absolute/models/2024h1/model_report.json": "7661321b5d305694fba7ced05c52c6a1262ff1501d6b2b2f8ec0d1e569dd9ce9",
+    "data/research/tail_formula_direction_absolute/models/2024h1/model_verification.json": "7358b49f4752d43f7de888f5abfc074d1df1791d3ea8a34349374fa99a80ba3b",
+    "data/research/tail_formula_direction_absolute/models/2024h2/model_report.json": "c108987d444ecbdc66b7abcac7c99dc85aa7b6bcff10d698da1e280af8d00c72",
+    "data/research/tail_formula_direction_absolute/models/2024h2/model_verification.json": "180579e58978c680d986390f3b76b915c0b57feec150bb6b9f327a6d7646c733",
+    "data/research/tail_formula_direction_absolute/models/2025h1/model_report.json": "6be877fd658a42802e0e4e32081c75b096384366f5aa91f9e6e92740ae7decba",
+    "data/research/tail_formula_direction_absolute/models/2025h1/model_verification.json": "7c32247c69d3c17fd8ce6f3bbf9cc45555b57f104e776c8ff97f5f01e658f1e6",
+    "data/research/tail_formula_direction_absolute/models/2025h2/model_report.json": "bf7e1d2c99f4cb84b4b4413208a6c2b9b36aaacc9a560695407dd8dc2be0a52a",
+    "data/research/tail_formula_direction_absolute/models/2025h2/model_verification.json": "4fac0f8a02c0f30de276a2a5af8c76d8b6af3717746e2336666b941eb03df3ec",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection.parquet": "fc31d0658d3f91bf0f2902cca28e780179be116f0fcf71c0d9afcc258a47c011",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection_report.json": "2800e4b6aba55b13e594e686c27d8a293e1ddd6fb2f5f0d260916b0f99c392be",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection_verification.json": "175d9fc40d5e9af1205033473b4dee0251be56ac57d23c9398969788f60bd1fc",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection.parquet": "99d4cf525cb015cda6e6f38a9c0056046c66591c1fb98b525176e29fe688b36a",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_report.json": "dd244c8e50c4d83da7a27dae8b2cf3e18d664a83abe3b192cf1605fc5137ab4d",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_verification.json": "64ecac6c17121889ed179f352ef5893abc2ce70955078b66e920df86ed5c1f08"
+  },
+  "output_root": "data/research/tail_formula_direction_absolute/reflection",
+  "variant": "absolute",
+  "minimum_score_threshold": 0.0,
+  "diagnose_threshold_concentration": true,
+  "threshold_diagnosis": "固定四折训练0.995分位及零下限；报告原训练／评价全部日期的分数最大值、高分已知／未知／未成交、日期集中度及原方向均值。原未来方向只作事后诊断，不据此改门或新建名单；空选择保留。"
+}
