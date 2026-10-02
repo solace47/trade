@@ -1703,7 +1703,19 @@
     "data/research/tail_formula_listing_scope/evaluation/extra2025/selection_report.json": "cc38a29e40fa88b47e38cee09871537a8145b928f4e598502af40f677ac2df48",
     "data/research/tail_formula_listing_scope/evaluation/extra2025/selection.parquet": "8f904a4dc66ad654aa59dc74a3bd5e7eabb4d854a918a5e0018d321dd7cdbec1",
     "data/research/tail_formula_listing_scope/evaluation/extra2025/selection_verification.json": "7ec22d731830bdc29441324826d5b73aebf013b5c4f63ef3bec41e57fe507456",
-    "data/research/tail_formula_listing_scope/evaluation/joint_selection_freeze.json": "7bdd3a88ebdb22def6151e7cdb0551c33af9dcab3fc14cdd5f3f26cb529ff650"
+    "data/research/tail_formula_listing_scope/evaluation/joint_selection_freeze.json": "7bdd3a88ebdb22def6151e7cdb0551c33af9dcab3fc14cdd5f3f26cb529ff650",
+    "data/baostock/market_2020_2026/metadata/calendar.parquet": "25d81e17d9e32f25fc7f61cda244f2ea2df818e6a1c1669d0e8bfcf1c1696400",
+    "data/research/economic_winner/period_quality/labels.parquet": "cd87463543bb53c04da1bee40f8fa6bed05ebc971b81db82aa07b53fb84e5d7f",
+    "data/research/economic_winner/period_quality/label_report.json": "df796ea55cbcda5a40cfbd05cfff450bba263347ed499f661d936a8c5386cf68",
+    "data/research/economic_winner/period_quality/label_verification.json": "e596ac4567819fd02cadfa664f56b2bf0b17a43c81abd797d2f447ba6dc78910",
+    "data/research/tail_formula_listing_scope/evaluation/labels/keys.parquet": "7ab1da84fce45e49e6d4375582592117e9ff32fb4dd9b7393dd7e1e0c5426f55",
+    "data/research/tail_formula_listing_scope/evaluation/labels/entry.parquet": "b60a8c7467bfe3c43b92c2a9574d8fd723d166fcfaaa9d93c092904171929b4a",
+    "data/research/tail_formula_listing_scope/evaluation/labels/observations.parquet": "e741787bc8ba08ea74be52aac4e270fb17871cec3c523ca29cd187d78ce5119a",
+    "data/research/tail_formula_listing_scope/evaluation/labels/extra_details.parquet": "cb4c934dcd00855bc440382f99560771df6a5951f0e263b76e2e5d05428c431f",
+    "data/research/tail_formula_listing_scope/evaluation/labels/extra_labels.parquet": "8c901a5376e209b26ce9e96da67be808963dbd0b5bec60eaa5b017b8e613ea19",
+    "data/research/tail_formula_listing_scope/evaluation/labels/labels.parquet": "63bf66fb2fa8f798daff7bbc3e37e2eb32a1056201b204bd47cdb95b64d80d5f",
+    "data/research/tail_formula_listing_scope/evaluation/labels/raw.parquet": "e2e697c9be3843515d4e461b9c810c958c17ab011f4e95945465e06d58e1dfab",
+    "data/research/tail_formula_listing_scope/evaluation/labels/complete_receipt.json": "6ae4f6daaaf1f02d779cd02ee3319610d05feb4390a50a9b0454c8174722e9ba"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1802,7 +1814,8 @@
     "data/research/tail_formula_listing_scope/source_identity/before_input_replay_runtime.json": "eb59f4ed50ff49c69f1588fa307d99f6a96777381077fbbab7c4a212ed950394",
     "data/research/tail_formula_listing_scope/input_replay/before_selection_runtime.json": "52afeb66c11ad648c73b4985de56769499e55bcd1d9fede9227dafe3ab3cbf31",
     "data/research/tail_formula_listing_scope/evaluation/before_evaluation_protocol_runtime.json": "2fc7cd1d39ee4633696565f576ad7b11f5aa5ae27f2e41e67b819a05cee10b10",
-    "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be"
+    "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be",
+    "data/research/tail_formula_listing_scope/evaluation/labels/before_label_completion_runtime.json": "c66a91c42e64df41e37819f139450881e0bb257168217a0053ed50f96550e848"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "listing_scope_fixed_economic_evaluation",
@@ -2668,7 +2681,10 @@
       0,
       1
     ],
-    "listing_scope_new_outcomes_allowed_after_joint_freeze": true
+    "listing_scope_new_outcomes_allowed_after_joint_freeze": true,
+    "listing_scope_extra_labels_completed": true,
+    "listing_scope_label_complete_sha256": "6ae4f6daaaf1f02d779cd02ee3319610d05feb4390a50a9b0454c8174722e9ba",
+    "listing_scope_original_labels_exact": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
