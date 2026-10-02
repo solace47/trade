@@ -1,0 +1,117 @@
+{
+  "input_protocol_sha256": "b1f032fcae006b4ab201133bc58c2fc495ea386f8fd180bb60e1eb3e2437b434",
+  "source_hashes": {
+    "data/research/tail_formula_order_target/targets.parquet": "bc949967cab9f277022dbef211cc4b401ba4d56d18c92fa4b97af9b064fdc816",
+    "data/research/tail_formula_order_target/source_gate.json": "4f757b26d1fa6ca928e8b6bad510c9c5960db1e9ae4fadea0d3a3e0b7e65b30e",
+    "data/research/tail_formula_order_target/features.parquet": "609a226f1c61382d4bdaafc56cdb0f9c4b61ccee4bbfe9c484b47e700f455785",
+    "data/research/tail_formula_order_target/feature_report.json": "eed8f4a4e9a29f9f8fffabf66fc8ffe52be039ccc705f95bfa2f827fe30da75d",
+    "data/research/tail_formula_order_target/feature_verification.json": "c173e7fa660dcb18fde8ce9041f8d04d183cf78bd73ea751a2d45d286822879e",
+    "data/research/tail_formula_order_target/ordered_labels/full_labels.parquet": "0e9c2f37659dc4c209f4d96cef1ca6e99205c9d6c2d7bd48c5363bfe950757d7",
+    "data/research/tail_formula_order_target/ordered_labels/full_label_report.json": "551d23f09f202832392badf6925f48b3e0704b7737c0372a26b38641151c3c34",
+    "data/research/tail_formula_order_target/ordered_labels/full_label_verification.json": "2993e78e87809431722669ae58575307c657b5c7c964bc097dbbbdf35ae1b384",
+    "data/research/tail_formula_order_target/model_configs/ordered_2024h1.json": "2641518565fc487d188ce0e8dca866cfc07241e2643d76b348019eed198cfab7",
+    "data/research/tail_formula_order_target/model_configs/ordered_2024h2.json": "f990eaa4aac7e1553583eb6ea105fe751c6300f9a402981ab6ef2d41eb137cad",
+    "data/research/tail_formula_order_target/model_configs/ordered_2025h1.json": "6c264415c0118ae5033eb26f5c08163161bb58abdb292594341023fd35f723a2",
+    "data/research/tail_formula_order_target/model_configs/ordered_2025h2.json": "e74543de53d9173ec541ad6e71a70838bfaf5d3c75e6cd18618f95bbd4da42bc",
+    "data/research/tail_formula_order_target/whole_window_labels/full_labels.parquet": "aaa7495da2910fe1b9e28a92a2a52ceeca2662d0dbd9a5032a49bc7d1d1952cc",
+    "data/research/tail_formula_order_target/whole_window_labels/full_label_report.json": "f34bc0487343b8c898880a7a742b05b02d36a27434032b76860d1fdea7a1f207",
+    "data/research/tail_formula_order_target/whole_window_labels/full_label_verification.json": "ccb6719a18b0681d50a09e1d02457d0b4f373131787117f4bd599860890e5825",
+    "data/research/tail_formula_order_target/model_configs/whole_window_2024h1.json": "aec1ae02b01c5176f93737613de866869b5b713278449b8e8bf3c5aa7de3765d",
+    "data/research/tail_formula_order_target/model_configs/whole_window_2024h2.json": "63577f50fa3a0025b25174309131058eae3d5fe9b89d92ab0111ff044a5b7b54",
+    "data/research/tail_formula_order_target/model_configs/whole_window_2025h1.json": "02f5e9503655575eaab65b51558e3fe85ece7e30986b6d98acf594900bae1bf1",
+    "data/research/tail_formula_order_target/model_configs/whole_window_2025h2.json": "3aa60e77a2e92d636437c1b4256e041a98f6b70eb4d56bdaf4134e5eda4ef1d0",
+    "data/research/tail_formula_order_target/preparation_report.json": "020e6449ec2c7f4984d5fd53409689952884555d1797ba37bc3760a6ce2ce694",
+    "scripts/run_tail_formula_order_target.py": "622003af19c3d03a111397b0826cc85446dd3d204d9bfd726914813302c2bdfc",
+    "src/trade_research/tail_formula_relative.py": "9a6cd4fffe2960ee85b703c801295a02f2cc988e6e301ecda70203aa1ebc95ba",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "data/research/tail_formula_order_target/training_target_equivalence.json": "df215699e04159861cdf3c7d6ed4cd7585a9059de0555cf2ecb1e15e5c3ebff2"
+  },
+  "maximum_new_fits": 8,
+  "models": [
+    {
+      "arm": "ordered",
+      "fold": "2024h1",
+      "config": "data/research/tail_formula_order_target/model_configs/ordered_2024h1.json",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01"
+    },
+    {
+      "arm": "ordered",
+      "fold": "2024h2",
+      "config": "data/research/tail_formula_order_target/model_configs/ordered_2024h2.json",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01"
+    },
+    {
+      "arm": "ordered",
+      "fold": "2025h1",
+      "config": "data/research/tail_formula_order_target/model_configs/ordered_2025h1.json",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    {
+      "arm": "ordered",
+      "fold": "2025h2",
+      "config": "data/research/tail_formula_order_target/model_configs/ordered_2025h2.json",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    },
+    {
+      "arm": "whole_window",
+      "fold": "2024h1",
+      "config": "data/research/tail_formula_order_target/model_configs/whole_window_2024h1.json",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01"
+    },
+    {
+      "arm": "whole_window",
+      "fold": "2024h2",
+      "config": "data/research/tail_formula_order_target/model_configs/whole_window_2024h2.json",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01"
+    },
+    {
+      "arm": "whole_window",
+      "fold": "2025h1",
+      "config": "data/research/tail_formula_order_target/model_configs/whole_window_2025h1.json",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    {
+      "arm": "whole_window",
+      "fold": "2025h2",
+      "config": "data/research/tail_formula_order_target/model_configs/whole_window_2025h2.json",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  ],
+  "training_target": "对应utility在全部成熟known源键按同日中心化后，再与原有效输入相交；日期等权。",
+  "parameters": {
+    "n_estimators": 64,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "min_samples_leaf": 300,
+    "subsample": 1.0,
+    "random_state": 20260927,
+    "loss": "squared_error"
+  },
+  "threshold_training_quantile": 0.995,
+  "no_threshold_or_parameter_search": true,
+  "aliases": "opportunity15字段在两个专用训练目录明确别名到对应utility，不改变原经济标签、成交或状态。",
+  "criteria": [
+    "四半年每期至少20个选择日、100个known15股日；未知和未买入仍保留。",
+    "两年15基点正机会先于不利、1%空间先于不利的日期等权比例，都高于全窗控制及原50。",
+    "两年对全窗控制及原50的正机会先于不利共享未知下界增量周区间严格正；另报同日完整基础池、独有日期、5基点及敏感视图。",
+    "两年不利先于正机会或从无正机会的已知比例，不高于全窗控制及原50。全窗不利和09:59参考为辅助，不冒称卖法。",
+    "日选择中位数不超过5，全部集中度、最大单日占比、最大名单和空期如实报告，不事后删日。"
+  ],
+  "evaluation": "原严格29根、两年及四半年完整名单在经济统计前共同提交；两成本与两敏感视图。0%和1%三连先到、首次不利先到/无正机会、全窗不利与0959辅助；日期等权、共享未知周区间，不制定退出规则。",
+  "related_prior_models": "8份旧48项相关模型不满足50项/29根/四折完整同质量，不复制拟合；本轮两组若完整X/y/权重/参数精确相同必须复用模型。",
+  "all_eight_models_and_all_four_complete_lists_before_new_economic_groups": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}
