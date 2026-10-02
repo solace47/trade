@@ -55,9 +55,9 @@ def test_unknown_or_after_boundary_are_not_zero_imputed(fixed_training):
         assert np.isfinite(t.target).all()
 
 
-def risk_training_labels():
+def risk_training_labels(down=-3.):
     path=base.SOURCE/'full_labels.parquet'
-    labels=pd.read_parquet(path);labels.loc[labels.code.eq('a'),'opportunity15']=-3.
+    labels=pd.read_parquet(path);labels.loc[labels.code.eq('a'),'opportunity15']=down
     labels.to_parquet(path,index=False)
     save_json(base.SOURCE/'full_label_report.json',{'labels_sha256':sha(path)})
     save_json(base.SOURCE/'full_label_verification.json',dict(passed=True,
@@ -70,15 +70,16 @@ def test_risk_utility_cannot_silently_enter_binary_training(fixed_training):
         target.training('relative')
 
 
-def test_declared_risk_utility_preserves_maturity_and_source_mean(fixed_training):
-    risk_training_labels()
+@pytest.mark.parametrize('down',[-3.,-1.])
+def test_declared_signed_utility_preserves_maturity_and_source_mean(fixed_training,down):
+    risk_training_labels(down)
     protocol=json.loads(target.PROTOCOL.read_text())
-    protocol['training_allowed_utility_values']=[-3,0,1]
+    protocol['training_allowed_utility_values']=[int(down),0,1]
     save_json(target.PROTOCOL,protocol)
     t=target.training('relative')
     assert t.code.tolist()==['a','d']
-    # Invalid-input 'b' has +1: the all-known source mean is (-3+1)/2.
-    np.testing.assert_array_equal(t.target,[-2.,0.])
+    # Invalid-input 'b' has +1 and remains in the source mean.
+    np.testing.assert_array_equal(t.target,[(down-1)/2,0.])
     assert t.next_date.max()<'2024-01-01'
 
 

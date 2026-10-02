@@ -26,7 +26,7 @@ def training(variant):
     labels = c.execute(f'SELECT date,code,opportunity15 FROM read_parquet(?)\n        WHERE {where} AND known15', [str(base.SOURCE / 'full_labels.parquet')]).df()
     c.close()
     allowed = json.loads(PROTOCOL.read_text()).get('training_allowed_utility_values', [0, 1])
-    assert allowed in ([0, 1], [-3, 0, 1]), 'A new utility requires an explicit supported declaration'
+    assert allowed in ([0, 1], [-3, 0, 1], [-1, 0, 1]), 'A new utility requires an explicit supported declaration'
     assert np.isfinite(labels.opportunity15).all() and labels.opportunity15.isin(allowed).all()
     labels['target'] = labels.opportunity15
     if variant == 'relative':
