@@ -83,15 +83,13 @@
     "config/tail_formula_profit_rule_search_protocol.json": "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9",
     "config/tail_formula_profit_rule_search_execution.json": "b4449e8cadb12448b2a5940828f9284222efa5611428c93cead6e60b43decb6e",
     "config/tail_formula_profit_rule_search_evaluation.json": "78de363a5cc9f90f82ea658303188d8198a7a047827d63d604b012cfb70994c3",
-    "scripts/review_tail_formula_order_risk.py": "2a6d754a4ae5c4b3f1bad7ac9860e98f80ba68bf0725225aa4ac5e83253390ac",
-    "config/tail_formula_order_risk_review.json": "b6c4619fef57b4918b848777047dd6d8612383cd9ebcb47ce5d221e3f2d471eb",
-    "tests/test_tail_formula_rank_diagnostic.py": "c11d344ea98e2b515f177de33045bd549f97d9d9171c0b9f694d817b75f83d46",
-    "scripts/prepare_tail_formula_direction_target.py": "abaaf043a54ce25732172e0b636f40197150cf7268abe1b3a73536239a8b1709",
-    "config/tail_formula_direction_target_input.json": "b504ba9a0d64ce5d96605aa9558fa4d04b5cc97464e6c3f039349b93374ed549",
-    "tests/test_tail_formula_direction_target.py": "18f20e1f23bd7be848f7ecd6c5b80e9cd2afede7504118e3c17b79f0e26c383b",
     "scripts/run_tail_formula_direction_target.py": "3de6e814c62044dbadef763a27d0cdc8a2ba7a7b3d18654c380838e786051fac",
     "scripts/tail_formula_order_statistics.py": "aa6c76fb920345f59707716bde1f6313acda71bd6ea8adb6c1be12cdf54c491d",
-    "config/tail_formula_direction_target_execution.json": "bcbe4e88b0f0814befa6cae3239035cb23e68abc0c7bbb9995f24e0edfa5964f"
+    "config/tail_formula_direction_target_execution.json": "bcbe4e88b0f0814befa6cae3239035cb23e68abc0c7bbb9995f24e0edfa5964f",
+    "scripts/review_tail_formula_direction_target.py": "2283efde77ed25bf623fcd298fa71e7f3a6e7d4a7b37d05ad607fa22ea239951",
+    "scripts/tail_formula_rank_statistics.py": "0a359206b51fda80dad35bc4ab3e23bf39761f8d428e400d589f870c730377cd",
+    "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
+    "config/tail_formula_direction_target_review.json": "f586ced7d6c2f899021c69ce3d9ab4d269083f073a5173e9c0ca235fb209aa57"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1240,7 +1238,11 @@
     "data/research/tail_formula_direction_target/direction2025/selection_report.json": "caad46573cc2ddecd7086beb8082a1c84b857c36739e8b06d2c268ce596887d1",
     "data/research/tail_formula_direction_target/direction2025/selection.parquet": "646d9282bd6cf7196afa04932fbbbe11a1622a1d19de860cbf04ae9c81d49f33",
     "data/research/tail_formula_direction_target/direction2025/selection_verification.json": "74e2fac6ba48668c7eb557301e8278313b670f558c5824ac90fe72273b9ec959",
-    "data/research/tail_formula_direction_target/joint_selection_freeze.json": "1bf437e2ac8bda7a1d26ea2292564a2f3e1585061cea3b46ad23263d264f628b"
+    "data/research/tail_formula_direction_target/joint_selection_freeze.json": "1bf437e2ac8bda7a1d26ea2292564a2f3e1585061cea3b46ad23263d264f628b",
+    "data/research/tail_formula_direction_target/economic_daily.parquet": "da5bace35a9906c007371d708b542274bd38883dd0826c89ddd5866236d7a269",
+    "data/research/tail_formula_direction_target/paired_daily.parquet": "a4679fe85858249ebee78e78a5c8f51e83a627bfef84507a2544c1480a3a2130",
+    "data/research/tail_formula_direction_target/economic_report.json": "060b6477ff4b06d637efd89edfa19188d4e67be20d27063c0551165fd22bee5f",
+    "data/research/tail_formula_direction_target/complete_receipt.json": "ee13f8cf1dbff3dc8d549f2c329507542cc8b0d57420c75a1397aca42b4a6f9c"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1319,10 +1321,11 @@
     "data/research/tail_formula_direction_input_receipts/execution_prior_runtime.json": "190da7ea89aa9867749167ff89b518acd4860700104dc3e66690552ec7d41633",
     "data/research/tail_formula_direction_target/before_preparation_runtime.json": "574ec99ed5ddb11904aee7df71467266a773916de2bc4168e1bf8e7a4e146b02",
     "data/research/tail_formula_direction_target/before_models_runtime.json": "bbe9d99243c8c3f15e0f9515ff440755da94180710ead8f45b6f8e4cad9b389e",
-    "data/research/tail_formula_direction_target/before_joint_runtime.json": "9aaa7be0289a2ec456cb0553abc52529d39f2a8f22289650b288b0068816fad0"
+    "data/research/tail_formula_direction_target/before_joint_runtime.json": "9aaa7be0289a2ec456cb0553abc52529d39f2a8f22289650b288b0068816fad0",
+    "data/research/tail_formula_direction_target/before_complete_review_runtime.json": "717ef880c929509ca868fa51024dd8b822ac2664f20236cf79c9090c5b3b18e8"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "symmetric_gross_direction_both_complete_annual_lists_jointly_frozen_before_economics",
+  "current_study": "symmetric_gross_direction_full_economics_failed_centering_diagnosis_fixed",
   "research_definition_changed": true,
   "rationale": "风险目标的空间排序连训练期也偏反向；固定同幅度、同报价持续的方向目标来源门，不调风险罚分、窗口或门槛。",
   "new_2026_prices_read": false,
@@ -1867,6 +1870,24 @@
     },
     "config/tail_formula_order_risk.json": {
       "17ca74b0ffb41d4507fca2f2fe2bddfab5747e4fd4c2f6b771f13244c7102c87": "17ac302847df848eb42428211035a64ef96e9339"
+    },
+    "scripts/review_tail_formula_order_risk.py": {
+      "2a6d754a4ae5c4b3f1bad7ac9860e98f80ba68bf0725225aa4ac5e83253390ac": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
+    },
+    "config/tail_formula_order_risk_review.json": {
+      "b6c4619fef57b4918b848777047dd6d8612383cd9ebcb47ce5d221e3f2d471eb": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
+    },
+    "tests/test_tail_formula_rank_diagnostic.py": {
+      "c11d344ea98e2b515f177de33045bd549f97d9d9171c0b9f694d817b75f83d46": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
+    },
+    "scripts/prepare_tail_formula_direction_target.py": {
+      "abaaf043a54ce25732172e0b636f40197150cf7268abe1b3a73536239a8b1709": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
+    },
+    "config/tail_formula_direction_target_input.json": {
+      "b504ba9a0d64ce5d96605aa9558fa4d04b5cc97464e6c3f039349b93374ed549": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
+    },
+    "tests/test_tail_formula_direction_target.py": {
+      "18f20e1f23bd7be848f7ecd6c5b80e9cd2afede7504118e3c17b79f0e26c383b": "80314a4390dd326f5cd0710d76276ca8ca67e3a8"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -1945,7 +1966,7 @@
     "opportunity_order_group_results_read": true,
     "opportunity_order_complete_fingerprints": 72,
     "opportunity_order_fixed_summary_groups": 72,
-    "current_tests_passed": 36,
+    "current_tests_passed": 34,
     "opportunity_order_ended_files_retired": 2,
     "order_target_new_fits_at_input_protocol": 0,
     "order_target_maximum_planned_fits": 8,
@@ -2019,7 +2040,14 @@
     "direction_target_joint_selection_sha256": "1bf437e2ac8bda7a1d26ea2292564a2f3e1585061cea3b46ad23263d264f628b",
     "direction_target_prior_complete_lists_checked": 591,
     "direction_target_exact_complete_list_aliases": 0,
-    "direction_target_new_economic_groups_read": false
+    "direction_target_new_economic_groups_read": true,
+    "direction_target_complete_receipt_sha256": "ee13f8cf1dbff3dc8d549f2c329507542cc8b0d57420c75a1397aca42b4a6f9c",
+    "direction_target_economic_groups": 48,
+    "direction_target_paired_comparisons": 6,
+    "direction_target_acceptance_conditions_passed": 1,
+    "direction_target_only_risk_condition_passed": true,
+    "direction_target_review_new_fits": 0,
+    "direction_target_ended_source_and_prior_review_files_retired": 6
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"

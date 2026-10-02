@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from review_tail_formula_order_risk import daily_metrics, verify_metrics
+from tail_formula_rank_statistics import daily_metrics, verify_metrics
 
 
 def test_order_metrics_match_brute_pairs_and_score_ties():
