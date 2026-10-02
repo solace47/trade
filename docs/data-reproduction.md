@@ -1,25 +1,15 @@
 # 当前环境与复算
 
-Python 3.12虚拟环境与依赖见requirements.txt。当前35项检查：
+Python 3.12虚拟环境与依赖见requirements.txt；当前38项检查已通过：
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
 ```
 
-次晨机会先后审查的2个结束执行／协议文件从Git 3d7f2f2恢复，标签与72组结果保留。
+结束阶段不重复拟合、聚合或覆盖。完整年度名单先于经济评价固定；输入、标记、元数据、适用标签及统计／比较全部精确相同才复用。独立检出对应Git版本复算，不覆盖既有结果；报价机会与参考均不是实际兑现利润。
 
-已结束阶段不重复拟合、聚合或覆盖。完整年度名单及协议先提交，输入、标记、元数据、适用标签、全部经济统计与比较均独立核准；精确相同才复用。报价参考不等于实际兑现收益。
+原始日线／分钟在data/baostock/与data/hf/，原件、模型、完整结果及查重缓存在忽略的data/research/。清理前完整版本为4b3bdda5db6470df4d8d61298501852f60b985a2，逐文件SHA及恢复版本见config/research-runtime.json；阶段收据和边界见[当前方案](selection-formula.md)及[失败索引](strategy-results.md)。
 
-既有目标审查的3个结束执行／协议文件从Git 2acfdb3恢复，主／年度补充结果保留。
+近期结束文件恢复版本：空间／风险执行17ac302，方向来源及旧风险检查80314a4，方向执行与反思79d4916，主事件稳定性及训练基准诊断1a09ca5。结束专用测试的通过记录保留，当前共用检查继续维护。原二元训练默认不变，新效用须显式声明。
 
-20日成分补验在data/research/tail_formula_day_night_matched/；本轮6个专用执行／协议字节从Git e51eda6恢复，全部结果保留。
-
-三组外部固定规则在data/research/tail_formula_shakeout_literal/、tail_formula_trend_reversion_literal/、tail_formula_candle_gate_literal/；现金语义审查在tail_formula_entry_semantics_reflection/。全部已完成，当前7个专用执行／协议文件字节从Git 13d2c5c恢复。原件版本与阅读范围、结果及现金定义见[失败索引](strategy-results.md)。
-
-原始日线／分钟在data/baostock/与data/hf/，原件／结果／查重缓存保留于忽略的data/research/。旧14个历史报价／补齐文件从2e123ab恢复，11个时间门／延续文件从1b9f085恢复，稳健实现e13a9b5、平均实现24a883f、后过滤f6abbcb；完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2。其他逐文件版本、SHA及当前环境见[固定收据](selection-formula.md)和config/research-runtime.json；复算需独立检出对应版本，不能覆盖旧结果。
-
-2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。
-
-空间目标特征／训练分类反思的2个结束执行／协议文件从Git b18e50b恢复；36组结果保留。空间／风险目标两轮的9个已结束执行／协议文件从Git 17ac302恢复，结果保留；排序／门槛诊断已完成；同幅度方向目标来源与四模型、两名单及经济评价均已完成，当前活动项为其中心化／排序反思。旧二元训练默认不变，新效用必须显式声明。
-
-已结束方向来源门及旧风险排序入口的6个执行／协议／专用测试文件从Git 80314a4恢复；序对函数提为共享统计库，原两项序对／未定义日期测试保留。方向来源原2项通过记录保留，现行34项。完整结果与原件均保留，不覆盖或重复拟合。
+2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。README保持8行，文档5份。
