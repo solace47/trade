@@ -25,7 +25,9 @@ def training(variant):
     c = base.conn()
     labels = c.execute(f'SELECT date,code,opportunity15 FROM read_parquet(?)\n        WHERE {where} AND known15', [str(base.SOURCE / 'full_labels.parquet')]).df()
     c.close()
-    assert np.isfinite(labels.opportunity15).all() and labels.opportunity15.isin([0, 1]).all()
+    allowed = json.loads(PROTOCOL.read_text()).get('training_allowed_utility_values', [0, 1])
+    assert allowed in ([0, 1], [-3, 0, 1]), 'A new utility requires an explicit supported declaration'
+    assert np.isfinite(labels.opportunity15).all() and labels.opportunity15.isin(allowed).all()
     labels['target'] = labels.opportunity15
     if variant == 'relative':
         labels['target'] -= labels.groupby('date').opportunity15.transform('mean')
@@ -53,6 +55,9 @@ def model(variant):
         t = estimator.tree_
         trees.append(dict(feature=t.feature.tolist(), threshold=t.threshold.tolist(), children_left=t.children_left.tolist(), children_right=t.children_right.tolist(), n_node_samples=t.n_node_samples.tolist(), weighted_n_node_samples=t.weighted_n_node_samples.tolist(), value=t.value.reshape(-1).tolist(), impurity=t.impurity.tolist()))
     r = dict(protocol_sha256=sha(PROTOCOL), feature_report_sha256=sha(base.FEATURES / 'feature_report.json'), label_report_sha256=sha(base.SOURCE / 'full_label_report.json'), rows=len(train), days=train.date.nunique(), last_observation=train.next_date.max(), parameters=model.get_params(), feature_names=list(base.EXPRESSIONS), variant=variant, learning_rate=0.05, bias=float(np.ravel(model.init_.constant_)[0]), trees=trees, training_start=start, training_end=end, new_2025_score_groups_read=bool(train.date.ge('2025-01-01').any()), new_2025H2_score_groups_read=bool(train.date.ge('2025-07-01').any()), new_2026_prices_read=False, no_exit_rules=True)
+    config = json.loads(PROTOCOL.read_text())
+    r['training_allowed_utility_values'] = config.get('training_allowed_utility_values', [0, 1])
+    r['training_event'] = config.get('training_event', 'opportunity15')
     manual = base.predict(x, r)
     np.testing.assert_allclose(manual, model.predict(x), rtol=0, atol=2e-12)
     r['thresholds'] = [dict(id=i, training_quantile=q, threshold=float(np.quantile(manual, q))) for i, q in enumerate(base.QUANTILES)]

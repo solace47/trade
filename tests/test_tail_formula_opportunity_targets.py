@@ -55,6 +55,33 @@ def test_unknown_or_after_boundary_are_not_zero_imputed(fixed_training):
         assert np.isfinite(t.target).all()
 
 
+def risk_training_labels():
+    path=base.SOURCE/'full_labels.parquet'
+    labels=pd.read_parquet(path);labels.loc[labels.code.eq('a'),'opportunity15']=-3.
+    labels.to_parquet(path,index=False)
+    save_json(base.SOURCE/'full_label_report.json',{'labels_sha256':sha(path)})
+    save_json(base.SOURCE/'full_label_verification.json',dict(passed=True,
+        label_report_sha256=sha(base.SOURCE/'full_label_report.json')))
+
+
+def test_risk_utility_cannot_silently_enter_binary_training(fixed_training):
+    risk_training_labels()
+    with pytest.raises(AssertionError):
+        target.training('relative')
+
+
+def test_declared_risk_utility_preserves_maturity_and_source_mean(fixed_training):
+    risk_training_labels()
+    protocol=json.loads(target.PROTOCOL.read_text())
+    protocol['training_allowed_utility_values']=[-3,0,1]
+    save_json(target.PROTOCOL,protocol)
+    t=target.training('relative')
+    assert t.code.tolist()==['a','d']
+    # Invalid-input 'b' has +1: the all-known source mean is (-3+1)/2.
+    np.testing.assert_array_equal(t.target,[-2.,0.])
+    assert t.next_date.max()<'2024-01-01'
+
+
 def target_chain(tmp_path):
     parent=tmp_path/'parent';copy=tmp_path/'copy';parent.mkdir();copy.mkdir()
     model={k:[] for k in MODEL_CORE};model.update(variant='relative',bias=0.,rows=2)

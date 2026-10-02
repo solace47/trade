@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-Python 3.12虚拟环境与依赖见requirements.txt。当前29项检查：
+Python 3.12虚拟环境与依赖见requirements.txt。当前31项检查：
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
@@ -19,3 +19,5 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -
 原始日线／分钟在data/baostock/与data/hf/，原件／结果／查重缓存保留于忽略的data/research/。旧14个历史报价／补齐文件从2e123ab恢复，11个时间门／延续文件从1b9f085恢复，稳健实现e13a9b5、平均实现24a883f、后过滤f6abbcb；完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2。其他逐文件版本、SHA及当前环境见[固定收据](selection-formula.md)和config/research-runtime.json；复算需独立检出对应版本，不能覆盖旧结果。
 
 2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。
+
+空间目标特征／训练分类反思的2个结束执行／协议文件从Git b18e50b恢复；36组结果保留。风险评分协议为当前活动项，旧二元训练默认不变，新效用必须显式声明。
