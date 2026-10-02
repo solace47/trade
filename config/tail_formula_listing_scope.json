@@ -1,6 +1,6 @@
 {
   "objective": "核查人为上市60市场日门以外、仍满足原基本状态和买入必要条件的主板输入范围与原始来源覆盖；不假定新增股票有收益优势。",
-  "output_root": "data/research/tail_formula_listing_scope",
+  "output_root": "data/research/tail_formula_listing_scope/source_identity",
   "completed_receipt": "data/research/tail_formula_primary_order/population/complete_receipt.json",
   "visible_base": "data/research/next_day_winner/visible_base.parquet",
   "original_features": "data/research/tail_formula_order_target/features.parquet",
@@ -23,7 +23,7 @@
   "no_exit_rules": true,
   "followup": "来源覆盖足够后，另固定完整原50输入提取与独立算术协议，再决定复用原模型及新增域检验；当前不授权拟合、名单或收益聚合。",
   "source_hashes": {
-    "scripts/audit_tail_formula_listing_scope.py": "35c1227c1abec78755f0315e9b9c2213dcdc57ee2d1b8ecb6a86a6288b39c39d",
+    "scripts/audit_tail_formula_listing_scope.py": "ef4cb246d46a11b35e2bfb7ec3af1c5310850d9ba6831337644a5d99a97815b5",
     "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
     "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
     "data/research/tail_formula_primary_order/population/complete_receipt.json": "315549de6912c748a4c219d32fdb15843a7c5c309b6628c094a29eb04ac8cce3",
@@ -198,6 +198,11 @@
     "data/research/next_day_winner/raw_features/part_080.json": "9a4fc22ac2b58718494cc5ede264803e2ce1a9292bfe5771336b082573aba537",
     "data/research/next_day_winner/raw_features/part_080.parquet": "ee5b056d4f1031e705c064156c04dcefbf0abeb0cc663a6753bb99cc3d5120cf",
     "data/research/next_day_winner/raw_features/part_081.json": "7d95e4c10d345964db6736c2893edd51cfdbe486af0d2df243c53bdb74d1fdab",
-    "data/research/next_day_winner/raw_features/part_081.parquet": "cc37f16f3cfb33367d56d10addde2b17c747e49063af066d448fb851f69cc7af"
-  }
+    "data/research/next_day_winner/raw_features/part_081.parquet": "cc37f16f3cfb33367d56d10addde2b17c747e49063af066d448fb851f69cc7af",
+    "data/research/tail_formula_listing_scope/report.json": "2fa8d92059a7bc00b59e54595e1ebe0dc94860ee6ab8a4df1137e35aa6dfe7cc",
+    "data/research/tail_formula_listing_scope/visible_pool.parquet": "337df5c97d555cdb462f22a7a7a2648f9ae7e72c1cfefbdf565f1ffdb675e685",
+    "data/research/tail_formula_listing_scope/prefix_cache_coverage.parquet": "9887e4c4889dd48dd921634f5b9796f06d64069e247dcf961817981741147654",
+    "data/research/tail_formula_listing_scope/extra_inputs.parquet": "829f93e240fed45e7f7c529229d0c4f18839d43e6d3a56826fdd0317117d210f"
+  },
+  "source_identity_correction": "前次写死data/hf/market根而误报原件覆盖0；按已冻结manifest的交易所/6位code解析唯一真实路径，只修正原件身份，不改变成员、其他条件或旧输出。原0覆盖报告按原字节保存，不用它认定数据缺失。"
 }

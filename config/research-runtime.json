@@ -88,8 +88,9 @@
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
     "scripts/run_tail_formula_target.py": "bf7501e760617ebca858533fbc3c253284f176e3fe9be3bc9d17c2fde90f49cb",
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
-    "scripts/audit_tail_formula_listing_scope.py": "35c1227c1abec78755f0315e9b9c2213dcdc57ee2d1b8ecb6a86a6288b39c39d",
-    "config/tail_formula_listing_scope.json": "1c0f358456a309cf7881a732f085a7b1a5a5651ad0ef59d75ca720d8f404eea9"
+    "scripts/audit_tail_formula_listing_scope.py": "ef4cb246d46a11b35e2bfb7ec3af1c5310850d9ba6831337644a5d99a97815b5",
+    "config/tail_formula_listing_scope.json": "1661346e4455b9698ccd050171e571590e1c05d80d8acc256a716f76596f0142",
+    "tests/test_tail_formula_listing_sources.py": "180c169397fcffd36ed68dfc6042f63b78c681cda04ad3871164bad75acf2286"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1521,7 +1522,11 @@
     "data/research/research_method_sources_20261002/listing_scope/tail_formula_1000.py": "729b160ac4485bba0070290835db67d71a324ae4f61d0f63b5c4dbaef55710c5",
     "data/research/research_method_sources_20261002/listing_scope/tail_formula_1000_protocol.json": "f4d694756a25fc367875cc9e4bc5079b2c110aef67b1b7ea378ede885691cb95",
     "data/research/research_method_sources_20261002/listing_scope/tail_formula_float.py": "a791d7570b8d6385d2d38862a34ec11432dfa1c87b535b5cd01f779eaa465c6f",
-    "data/research/research_method_sources_20261002/listing_scope/tail_formula_pool_scope_audit_protocol.json": "f88d9aac3845e6f35817277a10289f7c993751e446ea262a8c92b24d9bc01d31"
+    "data/research/research_method_sources_20261002/listing_scope/tail_formula_pool_scope_audit_protocol.json": "f88d9aac3845e6f35817277a10289f7c993751e446ea262a8c92b24d9bc01d31",
+    "data/research/tail_formula_listing_scope/report.json": "2fa8d92059a7bc00b59e54595e1ebe0dc94860ee6ab8a4df1137e35aa6dfe7cc",
+    "data/research/tail_formula_listing_scope/visible_pool.parquet": "337df5c97d555cdb462f22a7a7a2648f9ae7e72c1cfefbdf565f1ffdb675e685",
+    "data/research/tail_formula_listing_scope/prefix_cache_coverage.parquet": "9887e4c4889dd48dd921634f5b9796f06d64069e247dcf961817981741147654",
+    "data/research/tail_formula_listing_scope/extra_inputs.parquet": "829f93e240fed45e7f7c529229d0c4f18839d43e6d3a56826fdd0317117d210f"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1615,10 +1620,11 @@
     "data/research/tail_formula_primary_order/stability/before_completion_runtime.json": "8c8249415fe937d31960fd3ea4636e4b0f791b57712f719e1438746bb7823962",
     "data/research/tail_formula_primary_order/before_population_protocol_runtime.json": "968fa49d6ad584bf71235f87183637b80efcaaa032268f2d8ceac9e3892ea833",
     "data/research/tail_formula_primary_order/population/before_completion_runtime.json": "519ba1422a0e01845ea5b78eeef940e09db323444f524d91bc9c9361b4821e4b",
-    "data/research/research_method_sources_20261002/listing_scope/before_listing_protocol_runtime.json": "e99a2527b83539e941811b78001a79f006377db1116ad50c3fc00604d0e43c81"
+    "data/research/research_method_sources_20261002/listing_scope/before_listing_protocol_runtime.json": "e99a2527b83539e941811b78001a79f006377db1116ad50c3fc00604d0e43c81",
+    "data/research/tail_formula_listing_scope/before_source_identity_fix_runtime.json": "e991c0a823e28d906e71f3855adb7f02f8962b74817f0cff9a77556a01805e23"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "fixed_input_only_listing_age_scope_audit",
+  "current_study": "listing_scope_frozen_source_identity_correction",
   "research_definition_changed": true,
   "rationale": "费前对称方向没有改善含费空间，直接目标又集中少数市场日期；只检验直接主含费事件对齐的有限作用，保持原参数并先检查实际旧目标，不包装为新信息。",
   "new_2026_prices_read": false,
@@ -2215,6 +2221,12 @@
     },
     "config/tail_formula_training_population.json": {
       "23e9f74ccea3bbfe22237cd72287e1013192b8e0bf088ba3599d671185bc52d4": "1a09ca5"
+    },
+    "scripts/audit_tail_formula_listing_scope.py": {
+      "35c1227c1abec78755f0315e9b9c2213dcdc57ee2d1b8ecb6a86a6288b39c39d": "320a32a"
+    },
+    "config/tail_formula_listing_scope.json": {
+      "1c0f358456a309cf7881a732f085a7b1a5a5651ad0ef59d75ca720d8f404eea9": "320a32a"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -2293,7 +2305,7 @@
     "opportunity_order_group_results_read": true,
     "opportunity_order_complete_fingerprints": 72,
     "opportunity_order_fixed_summary_groups": 72,
-    "current_tests_passed": 38,
+    "current_tests_passed": 40,
     "opportunity_order_ended_files_retired": 2,
     "order_target_new_fits_at_input_protocol": 0,
     "order_target_maximum_planned_fits": 8,
@@ -2451,7 +2463,9 @@
     "stability_and_population_ended_files_retired": 4,
     "listing_scope_input_protocol_fixed": true,
     "listing_scope_new_fits": 0,
-    "listing_scope_new_outcomes_allowed": false
+    "listing_scope_new_outcomes_allowed": false,
+    "listing_scope_raw_root_mapping_error_found": true,
+    "listing_scope_source_correction_fixed": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"

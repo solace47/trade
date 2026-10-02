@@ -16,6 +16,19 @@ FIELDS = [*META, 'listing_age_sessions', 'price_1449', 'preclose', 'upper_limit'
           'isST', 'tradestatus', 'necessary_tradeable']
 
 
+def minute_sources(manifest):
+    """Use the frozen source identity, including exchange, instead of guessing a root."""
+    mapping = {}
+    for file in manifest:
+        path = Path(file)
+        assert path.suffix == '.parquet' and path.parent.name in ['SH', 'SZ']
+        assert len(path.stem) == 6 and path.stem.isdigit()
+        code = path.parent.name.lower() + '.' + path.stem
+        assert code not in mapping, 'Ambiguous minute source for ' + code
+        mapping[code] = file
+    return mapping
+
+
 def main():
     check_runtime(); p = json.loads(PROTOCOL.read_text()); check_sources(p['source_hashes'])
     assert subprocess.check_output(['git', 'show', f'HEAD:{PROTOCOL}']) == PROTOCOL.read_bytes()
@@ -66,9 +79,9 @@ def main():
                                 how='left', validate='one_to_one')
     coverage['prefix_cache_present'] = coverage.prefix_cache_present.eq(True)
     manifest = json.loads(Path(p['minute_manifest']).read_text())['source_sha256']
-    extra['minute_path'] = extra.code.map(lambda code: 'data/hf/market/data/stock_1m/' + code[:2].upper() + '/' + code[3:] + '.parquet')
+    extra['minute_path'] = extra.code.map(minute_sources(manifest))
     extra['minute_manifest_present'] = extra.minute_path.isin(manifest)
-    extra['minute_file_present'] = extra.minute_path.map(lambda file: Path(file).exists())
+    extra['minute_file_present'] = extra.minute_path.map(lambda file: isinstance(file, str) and Path(file).exists())
     expanded.to_parquet(root / 'visible_pool.parquet', index=False, compression='zstd')
     coverage.to_parquet(root / 'prefix_cache_coverage.parquet', index=False, compression='zstd')
     extra.to_parquet(root / 'extra_inputs.parquet', index=False, compression='zstd')

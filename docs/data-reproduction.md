@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-Python 3.12虚拟环境与依赖见requirements.txt；当前38项检查已通过：
+Python 3.12虚拟环境与依赖见requirements.txt；当前40项检查已通过：
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
