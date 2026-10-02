@@ -80,7 +80,8 @@
     "scripts/recheck_tail_formula_history_boundary.py": "d71bf763cb07d2e1f7f95c3fd7e7ffeeacf169a6e98b251da2088a0e173db773",
     "scripts/probe_tail_formula_cost_history.py": "887209d413d1d0165cf92db3c59bd10e65929652ff4b8a86e1798b321eb785c9",
     "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09",
-    "scripts/prepare_tail_formula_cost_history.py": "1a92d67b2b51892c6601cfb6870116f61a71e2f6277b9d53894b3d7cdab35f20"
+    "scripts/prepare_tail_formula_cost_history.py": "1a92d67b2b51892c6601cfb6870116f61a71e2f6277b9d53894b3d7cdab35f20",
+    "scripts/run_tail_formula_cost_history.py": "3dfd929e7c7a0c38792569dff3d0abcc9b385abcde15d9c220d57a4f384c4b4b"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -454,7 +455,17 @@
     "data/research/tail_formula_cost_history_probe/pilot_windows.parquet": "8039fa010c175a87e2f7447032cdebf2705576023a524df17d20b078e9823ec5",
     "data/research/tail_formula_cost_history_probe/pilot_history.parquet": "e817da184e6f62b38b7555acad075c63336000e7fd471f392237bedcb5060c62",
     "data/research/tail_formula_cost_history/source_manifest.json": "c37b2afe20de7bbc12593c08d9ed93a2bc307ddf5e8107d75bf07b02e80780f0",
-    "config/tail_formula_cost_history_input_protocol.json": "6adf7e2132e7a1e451a9a96a8717f3134347a4b31c5c9b637e946ff994bf6e33"
+    "config/tail_formula_cost_history_input_protocol.json": "6adf7e2132e7a1e451a9a96a8717f3134347a4b31c5c9b637e946ff994bf6e33",
+    "data/research/tail_formula_cost_history/stock_days.parquet": "baaefe6334df530922d22f33d23be326cebde303e987ed2599b69a0e51ebbd37",
+    "data/research/tail_formula_cost_history/calendar_report.json": "fbe83b39929696ae020aabfc1d22853efc30c59da166bdb88de8f5126cade1b3",
+    "data/research/tail_formula_cost_history/windows.parquet": "592299e5a49bb494f0fcd71f767ae37ed81d97a53b80d50ec2737462ddd170b3",
+    "data/research/tail_formula_cost_history/window_report.json": "d57b3eb15272b9223f323415bfebfc7abf147778dc5f87e2f40a8a8b51999d67",
+    "data/research/tail_formula_cost_history/history_atoms.parquet": "d1c892e2c01b9c8b1ad87650f786a58cfd4ad109132d7c1c141ead9a25cdfaef",
+    "data/research/tail_formula_cost_history/features.parquet": "b776eb9d003f785efea5415f387ce501917de026fecf1469ca67bdb4c2435cb1",
+    "data/research/tail_formula_cost_history/feature_report.json": "c34a0ef170e18f2350e7b0628e3f5a8d0d54be00ead682eeefdb19005d3bc0ec",
+    "data/research/tail_formula_cost_history/feature_verification.json": "86a22660be189d8daa113e8a1fb683ab2f14362272c6122360c9c89e3e0e8aa6",
+    "data/research/tail_formula_phase_split/targets.parquet": "28afcae30230bc99a685f3aedec92e45d3112a646790a0f07e62e8ec2143fe9f",
+    "config/tail_formula_cost_history_model_protocol.json": "cc088348e59dfcd071fc833e5436c981a47f41eb1012be274aaebd70c8351010"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -479,7 +490,8 @@
     "data/research/tail_formula_history_boundary_recheck/prior_preparation_runtime.json": "026537c782480e8af6d03cdd0f779e5d95a14f5b026fc44ce7d9d78322283b43",
     "data/research/tail_formula_history_boundary_recheck/prior_completed_runtime.json": "6c8209778fff7c28c09a5723c2bba728eda9f588e44a98d9a617fbc47dd3f161",
     "data/research/tail_formula_cost_history_probe/prior_runtime.json": "811f91ef0917dba228606abad2ae1a7a5ca8b7fd1e4277a2a9ef3c324e1c64d8",
-    "data/research/tail_formula_cost_history/prior_runtime.json": "402c8b6b63fc1c863216c1b131fa74a9393d03af38a0559b66cc2073c0f254fb"
+    "data/research/tail_formula_cost_history/prior_runtime.json": "402c8b6b63fc1c863216c1b131fa74a9393d03af38a0559b66cc2073c0f254fb",
+    "data/research/tail_formula_cost_history/pre_model_runtime.json": "f12f9236af1fbaec1dd359e9d26776ddc5d6008f671ca50df54355c09d52a309"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "tail_formula_cost_history_source_protocol",

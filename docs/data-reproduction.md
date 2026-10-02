@@ -1,10 +1,10 @@
 # 当前环境与复算
 
-当前为[五日含成本历史报价输入入口](../scripts/prepare_tail_formula_cost_history.py)。旧历史模型严格次晨补齐已完成，结果不重做。Python 3.12虚拟环境及依赖见requirements.txt；完成的阶段禁止重复或覆盖结果。
+当前为[五日历史报价匹配检验入口](../scripts/run_tail_formula_cost_history.py)。旧历史模型严格次晨补齐已完成，结果不重做。Python 3.12虚拟环境及依赖见requirements.txt；完成的阶段禁止重复或覆盖结果。
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/prepare_tail_formula_cost_history.py --help
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_cost_history.py --help
 ```
 
 当前顺序为calendar、windows、inputs，仅来源及输入：协议先提交；保留原股票日历；32股原窗口精确复用，其余窗口独立SQL／Pandas核对；五日标量另由SQL核准。此协议禁止模型拟合；有效域改变须先固定同质量控制和新模型协议，再共同固定完整名单后评价。原48控制与原50只读复用；年度报告已含半年，不重复聚合。完整名单、元数据、适用标签与统计精确一致才复用。
