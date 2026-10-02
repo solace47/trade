@@ -956,7 +956,26 @@
     "data/research/tail_formula_order_target/model_configs/whole_window_2025h1.json": "02f5e9503655575eaab65b51558e3fe85ece7e30986b6d98acf594900bae1bf1",
     "data/research/tail_formula_order_target/model_configs/whole_window_2025h2.json": "3aa60e77a2e92d636437c1b4256e041a98f6b70eb4d56bdaf4134e5eda4ef1d0",
     "data/research/tail_formula_order_target/preparation_report.json": "020e6449ec2c7f4984d5fd53409689952884555d1797ba37bc3760a6ce2ce694",
-    "data/research/tail_formula_order_target/training_target_equivalence.json": "df215699e04159861cdf3c7d6ed4cd7585a9059de0555cf2ecb1e15e5c3ebff2"
+    "data/research/tail_formula_order_target/training_target_equivalence.json": "df215699e04159861cdf3c7d6ed4cd7585a9059de0555cf2ecb1e15e5c3ebff2",
+    "data/research/tail_formula_order_target/models/ordered/2024h1/model_report.json": "8611020ae74eaa5a6a190c19d10cf2c9dbda1e13c7d377560c166e15cb553c90",
+    "data/research/tail_formula_order_target/models/ordered/2024h1/model_verification.json": "b44845342e2e3e156fe2269aa7007a4f6debe87c7770c7634bf15a47ddb533bc",
+    "data/research/tail_formula_order_target/models/ordered/2024h2/model_report.json": "66c12540bd5894e64aae0abcbc9308835dca32b91c28bb37153046b9d737325c",
+    "data/research/tail_formula_order_target/models/ordered/2024h2/model_verification.json": "6ac7b86dc23789c25da06ad540860c9c454a4102acbc613a32b0e8fe008b2d71",
+    "data/research/tail_formula_order_target/models/ordered/2025h1/model_report.json": "1a7e1d8de311ee76c54ad212ff32475b6a173176cf37b2ceca800994830444c5",
+    "data/research/tail_formula_order_target/models/ordered/2025h1/model_verification.json": "d860c96b68486ba0f9f4a45eb724e4b651be1b9fecb6f14de59afde2431c8eb4",
+    "data/research/tail_formula_order_target/models/ordered/2025h2/model_report.json": "4759526f65a8edbb03ecb90571492f2827158566e2a496c237fc3c5fc0846fb3",
+    "data/research/tail_formula_order_target/models/ordered/2025h2/model_verification.json": "da91b438c213fb2550194086819f6eaf19a401bbf79a261aade51fefa5ced0fb",
+    "data/research/tail_formula_order_target/models/whole_window/2024h1/model_report.json": "beaad9dd2ce6360928e617601eabdd92703fa90562f33642f390e854809c9288",
+    "data/research/tail_formula_order_target/models/whole_window/2024h1/model_verification.json": "fddb43e7f1ca39946beb7ca4bfb103c590193735fb314404fe77e4b8830487b2",
+    "data/research/tail_formula_order_target/models/whole_window/2024h2/model_report.json": "770f99d0ff10bf93875972b8b69c02c1749397340aad22606c892ae7ff6719d6",
+    "data/research/tail_formula_order_target/models/whole_window/2024h2/model_verification.json": "2cf4ed77f77f0abdfd841f272c18f498720cb3e33860e172f4d1f04d075bae7a",
+    "data/research/tail_formula_order_target/models/whole_window/2025h1/model_report.json": "9c7f1c4515a9722686b74af1c93331d2f404f92bbe544357e32e9c1715515f55",
+    "data/research/tail_formula_order_target/models/whole_window/2025h1/model_verification.json": "c942dc861125de2eccd894ff96fda7722dd7a999430d765b865a6cca8ba16d8a",
+    "data/research/tail_formula_order_target/models/whole_window/2025h2/model_report.json": "f114d51cfb3d273a29c3946dd74ae0ae96511f235df9ccdab37b5b04bed76bf8",
+    "data/research/tail_formula_order_target/models/whole_window/2025h2/model_verification.json": "4aa1a04a26b9f5b95d2d488d6150098575d2b9a1c0f05f256c3bd90f4520588a",
+    "data/research/tail_formula_order_target/all_models_verified.json": "4fa44c99d36771c05652fc42dfc2d13d4350d5a76697f256754dff21cf280192",
+    "data/research/tail_formula_order_target/models.log": "0585d823af681ae4f8389822e33395bf7ec58160312e8b4544be3f6f537d26b8",
+    "data/research/tail_formula_order_target/user_stop_checkpoint.json": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1019,12 +1038,13 @@
     "data/research/tail_formula_opportunity_order/before_complete_runtime.json": "b46e20c279a481651bee3fc872c96149e874c1681fd517e3bfb811ebf0f2a044",
     "data/research/tail_formula_order_target/prior_runtime.json": "7db0355b70102307ec5cd29784d87fe34788b35d705f79beff88c8ad1993c585",
     "data/research/tail_formula_order_target/before_execution_runtime.json": "533d03a478bbb096e3d0cbdc300eb27ab3d50a8601c1338a53ee883ef8e78f99",
-    "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10"
+    "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10",
+    "data/research/tail_formula_order_target/before_user_stop_runtime.json": "b9bd015d16fa726bf5f9616f2a28f6f3d4798cb2d2bf1a45ff5beb3e26729d4e"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_target_models_running_full_evaluation_fixed_before_lists_and_economics",
+  "current_study": "tail_formula_order_target_models_verified_paused_at_user_request_before_lists_and_economics",
   "research_definition_changed": true,
-  "rationale": "从机会与全窗风险的先后复盘出发，同50输入对照严格29根内先空间后风险及全窗质量；先历史来源核准，拟合上限8，当前0。",
+  "rationale": "同50输入和原有效域，空间先到目标与全窗质量对照已完成固定的八模型拟合及独立核准。用户要求下一次提交后停止；保存停点，不生成新名单或读取新选股经济结果。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -1613,7 +1633,15 @@
     "order_target_source_gate_passed": true,
     "order_target_keys": 1815129,
     "order_target_input_valid": 1602413,
-    "order_target_model_count_fixed": 8
+    "order_target_model_count_fixed": 8,
+    "order_target_completed_new_fits": 8,
+    "order_target_independently_verified_models": 8,
+    "order_target_model_manifest_sha256": "4fa44c99d36771c05652fc42dfc2d13d4350d5a76697f256754dff21cf280192",
+    "order_target_user_stop_receipt_sha256": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44",
+    "order_target_new_selection_lists_generated": false,
+    "order_target_new_selection_economics_read": false,
+    "order_target_paused_by_user": true,
+    "order_target_model_process_completed": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
