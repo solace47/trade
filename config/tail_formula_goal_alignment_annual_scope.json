@@ -1,0 +1,46 @@
+{
+  "question": "补齐主审查未纳入的16份完整2024年度投影；保持原机会判据、不补选或改结果。",
+  "registry_sha256": "c931299fba89ec66b4d5ccde5cdab33f04581a8074edcbf912cd5b3289eda719",
+  "canonical_labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "canonical_selection": "data/research/tail_formula_stock_2024/morning2024/selection.parquet",
+  "complete_metadata_required": true,
+  "cost_bps": 15,
+  "sensitive": false,
+  "periods": [
+    "2024H1",
+    "2024H2",
+    "2025H1",
+    "2025H2",
+    "2024",
+    "2025"
+  ],
+  "minimum_half_days": 20,
+  "reference_required": false,
+  "necessary_checks": [
+    "至少20信号日",
+    "对同日全部基础池的已存完整未知界机会增量周区间下端严格大于0",
+    "日期等权1%持续空间率严格高于同日基础池",
+    "日期等权3%不利比例不高于同日基础池"
+  ],
+  "interpretation": "仅用于否定/追查0959辅助条件是否遗漏线索；满足必要条件不证明可买入收益、稳定性或可发布。基准含原完整源键，不冒称全部有效输入池。",
+  "full_frame_dedup": "完整日期/代码/半年/板块/事先股数/入选标记逐点相同才合并；所有别名保留。",
+  "no_candidate_rank_or_reselection": true,
+  "no_existing_criteria_rewrite": true,
+  "all_prior_statistics_exposed": true,
+  "no_new_raw_price_inputs": true,
+  "no_new_economic_aggregation": true,
+  "no_new_fits": true,
+  "no_new_lists": true,
+  "no_exit_rules": true,
+  "no_2026_prices_allowed": true,
+  "new_overview_not_read": true,
+  "report_index": "data/research/tail_formula_goal_alignment_annual_scope/report_index.json",
+  "source_hashes": {
+    "data/research/tail_formula_goal_alignment_annual_scope/report_index.json": "1403da9a4fc60408d9dbf6ae1847b94a1bc919bee4f208bde1b9f52ca2833b4b",
+    "scripts/review_tail_formula_goal_alignment.py": "efa21ee62d5382ef8a06fbaf8dc24260e356b86088d9a0ec9f31b35679ac98ec",
+    "data/research/tail_formula_goal_alignment_review/review.json": "f2c42cf558c4a6b175b165688305286726f961a0e35d8b63591a065e54b20d6c"
+  },
+  "output_root": "data/research/tail_formula_goal_alignment_annual_scope",
+  "complete_metadata_scope": "2024",
+  "primary_scope_limit": "主审查34份未纳入，16份完整2024年度投影、18份标签版本不同；未纳入不等于数据错误。"
+}

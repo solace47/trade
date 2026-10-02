@@ -77,8 +77,9 @@
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/review_tail_formula_goal_alignment.py": "f5f0957180a4ec9b1de32190b4acbdaeed67f82d0b4ae290f212d3ea72e55928",
-    "config/tail_formula_goal_alignment_review.json": "d4853880757217825fa941b4386498dd2b2bae16daa98df9eb8f207f565b015e"
+    "scripts/review_tail_formula_goal_alignment.py": "efa21ee62d5382ef8a06fbaf8dc24260e356b86088d9a0ec9f31b35679ac98ec",
+    "config/tail_formula_goal_alignment_review.json": "d4853880757217825fa941b4386498dd2b2bae16daa98df9eb8f207f565b015e",
+    "config/tail_formula_goal_alignment_annual_scope.json": "aca05f4b60524824bf1a2bb133a1f76dc73e0bbd0f37f18eea47f92f419ab2b7"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -855,7 +856,11 @@
     "data/research/tail_formula_day_night_matched/selection_gate.json": "e628194338c3f09de97d6d684446431e461e398cdc8e56891e26bdadbca97641",
     "data/research/tail_formula_day_night_matched/shared_unknowns_2024.json": "532c89d78b67dc383116b3b9b78f9d8c065041dd8b45ac66654a475fdc418ba8",
     "data/research/tail_formula_day_night_matched/retired_source_receipt.json": "3c20217efa9e0d3e9615fccc664bf2102ec13c31fea5aca6c4945d914c306c05",
-    "data/research/tail_formula_goal_alignment_review/report_index.json": "54bb0f680c0b7be6f9b5d75fd89123a5d090a785e93716e72fca0c2ef4664bc1"
+    "data/research/tail_formula_goal_alignment_review/report_index.json": "54bb0f680c0b7be6f9b5d75fd89123a5d090a785e93716e72fca0c2ef4664bc1",
+    "data/research/tail_formula_goal_alignment_review/review.json": "f2c42cf558c4a6b175b165688305286726f961a0e35d8b63591a065e54b20d6c",
+    "data/research/tail_formula_goal_alignment_review/all_report_checks.parquet": "cc22ccf34861f3d968ca3d0f2b38eb529661feb02ac01f546fb5f0c69366e2e3",
+    "data/research/tail_formula_goal_alignment_review/complete_frame_aliases.json": "9adb8fdd86f78e4cd8352aeb7bbfb52a9b20d6edf3168dbb3b782252506737a2",
+    "data/research/tail_formula_goal_alignment_annual_scope/report_index.json": "1403da9a4fc60408d9dbf6ae1847b94a1bc919bee4f208bde1b9f52ca2833b4b"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -909,10 +914,11 @@
     "data/research/tail_formula_day_night_matched/fixed_lists_runtime.json": "10ca8cfeb003bb9b5456961ce3535de0a4995d133f15f7d1f7212302d40b5959",
     "data/research/tail_formula_day_night_matched/completed_runtime.json": "04701a24445165e4bcaea69d37c7c9fd437342a56112d868812c38e37d62c9d1",
     "data/research/tail_formula_day_night_matched/runtime_before_retirement.json": "2e17aa25df790efa2fd29523e95f562155e012bbb6816db8dfc4cd4b0b169166",
-    "data/research/tail_formula_goal_alignment_review/prior_runtime.json": "7a414aaa662d9233af101d729605427c7f53cb187f26932a1ca465ca8a0124ab"
+    "data/research/tail_formula_goal_alignment_review/prior_runtime.json": "7a414aaa662d9233af101d729605427c7f53cb187f26932a1ca465ca8a0124ab",
+    "data/research/tail_formula_goal_alignment_annual_scope/prior_runtime.json": "754b924d7f626102b77b09563d17dcc0a32b454516cc826755ef4ae1abd4d831"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_goal_alignment_review_fixed_before_overview",
+  "current_study": "tail_formula_goal_alignment_annual_scope_fixed_before_review",
   "research_definition_changed": true,
   "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
   "new_2026_prices_read": false,
@@ -1402,6 +1408,9 @@
     },
     "config/tail_formula_day_night_matched_evaluation.json": {
       "01cdce5aeadb8528806f1060e6b6159f4b9ffcfd0d08f87a2b92e97202d2d604": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "scripts/review_tail_formula_goal_alignment.py": {
+      "f5f0957180a4ec9b1de32190b4acbdaeed67f82d0b4ae290f212d3ea72e55928": "cd337db82616b5abd871b24208db6196a57c1bd7"
     }
   },
   "new_fits_performed_at_protocol": 0,

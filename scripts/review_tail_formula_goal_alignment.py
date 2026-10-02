@@ -1,4 +1,5 @@
 """Check existing strict reports against the user's morning opportunity goal."""
+import argparse
 import json
 from pathlib import Path
 import subprocess
@@ -15,9 +16,12 @@ PERIODS = ['2024H1', '2024H2', '2025H1', '2025H2', '2024', '2025']
 KEYS = ['date', 'code', 'half', 'board', 'decision_shares', 'selected']
 
 
-def review():
+def review(protocol=PROTOCOL):
+    global PROTOCOL, ROOT
+    PROTOCOL = protocol
     check_runtime()
     p = json.loads(PROTOCOL.read_text())
+    ROOT = Path(p.get('output_root', str(ROOT)))
     assert subprocess.check_output(['git', 'show', f'HEAD:{PROTOCOL}']) == PROTOCOL.read_bytes()
     assert sha(PROTOCOL) in subprocess.check_output(['git', 'show', 'HEAD:docs/selection-formula.md']).decode()
     check_sources(p['source_hashes'])
@@ -28,6 +32,9 @@ def review():
     rows, exclusions, fingerprints, aliases, representatives = [], [], {}, {}, {}
     template = pd.read_parquet(p['canonical_selection'], columns=KEYS[:-1])
     assert len(template) == 1258085
+    if p.get('complete_metadata_scope') == '2024':
+        template = template.loc[template.date.str.startswith('2024')].reset_index(drop=True)
+        assert len(template) == 587276
     for i, item in enumerate(index['reports']):
         root = Path(item['root'])
         ar = json.loads((root/'analysis_report.json').read_text())
@@ -56,7 +63,7 @@ def review():
             if not f[KEYS[:-1]].equals(template):
                 exclusions.append(dict(root=str(root), reason='Different complete metadata keys', rows=len(f)))
                 continue
-            assert len(f) == 1258085 and not f.duplicated(['date', 'code']).any()
+            assert len(f) == len(template) and not f.duplicated(['date', 'code']).any()
             assert f.date.lt('2026-01-01').all() and f.loc[f.selected, 'date'].ge('2024-01-01').all()
             import hashlib
             h = hashlib.sha256(pd.util.hash_pandas_object(f, index=False).to_numpy(dtype='uint64').tobytes()).hexdigest()
@@ -130,4 +137,6 @@ def review():
 
 
 if __name__ == '__main__':
-    print(json.dumps(review(), ensure_ascii=False), flush=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--protocol', type=Path, default=PROTOCOL)
+    print(json.dumps(review(parser.parse_args().protocol), ensure_ascii=False), flush=True)
