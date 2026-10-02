@@ -1,4 +1,4 @@
-"""Fixed symmetric gross direction study, with cached economic controls."""
+"""Frozen training-target studies with exact model lookup and cached controls."""
 import argparse
 import json
 from pathlib import Path
@@ -16,8 +16,8 @@ from verify_tail_formula_additive import tree_sql
 from find_existing_tail_formula_models import find, confirmed_target, verification_registry
 from tail_formula_order_statistics import aggregate, summarize, paired
 
-ROOT=Path('data/research/tail_formula_direction_target')
-PROTOCOL=Path('config/tail_formula_direction_target_execution.json')
+ROOT=Path('data/research/tail_formula_primary_order')
+PROTOCOL=Path('config/tail_formula_primary_order_execution.json')
 KEYS=['date','code','half','board','decision_shares']
 
 
@@ -49,6 +49,16 @@ def target_values(path,start,end,variant):
     c.close();return out
 
 
+def primary_labels(t):
+    """Train on the existing costed opportunity before adverse quote, preserving unknowns."""
+    end=t.first_positive_end15;bad=t.first_bad315
+    assert np.isfinite(end[t.known15]).all() and np.isfinite(bad[t.known15]).all()
+    assert end[t.known15].between(-1,28).all() and bad[t.known15].between(-1,28).all()
+    out=t.copy()
+    out['opportunity15']=(end.ge(0)&(bad.lt(0)|end.lt(bad))).astype(float).where(t.known15)
+    return out
+
+
 def prepare(p):
     source_gate=committed_file(Path(p['source_gate']))
     ROOT.mkdir(parents=True,exist_ok=True)
@@ -58,10 +68,27 @@ def prepare(p):
     pd.testing.assert_frame_equal(t[KEYS],f[KEYS],check_exact=True)
     assert len(f)==1815129 and int(f.formula_input_valid.sum())==1602413 and f.date.lt('2026-01-01').all()
     folder=Path(p.get('training_label_root',ROOT/'training_labels'))
+    if p.get('training_event')=='costed_positive_before_bad3':
+        folder.mkdir(exist_ok=False);out=primary_labels(t)
+        c=numeric.conn()
+        expected=c.execute('''SELECT date,code,CASE WHEN known15 THEN
+            (first_positive_end15>=0 AND (first_bad315<0 OR first_positive_end15<first_bad315))::DOUBLE
+            ELSE NULL END AS expected FROM read_parquet(?) ORDER BY date,code''',[p['targets']]).df();c.close()
+        pd.testing.assert_frame_equal(out[['date','code']],expected[['date','code']],check_exact=True)
+        np.testing.assert_allclose(out.opportunity15,expected.expected,rtol=0,atol=0,equal_nan=True)
+        ordered=pd.read_parquet(p['ordered_labels'],columns=['date','code','known15','known_no_trade','risk_observed15','positive_before_bad315'])
+        annual=out.loc[out.date.ge('2024-01-01')].reset_index(drop=True)
+        pd.testing.assert_frame_equal(annual[['date','code','known15','known_no_trade']],ordered[['date','code','known15','known_no_trade']],check_exact=True)
+        assert ordered.loc[ordered.known15,'risk_observed15'].eq(1).all()
+        np.testing.assert_allclose(annual.loc[annual.known15,'opportunity15'],ordered.loc[ordered.known15,'positive_before_bad315'],rtol=0,atol=0)
+        out.to_parquet(folder/'full_labels.parquet',index=False,compression='zstd')
+        save_json(folder/'full_label_report.json',dict(labels_sha256=sha(folder/'full_labels.parquet'),parent_targets_sha256=sha(Path(p['targets'])),training_event=p['training_event'],opportunity15_is_training_only_alias=True,original_known_and_keys_unchanged=True,original_positive_relabelled_after_or_with_bad=int((t.known15&t.opportunity15.eq(1)&out.opportunity15.eq(0)).sum())))
+        save_json(folder/'full_label_verification.json',dict(passed=True,label_report_sha256=sha(folder/'full_label_report.json'),all_primary_before_bad_targets_SQL_rebuilt=True,all_2024_2025_known_targets_equal_existing_ordered_labels=True,all_annual_known_risk_observed=True,unknowns_not_zero_imputed=True))
     out=pd.read_parquet(folder/'full_labels.parquet')
     pd.testing.assert_frame_equal(out[KEYS],f[KEYS],check_exact=True)
     assert out.known15.equals(t.known15) and out.known_no_trade.equals(t.known_no_trade)
-    assert out.loc[out.known15,'opportunity15'].isin([-1,0,1]).all() and out.loc[~out.known15,'opportunity15'].isna().all()
+    allowed=p.get('utility_values',[-1,0,1])
+    assert out.loc[out.known15,'opportunity15'].isin(allowed).all() and out.loc[~out.known15,'opportunity15'].isna().all()
     reports={};feature_reports={}
     files=subprocess.check_output(['rg','--files','--no-ignore','-g','full_label_report.json','-g','feature_report.json','data/research'],text=True).splitlines()
     for file in files:
@@ -72,8 +99,8 @@ def prepare(p):
     cfgdir=ROOT/'model_configs';cfgdir.mkdir(exist_ok=False)
     for spec in p['folds']:
         config=json.loads((Path(p['prior_models'])/'model_configs'/('ordered_'+spec['id']+'.json')).read_text())
-        config.update(target=variant,master_input_protocol_sha256=sha(PROTOCOL),utility='symmetric_gross_first_completed_direction',
-            training_event='same_one_percent_gross_close_three_active_bars_either_direction',training_allowed_utility_values=[-1,0,1],parameters=p['fit_parameters'])
+        config.update(target=variant,master_input_protocol_sha256=sha(PROTOCOL),utility=p.get('training_utility','symmetric_gross_first_completed_direction'),
+            training_event=p.get('training_event','same_one_percent_gross_close_three_active_bars_either_direction'),training_allowed_utility_values=allowed,parameters=p['fit_parameters'])
         path=cfgdir/(spec['id']+'.json');save_json(path,config);configs.append(dict(fold=spec['id'],config=str(path)))
         new=target_values(folder/'full_labels.parquet',spec['training_start'],spec['training_end'],variant)
         new_training=f.loc[f.formula_input_valid,['date','code']].merge(new,on=['date','code'],validate='one_to_one').sort_values(['date','code']).reset_index(drop=True)
@@ -135,7 +162,7 @@ def fit(p):
             relative.model(variant);fits+=1
         relative.verify_model(variant)
         m=json.loads((folder/'model_report.json').read_text())
-        assert m['training_allowed_utility_values']==[-1,0,1] and m['last_observation']<m['training_end']
+        assert m['training_allowed_utility_values']==p.get('utility_values',[-1,0,1]) and m['last_observation']<m['training_end']
         for name in ['model_report.json','model_verification.json']:receipts[str(folder/name)]=sha(folder/name)
         records.append(dict(fold=item['fold'],root=str(folder)))
         print(json.dumps(dict(model_verified=item['fold'],rows=m['rows'],last_observation=m['last_observation'])),flush=True)

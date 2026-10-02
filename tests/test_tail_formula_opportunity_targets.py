@@ -7,6 +7,7 @@ from trade_research import tail_formula_additive as base
 from trade_research import tail_formula_relative as target
 from trade_research.research_io import save_json, sha
 from find_existing_tail_formula_models import confirmed_target, MODEL_CORE
+from run_tail_formula_target import primary_labels
 
 
 @pytest.fixture
@@ -53,6 +54,25 @@ def test_unknown_or_after_boundary_are_not_zero_imputed(fixed_training):
         t=target.training(variant)
         assert not set(t.code).intersection(['c','e'])
         assert np.isfinite(t.target).all()
+
+
+def test_primary_order_requires_profit_strictly_before_bad_and_keeps_unknown():
+    rows=pd.DataFrame(dict(known15=[True]*5+[False,False],
+        known_no_trade=[False]*6+[True],opportunity15=[1.,1.,1.,1.,0.,np.nan,np.nan],
+        first_positive_end15=[2.,4.,3.,2.,-1.,np.nan,np.nan],
+        first_bad315=[4.,2.,3.,-1.,1.,np.nan,np.nan],code=list('abcdefg')))
+    out=primary_labels(rows)
+    np.testing.assert_allclose(out.opportunity15,[1.,0.,0.,1.,0.,np.nan,np.nan],equal_nan=True)
+    pd.testing.assert_frame_equal(out.drop(columns='opportunity15'),rows.drop(columns='opportunity15'),check_exact=True)
+    # No positive quote cannot become a profitable event even when no adverse quote exists.
+    rows.loc[4,'first_bad315']=-1.
+    assert primary_labels(rows).loc[4,'opportunity15']==0.
+
+
+def test_primary_order_rejects_missing_observation_for_known_label():
+    rows=pd.DataFrame(dict(known15=[True],opportunity15=[1.],
+        first_positive_end15=[2.],first_bad315=[np.nan]))
+    with pytest.raises(AssertionError):primary_labels(rows)
 
 
 def risk_training_labels(down=-3.):
