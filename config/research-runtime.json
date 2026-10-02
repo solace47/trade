@@ -81,7 +81,8 @@
     "scripts/probe_tail_formula_cost_history.py": "887209d413d1d0165cf92db3c59bd10e65929652ff4b8a86e1798b321eb785c9",
     "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09",
     "scripts/prepare_tail_formula_cost_history.py": "1a92d67b2b51892c6601cfb6870116f61a71e2f6277b9d53894b3d7cdab35f20",
-    "scripts/run_tail_formula_cost_history.py": "3dfd929e7c7a0c38792569dff3d0abcc9b385abcde15d9c220d57a4f384c4b4b"
+    "scripts/run_tail_formula_cost_history.py": "3dfd929e7c7a0c38792569dff3d0abcc9b385abcde15d9c220d57a4f384c4b4b",
+    "scripts/finish_tail_formula_cost_history.py": "bdf0d1379b8cf74e0ede998340204de905ae9c9cf5770449f5c351b485a048de"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -465,7 +466,17 @@
     "data/research/tail_formula_cost_history/feature_report.json": "c34a0ef170e18f2350e7b0628e3f5a8d0d54be00ead682eeefdb19005d3bc0ec",
     "data/research/tail_formula_cost_history/feature_verification.json": "86a22660be189d8daa113e8a1fb683ab2f14362272c6122360c9c89e3e0e8aa6",
     "data/research/tail_formula_phase_split/targets.parquet": "28afcae30230bc99a685f3aedec92e45d3112a646790a0f07e62e8ec2143fe9f",
-    "config/tail_formula_cost_history_model_protocol.json": "cc088348e59dfcd071fc833e5436c981a47f41eb1012be274aaebd70c8351010"
+    "config/tail_formula_cost_history_model_protocol.json": "cc088348e59dfcd071fc833e5436c981a47f41eb1012be274aaebd70c8351010",
+    "config/tail_formula_cost_history_evaluation.json": "4d0cc23d705bfeee39c76c2857ceff6330c3d931f381ea9df4330964b4c02215",
+    "data/research/tail_formula_cost_history/prefit_verified.json": "7f0c77dccb4a572af1b9672199358737e5fc1f33f65c8c50566f7e2b790f6b51",
+    "data/research/tail_formula_cost_history/protocols/control_2024h1.json": "2af88c70a96a0438aa1492d2a8857c8087e995a684de93cf113ddc17fd5ef0b8",
+    "data/research/tail_formula_cost_history/protocols/memory_2024h1.json": "72a0278dc2f8f8de20ab46784e4717c8de808dffeb1da6bf62c1e640e181a2f3",
+    "data/research/tail_formula_cost_history/protocols/control_2024h2.json": "c9ad5e1eaae769c290479b81d6bfbcfb85bb48aaafa4c4677d231b0a825abb14",
+    "data/research/tail_formula_cost_history/protocols/memory_2024h2.json": "b92dff96423fd009e7392b474cf55e1888de75d2f6daf44eb8df8259e66c1c81",
+    "data/research/tail_formula_cost_history/protocols/control_2025h1.json": "511eaedf9e0c1263c39618c6224c411e38e1a72e205dbae3b1d943027292ac40",
+    "data/research/tail_formula_cost_history/protocols/memory_2025h1.json": "82d9043427182a5ff67689aa09e5e0e6526d9f0dc85b95bb466b67476f9fb112",
+    "data/research/tail_formula_cost_history/protocols/control_2025h2.json": "2fe78383cf0964d2944ecff70d77ce3b14601d059524fb7f31d321a6ca756af9",
+    "data/research/tail_formula_cost_history/protocols/memory_2025h2.json": "3ea238f8ac00231b0ee1de3ef1e87257f94d85575a359133e57f744fa156c708"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -491,7 +502,8 @@
     "data/research/tail_formula_history_boundary_recheck/prior_completed_runtime.json": "6c8209778fff7c28c09a5723c2bba728eda9f588e44a98d9a617fbc47dd3f161",
     "data/research/tail_formula_cost_history_probe/prior_runtime.json": "811f91ef0917dba228606abad2ae1a7a5ca8b7fd1e4277a2a9ef3c324e1c64d8",
     "data/research/tail_formula_cost_history/prior_runtime.json": "402c8b6b63fc1c863216c1b131fa74a9393d03af38a0559b66cc2073c0f254fb",
-    "data/research/tail_formula_cost_history/pre_model_runtime.json": "f12f9236af1fbaec1dd359e9d26776ddc5d6008f671ca50df54355c09d52a309"
+    "data/research/tail_formula_cost_history/pre_model_runtime.json": "f12f9236af1fbaec1dd359e9d26776ddc5d6008f671ca50df54355c09d52a309",
+    "data/research/tail_formula_cost_history/fixed_fit_runtime.json": "719f998a7eded71e235adcf99c7075111b060e82185b3e876bb534c8b1415b94"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "tail_formula_cost_history_source_protocol",
