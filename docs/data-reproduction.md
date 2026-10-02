@@ -13,4 +13,4 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/rechec
 
 原始日线／分钟在data/baostock/和data/hf/，全部结果、原件和查重缓存在忽略的data/research/。2025暴露探索；不新增2026经济评价、卖出、多日持有或月度回购研究。
 
-已结束方案从对应Git版本独立检出恢复，禁止重做：单次时间门及延续原件1b9f085，稳健入口e13a9b5，平均实现24a883f，八个后过滤／诊断执行文件f6abbcb，同容量整体／分段1e5793f、情绪绝对bbde01d、情绪相对bfbe762、分钟开价ceca953、日内均幅46004ad、ETF总量6bfed42、尾段区间884391c。完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2；字节归档映射与当前收据见[固定收据](selection-formula.md)。
+已结束方案从对应Git版本独立检出恢复，禁止重做：已删11个单次时间门及延续执行／测试文件1b9f085，稳健入口e13a9b5，平均实现24a883f，八个后过滤／诊断执行文件f6abbcb，同容量整体／分段1e5793f、情绪绝对bbde01d、情绪相对bfbe762、分钟开价ceca953、日内均幅46004ad、ETF总量6bfed42、尾段区间884391c。完整清理前版本4b3bdda5db6470df4d8d61298501852f60b985a2；字节归档映射与当前收据见[固定收据](selection-formula.md)。
