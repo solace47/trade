@@ -707,7 +707,8 @@
     "data/research/tail_formula_trend_reversion_literal/matched_same_dates_2025.json": "c46e4c78d25f08db4eb9fee0c47b042e7c0479e31c2f75d35298dfd9598ba775",
     "data/research/tail_formula_trend_reversion_literal/matched_shared_unknowns_2025.json": "bd44af345fe164446277ca3a98e2d487e1de2f4d6d15c2986a2e7db6371579b9",
     "data/research/tail_formula_trend_reversion_literal/complete_results_manifest.json": "2369ab614a216c54db27b861cee758fd6a623ef60f1f8b8b0e6c9c9e9abae7ff",
-    "data/research/tail_formula_entry_semantics_reflection/protocol.json": "8a65bae42839a92411b2d3cb3ea34e1c075dc491d3bea6087025e75891ca0ea2"
+    "data/research/tail_formula_entry_semantics_reflection/protocol.json": "8a65bae42839a92411b2d3cb3ea34e1c075dc491d3bea6087025e75891ca0ea2",
+    "data/research/tail_formula_entry_semantics_reflection/verification.json": "76efd3c835994db83a3859923d2787274aca09c03687bd6c0c0c11ffee58e752"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -748,12 +749,13 @@
     "data/research/tail_formula_trend_reversion_literal/protocol_runtime.json": "5cff992b625d1ccec04a83c0971a8f3e1880059570c42b6ccb8418b49dbf27ac",
     "data/research/tail_formula_trend_reversion_literal/input_runtime.json": "7ced4da4735d439e2c03eb26fb230d6b3e58334e2cbc5aedc078c81182048316",
     "data/research/tail_formula_trend_reversion_literal/fixed_lists_runtime.json": "c2e66c2508b774fc85454212282b9b18055eae1815e6f7d2e643008f121f161b",
-    "data/research/tail_formula_entry_semantics_reflection/prior_runtime.json": "a20f0298485ed6684c250a43df18ddbb23ac069bb7587a4bbd9a1ce6a5162a76"
+    "data/research/tail_formula_entry_semantics_reflection/prior_runtime.json": "a20f0298485ed6684c250a43df18ddbb23ac069bb7587a4bbd9a1ce6a5162a76",
+    "data/research/tail_formula_entry_semantics_reflection/audit_runtime.json": "2eb93d314fd5fb8dee8b8fa6a4e0d3af831f1e3b01d26ec254aaf760330434e7"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_entry_semantics_cash_audit",
+  "current_study": "tail_formula_entry_semantics_cash_audit_completed",
   "research_definition_changed": true,
-  "rationale": "先审查主评价VWAP与历史代理最高价数学差别，逐行核准存储现金；不改名单、费用、已知标记或经济组结果。",
+  "rationale": "1,258,085键的5/15基点现金及0959/持续/不利报价原定义逐行精确重建，所有误差零。主标签VWAP+成本与历史最高价代理不同，原数值/名单/未知未改，不以均价重跑或包装失败。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
