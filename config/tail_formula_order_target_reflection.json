@@ -1,0 +1,91 @@
+{
+  "objective": "复盘完成方案所选股票是否偏向高波动／弱势，以及训练标签是否把先遭不利与普通未达空间都当0；仅诊断，不改名单，不拟合。",
+  "features": "data/research/tail_formula_order_target/features.parquet",
+  "targets": "data/research/tail_formula_order_target/targets.parquet",
+  "selections": {
+    "ordered2024": "data/research/tail_formula_order_target/ordered2024",
+    "ordered2025": "data/research/tail_formula_order_target/ordered2025",
+    "whole_window2024": "data/research/tail_formula_order_target/whole_window2024",
+    "whole_window2025": "data/research/tail_formula_order_target/whole_window2025",
+    "original502024": "data/research/tail_formula_stock_2024/morning2024",
+    "original502025": "data/research/tail_formula_morning_range/morning2025"
+  },
+  "folds": [
+    {
+      "id": "2024h1",
+      "training_start": "2023-01-01",
+      "split": "2023-07-01",
+      "training_end": "2024-01-01",
+      "evaluation_start": "2024-01-01",
+      "evaluation_end": "2024-07-01"
+    },
+    {
+      "id": "2024h2",
+      "training_start": "2023-07-01",
+      "split": "2024-01-01",
+      "training_end": "2024-07-01",
+      "evaluation_start": "2024-07-01",
+      "evaluation_end": "2025-01-01"
+    },
+    {
+      "id": "2025h1",
+      "training_start": "2024-01-01",
+      "split": "2024-07-01",
+      "training_end": "2025-01-01",
+      "evaluation_start": "2025-01-01",
+      "evaluation_end": "2025-07-01"
+    },
+    {
+      "id": "2025h2",
+      "training_start": "2024-07-01",
+      "split": "2025-01-01",
+      "training_end": "2025-07-01",
+      "evaluation_start": "2025-07-01",
+      "evaluation_end": "2026-01-01"
+    }
+  ],
+  "source_hashes": {
+    "scripts/review_tail_formula_order_target.py": "6e8e4f1bfde566e7ec455b75ea80f4c0551dc0ea13899f9a0cbdd28c5bb686e3",
+    "data/research/tail_formula_order_target/features.parquet": "609a226f1c61382d4bdaafc56cdb0f9c4b61ccee4bbfe9c484b47e700f455785",
+    "data/research/tail_formula_order_target/targets.parquet": "bc949967cab9f277022dbef211cc4b401ba4d56d18c92fa4b97af9b064fdc816",
+    "data/research/tail_formula_order_target/source_gate.json": "4f757b26d1fa6ca928e8b6bad510c9c5960db1e9ae4fadea0d3a3e0b7e65b30e",
+    "data/research/tail_formula_order_target/complete_receipt.json": "5d23901e2355f3eed457347f530163e1b4da9d5a5db7e546d152ea735420fe37",
+    "data/research/research_method_sources_20261002/order_target_resume_review/reading_review.json": "7145764361312024055be415fcecb72f1416b40318d93562d904d31d5c405547",
+    "data/research/research_method_sources_20261002/order_target_resume_review/stockwatch/scripts/build_training_set.py": "fe9185f54bf4d9886d8201ab7dd6744aa1ef8f4ab5816d9b7519b2f7eafeb754",
+    "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
+    "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "data/research/tail_formula_order_target/ordered2024/selection.parquet": "6e2470b5f068da84ce74a56c5d72ed005651c10b25223e435885460bf56d2b27",
+    "data/research/tail_formula_order_target/ordered2024/selection_report.json": "a41c3017557837b982f58c5fbe8f55604167d2275df41680dfab8c1b02720f3d",
+    "data/research/tail_formula_order_target/ordered2024/selection_verification.json": "18d5ecc109444c721f725ed9e212d3401a7c4d149b51433321c958cbf51e221a",
+    "data/research/tail_formula_order_target/ordered2025/selection.parquet": "da887a7ee642cd592f44cbcd5efe3956e708c752a4b672e9d49c8b97089533a8",
+    "data/research/tail_formula_order_target/ordered2025/selection_report.json": "32adc2a8b5398182fbb915bea49a0e39b123be495c9a72fac14bd305694ab9d2",
+    "data/research/tail_formula_order_target/ordered2025/selection_verification.json": "6b8a31af6a393f946971d7b87952c4db41283fd14c293caf54b9868c79f88455",
+    "data/research/tail_formula_order_target/whole_window2024/selection.parquet": "8c09d6f3cff5396c496ea7b3c9d0c73dadb75a7e9086fe69442d80717c7de347",
+    "data/research/tail_formula_order_target/whole_window2024/selection_report.json": "f7c33cb376991e15d951d469344410f7413d4daa464da91fd1df60d1da73f83c",
+    "data/research/tail_formula_order_target/whole_window2024/selection_verification.json": "5af55eee77be81c4b6923b6c00f8500a81777cae590da01bbbf964b9c9e5eb07",
+    "data/research/tail_formula_order_target/whole_window2025/selection.parquet": "478191c053d3c3663bf1a2ed57e26287725e646c544cf4780a308337d61a573c",
+    "data/research/tail_formula_order_target/whole_window2025/selection_report.json": "719b61a9455ebef3a4995c9a1f65bac1d363c96fa4bb0e409aaa34bcde9afb80",
+    "data/research/tail_formula_order_target/whole_window2025/selection_verification.json": "10d5427513107472d654782cd0a4e750980813b9370d8bbff0e4203186c2d32f",
+    "data/research/tail_formula_stock_2024/morning2024/selection.parquet": "5f553ae7b25fb07f99a598060ecb682bc56510f328ee9bd872e152bf84c65ae0",
+    "data/research/tail_formula_stock_2024/morning2024/selection_report.json": "b6f79df297c2546a095d42fd645276d765dcf2163b9f9a1c8ab623cc202bd8ec",
+    "data/research/tail_formula_stock_2024/morning2024/selection_verification.json": "66b2f6446f2dcf8dda2b98763e4d0353317bf10394af7c659a0bed8c4d54b03d",
+    "data/research/tail_formula_morning_range/morning2025/selection.parquet": "bf57a3ee9d48001f2ba38e81305dc4110e932aeb13abfde52321bad565fdc702",
+    "data/research/tail_formula_morning_range/morning2025/selection_report.json": "ea20485d9656c55be2707c629b207c45f6d131e3c5ee01cd76f49ac93ede1005",
+    "data/research/tail_formula_morning_range/morning2025/selection_verification.json": "8b5f1d3796ddd2dd19a679c30d2176ea6128421d144616633f60e2830eb910b6"
+  },
+  "characteristics": [
+    "V01：此前20日原协议范围均幅",
+    "visible_return：NA01乘V01还原当日14:49涨幅",
+    "A12：14:21—14:49成交额亿元",
+    "R01：原相对指数涨幅／范围均幅"
+  ],
+  "characteristic_domain": "原有效输入域；各原名单及原有效池同信号日，日期等权均值，不按未来成交、价格或标签可用性筛选",
+  "training_categories": "每折全部成熟known15源键，输入交集之前；1%三连报价先到、3%low不利先到或没有空间、两者都未出现；同根不利先到。只重建现有事件位置。",
+  "thresholds_unchanged": true,
+  "new_fits": 0,
+  "new_selections": 0,
+  "new_raw_prices_allowed": false,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true
+}

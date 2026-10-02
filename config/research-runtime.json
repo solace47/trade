@@ -83,7 +83,9 @@
     "config/tail_formula_order_target_execution.json": "f12ac93d16c8f8edd32f5cb0bfc6a5b5ad9e389609575d7c885ab51bccda3cc6",
     "scripts/freeze_tail_formula_order_target.py": "784cf513dd758546a03dbb8981614f6593ea186e664cfe9fc59568070424f3f9",
     "scripts/analyze_tail_formula_order_target.py": "dab28490fd605e68ff4ffd8788c909670c500dbfe309d3aa8b874e2b2d3b55d0",
-    "config/tail_formula_order_target_evaluation.json": "08cc682eac81603eb6f7930f003a587daf3fe43717216a6ed546bd61b205b91c"
+    "config/tail_formula_order_target_evaluation.json": "08cc682eac81603eb6f7930f003a587daf3fe43717216a6ed546bd61b205b91c",
+    "scripts/review_tail_formula_order_target.py": "6e8e4f1bfde566e7ec455b75ea80f4c0551dc0ea13899f9a0cbdd28c5bb686e3",
+    "config/tail_formula_order_target_reflection.json": "0044e8e3b1ed470ff0501b9ad062c97c9e1ced39c7b524c6dcad27ad18535e72"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -997,7 +999,9 @@
     "data/research/tail_formula_order_target/economic_daily.parquet": "4917cad299beecbf609ced8f3bba167a60a52155142f22d7d77981a65294995d",
     "data/research/tail_formula_order_target/paired_daily.parquet": "290ccbef2dabfef4b87d43c81a7d84e7f250bf475ccb7c5fdc0dd621b735fcb8",
     "data/research/tail_formula_order_target/economics.log": "d6099c683422e910800c334bb5b4adc802c9e007f34cce63ad14ee0c70e4d390",
-    "data/research/tail_formula_order_target/complete_receipt.json": "5d23901e2355f3eed457347f530163e1b4da9d5a5db7e546d152ea735420fe37"
+    "data/research/tail_formula_order_target/complete_receipt.json": "5d23901e2355f3eed457347f530163e1b4da9d5a5db7e546d152ea735420fe37",
+    "data/research/research_method_sources_20261002/order_target_resume_review/reading_review.json": "7145764361312024055be415fcecb72f1416b40318d93562d904d31d5c405547",
+    "data/research/research_method_sources_20261002/order_target_resume_review/stockwatch/scripts/build_training_set.py": "fe9185f54bf4d9886d8201ab7dd6744aa1ef8f4ab5816d9b7519b2f7eafeb754"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1063,12 +1067,13 @@
     "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10",
     "data/research/tail_formula_order_target/before_user_stop_runtime.json": "b9bd015d16fa726bf5f9616f2a28f6f3d4798cb2d2bf1a45ff5beb3e26729d4e",
     "data/research/tail_formula_order_target/before_resume_runtime.json": "90faa09f4b01a00be4881933021fb3e32a85e67609b3a775ab98cc1c7070e157",
-    "data/research/tail_formula_order_target/before_complete_runtime.json": "da8dbd50451d3931142a19cead1c208ce84cf2ff970c41af8cde201f74b1d8d8"
+    "data/research/tail_formula_order_target/before_complete_runtime.json": "da8dbd50451d3931142a19cead1c208ce84cf2ff970c41af8cde201f74b1d8d8",
+    "data/research/tail_formula_order_target/reflection/prior_runtime.json": "c08998888204cfa7ca8539b91e607f8cc6384a831b705de3b353c5011df4021c"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_target_completed_failed_all_five_criteria_reflection_next",
+  "current_study": "tail_formula_order_target_fixed_characteristic_and_training_failure_reflection",
   "research_definition_changed": true,
-  "rationale": "用户恢复后零新拟合，完成八模型四名单的144组固定评价及四配对；空间先到模型两年更差，五预定条件全失败。继续检验失败机制，不改当前阈值或追改结论。",
+  "rationale": "空间先到方案已完整失败；固定零拟合／零新选股的波动、可见涨幅、成交额与相对涨幅诊断，以及三类训练路径比例，检验明确风险惩罚的必要性。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
