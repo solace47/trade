@@ -77,8 +77,8 @@
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/review_tail_formula_opportunity_order.py": "3450bd951089eab21407146d4bae0a276a1a7776a88790b223aac6fe321e3bbd",
-    "config/tail_formula_opportunity_order.json": "b7d2c9b1aba0cbcc0a0f3bb2ea5b52c3c9f1f3345258bf5d6b9e6cb2f408cb74"
+    "scripts/review_tail_formula_opportunity_order.py": "734d05f3e5ace759f98134d75ae5537d46421f83ff74b0202277a42dc91a6c4e",
+    "config/tail_formula_opportunity_order.json": "5db0dccf4a41fa4b61d1285ebea2d6378b13a1964426adbc890d23b98c56b343"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -866,7 +866,7 @@
     "data/research/research_method_sources_20261002/github_goal_review/source_manifest.json": "006f452a65e3435d95f8fd465f8760c2b0f75a9a5469927170e0fa978bc8ce20",
     "data/research/research_method_sources_20261002/github_goal_review/source_reading_review.json": "00fbc15dd9b0a541a87bb1f63338a884139d15ef3021035c55b8f23c2fa71bc7",
     "data/research/tail_formula_goal_alignment_annual_scope/retired_source_receipt.json": "e6cf43bb30021539c176e81b0fda6d29528e9646935dc5c158cf6c633e35863f",
-    "data/research/tail_formula_opportunity_order/input_index.json": "88b7650459793435ee0119776409a6ab600ead35198cabb4ab0cbbf29f08c816"
+    "data/research/tail_formula_opportunity_order/input_index.json": "e6dfdb90104b9f4ae6457e37781a14b920e0538bc934d9b8dd07f3a4c963b9df"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -923,12 +923,13 @@
     "data/research/tail_formula_goal_alignment_review/prior_runtime.json": "7a414aaa662d9233af101d729605427c7f53cb187f26932a1ca465ca8a0124ab",
     "data/research/tail_formula_goal_alignment_annual_scope/prior_runtime.json": "754b924d7f626102b77b09563d17dcc0a32b454516cc826755ef4ae1abd4d831",
     "data/research/tail_formula_goal_alignment_annual_scope/completed_runtime.json": "e1a118df25564ca1274341ff8d4b27442ce25689e6d9cc83d29d69e34cca8c9e",
-    "data/research/tail_formula_opportunity_order/prior_runtime.json": "c0c83e028fceee6bfbe53d29ee749ad6cd53197df4b6a4feabfef22e3cefc60a"
+    "data/research/tail_formula_opportunity_order/prior_runtime.json": "c0c83e028fceee6bfbe53d29ee749ad6cd53197df4b6a4feabfef22e3cefc60a",
+    "data/research/tail_formula_opportunity_order/before_nullable_check_repair_runtime.json": "b4cb43142d7cd7885cc7df373fc64612f6f9885f617c8195baf2425f7d32b506"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "tail_formula_opportunity_order_protocol_fixed_before_new_sequence_groups",
   "research_definition_changed": true,
-  "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
+  "rationale": "复盘机会与全窗风险混用，固定还原首次三连机会和首次不利的先后；原名单、费用、状态不改，零选股拟合。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {

@@ -119,7 +119,8 @@ def produce():
                     FROM events e JOIN prefixes USING(date,code) ORDER BY e.date,e.code'''
             ex=sql.sql(fields).df();pd.testing.assert_frame_equal(out[['date','code']],ex[['date','code']],check_exact=True)
             columns=[name+str(bps) for name in NAMES]
-            np.testing.assert_allclose(out[columns],ex[columns],rtol=0,atol=2e-12,equal_nan=True)
+            np.testing.assert_allclose(out[columns].to_numpy(dtype=float),
+                ex[columns].to_numpy(dtype=float,na_value=np.nan),rtol=0,atol=2e-12,equal_nan=True)
         sql.close();derived.append(out);checks.append(dict(path=path,eligible_rows=len(q),all_events_and_prefix_marks_SQL_rebuilt=True))
         print(json.dumps(dict(parts_verified=len(checks),eligible_rows_verified=sum(x['eligible_rows'] for x in checks))),flush=True)
     d=pd.concat(derived,ignore_index=True).sort_values(KEYS).reset_index(drop=True)
@@ -177,7 +178,8 @@ def analyze():
                         (positive_before_bad3+unknown)::DOUBLE/rows AS opportunity_upper
                         FROM daily_counts ORDER BY date,half''').df();c.close()
                     pd.testing.assert_frame_equal(d[['date','half',*counts]],ex[['date','half',*counts]],check_exact=True,check_dtype=False)
-                    np.testing.assert_allclose(d[metrics],ex[metrics],rtol=0,atol=2e-12,equal_nan=True)
+                    np.testing.assert_allclose(d[metrics].to_numpy(dtype=float),
+                        ex[metrics].to_numpy(dtype=float,na_value=np.nan),rtol=0,atol=2e-12,equal_nan=True)
                     d['arm']=arm;d['year']=year;d['bps']=bps;d['sensitive']=sensitive;parts.append(d)
     daily=pd.concat(parts,ignore_index=True);summaries=[]
     for (year,arm,bps,sensitive),d in daily.groupby(['year','arm','bps','sensitive']):
