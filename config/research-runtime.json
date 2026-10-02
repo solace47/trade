@@ -79,7 +79,8 @@
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
     "scripts/run_tail_formula_shakeout_literal.py": "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931",
     "scripts/run_tail_formula_trend_reversion_literal.py": "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13",
-    "scripts/audit_tail_formula_entry_semantics.py": "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9"
+    "scripts/audit_tail_formula_entry_semantics.py": "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9",
+    "scripts/run_tail_formula_candle_gate_literal.py": "9eb15f2d6fb8374abca6d6c08dc153642346698d906c168dfbbdf80b78607043"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -708,7 +709,10 @@
     "data/research/tail_formula_trend_reversion_literal/matched_shared_unknowns_2025.json": "bd44af345fe164446277ca3a98e2d487e1de2f4d6d15c2986a2e7db6371579b9",
     "data/research/tail_formula_trend_reversion_literal/complete_results_manifest.json": "2369ab614a216c54db27b861cee758fd6a623ef60f1f8b8b0e6c9c9e9abae7ff",
     "data/research/tail_formula_entry_semantics_reflection/protocol.json": "8a65bae42839a92411b2d3cb3ea34e1c075dc491d3bea6087025e75891ca0ea2",
-    "data/research/tail_formula_entry_semantics_reflection/verification.json": "76efd3c835994db83a3859923d2787274aca09c03687bd6c0c0c11ffee58e752"
+    "data/research/tail_formula_entry_semantics_reflection/verification.json": "76efd3c835994db83a3859923d2787274aca09c03687bd6c0c0c11ffee58e752",
+    "config/tail_formula_candle_gate_literal_protocol.json": "27f454ba05ec063070f48d679f0b6e00cf2992f240919db8ce635e8561549f87",
+    "data/research/tail_formula_candle_gate_literal/prior_registry.json": "90e0b2fdec4d1b7a9550d4c7af2f464eb55185158af4e0c91f4b25b8a9631f8a",
+    "data/research/tail_formula_candle_gate_literal/source_review.json": "00f729216bbc9a142a31ccebb3cecca249cc8e93a6c3c1c49e46ccb9b029e878"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -750,12 +754,13 @@
     "data/research/tail_formula_trend_reversion_literal/input_runtime.json": "7ced4da4735d439e2c03eb26fb230d6b3e58334e2cbc5aedc078c81182048316",
     "data/research/tail_formula_trend_reversion_literal/fixed_lists_runtime.json": "c2e66c2508b774fc85454212282b9b18055eae1815e6f7d2e643008f121f161b",
     "data/research/tail_formula_entry_semantics_reflection/prior_runtime.json": "a20f0298485ed6684c250a43df18ddbb23ac069bb7587a4bbd9a1ce6a5162a76",
-    "data/research/tail_formula_entry_semantics_reflection/audit_runtime.json": "2eb93d314fd5fb8dee8b8fa6a4e0d3af831f1e3b01d26ec254aaf760330434e7"
+    "data/research/tail_formula_entry_semantics_reflection/audit_runtime.json": "2eb93d314fd5fb8dee8b8fa6a4e0d3af831f1e3b01d26ec254aaf760330434e7",
+    "data/research/tail_formula_candle_gate_literal/prior_runtime.json": "dc38fd2f3c0bc6eeeb9307b0a795de2818284c39946371368c557f3426b503af"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_entry_semantics_cash_audit_completed",
+  "current_study": "tail_formula_candle_gate_literal_fixed_before_inputs",
   "research_definition_changed": true,
-  "rationale": "1,258,085键的5/15基点现金及0959/持续/不利报价原定义逐行精确重建，所有误差零。主标签VWAP+成本与历史最高价代理不同，原数值/名单/未知未改，不以均价重跑或包装失败。",
+  "rationale": "原件完美十字或阳线锤子固定阈值及源扫描门；只改为14:49可见输入，零拟合，不代表全部模型打分流程。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
