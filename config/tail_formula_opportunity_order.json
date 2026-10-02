@@ -1,0 +1,48 @@
+{
+  "question": "原50与同日基础池的次晨获利机会、3%不利报价先后顺序如何？全窗最大/最小不能回答。",
+  "output_root": "data/research/tail_formula_opportunity_order",
+  "input_index": "data/research/tail_formula_opportunity_order/input_index.json",
+  "source_hashes": {
+    "data/research/tail_formula_opportunity_order/input_index.json": "88b7650459793435ee0119776409a6ab600ead35198cabb4ab0cbbf29f08c816",
+    "scripts/review_tail_formula_opportunity_order.py": "3450bd951089eab21407146d4bae0a276a1a7776a88790b223aac6fe321e3bbd"
+  },
+  "parent_labels": "data/research/tail_formula_before1000/full_labels.parquet",
+  "parent_labels_sha256": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+  "selections": {
+    "2024": "data/research/tail_formula_stock_2024/morning2024",
+    "2025": "data/research/tail_formula_morning_range/morning2025"
+  },
+  "window_bars": 29,
+  "window": [
+    "09:31",
+    "09:59"
+  ],
+  "space_threshold": 0.01,
+  "adverse_threshold": -0.03,
+  "cost_bps": [
+    5,
+    15
+  ],
+  "sensitive_views": [
+    false,
+    true
+  ],
+  "event_definitions": {
+    "positive": "首次连续三根正成交分钟收盘含费参考均大于0，位置取第三根末尾。",
+    "space": "同样的三根含费参考均至少1%，阈值沿用旧指标。",
+    "bad3": "首次正成交分钟low的同成本参考不高于-3%。",
+    "before": "机会末尾位置严格早于不利位置；没有观察到不利也可成立；同一根按不利先到，不推断tick先后。",
+    "prefix_adverse": "仅到首次机会末尾为止的正成交分钟low含费参考最小值；没有该机会保持缺失。"
+  },
+  "scope": "首次事件均在既定次晨29根，未计买入当天后续或0930；不是整个隔夜持仓的全部风险。",
+  "retained_status": "原known5/15、敏感known、未买入及未知原样保留；不存在原价格机会不得补为成功。原缺值不补零。",
+  "verification": "NumPy逐数组事件与成本、三连和low全部重建旧原机会/空间/持续/不利；DuckDB逐位置现金及滚动三根独立重建新事件和前缀；全键合并核对。标签全核准并提交后才看固定分组。",
+  "analysis": "原50的2024/2025固定名单、其全部源键同日基础池及两年全部源键；5/15基点和原源敏感两视图，完整两年/四半年，日期等权和周区间。只新增时间顺序诊断，不改名单、筛选、收益口径或研究卖法。",
+  "source_label_timestamp_limitations_retained": true,
+  "no_new_selector_fits": true,
+  "no_new_selection_frames": true,
+  "no_realized_profit_claim": true,
+  "no_stopping_or_takeprofit_rule": true,
+  "no_2026_prices_allowed": true,
+  "new_sequence_groups_not_read": true
+}

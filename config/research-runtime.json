@@ -77,9 +77,8 @@
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/review_tail_formula_goal_alignment.py": "efa21ee62d5382ef8a06fbaf8dc24260e356b86088d9a0ec9f31b35679ac98ec",
-    "config/tail_formula_goal_alignment_review.json": "d4853880757217825fa941b4386498dd2b2bae16daa98df9eb8f207f565b015e",
-    "config/tail_formula_goal_alignment_annual_scope.json": "aca05f4b60524824bf1a2bb133a1f76dc73e0bbd0f37f18eea47f92f419ab2b7"
+    "scripts/review_tail_formula_opportunity_order.py": "3450bd951089eab21407146d4bae0a276a1a7776a88790b223aac6fe321e3bbd",
+    "config/tail_formula_opportunity_order.json": "b7d2c9b1aba0cbcc0a0f3bb2ea5b52c3c9f1f3345258bf5d6b9e6cb2f408cb74"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -865,7 +864,9 @@
     "data/research/tail_formula_goal_alignment_annual_scope/all_report_checks.parquet": "d6c3e5bcb4b5444bcdd26f1f63083e6df68eb0391092459a9f78e23d548485ee",
     "data/research/tail_formula_goal_alignment_annual_scope/complete_frame_aliases.json": "c24b23a850972cfecd0ada977290780f91ab1a7258d1022949827f30de4e1bb1",
     "data/research/research_method_sources_20261002/github_goal_review/source_manifest.json": "006f452a65e3435d95f8fd465f8760c2b0f75a9a5469927170e0fa978bc8ce20",
-    "data/research/research_method_sources_20261002/github_goal_review/source_reading_review.json": "00fbc15dd9b0a541a87bb1f63338a884139d15ef3021035c55b8f23c2fa71bc7"
+    "data/research/research_method_sources_20261002/github_goal_review/source_reading_review.json": "00fbc15dd9b0a541a87bb1f63338a884139d15ef3021035c55b8f23c2fa71bc7",
+    "data/research/tail_formula_goal_alignment_annual_scope/retired_source_receipt.json": "e6cf43bb30021539c176e81b0fda6d29528e9646935dc5c158cf6c633e35863f",
+    "data/research/tail_formula_opportunity_order/input_index.json": "88b7650459793435ee0119776409a6ab600ead35198cabb4ab0cbbf29f08c816"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -921,10 +922,11 @@
     "data/research/tail_formula_day_night_matched/runtime_before_retirement.json": "2e17aa25df790efa2fd29523e95f562155e012bbb6816db8dfc4cd4b0b169166",
     "data/research/tail_formula_goal_alignment_review/prior_runtime.json": "7a414aaa662d9233af101d729605427c7f53cb187f26932a1ca465ca8a0124ab",
     "data/research/tail_formula_goal_alignment_annual_scope/prior_runtime.json": "754b924d7f626102b77b09563d17dcc0a32b454516cc826755ef4ae1abd4d831",
-    "data/research/tail_formula_goal_alignment_annual_scope/completed_runtime.json": "e1a118df25564ca1274341ff8d4b27442ce25689e6d9cc83d29d69e34cca8c9e"
+    "data/research/tail_formula_goal_alignment_annual_scope/completed_runtime.json": "e1a118df25564ca1274341ff8d4b27442ce25689e6d9cc83d29d69e34cca8c9e",
+    "data/research/tail_formula_opportunity_order/prior_runtime.json": "c0c83e028fceee6bfbe53d29ee749ad6cd53197df4b6a4feabfef22e3cefc60a"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_goal_alignment_review_complete_with_annual_scope",
+  "current_study": "tail_formula_opportunity_order_protocol_fixed_before_new_sequence_groups",
   "research_definition_changed": true,
   "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
   "new_2026_prices_read": false,
@@ -1416,7 +1418,14 @@
       "01cdce5aeadb8528806f1060e6b6159f4b9ffcfd0d08f87a2b92e97202d2d604": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
     },
     "scripts/review_tail_formula_goal_alignment.py": {
-      "f5f0957180a4ec9b1de32190b4acbdaeed67f82d0b4ae290f212d3ea72e55928": "cd337db82616b5abd871b24208db6196a57c1bd7"
+      "f5f0957180a4ec9b1de32190b4acbdaeed67f82d0b4ae290f212d3ea72e55928": "cd337db82616b5abd871b24208db6196a57c1bd7",
+      "efa21ee62d5382ef8a06fbaf8dc24260e356b86088d9a0ec9f31b35679ac98ec": "2acfdb3f8b9b6132ef7c5a2c6e32f6608ecc6341"
+    },
+    "config/tail_formula_goal_alignment_review.json": {
+      "d4853880757217825fa941b4386498dd2b2bae16daa98df9eb8f207f565b015e": "2acfdb3f8b9b6132ef7c5a2c6e32f6608ecc6341"
+    },
+    "config/tail_formula_goal_alignment_annual_scope.json": {
+      "aca05f4b60524824bf1a2bb133a1f76dc73e0bbd0f37f18eea47f92f419ab2b7": "2acfdb3f8b9b6132ef7c5a2c6e32f6608ecc6341"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -1488,7 +1497,8 @@
     "goal_review_annual_scope_reports": 16,
     "goal_review_annual_scope_distinct_complete_frames": 12,
     "goal_review_remaining_different_label_reports": 18,
-    "goal_review_current_tests_passed": 29
+    "goal_review_current_tests_passed": 29,
+    "goal_review_ended_files_retired": 3
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"

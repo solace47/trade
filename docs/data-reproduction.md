@@ -8,6 +8,8 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -
 
 已结束阶段不重复拟合、聚合或覆盖。完整年度名单及协议先提交，输入、标记、元数据、适用标签、全部经济统计与比较均独立核准；精确相同才复用。报价参考不等于实际兑现收益。
 
+既有目标审查的3个结束执行／协议文件从Git 2acfdb3恢复，主／年度补充结果保留。
+
 20日成分补验在data/research/tail_formula_day_night_matched/；本轮6个专用执行／协议字节从Git e51eda6恢复，全部结果保留。
 
 三组外部固定规则在data/research/tail_formula_shakeout_literal/、tail_formula_trend_reversion_literal/、tail_formula_candle_gate_literal/；现金语义审查在tail_formula_entry_semantics_reflection/。全部已完成，当前7个专用执行／协议文件字节从Git 13d2c5c恢复。原件版本与阅读范围、结果及现金定义见[失败索引](strategy-results.md)。
