@@ -1,0 +1,84 @@
+{
+  "study": "source_fixed_prior_rise_bearish_volume_support_at_1449",
+  "objective": "直接检验原件四条件的14:49适配，零拟合、不因失败扩阈值；不把大涨等同涨停或资金身份。",
+  "condition": "py_close>=1.095*py_comp_close AND price_1449<daily_open AND volume_1449>2*float_prior_volume AND low_1449>=py_close",
+  "visible_cache": "data/research/tail_formula_float/features.parquet",
+  "prior_cache": "data/research/tail_formula_prior_bar/inputs/prior_bar_primitives.parquet",
+  "prior_features": "data/research/tail_formula_prior_bar/inputs/features.parquet",
+  "input_proofs": [
+    [
+      "visible",
+      "data/research/tail_formula_float/feature_report.json",
+      "data/research/tail_formula_float/feature_verification.json"
+    ],
+    [
+      "prior",
+      "data/research/tail_formula_prior_bar/inputs/feature_report.json",
+      "data/research/tail_formula_prior_bar/inputs/feature_verification.json"
+    ]
+  ],
+  "source_hashes": {
+    "scripts/finish_tail_formula_rule_search.py": "cf8f08114c14e127abc8a6ef58fa66a19796fe35902705be675b9fae19b48fb3",
+    "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8",
+    "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
+    "scripts/tail_formula_analysis_reuse.py": "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b",
+    "scripts/verify_tail_formula_before1000.py": "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234",
+    "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
+    "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
+    "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "scripts/run_tail_formula_shakeout_literal.py": "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "data/research/tail_formula_stock_2024/inputs/features.parquet": "9b3edf988981f82aef9f5415c7b72f740b62e2e98fd5e93b6bfa0f2cd245c7f7",
+    "data/research/tail_formula_emotion_transition/inputs/features.parquet": "58c989bb2de16df3a87df178a881c871bc673a65a8aa5bfdcc0172f6837762c9",
+    "data/research/tail_formula_float/features.parquet": "f6ad334aa2927ad23938f9227fb690e8fdcab156328a142f6e033f848acfdf76",
+    "data/research/tail_formula_float/feature_report.json": "c8b2b2bf0f762fa8ce5fca811de5cdb110d307f00a260ba3ddc72e2f4e5c12e4",
+    "data/research/tail_formula_float/feature_verification.json": "8db92206e35a6a42a336cfad0bbf473fa4f60ca7e889aecefab53db815fafc66",
+    "data/research/tail_formula_prior_bar/inputs/prior_bar_primitives.parquet": "08432dae76719d587385ef0c74437e20c79047c813921c085232acdfd4fc6ec0",
+    "data/research/tail_formula_prior_bar/inputs/features.parquet": "d92166182420d9a8b49f044dae0e353a7812fa57524b65ad730e4828e477f3eb",
+    "data/research/tail_formula_prior_bar/inputs/feature_report.json": "4edcff8b1381d8fd8ad69d22ea0341aab97b82a1680071958904b0d4c3b3940e",
+    "data/research/tail_formula_prior_bar/inputs/feature_verification.json": "34292527ae8001b1f10254c3976d707c9dcd1fa6a3723450b4ddf1bfa8ead172",
+    "data/research/tail_formula_before1000/full_labels.parquet": "f91086cf8c2911557a41a930b77732cdbbf126f01c2f525824c9497d5a49f36a",
+    "data/research/tail_formula_before1000/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_before1000/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_shakeout_literal/prior_registry.json": "c2c42b2d0a4faa2a78784dd86b82aa45ee63930c135fd7c23fc209abb7f678f0",
+    "data/research/tail_formula_shakeout_literal/source_review.json": "78786cbfeb7a989d64525647217d32dab6e1964d8ffc0420ef413be7e58afa05",
+    "data/research/research_method_sources_20261002/github_followup/sequoia_x/README.md": "65e56b7c95ceaf11257a39a88583489cff210c98b8cd59d2bedd2e032d733fbc",
+    "data/research/research_method_sources_20261002/github_followup/sequoia_x/sequoia_x/strategy/limit_up_shakeout.py": "ee8584cd3799f829f46eede5c5c7acb1047105a38bde990ad1ef92a4b87a675a"
+  },
+  "prior_registry": "data/research/tail_formula_shakeout_literal/prior_registry.json",
+  "controls": {
+    "2024": "data/research/tail_formula_stock_2024/morning2024",
+    "2025": "data/research/tail_formula_morning_range/morning2025"
+  },
+  "additional_controls": {},
+  "selector_fits": 0,
+  "new_tree_fits": 0,
+  "parameter_search": false,
+  "window_search": false,
+  "require_unchanged_original_input_domain": true,
+  "full_lists_before_economics": true,
+  "no_duplicate_control_evaluation": true,
+  "no_duplicate_half_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "native_client_parity_verified": false,
+  "input_semantics": [
+    "price_1449为原始14:49收盘；low_1449为截至14:49正成交分钟LOW最小值；volume_1449为完整230分钟原始股数总和",
+    "daily_open仅用开盘时已确定开价；不使用当日最终收盘、最低或总量",
+    "py_close及py_comp_close为严格此前两完整活跃股日原始收盘；坏行不跳过，来源除权和暂停差异保留",
+    "float_prior_volume为前活跃股日原始股数总和，来源日期必须等于py_prev_date；两种量都为股",
+    "沿用原50有效输入及基本证券排除以保持控制可比；范围不等于交易所完整主表",
+    "源码日线后复权改为本库原始价，跨日除权差异未被声称消除"
+  ],
+  "execution_semantics": "沿用严格14:52—14:55原始分钟约2万元整手容量与5/15基点成本，09:31—09:59三连报价、至少1%空间、0959参考、3%不利及共享未知；未填不冒称成交",
+  "acceptance": [
+    "两年参考正",
+    "四半年参考正且各至少20信号日",
+    "两年机会高于原50且3%不利不高于原50",
+    "共享未知下界周区间两年严格正；未通过不发布"
+  ],
+  "native_plan": "分钟侧14:49锁定Q、当日开盘、正量分钟LOW下界与累计量；已完成日线辅助先REF取前两实际收盘和前日整日量，量单位换算一致。日期、暂停、坏行、复权、加载深度和源码后复权差异保留守卫。只记录数学计划，没有完整客户端对齐。"
+}
