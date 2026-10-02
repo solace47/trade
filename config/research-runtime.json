@@ -1300,7 +1300,25 @@
     "data/research/tail_formula_primary_order/model_configs/2024h1.json": "809e1b2f81ca903c813bab7adaa3b96140afef020cf9f385449493e0b401ff22",
     "data/research/tail_formula_primary_order/model_configs/2024h2_lookup.json": "627c53b44ac5b8a9274227a982521b88f5feb185c29f7af2fbd3c068d89a6892",
     "data/research/tail_formula_primary_order/model_lookup.json": "0d573fe5cb4a9c40debb95442ebc7cada0c080aab5c5bdf4c7affa45b1675129",
-    "data/research/tail_formula_primary_order/preparation.json": "0b4821a835f14b36af7559aaa43b1213cc8b963c489c09529ceddf54d05f83fa"
+    "data/research/tail_formula_primary_order/preparation.json": "0b4821a835f14b36af7559aaa43b1213cc8b963c489c09529ceddf54d05f83fa",
+    "data/research/tail_formula_primary_order/models/2024h1/model_report.json": "038c9ef3b250223cf0f28c1d472fcbab461902c40b49de52442fc6fb901d4502",
+    "data/research/tail_formula_primary_order/models/2024h1/model_verification.json": "41bdcbb28326efaf989eadfe50f1a3a341245e63249b15b4a4a2fc937777baa3",
+    "data/research/tail_formula_primary_order/models/2024h2/model_report.json": "24f8d151a6cb4012274d7db66dc3cc042e8766c59109ecfe16af9577fac2018b",
+    "data/research/tail_formula_primary_order/models/2024h2/model_verification.json": "8fc4a0c6fd55ae64292915b35d0258f0aaa797a950bdcf743f8a122b5d432e44",
+    "data/research/tail_formula_primary_order/models/2025h1/model_report.json": "a2fca89cb41b44b2691a607c83a963bb25ab08958234cadddfe8806ae5af4a41",
+    "data/research/tail_formula_primary_order/models/2025h1/model_verification.json": "8969736b0ddba7526bd490f830e2bace09311c18b7d9b73fe868041450c1cc28",
+    "data/research/tail_formula_primary_order/models/2025h2/model_report.json": "d71a77b8ec3870ffc956a828fd744495554a5a2803374d681b915961e4f06c10",
+    "data/research/tail_formula_primary_order/models/2025h2/model_verification.json": "7ab1c0d6ba90ea0235d87875551abc859f929d5bbc8a59777df62d3300dacb82",
+    "data/research/tail_formula_primary_order/all_models_verified.json": "6d98761d501bb908949aa8a4983505ce1c5e6a5b984a0e57e718d60e96ca30c5",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_score_center_protocol.json": "3586b7590cb94a8c78d67ffafa9f141a674b1f6e27f2d2cfed477d749fb54cc4",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_score_center.py": "22b1feb3290ea94129e93df1462239511e490512b01c72d0f08b07d0f7c99f02",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_score_scale_protocol.json": "1d8ed4c156c6ea92648cf6456b9d387e89fa92d07d921838ccc20b43536a5443",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_absolute_input_calibration_intent.json": "d677b636f93ab55897119155e0b59c40c4f7a7d5baa8b0dbce5089a8b6f367f3",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_probability_linear48_protocol.json": "1e6ebd878eae58eb6b8af8d350d80f71b07f428bc5268c21a47bdbe7946b1f50",
+    "data/research/research_method_sources_20261002/prior_score_methods/tail_formula_market_gate_protocol.json": "bbbebe7b94c9a87320635650602cf70a489b6615d686dcece558748f415370e9",
+    "data/research/research_method_sources_20261002/prior_score_methods/review.json": "020f7b5b366a80303e9afc7e9ef08e064a2f72f05f59754730b81aed78681d10",
+    "data/research/research_method_sources_20261002/calibration_official/calibration.rst.txt": "1b789e03e67b23eeec86c501c4e017dcba04368042892f8bc8cad0e70478185e",
+    "data/research/research_method_sources_20261002/calibration_official/review.json": "7dc288b73f15192656e5e808276e878c40ac40a25f547f1bf674009741987923"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1387,10 +1405,11 @@
     "data/research/tail_formula_direction_absolute/before_selections_runtime.json": "416aa31d0bf56deb934ae506ccd3395ea555a4ad619f58225b937995abc49c46",
     "data/research/tail_formula_direction_absolute/before_economics_runtime.json": "6375efa0626f26e66cca6bb6d5a3a91a9599ae2de4c186dc67c9877db912dcbd",
     "data/research/tail_formula_primary_order/before_protocol_runtime.json": "72d4c890dc470a48315aa9af96cecc368737962ade163939ada29d7eef3ac29c",
-    "data/research/tail_formula_primary_order/before_preparation_runtime.json": "f68f24df2831b5fc7fe79add03c4ce5370088f933d9eeae7ca5fd3179b5ec6d8"
+    "data/research/tail_formula_primary_order/before_preparation_runtime.json": "f68f24df2831b5fc7fe79add03c4ce5370088f933d9eeae7ca5fd3179b5ec6d8",
+    "data/research/tail_formula_primary_order/before_models_runtime.json": "bc0b18a40f16d4efe2d5726d49665fe0c28cfa1821a8676096bf9a306c2e6c19"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "primary_costed_event_actual_old_targets_verified_before_four_fits",
+  "current_study": "primary_costed_event_four_models_verified_before_joint_lists",
   "research_definition_changed": true,
   "rationale": "费前对称方向没有改善含费空间，直接目标又集中少数市场日期；只检验直接主含费事件对齐的有限作用，保持原参数并先检查实际旧目标，不包装为新信息。",
   "new_2026_prices_read": false,
@@ -2182,7 +2201,11 @@
       30
     ],
     "primary_order_exact_or_affine_matches": 0,
-    "primary_order_new_fits_completed": 0
+    "primary_order_new_fits_completed": 4,
+    "primary_order_all_models_verified": true,
+    "primary_order_model_manifest_sha256": "6d98761d501bb908949aa8a4983505ce1c5e6a5b984a0e57e718d60e96ca30c5",
+    "prior_score_method_review_bound": true,
+    "official_calibration_review_bound": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
