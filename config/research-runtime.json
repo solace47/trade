@@ -1247,7 +1247,25 @@
     "data/research/tail_formula_direction_target/reflection/rank_daily.parquet": "7a127f8b3ef5ca4ce24d556e1dd02cb748ac9bc531e0e1ce3b1297a1c548ae59",
     "data/research/tail_formula_direction_target/reflection/class_daily.parquet": "bf4d957f795de911c355beb6b20c873f2a97cac8a265e4e4de2921a7a5bfb861",
     "data/research/tail_formula_direction_target/reflection/report.json": "cb06619a69f09f0e68b440df331d599f5b5bd17714dd4b9399f7689a039dcab8",
-    "data/research/tail_formula_direction_target/reflection/complete_receipt.json": "0ff13303b6da401789c259b49931585016d712808616962ef1266f9bd5871e5f"
+    "data/research/tail_formula_direction_target/reflection/complete_receipt.json": "0ff13303b6da401789c259b49931585016d712808616962ef1266f9bd5871e5f",
+    "data/research/tail_formula_emotion_absolute/control/2024h1/model_report.json": "d7f036153a830bda4382b78793c3d167994c5c7988c5be93e25e92e9f3c5c634",
+    "data/research/tail_formula_emotion_absolute/control/2024h1/model_verification.json": "85f491ae5697dcc27be3f408970f52348787942bfa424bfb3d7ecedc89251586",
+    "data/research/tail_formula_emotion_absolute/control/2024h2/model_report.json": "299e2574fc8ae825ba1fe86df0401a43cd6503bd8cfbbcc8979a30e9d33cf137",
+    "data/research/tail_formula_emotion_absolute/control/2024h2/model_verification.json": "49b455b28a202067e7a61371db77ecf15fa9c72648f4fb4c3b7e4a3dfa0e0b2d",
+    "data/research/tail_formula_emotion_absolute/control/2025h1/model_report.json": "37388ba72cc51b9e4269d412915c22e04c04c2de4b637b80e4129722bd1f0799",
+    "data/research/tail_formula_emotion_absolute/control/2025h1/model_verification.json": "9b6e754131fa989174822e774c219a91139b224ad31ad974b24dc6de54da113b",
+    "data/research/tail_formula_emotion_absolute/control/2025h2/model_report.json": "0f58a271a8c47157839d674c3701478a376bf01a114e740c8aef7ee3b67f707f",
+    "data/research/tail_formula_emotion_absolute/control/2025h2/model_verification.json": "4f7bb31c29b5f44702a46a261acc06ab8197fcb453f3dc72c1c4712480b9340f",
+    "data/research/tail_formula_direction_absolute/model_configs/2025h2_lookup.json": "accb6eb120bf386aecc1d993ef1ce5a291f3c28884d3ae98afc7dceb83a9a2f2",
+    "data/research/tail_formula_direction_absolute/model_configs/2024h2.json": "6b791a18e94db33fe79a411ee7f0bf551d59162faf6724019f2008394a531d6a",
+    "data/research/tail_formula_direction_absolute/model_configs/2025h1.json": "721e7c6fd7c9a82de6221e55b9b9a8a895ebd87b0f8b3f75e4e859382624f0e2",
+    "data/research/tail_formula_direction_absolute/model_configs/2025h1_lookup.json": "8e36c2af682106fadc6fe06621bbfff2ebfdfe39cc0941cabd76bc67a7f30a6a",
+    "data/research/tail_formula_direction_absolute/model_configs/2024h1_lookup.json": "0bd01c40a05308921b2a4566b5d2bb8262f0efe7afebe64891d23fcf79221b93",
+    "data/research/tail_formula_direction_absolute/model_configs/2025h2.json": "afef77813350a7dd58ea60b4c215a46c76002d3106d2618d9a6cafe96b78c543",
+    "data/research/tail_formula_direction_absolute/model_configs/2024h1.json": "bdd098eb982e28a60d2a38801a5f5685dda66ca7e777660de24dc555a38a4dff",
+    "data/research/tail_formula_direction_absolute/model_configs/2024h2_lookup.json": "9eb6899d785310c670db4c92a7b6dc095caea59e8a69c263480ee9c6e0aee769",
+    "data/research/tail_formula_direction_absolute/model_lookup.json": "f4d38adeda2aa4ba2d30b09ec3f7e01b6a64c564eff13d45dd223f91692f634c",
+    "data/research/tail_formula_direction_absolute/preparation.json": "e39cd2e48bd95b4eb060009dbe19abed052ca6f9e6ff970d987948ffda4ca954"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1328,10 +1346,11 @@
     "data/research/tail_formula_direction_target/before_models_runtime.json": "bbe9d99243c8c3f15e0f9515ff440755da94180710ead8f45b6f8e4cad9b389e",
     "data/research/tail_formula_direction_target/before_joint_runtime.json": "9aaa7be0289a2ec456cb0553abc52529d39f2a8f22289650b288b0068816fad0",
     "data/research/tail_formula_direction_target/before_complete_review_runtime.json": "717ef880c929509ca868fa51024dd8b822ac2664f20236cf79c9090c5b3b18e8",
-    "data/research/tail_formula_direction_input_receipts/before_absolute_runtime.json": "d1fb0cf3ad07f430f10e8aab2ec17f3aab58852ab037583d17152094dea69b94"
+    "data/research/tail_formula_direction_input_receipts/before_absolute_runtime.json": "d1fb0cf3ad07f430f10e8aab2ec17f3aab58852ab037583d17152094dea69b94",
+    "data/research/tail_formula_direction_absolute/before_preparation_runtime.json": "62adcda66f9d188ac556e37d1b7f71bca5bc7aa4e17af967cadc866c604d58d2"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "absolute_symmetric_direction_protocol_fixed_before_target_lookup",
+  "current_study": "absolute_symmetric_direction_actual_targets_checked_before_four_fits",
   "research_definition_changed": true,
   "rationale": "相对方向评分排序了避险而未改善1%空间；2025H1原方向仍负却因源均值更负而中心化为正。检验取消源中心化及正方向门，原净机会检验不变。",
   "new_2026_prices_read": false,
@@ -2064,7 +2083,16 @@
     "direction_target_review_class_groups": 16,
     "direction_absolute_protocol_fixed": true,
     "direction_absolute_maximum_new_fits": 4,
-    "direction_absolute_new_fits_at_protocol": 0
+    "direction_absolute_new_fits_at_protocol": 0,
+    "direction_absolute_preparation_sha256": "e39cd2e48bd95b4eb060009dbe19abed052ca6f9e6ff970d987948ffda4ca954",
+    "direction_absolute_prior_model_records": [
+      16,
+      16,
+      29,
+      29
+    ],
+    "direction_absolute_exact_or_affine_matches": 0,
+    "direction_absolute_new_fits_completed": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
