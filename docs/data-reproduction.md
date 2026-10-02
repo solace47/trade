@@ -9,7 +9,7 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/run_ta
 
 匹配模型轮prefit、八次fit、freeze、analyze、finish已经完整完成，禁止重复拟合或覆盖结果。直接规则freeze、analyze、finish也全部结束，零拟合、两年度及六比较完整核准；不得重复或更改已固定条件追求正结果。输入／模型／评价协议均先提交，全部名单共同固定后才读经济分组；全量窗口及现金、模型节点与分数、四年度和四比较已独立核准。年度报告已含半年，不重复聚合。旧控制只读复用，完整名单、元数据、适用标签与统计全部相同才复用。
 
-当前规则在data/research/tail_formula_trend_reversion_literal/，prepare／freeze已完成；两年完整名单共同提交后才一次analyze／finish，不覆盖。此前四条件在tail_formula_shakeout_literal/；协议及两年名单先固定，严格次晨两年度及两比较已完整核准且失败，不重复或覆盖。此前直接规则在tail_formula_cost_history_literal/（执行稿从Git 2e123ab恢复），原来源与输入在tail_formula_cost_history/；32股试点在tail_formula_cost_history_probe/。旧完整补齐在tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
+当前规则在data/research/tail_formula_trend_reversion_literal/，prepare／freeze／analyze／finish全部完成且失败，不重复或覆盖。此前四条件在tail_formula_shakeout_literal/；协议及两年名单先固定，严格次晨两年度及两比较已完整核准且失败，不重复或覆盖。此前直接规则在tail_formula_cost_history_literal/（执行稿从Git 2e123ab恢复），原来源与输入在tail_formula_cost_history/；32股试点在tail_formula_cost_history_probe/。旧完整补齐在tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
 
 原始日线／分钟在data/baostock/和data/hf/，全部结果、原件和查重缓存在忽略的data/research/。2025暴露探索；不新增2026经济评价、卖出、多日持有或月度回购研究。
 
