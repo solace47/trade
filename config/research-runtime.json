@@ -79,7 +79,8 @@
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
     "scripts/recheck_tail_formula_history_boundary.py": "d71bf763cb07d2e1f7f95c3fd7e7ffeeacf169a6e98b251da2088a0e173db773",
     "scripts/probe_tail_formula_cost_history.py": "887209d413d1d0165cf92db3c59bd10e65929652ff4b8a86e1798b321eb785c9",
-    "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09"
+    "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09",
+    "scripts/prepare_tail_formula_cost_history.py": "1a92d67b2b51892c6601cfb6870116f61a71e2f6277b9d53894b3d7cdab35f20"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -448,7 +449,12 @@
     "data/hf/pilot/data/stock_1m/SZ/002917.parquet": "abe00ad75270d9aa202a34c42cf0fc8872d1f9d517736848ff7ed76b67740be5",
     "data/baostock/market_2020_2026/daily/sz_002917.parquet": "a5bf321dd88b9149b08c3c4017cef7ba131e31f0ecc89d8cce01db23d4e8b571",
     "data/research/tail_formula_cost_history_probe/source_review.json": "b5db3a22398a9de75445b7d6226946ced4f6a0d4dd7a25cccf1ff7495fbdbc74",
-    "config/tail_formula_cost_history_probe_protocol.json": "752780561884dd26299c81d116bccf1bd722f73f322af4bdfbec6f8a390fcdcf"
+    "config/tail_formula_cost_history_probe_protocol.json": "752780561884dd26299c81d116bccf1bd722f73f322af4bdfbec6f8a390fcdcf",
+    "data/research/tail_formula_cost_history_probe/pilot_verified.json": "be5fc1247fc66c37808f8753acac2d85aaf9e8b8f0e32a17577e0f752bfcf21b",
+    "data/research/tail_formula_cost_history_probe/pilot_windows.parquet": "8039fa010c175a87e2f7447032cdebf2705576023a524df17d20b078e9823ec5",
+    "data/research/tail_formula_cost_history_probe/pilot_history.parquet": "e817da184e6f62b38b7555acad075c63336000e7fd471f392237bedcb5060c62",
+    "data/research/tail_formula_cost_history/source_manifest.json": "c37b2afe20de7bbc12593c08d9ed93a2bc307ddf5e8107d75bf07b02e80780f0",
+    "config/tail_formula_cost_history_input_protocol.json": "6adf7e2132e7a1e451a9a96a8717f3134347a4b31c5c9b637e946ff994bf6e33"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -472,12 +478,13 @@
     "data/research/tail_formula_history_boundary_recheck/prior_runtime.json": "7c75170793bfd3d5eed18578fb4a52da4d744eb92637447f948f3f181ce5eff9",
     "data/research/tail_formula_history_boundary_recheck/prior_preparation_runtime.json": "026537c782480e8af6d03cdd0f779e5d95a14f5b026fc44ce7d9d78322283b43",
     "data/research/tail_formula_history_boundary_recheck/prior_completed_runtime.json": "6c8209778fff7c28c09a5723c2bba728eda9f588e44a98d9a617fbc47dd3f161",
-    "data/research/tail_formula_cost_history_probe/prior_runtime.json": "811f91ef0917dba228606abad2ae1a7a5ca8b7fd1e4277a2a9ef3c324e1c64d8"
+    "data/research/tail_formula_cost_history_probe/prior_runtime.json": "811f91ef0917dba228606abad2ae1a7a5ca8b7fd1e4277a2a9ef3c324e1c64d8",
+    "data/research/tail_formula_cost_history/prior_runtime.json": "402c8b6b63fc1c863216c1b131fa74a9393d03af38a0559b66cc2073c0f254fb"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_cost_history_probe_protocol",
+  "current_study": "tail_formula_cost_history_source_protocol",
   "research_definition_changed": true,
-  "rationale": "先验证包含尾盘入场区间和假定成本的历史报价代理能否作为事前输入；只做固定32股输入试点，零拟合，无选股效果结论。",
+  "rationale": "固定五个股日的含费历史报价输入；原20日试点原有效12,803中仅5,587完整，覆盖约44%，窗口缩短只依据输入缺失与超短周期，不依据新选股经济结果。先全池核准，禁止拟合。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -911,6 +918,8 @@
     "legacy_history_complete_fingerprints": 192,
     "legacy_history_comparisons": 4,
     "additional_ended_files_retired": 11,
-    "cost_history_pilot_new_fits": 0
+    "cost_history_pilot_new_fits": 0,
+    "cost_history_pilot_fingerprint": "be5fc1247fc66c37808f8753acac2d85aaf9e8b8f0e32a17577e0f752bfcf21b",
+    "cost_history_full_source_fits_allowed": 0
   }
 }

@@ -1,15 +1,15 @@
 # 当前环境与复算
 
-当前为[旧历史模型严格次晨补齐入口](../scripts/recheck_tail_formula_history_boundary.py)，只补09:59完整评价，零新拟合、阈值及名单不变。Python 3.12虚拟环境及依赖见requirements.txt；完成的阶段禁止重复或覆盖结果。
+当前为[五日含成本历史报价输入入口](../scripts/prepare_tail_formula_cost_history.py)。旧历史模型严格次晨补齐已完成，结果不重做。Python 3.12虚拟环境及依赖见requirements.txt；完成的阶段禁止重复或覆盖结果。
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
-PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/recheck_tail_formula_history_boundary.py --help
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/prepare_tail_formula_cost_history.py --help
 ```
 
-顺序为prepare、freeze、analyze、finish：输入协议先提交；prepare核查旧来源、参数、分数和完整标记；固定评价实现后freeze；联合完整名单提交后才analyze、finish。原48控制与原50只读复用；年度报告已含半年，不重复聚合。完整名单、元数据、适用标签与统计精确一致才复用。
+当前顺序为calendar、windows、inputs，仅来源及输入：协议先提交；保留原股票日历；32股原窗口精确复用，其余窗口独立SQL／Pandas核对；五日标量另由SQL核准。此协议禁止模型拟合；有效域改变须先固定同质量控制和新模型协议，再共同固定完整名单后评价。原48控制与原50只读复用；年度报告已含半年，不重复聚合。完整名单、元数据、适用标签与统计精确一致才复用。
 
-当前产物在data/research/tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
+当前来源与输入在data/research/tail_formula_cost_history/；32股试点在tail_formula_cost_history_probe/。旧完整补齐在tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
 
 原始日线／分钟在data/baostock/和data/hf/，全部结果、原件和查重缓存在忽略的data/research/。2025暴露探索；不新增2026经济评价、卖出、多日持有或月度回购研究。
 
