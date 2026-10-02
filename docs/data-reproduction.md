@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-Python 3.12虚拟环境与依赖见requirements.txt。当前31项检查：
+Python 3.12虚拟环境与依赖见requirements.txt。当前33项检查：
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
@@ -20,4 +20,4 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -
 
 2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。
 
-空间目标特征／训练分类反思的2个结束执行／协议文件从Git b18e50b恢复；36组结果保留。风险评分协议为当前活动项，旧二元训练默认不变，新效用必须显式声明。
+空间目标特征／训练分类反思的2个结束执行／协议文件从Git b18e50b恢复；36组结果保留。空间／风险目标两轮的9个已结束执行／协议文件从Git 17ac302恢复，结果保留；当前活动项为零拟合排序／门槛诊断。旧二元训练默认不变，新效用必须显式声明。
