@@ -248,7 +248,7 @@ def labels(p,root,joint):
         low::DOUBLE AS low,close::DOUBLE AS close,volume::DOUBLE AS volume,turnover::DOUBLE AS amount
         FROM original WHERE timestamp>=TIMESTAMP '2024-01-01' AND timestamp<TIMESTAMP '2026-01-01'
         AND (strftime(timestamp,'%H:%M') BETWEEN '09:31' AND '10:00'
-            OR strftime(timestamp,'%H:%M') BETWEEN '14:52' AND '14:55')))
+            OR strftime(timestamp,'%H:%M') BETWEEN '14:52' AND '14:55'))
         SELECT k.date,k.next_date,s.*, 'entry' AS kind FROM s JOIN keys k ON s.code=k.code AND s.obs_date=k.date
         WHERE clock BETWEEN '14:52' AND '14:55'
         UNION ALL SELECT k.date,k.next_date,s.*, 'morning' AS kind FROM s JOIN keys k ON s.code=k.code AND s.obs_date=k.next_date

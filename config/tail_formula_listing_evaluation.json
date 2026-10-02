@@ -88,7 +88,7 @@
     "2025": "data/research/tail_formula_morning_range/morning2025"
   },
   "source_hashes": {
-    "scripts/evaluate_tail_formula_listing_scope.py": "a167e2e3f2274761c727894a864c980689e3f3d9b6941a71de833b31ff64b2e2",
+    "scripts/evaluate_tail_formula_listing_scope.py": "1ff1200531560e4a82e81db781416633f30fe5805429ff667b325c40e085ed79",
     "scripts/tail_formula_order_statistics.py": "aa6c76fb920345f59707716bde1f6313acda71bd6ea8adb6c1be12cdf54c491d",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
@@ -221,5 +221,6 @@
   "statistics": "Date-equal four half-years and both annuals, formula and expanded-universe same-date baselines, both costs and original sensitive warning. Four full/extra comparisons versus original50 and two full versus extra diagnostic, coupled shared unknown bounds and week intervals. Five original quality criteria on expanded only; no chosen subtype or score gate after outcomes.",
   "new_fits": 0,
   "new_2026_prices_allowed": false,
-  "no_exit_rules": true
+  "no_exit_rules": true,
+  "repair_note": "删去原始窗口SQL多余右括号，前次在SQL解析处失败，没有提取raw或生成标签／经济组；保留空尝试目录和原日志。名单、公式、标签定义及全部评价范围不变。"
 }

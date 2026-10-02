@@ -96,8 +96,8 @@
     "config/tail_formula_listing_inputs.json": "ca0190cdbc52e30208931d3639eac6dac1fbf9275b476623e92aba8cd62269b5",
     "scripts/freeze_tail_formula_listing_selection.py": "17f8ddfd7b7eb1a118086cd23cf930b2def43ae68ca2d9f966ab06f0fbf1c585",
     "config/tail_formula_listing_selection.json": "953d045ea831cab888cc98830ba38f70f9bdf47bad951e7e81342964ea62cea3",
-    "scripts/evaluate_tail_formula_listing_scope.py": "a167e2e3f2274761c727894a864c980689e3f3d9b6941a71de833b31ff64b2e2",
-    "config/tail_formula_listing_evaluation.json": "bab9d5fa1f131dcef01f0802694118a8f61989da36b3bb40470410594839f5ed"
+    "scripts/evaluate_tail_formula_listing_scope.py": "1ff1200531560e4a82e81db781416633f30fe5805429ff667b325c40e085ed79",
+    "config/tail_formula_listing_evaluation.json": "8e9389ed4245c79630bede5c9513d9f3d71452171f2a231e60d76c5e22fb07db"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1801,7 +1801,8 @@
     "data/research/tail_formula_listing_scope/before_source_identity_fix_runtime.json": "e991c0a823e28d906e71f3855adb7f02f8962b74817f0cff9a77556a01805e23",
     "data/research/tail_formula_listing_scope/source_identity/before_input_replay_runtime.json": "eb59f4ed50ff49c69f1588fa307d99f6a96777381077fbbab7c4a212ed950394",
     "data/research/tail_formula_listing_scope/input_replay/before_selection_runtime.json": "52afeb66c11ad648c73b4985de56769499e55bcd1d9fede9227dafe3ab3cbf31",
-    "data/research/tail_formula_listing_scope/evaluation/before_evaluation_protocol_runtime.json": "2fc7cd1d39ee4633696565f576ad7b11f5aa5ae27f2e41e67b819a05cee10b10"
+    "data/research/tail_formula_listing_scope/evaluation/before_evaluation_protocol_runtime.json": "2fc7cd1d39ee4633696565f576ad7b11f5aa5ae27f2e41e67b819a05cee10b10",
+    "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "listing_scope_fixed_economic_evaluation",
@@ -2407,6 +2408,12 @@
     },
     "config/tail_formula_listing_scope.json": {
       "1c0f358456a309cf7881a732f085a7b1a5a5651ad0ef59d75ca720d8f404eea9": "320a32a"
+    },
+    "scripts/evaluate_tail_formula_listing_scope.py": {
+      "a167e2e3f2274761c727894a864c980689e3f3d9b6941a71de833b31ff64b2e2": "912044e"
+    },
+    "config/tail_formula_listing_evaluation.json": {
+      "bab9d5fa1f131dcef01f0802694118a8f61989da36b3bb40470410594839f5ed": "912044e"
     }
   },
   "new_fits_performed_at_protocol": 0,
