@@ -844,7 +844,22 @@
     "data/research/tail_formula_day_night_matched/rule2024/selection_verification.json": "5958bc6ae1be164d193f6772d7012a7fefb65e8c7791c6efd5041422107e3f67",
     "data/research/tail_formula_day_night_matched/rule2025/selection.parquet": "bf57a3ee9d48001f2ba38e81305dc4110e932aeb13abfde52321bad565fdc702",
     "data/research/tail_formula_day_night_matched/rule2025/selection_report.json": "76135a2b1ff8dd0b08fab9fc9ad2c453cc36cb75a460e1c9ef7568b5eca00f93",
-    "data/research/tail_formula_day_night_matched/rule2025/selection_verification.json": "c42b8aedeb8e1d1829b55f1d42d9ed1e6bd029e6271666b357a15d889d141bc8"
+    "data/research/tail_formula_day_night_matched/rule2025/selection_verification.json": "c42b8aedeb8e1d1829b55f1d42d9ed1e6bd029e6271666b357a15d889d141bc8",
+    "data/research/tail_formula_day_night_matched/analysis_dispatch_verification.json": "e6713cfb74729b6b31574064a282b52283b52b4d7d6e69007fb758e99f064386",
+    "data/research/tail_formula_day_night_matched/complete_results_manifest.json": "2cd52d1fdd2eb74f211e2e238b1249fdd488d933931c1e5ddf1694cacd9058b5",
+    "data/research/tail_formula_day_night_matched/rule2024/analysis_report.json": "bafdea56dab7d68df3ec930b826de1004975d5751e6dd8358a6db2c170b0d583",
+    "data/research/tail_formula_day_night_matched/rule2024/analysis_verification.json": "6bcff4663e372c8fde775b865f134d98f56090d1f824cb3bdf87bcaaefc0ba9b",
+    "data/research/tail_formula_day_night_matched/rule2024/daily_summary.parquet": "ea314375c8f75e1c1bf8c8340ab14a34a795c8851bffaa9af30e3aa84fcccb4a",
+    "data/research/tail_formula_day_night_matched/rule2024/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_day_night_matched/rule2024/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_day_night_matched/rule2025/analysis_report.json": "ab7b26dffd0dad4ce03f357143481f57913e44f2db00435ffc256da6b9060034",
+    "data/research/tail_formula_day_night_matched/rule2025/analysis_verification.json": "627ca42725b7959121f8594abd624fa6b2d4ddc5bbe153e0f9adb783e70bd816",
+    "data/research/tail_formula_day_night_matched/rule2025/daily_summary.parquet": "89519a5ed55fad7ae1b2981cd174a082033c272063556b053fa727ca10e92438",
+    "data/research/tail_formula_day_night_matched/rule2025/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_day_night_matched/rule2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_day_night_matched/same_dates_2024.json": "aa8284281513bfd2ef18de827f5219e16838f9a63d5e0d1f6d4329297b6c2699",
+    "data/research/tail_formula_day_night_matched/selection_gate.json": "e628194338c3f09de97d6d684446431e461e398cdc8e56891e26bdadbca97641",
+    "data/research/tail_formula_day_night_matched/shared_unknowns_2024.json": "532c89d78b67dc383116b3b9b78f9d8c065041dd8b45ac66654a475fdc418ba8"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -895,10 +910,11 @@
     "data/research/tail_formula_day_night_matched/protocol_runtime.json": "5b4bf465e48b73d9c75309999038f2a74d5bfd2abf07518f58f1ed59513376f0",
     "data/research/tail_formula_day_night_matched/fixed_fit_runtime.json": "351437086b2793c99e777cab5e2cb7530dedf4abf360f195531509d0bcfc9c56",
     "data/research/tail_formula_day_night_matched/evaluation_scope_runtime.json": "6d34090f49d2ed685971c43e837d1ecb5bfd7e76c79d6f899ac5a684baa8585e",
-    "data/research/tail_formula_day_night_matched/fixed_lists_runtime.json": "10ca8cfeb003bb9b5456961ce3535de0a4995d133f15f7d1f7212302d40b5959"
+    "data/research/tail_formula_day_night_matched/fixed_lists_runtime.json": "10ca8cfeb003bb9b5456961ce3535de0a4995d133f15f7d1f7212302d40b5959",
+    "data/research/tail_formula_day_night_matched/completed_runtime.json": "04701a24445165e4bcaea69d37c7c9fd437342a56112d868812c38e37d62c9d1"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_day_night_matched_complete_lists_fixed_before_economics",
+  "current_study": "tail_formula_day_night_matched_complete_failed",
   "research_definition_changed": true,
   "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
   "new_2026_prices_read": false,
@@ -1427,7 +1443,13 @@
     "day_night_matched_new_fits": 4,
     "day_night_matched_exact_models_reused": 4,
     "day_night_complete_lists_fixed": true,
-    "day_night_2025_exact_original_list_reuse": true
+    "day_night_2025_exact_original_list_reuse": true,
+    "day_night_completed_new_fits": 4,
+    "day_night_exact_controls_reused": 4,
+    "day_night_complete_fingerprints": 158,
+    "day_night_comparisons": 2,
+    "day_night_comparison_exact_reuse": 1,
+    "day_night_quality_criteria_passed": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
