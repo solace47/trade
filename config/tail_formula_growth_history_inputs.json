@@ -1,0 +1,41 @@
+{
+  "objective": "核查此前五个已完成个股股日的创业板指相对深成指强弱，一项GH5；先核准成熟时点、原指数对齐与整数编码，不连接股价经济标签。",
+  "source_hashes": {
+    "src/trade_research/tail_formula_growth_history.py": "fc35465a202b72ca41afbae7d707821a4eb9f281d1c2bec06f05a37b6ecd9fec",
+    "tests/test_tail_formula_growth_history.py": "8c89fdb923aee497f5e50b16e7f7ed201d334e40a8de2d0a711e64f1797c8bdb",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/research_io.py": "929a460bcd858c6e48360f4287a44ee06732fd4fdfc8599d65eef3fad76e22f3",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "data/research/tail_formula_order_target/features.parquet": "609a226f1c61382d4bdaafc56cdb0f9c4b61ccee4bbfe9c484b47e700f455785",
+    "data/research/tail_formula_order_target/feature_report.json": "eed8f4a4e9a29f9f8fffabf66fc8ffe52be039ccc705f95bfa2f827fe30da75d",
+    "data/research/tail_formula_order_target/feature_verification.json": "c173e7fa660dcb18fde8ce9041f8d04d183cf78bd73ea751a2d45d286822879e",
+    "data/baostock/market_2020_2026/metadata/calendar.parquet": "25d81e17d9e32f25fc7f61cda244f2ea2df818e6a1c1669d0e8bfcf1c1696400",
+    "data/research/tail_formula_growth_history/source_review/reading_receipt.json": "b3ab31a380cb26d776c958a09f08afc8ec72b94569c04d2f8608198a9dc9d5f1",
+    "data/research/tail_formula_board_context/full_inventory_reflection.json": "1aa23a36074abb84754f229a44d7289b87bd5bd19275f8202a11de6aa9e9cd88",
+    "data/research/tail_formula_board_context/source_review/public_source_note.json": "47e7d36f1f2bec3af13cd118188740c57c20168e6df126af171cbdbba19b32d8"
+  },
+  "index_first": "2020-01-01",
+  "index_last": "2025-12-30",
+  "index_codes": [
+    "sh.000001",
+    "sz.399001",
+    "sz.399006"
+  ],
+  "index_frequency": "d",
+  "index_adjustflag": "3",
+  "index_source": "BaoStock anonymous historical query; preserve exact response rows and timestamps/code/date request boundaries; no latest quote requests",
+  "stock_daily_root": "data/baostock/market_2020_2026/daily",
+  "calendar": "data/baostock/market_2020_2026/metadata/calendar.parquet",
+  "original_features": "data/research/tail_formula_order_target/features.parquet",
+  "feature": "100*(创业板指在此前第1完成股日的收盘/此前第6完成股日收盘-深成指同日的比值)",
+  "stock_alignment": "沿用原50B0/B5，即个股已完成且tradestatus=1的股日，不跳过缺失指数价格，不用前市场日代换停复牌间隔。",
+  "preserve": "所有原50值、元数据、有效标记与键不变；新的有效域缩小则停止，不以质量筛选声称改进。",
+  "verification": "pandas shift按个股生产股日，独立SQL全量lag及原指数引用重建；全部原有效I02逐点相同；GH5用价差另一代数式与全部整数编码核准；固定每半年8个SHA股日原响应重放B0/B5数学网格，并扰动当前未知价格及独立指数单位。",
+  "native_limitation": "241/230重放为声明数学网格，不证明客户端实际网格、品种源或完整公式编译。",
+  "style_definition": "创业板指为加权100样本成长风格指标，不称全部创业板广度或资金身份。",
+  "new_fits_allowed": 0,
+  "new_economic_groups_allowed": false,
+  "new_2026_prices_allowed": false,
+  "software_compilation_verified": false,
+  "no_exit_rules": true
+}
