@@ -600,7 +600,32 @@
     "data/research/tail_formula_cost_history_literal/rule2025/selection_report.json": "c75d04ad2a505d4f651492af0c66d9c8cde1d1901d7c6fed29feedf0780e68b9",
     "data/research/tail_formula_cost_history_literal/rule2025/selection_verification.json": "7a2f53590ec9e886b464474437a9d6fa3cc5683cb0bc43207dbfed5de340c3ef",
     "data/research/tail_formula_cost_history_literal/selection_equivalence_lookup.json": "34c08ac8f770f57d791958a53f34ee36e394d33162c973a5a92b674c18013f95",
-    "data/research/tail_formula_cost_history_literal/joint_selection_freeze.json": "4492ce0090bd1941fdd1fdef5d285b2ae79861e9ae6a0a24a0e1da3534bd9dd0"
+    "data/research/tail_formula_cost_history_literal/joint_selection_freeze.json": "4492ce0090bd1941fdd1fdef5d285b2ae79861e9ae6a0a24a0e1da3534bd9dd0",
+    "data/research/tail_formula_cost_history_literal/same_dates_2024.json": "27f2989013ee4320ece40d9685afe6688c6ec11168a4aaf77906f8741c0c87ad",
+    "data/research/tail_formula_cost_history_literal/shared_unknowns_2024.json": "ffcfca5220d9539dc508e300b86034f36ce944bea602f6a888412e35c27dd1d8",
+    "data/research/tail_formula_cost_history_literal/same_dates_2025.json": "44fa7e2e698a5533c520c48508cafd572bdfaa78b0c4fdd589af6c79a8be35cb",
+    "data/research/tail_formula_cost_history_literal/shared_unknowns_2025.json": "72d133aedb4bf5a3085e0040a3a2d10ec0a286c4452f2206da5b69a4fabe3f71",
+    "data/research/tail_formula_cost_history_literal/rule2024/analysis_report.json": "23915ea48742afdb681189340a2ef53e560c9eec2e39b3c06f5167fdc31769e6",
+    "data/research/tail_formula_cost_history_literal/rule2024/analysis_verification.json": "c910f9e4f363b52cd1f0443262ea3f76d22c55c1d247e5ccc6ef90c0ba6a979b",
+    "data/research/tail_formula_cost_history_literal/rule2024/daily_summary.parquet": "3127f4b82361c27eeb23599c4c80d652412fd3b120fd9975f7531ce31043a546",
+    "data/research/tail_formula_cost_history_literal/rule2024/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_cost_history_literal/rule2024/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_cost_history_literal/rule2025/analysis_report.json": "2d269a9969ef8791e5b4941a03357becb8a586c49831ab46ed56ea8c452a1b1c",
+    "data/research/tail_formula_cost_history_literal/rule2025/analysis_verification.json": "5c951555f0dce6ecf924e2bd495f91140e3af48c11627383e377b55f257b48a0",
+    "data/research/tail_formula_cost_history_literal/rule2025/daily_summary.parquet": "f1ceb3ad47c36e504ecd3fc4f3f7f33276cc572f4f832f397d92b2ac973d1f45",
+    "data/research/tail_formula_cost_history_literal/rule2025/full_label_report.json": "48a864c1d5daf73fabbbec9d20559c6cf4ab587d9d6148e7526933127dddb351",
+    "data/research/tail_formula_cost_history_literal/rule2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
+    "data/research/tail_formula_cost_history_literal/selection_gate.json": "4ccd575ddb13153e74c9ca2156f773736de1e91552882ae753fd9fcaf65c377e",
+    "data/research/tail_formula_cost_history_literal/analysis_dispatch_verification.json": "efea84ef037d9c4dc5e60ce4a90fe76587c9fbe47a585293fa9a7c59a387d1c9",
+    "data/research/tail_formula_cost_history_literal/matched_same_dates_2024.json": "158cf440757f74856bbdf6bcbff0a2e85b37d5a3985775bb142cafae8081fefa",
+    "data/research/tail_formula_cost_history_literal/matched_shared_unknowns_2024.json": "b21199398f93d27cebcf614a8529484f43e09b5e0f61bb0918ea3610936b23e9",
+    "data/research/tail_formula_cost_history_literal/matched_same_dates_2025.json": "febdff58343b96f6792bb0c0ec10a7dab610c95eb6552292e71a36a30bd14268",
+    "data/research/tail_formula_cost_history_literal/matched_shared_unknowns_2025.json": "c362da55b87835872cd68953fb75f11eec748d5989a793c6432e5d08de43304a",
+    "data/research/tail_formula_cost_history_literal/learned_same_dates_2024.json": "d5f8772038d375dc458ad73442c0dc4c96823351b14290e845e8db07bb3073db",
+    "data/research/tail_formula_cost_history_literal/learned_shared_unknowns_2024.json": "c461544b38249e1ca889f32d664ffdc0c2184b95f93573ab4a6dca4f2270fb9f",
+    "data/research/tail_formula_cost_history_literal/learned_same_dates_2025.json": "f546fed3a982b88160704bf5bdd404940855dfad972ef3fb53500591fc7b3f44",
+    "data/research/tail_formula_cost_history_literal/learned_shared_unknowns_2025.json": "879f5bbe93b97087ca8f7835de6b05cc4b90db5a95d270d6f6465f3f772ce103",
+    "data/research/tail_formula_cost_history_literal/complete_results_manifest.json": "6f567c17b7980cc22c14dca3f45c14d638079f64dc680bdd1a290b5c06c06ee6"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -631,12 +656,13 @@
     "data/research/tail_formula_cost_history/post_fit_prior_runtime.json": "03d00efce1f9e7428e0aaf74c1ec9793f379a0ce321e125b914c4f290e1ffde0",
     "data/research/tail_formula_cost_history/completed_prior_runtime.json": "378c84156219476d4030f9e733e30a10cff12c6c1f9bb7c45a277ad1ccac4b68",
     "data/research/tail_formula_cost_history_literal/fixed_protocol_prior_runtime.json": "6520234bf56eb013ce7e2019afa0966d9c0c0abb04b7cbc76c1dd64100dee451",
-    "data/research/tail_formula_cost_history_literal/pre_economic_prior_runtime.json": "8e2ede25a7403e5e0bba342837fcb84deab08128fd766aeb8d71d27aae392e11"
+    "data/research/tail_formula_cost_history_literal/pre_economic_prior_runtime.json": "8e2ede25a7403e5e0bba342837fcb84deab08128fd766aeb8d71d27aae392e11",
+    "data/research/tail_formula_cost_history_literal/completed_prior_runtime.json": "dfa10be15d8d45354d26beb05b61e4e27aa31c9a485aa8e64ef4cb42e352876c"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_cost_history_literal_joint_lists_fixed",
+  "current_study": "tail_formula_cost_history_literal_completed_failure",
   "research_definition_changed": true,
-  "rationale": "直接五日多数／均值正，零拟合、零参数搜索；三控制及完整两年名单先固定后评价。",
+  "rationale": "五日多数且均值正直接规则两年及四半年参考全负；相对三个控制的两年共享未知下界区间全负；覆盖条件通过而质量失败，淘汰这一用法。继续来源与语义查重。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -1076,6 +1102,10 @@
     "cost_history_completed_fits": 8,
     "cost_history_completed_comparisons": 4,
     "cost_history_completed_fingerprints": 145,
-    "cost_history_completed_criteria_passed": 0
+    "cost_history_completed_criteria_passed": 0,
+    "cost_history_literal_new_fits": 0,
+    "cost_history_literal_comparisons": 6,
+    "cost_history_literal_fingerprints": 98,
+    "cost_history_literal_quality_criteria_passed": 0
   }
 }
