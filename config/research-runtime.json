@@ -1126,7 +1126,18 @@
     "data/research/tail_formula_order_risk/model_configs/2024h2_lookup.json": "af0155a45b5531c0523f43eb2cacfb0bbdb86702720848844c4aed88240bf99b",
     "data/research/tail_formula_order_risk/model_lookup.json": "89956835ccd82b1fc4eaa1fbd68305dc49b919629ece56d967473f21ed74a226",
     "data/research/tail_formula_order_risk/preparation.json": "4cd70ef1afd9ac0d51bcbd0accb22bc31b1e9e6566810aacc4b6c525df441a33",
-    "data/research/tail_formula_order_risk/preparation.log": "84547498a109c73cdec9096fedc3e7a6a1d8121a4f7248fe65b9ff01a04253e7"
+    "data/research/tail_formula_order_risk/preparation.log": "84547498a109c73cdec9096fedc3e7a6a1d8121a4f7248fe65b9ff01a04253e7",
+    "data/research/tail_formula_order_risk/models/2024h1/model_report.json": "7dbf1ad82d93c6d2d7578fc18650070d0f86390082f7440adcf6f904edca5f1a",
+    "data/research/tail_formula_order_risk/models/2024h1/model_verification.json": "9ea0d3d0078c8ddb5e66a677a5a3010ca9868b06fcf3d7a97df001d27810a1d0",
+    "data/research/tail_formula_order_risk/models/2024h2/model_report.json": "827ac7a4fbc4809ff196317a09ad4eea61d9cd254a6f4b97fc1f0df075c9e0ac",
+    "data/research/tail_formula_order_risk/models/2024h2/model_verification.json": "88e3698a90ae9a66d380d00c9ff4a5e7c940a4ad2078939cbfbf91f306d9ea77",
+    "data/research/tail_formula_order_risk/models/2025h1/model_report.json": "3fc12c80fbff87a24e940fd439c08e771ddfebc51b94c55edf53adf1011b3748",
+    "data/research/tail_formula_order_risk/models/2025h1/model_verification.json": "577c9a19af410bb195824908d1066fead99ac5486a4bcb024494da7605abccb2",
+    "data/research/tail_formula_order_risk/models/2025h2/model_report.json": "f98ecad710a6fa44cfb2a205f64c5a0c0de89b9b7dd8491c8a7f7e72817e0a09",
+    "data/research/tail_formula_order_risk/models/2025h2/model_verification.json": "9017f590625770e0b067fac84d0b53cd945db85c3246fd0f23f0d70763c02865",
+    "data/research/tail_formula_order_risk/all_models_verified.json": "9167ed45172227bc5aaafa67dc5453100f31c39d2377493b6c5fc7bd37f5bfbc",
+    "data/research/research_method_sources_20261002/hitting_time_review/MIT15_070JF13_Lec11.pdf": "e64236d59f92e0782439f8c791a9d7fac1c1dc0fb519248e44fca8c6c85e8056",
+    "data/research/research_method_sources_20261002/hitting_time_review/reading_review.json": "df1b7afe58a66ba6589bebb0f4a4be3651fc9508f487b57aaeb4712fc2f7c935"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1196,10 +1207,11 @@
     "data/research/tail_formula_order_target/reflection/prior_runtime.json": "c08998888204cfa7ca8539b91e607f8cc6384a831b705de3b353c5011df4021c",
     "data/research/tail_formula_order_risk/prior_runtime.json": "e7b2512677770416fe0ad8d2785d8caea767379f6a69d80c50ac5635a567992f",
     "data/research/tail_formula_order_risk/before_receipt_role_repair_runtime.json": "effe924be380f7e7e11ee65217df2e8bb5097b0cf040d6515ec37b7630a31c9e",
-    "data/research/tail_formula_order_risk/before_fit_runtime.json": "72fec734bbc90f0530cf454883c94ec6b9acf7e71b51c6686ac7f1357a5ef2c3"
+    "data/research/tail_formula_order_risk/before_fit_runtime.json": "72fec734bbc90f0530cf454883c94ec6b9acf7e71b51c6686ac7f1357a5ef2c3",
+    "data/research/tail_formula_order_risk/before_models_commit_runtime.json": "951088b4805bdb36f2d5e1829e00391ff7b298d246806c679d3c057c0ad7cb3e"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_risk_preparation_verified_before_four_fixed_fits",
+  "current_study": "tail_formula_order_risk_all_four_models_verified_before_selection",
   "research_definition_changed": true,
   "rationale": "36组描述及四折路径分类核准；新目标较同日有效池偏高范围均幅，先到不利7.6%—13.5%与普通无事件均记0。固定+1／-3／0的单一风险评分，对原50及两旧目标，最多四拟合。",
   "new_2026_prices_read": false,
@@ -1823,7 +1835,11 @@
     "duplicate_source_input_roles_repaired": 51,
     "order_risk_preparation_passed": true,
     "order_risk_preparation_sha256": "4cd70ef1afd9ac0d51bcbd0accb22bc31b1e9e6566810aacc4b6c525df441a33",
-    "order_risk_new_fits_completed": 0
+    "order_risk_new_fits_completed": 4,
+    "order_risk_all_models_verified": true,
+    "order_risk_model_manifest_sha256": "9167ed45172227bc5aaafa67dc5453100f31c39d2377493b6c5fc7bd37f5bfbc",
+    "order_risk_new_selection_lists_fixed": false,
+    "order_risk_new_economic_groups_read": false
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
