@@ -151,6 +151,7 @@ def freeze():
     pd.testing.assert_frame_equal(f[['date','code']],expected[['date','code']],check_exact=True)
     np.testing.assert_array_equal(flags,expected.selected);np.testing.assert_array_equal(valid,expected.input_valid)
     receipts=dict(p['source_hashes'],**{str(PROTOCOL):sha(PROTOCOL)})
+    receipts[str(Path(__file__).relative_to(Path.cwd()))]=sha(Path(__file__))
     for name in ['input_report.json','features.parquet','history_atoms.parquet']:receipts[str(ROOT/name)]=sha(ROOT/name)
     lists,lookup=[],[];keys=f[KEYS]
     for year in ['2024','2025']:
@@ -186,7 +187,25 @@ def freeze():
 
 
 def finish():
-    comparisons.finish()
+    p,e=checked()
+    identical=True
+    for year in ['2024','2025']:
+        a,b=checked_analysis(ROOT/('matched'+year)),checked_analysis(Path(e['controls'][year]))
+        identical &= a[0].equals(b[0]) and all(a[1][k]==b[1][k] for k in ['summaries','daily_summary_sha256','label_report_sha256'])
+    if identical:
+        shared.finish()
+        path=ROOT/'complete_results_manifest.json';manifest=json.loads(path.read_text())
+        for year in ['2024','2025']:
+            for name in ['same_dates','shared_unknowns']:
+                src=ROOT/(name+'_'+year+'.json');dst=ROOT/('matched_'+name+'_'+year+'.json')
+                assert not dst.exists();dst.symlink_to(src.resolve())
+                manifest['source_hashes'][str(dst)]=sha(dst)
+            pair=next(r for r in manifest['comparisons'] if r['left']=='rule'+year)
+            manifest['comparisons'].append(dict(pair,right='matched'+year,reused_pair=True,
+                exact_control_frame_label_and_all_statistics_equal=True))
+        save_json(path,manifest)
+    else:
+        comparisons.finish()
     gate_path=ROOT/'selection_gate.json';gate=json.loads(gate_path.read_text())
     quality,bounds=[],[]
     for year in ['2024','2025']:
