@@ -173,6 +173,7 @@ def fit(p):
 def freeze(p):
     models=committed_receipt('all_models_verified.json');assert not (ROOT/'joint_selection_freeze.json').exists()
     expressions=p.get('expressions',original.EXPRESSIONS)
+    numeric.EXPRESSIONS=expressions
     f=pd.read_parquet(Path(p['features_root'])/'features.parquet').loc[lambda z:z.date.ge('2024-01-01')].reset_index(drop=True)
     flags=np.zeros(len(f),dtype=bool);specs={s['id']:s for s in p['folds']};checks=[];receipts=dict(models['source_hashes'])
     for item in models['models']:
@@ -193,6 +194,8 @@ def freeze(p):
         chosen=scores>threshold;np.testing.assert_array_equal(chosen,ex.score.gt(threshold));flags[mask]=chosen
         checks.append(dict(fold=item['fold'],all_scores_and_flags_SQL_verified=True,selected=int(chosen.sum()),training_threshold=cut['threshold'],effective_threshold=threshold))
     registry=json.loads(Path(p['prior_registry']).read_text());check_sources(registry['source_hashes']);lookup=[];lists=[]
+    executor=Path(__file__).relative_to(Path.cwd())
+    receipts[str(executor)]=sha(executor)
     previous=[v['root'] for v in registry['reports']]+p['prior_complete_extra']
     for year in ['2024','2025']:
         folder=ROOT/(p.get('group_prefix','direction')+year);folder.mkdir(exist_ok=False)

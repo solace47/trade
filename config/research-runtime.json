@@ -86,14 +86,15 @@
     "scripts/tail_formula_order_statistics.py": "aa6c76fb920345f59707716bde1f6313acda71bd6ea8adb6c1be12cdf54c491d",
     "scripts/tail_formula_rank_statistics.py": "0a359206b51fda80dad35bc4ab3e23bf39761f8d428e400d589f870c730377cd",
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
-    "scripts/run_tail_formula_target.py": "278c869a0af7625801e34bd766204413200758dd15f5a71271e7b5dad655b386",
+    "scripts/run_tail_formula_target.py": "fec49726422e4c43f9738c9cbf491761fa57370de7c69f361663c46454376798",
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
     "tests/test_tail_formula_listing_sources.py": "6e99bf1f8d2855e6f5fe1e072897ef866115fa06624c7bbfa1c1350616b4434b",
     "config/tail_formula_morning_concentration_inputs.json": "c3a5484327170500e6112aef058737e83aefe3d6f254febb6f206a0cdc84e887",
     "src/trade_research/tail_formula_morning_concentration.py": "7c9ba700aa8da28d143a530d613dea7b71eb5683795d320715c66e9fd08b7e4b",
     "tests/test_tail_formula_morning_concentration.py": "637ac0d9ec0ccd14ad6c5ab465ebc47d113d9bb1908655090308ebd956684a24",
     "config/tail_formula_morning_concentration_execution.json": "ff90c558380eaec6373d4c0ed4ff3e6a0a18c9524382e03280362a2cf1689aea",
-    "scripts/run_tail_formula_morning_concentration.py": "4eeb3e25bf47a9aab65ac6edf89b4add115cdca591d3a298c8155a9b6eae8442"
+    "scripts/run_tail_formula_morning_concentration.py": "4eeb3e25bf47a9aab65ac6edf89b4add115cdca591d3a298c8155a9b6eae8442",
+    "tests/test_tail_formula_feature_binding.py": "5e28b833aa7439c3eb288fcfb5063effa3219506389a4b16688807266bb4e9a0"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1899,7 +1900,8 @@
     "data/research/tail_formula_morning_concentration/all_models_verified.json": "b7f8f1a5ebf550da3b352d3b16ee6cb486cb7df959df19ee95f1c0a514f96355",
     "data/research/tail_formula_morning_concentration/model_input_use.json": "14150eb66faf68f12b7fdf09b7ab2f45038a496eb657d1219cf21920af88bed0",
     "data/research/tail_formula_morning_concentration/source_review/literature_note.json": "4be6d9f8ad8984533884bdd3b89aa606f9fbaecfde64419e9bdde7e4441586f1",
-    "data/research/tail_formula_board_context/source_review/reading_receipt.json": "3c587375ad6c3b36aba77d9dc73609bb7aaf5e55358e3026caed24a01f4aa87f"
+    "data/research/tail_formula_board_context/source_review/reading_receipt.json": "3c587375ad6c3b36aba77d9dc73609bb7aaf5e55358e3026caed24a01f4aa87f",
+    "data/research/tail_formula_morning_concentration/freeze_failed_default_fifty_0cdf1d9.log": "e2c26d243c6a281e9c5fd46c6e9b7b7a216c145f97020eaf4f7b896832231687"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -2006,7 +2008,8 @@
     "data/research/tail_formula_morning_concentration/runtime_before_bounded_verifier.json": "2882c3411d1a53d5733d7ffc5ff948ecf98ae5cd773263e63bea2fb3fe24acd9",
     "data/research/tail_formula_morning_concentration/runtime_before_execution.json": "34bac40a164109e2a725a4f10ca24dd3c0bf2ac64b506b2c6b0847f677f554f3",
     "data/research/tail_formula_morning_concentration/runtime_before_fit.json": "737df6eb5bc416876df0259f986180d80fecb39a6caa6c6b68fff73c1950e3a5",
-    "data/research/tail_formula_morning_concentration/runtime_before_selection.json": "fd185fc6755517a4909acc5aaa0ecce63a7b850be95f9ce343d554e822500dfc"
+    "data/research/tail_formula_morning_concentration/runtime_before_selection.json": "fd185fc6755517a4909acc5aaa0ecce63a7b850be95f9ce343d554e822500dfc",
+    "data/research/tail_formula_morning_concentration/runtime_before_binding_repair.json": "fa601d05288c31f5ac4c6b248a5b263430d77556dbb0bd5e696201269518fab9"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "completed_morning_volume_concentration_four_fold",
@@ -2645,7 +2648,8 @@
       "452eefd945e7d0f08e5a8914d7263dfab923bfcd1224f7ae81861b1f322e9a3e": "606ce37"
     },
     "scripts/run_tail_formula_target.py": {
-      "bf7501e760617ebca858533fbc3c253284f176e3fe9be3bc9d17c2fde90f49cb": "c8a471a"
+      "bf7501e760617ebca858533fbc3c253284f176e3fe9be3bc9d17c2fde90f49cb": "c8a471a",
+      "278c869a0af7625801e34bd766204413200758dd15f5a71271e7b5dad655b386": "0cdf1d9"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -2953,7 +2957,8 @@
         "AMVC_splits": 28,
         "all_splits": 438
       }
-    ]
+    ],
+    "morning_concentration_selection_binding_repair": "新冻结进程显式绑定协议51列；首个名单写出前失败，四模型不重训，原日志保留，新增临时51列树的端到端SQL名单回归通过。"
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。 2026-10-02公开搜索还曾返回2026-09-03第三方复盘封板/炸板/跌停计数及个股名称；未采用或导入本地价格，不扩称全盲测。"
