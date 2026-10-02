@@ -1274,7 +1274,14 @@
     "data/research/tail_formula_direction_absolute/models/2025h1/model_verification.json": "7c32247c69d3c17fd8ce6f3bbf9cc45555b57f104e776c8ff97f5f01e658f1e6",
     "data/research/tail_formula_direction_absolute/models/2025h2/model_report.json": "bf7e1d2c99f4cb84b4b4413208a6c2b9b36aaacc9a560695407dd8dc2be0a52a",
     "data/research/tail_formula_direction_absolute/models/2025h2/model_verification.json": "4fac0f8a02c0f30de276a2a5af8c76d8b6af3717746e2336666b941eb03df3ec",
-    "data/research/tail_formula_direction_absolute/all_models_verified.json": "c3f1b59b9c1ed5a3fa78cf9450e719ba67b69540a981e3ed539811716d1761af"
+    "data/research/tail_formula_direction_absolute/all_models_verified.json": "c3f1b59b9c1ed5a3fa78cf9450e719ba67b69540a981e3ed539811716d1761af",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection_report.json": "2800e4b6aba55b13e594e686c27d8a293e1ddd6fb2f5f0d260916b0f99c392be",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection.parquet": "fc31d0658d3f91bf0f2902cca28e780179be116f0fcf71c0d9afcc258a47c011",
+    "data/research/tail_formula_direction_absolute/absolute_direction2024/selection_verification.json": "175d9fc40d5e9af1205033473b4dee0251be56ac57d23c9398969788f60bd1fc",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_report.json": "dd244c8e50c4d83da7a27dae8b2cf3e18d664a83abe3b192cf1605fc5137ab4d",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection.parquet": "99d4cf525cb015cda6e6f38a9c0056046c66591c1fb98b525176e29fe688b36a",
+    "data/research/tail_formula_direction_absolute/absolute_direction2025/selection_verification.json": "64ecac6c17121889ed179f352ef5893abc2ce70955078b66e920df86ed5c1f08",
+    "data/research/tail_formula_direction_absolute/joint_selection_freeze.json": "8d45926a2649a1c8b673ec3e2886cbeac7642db8623f5c51d1db48e0ef400f29"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1357,10 +1364,11 @@
     "data/research/tail_formula_direction_target/before_complete_review_runtime.json": "717ef880c929509ca868fa51024dd8b822ac2664f20236cf79c9090c5b3b18e8",
     "data/research/tail_formula_direction_input_receipts/before_absolute_runtime.json": "d1fb0cf3ad07f430f10e8aab2ec17f3aab58852ab037583d17152094dea69b94",
     "data/research/tail_formula_direction_absolute/before_preparation_runtime.json": "62adcda66f9d188ac556e37d1b7f71bca5bc7aa4e17af967cadc866c604d58d2",
-    "data/research/tail_formula_direction_absolute/before_models_runtime.json": "9d40f81249607884b821f2c7e2ba5e8f48ecbef716a6e660bb5666dc67446a88"
+    "data/research/tail_formula_direction_absolute/before_models_runtime.json": "9d40f81249607884b821f2c7e2ba5e8f48ecbef716a6e660bb5666dc67446a88",
+    "data/research/tail_formula_direction_absolute/before_selections_runtime.json": "416aa31d0bf56deb934ae506ccd3395ea555a4ad619f58225b937995abc49c46"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "absolute_symmetric_direction_four_models_verified_before_joint_lists",
+  "current_study": "absolute_symmetric_direction_joint_lists_fixed_before_full_economics",
   "research_definition_changed": true,
   "rationale": "相对方向评分排序了避险而未改善1%空间；2025H1原方向仍负却因源均值更负而中心化为正。检验取消源中心化及正方向门，原净机会检验不变。",
   "new_2026_prices_read": false,
@@ -2104,7 +2112,15 @@
     "direction_absolute_exact_or_affine_matches": 0,
     "direction_absolute_new_fits_completed": 4,
     "direction_absolute_all_models_verified": true,
-    "direction_absolute_model_manifest_sha256": "c3f1b59b9c1ed5a3fa78cf9450e719ba67b69540a981e3ed539811716d1761af"
+    "direction_absolute_model_manifest_sha256": "c3f1b59b9c1ed5a3fa78cf9450e719ba67b69540a981e3ed539811716d1761af",
+    "direction_absolute_joint_selection_sha256": "8d45926a2649a1c8b673ec3e2886cbeac7642db8623f5c51d1db48e0ef400f29",
+    "direction_absolute_new_selection_lists_fixed": true,
+    "direction_absolute_prior_complete_lists_checked": 593,
+    "direction_absolute_exact_complete_list_aliases": [
+      0,
+      25
+    ],
+    "direction_absolute_new_economic_groups_read": false
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
