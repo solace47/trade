@@ -118,9 +118,12 @@ def verify(p):
     assert r['protocol_sha256'] == sha(PROTOCOL) and r['features_sha256'] == sha(INPUTS / 'features.parquet')
     parts = cached_parts(p)
     c = numeric.conn()
-    c.read_parquet(list(parts)).create_view('cached')
-    # Independently retain the whole ordered vector rather than pandas grouped squares.
-    expected = c.sql('''WITH w AS (
+    # Bound peak memory while independently retaining every ordered volume vector.
+    pieces = []
+    for i, file in enumerate(parts):
+        c.execute('DROP VIEW IF EXISTS cached')
+        c.read_parquet(file).create_view('cached')
+        pieces.append(c.sql('''WITH w AS (
         SELECT *,extract(hour FROM timestamp)*60+extract(minute FROM timestamp) AS minute
         FROM cached WHERE date>='2023-01-01' AND date<'2026-01-01'),
         a AS (SELECT date,code,count(*) AS bars,count(DISTINCT timestamp) AS labels,
@@ -130,8 +133,12 @@ def verify(p):
         FROM w WHERE minute BETWEEN 571 AND 690 GROUP BY date,code)
         SELECT date,code,bars,labels,good,list_sum(volumes)::DOUBLE AS total,
         list_sum(list_transform(volumes,v->v*v))::DOUBLE AS squares
-        FROM a ORDER BY date,code''').df()
+        FROM a ORDER BY date,code''').df())
+        if i % 8 == 0 or i+1 == len(parts):
+            print(json.dumps(dict(verified_parts=i+1, total_parts=len(parts))), flush=True)
     c.close()
+    expected = pd.concat(pieces, ignore_index=True).sort_values(['date', 'code']).reset_index(drop=True)
+    assert not expected.duplicated(['date', 'code']).any()
     old = pd.read_parquet(p['original_features'])
     expected = old[['date', 'code']].merge(expected, how='left', on=['date', 'code'], validate='one_to_one')
     a = pd.read_parquet(INPUTS / 'aggregates.parquet')
@@ -160,6 +167,7 @@ def verify(p):
         rows=len(f), valid=int(ok.sum()), all_original_values_and_keys_unchanged=True,
         all_volume_vectors_clock_quality_totals_squares_and_encodings_independently_rebuilt=True,
         effective_input_intersection_unchanged=unchanged, new_fitting_allowed=False,
+        verifier_sha256=sha(Path(__file__)), bounded_filewise_ordered_vector_verification=True,
         mathematical_native_replay_only=True, software_compilation_verified=False,
         native_source_parity_verified=False, new_economic_groups_read=False,
         new_2026_prices_read=False, no_exit_rules=True))
@@ -204,6 +212,7 @@ def native(p):
     names = re.findall(r'(?m)^([A-Z][A-Z0-9]*):=', HEADER)+list(EXPRESSIONS)
     assert len(names) == len({n.casefold() for n in names})
     sources = dict(json.loads((INPUTS / 'feature_report.json').read_text())['source_hashes'])
+    sources[str(Path(__file__).relative_to(Path.cwd()))] = sha(Path(__file__))
     for path in [INPUTS/'features.parquet', INPUTS/'aggregates.parquet', INPUTS/'feature_report.json', INPUTS/'feature_verification.json', helper]:
         sources[str(path)] = sha(path)
     sources.update({r['source']:r['sha256'] for r in receipts})
