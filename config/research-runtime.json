@@ -834,7 +834,17 @@
     "data/research/tail_formula_day_night_matched/control50/2025h2/model_verification.json": "5fdf125eabfde68eb9a4dd9eba55c48ce2df767ac819649b10c3462a388a63c8",
     "data/research/tail_formula_day_night_matched/components53/2025h2/model_report.json": "b130c19bf7f92f746d685ced8e618c6561ea83eb41e5a7a272e396ae931ef894",
     "data/research/tail_formula_day_night_matched/components53/2025h2/model_verification.json": "4643e95e9a9e19d2b1feb24a72df990eb7fc8ad1b985efac6a2e4d749844b502",
-    "data/research/tail_formula_day_night_matched/all_models_verified.json": "9f464af9b1a00b1bf985e589590f3ceb10a1570d66d9d529bfd541b5b0b04dab"
+    "data/research/tail_formula_day_night_matched/all_models_verified.json": "9f464af9b1a00b1bf985e589590f3ceb10a1570d66d9d529bfd541b5b0b04dab",
+    "data/research/tail_formula_day_night_matched/joint_selection_freeze.json": "518852a0a4deb4e6cfdfe063493b5e6c79a2547361c6086d8a663673bd48a2e9",
+    "data/research/tail_formula_day_night_matched/score_verification.json": "2b360e19faa9be8d7861b560c3ed73a6312fd09b6c73e43f0cd140e3a9ab841c",
+    "data/research/tail_formula_day_night_matched/selection_equivalence_lookup.json": "99998d463080dad6e7cf1042fa8d6b4845c6e684d44ef4e1944c4c0a5d845ee0",
+    "data/research/tail_formula_day_night_matched/matched_control_aliases.json": "a308753f59e54bf5d9d7e7268b84c1eda414b25f5b1e5b0c754482db1463528a",
+    "data/research/tail_formula_day_night_matched/rule2024/selection.parquet": "a8932b4575643ec9e871c0ca79f6daecb4dde19ae1c7e3d0ac733312d8988742",
+    "data/research/tail_formula_day_night_matched/rule2024/selection_report.json": "aa0fac018852f142e8c3fb0c079340340264143b940aa7ddaab8961b7e09650f",
+    "data/research/tail_formula_day_night_matched/rule2024/selection_verification.json": "5958bc6ae1be164d193f6772d7012a7fefb65e8c7791c6efd5041422107e3f67",
+    "data/research/tail_formula_day_night_matched/rule2025/selection.parquet": "bf57a3ee9d48001f2ba38e81305dc4110e932aeb13abfde52321bad565fdc702",
+    "data/research/tail_formula_day_night_matched/rule2025/selection_report.json": "76135a2b1ff8dd0b08fab9fc9ad2c453cc36cb75a460e1c9ef7568b5eca00f93",
+    "data/research/tail_formula_day_night_matched/rule2025/selection_verification.json": "c42b8aedeb8e1d1829b55f1d42d9ed1e6bd029e6271666b357a15d889d141bc8"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -884,10 +894,11 @@
     "data/research/tail_formula_day_night_matched/prior_runtime.json": "50f896ec16febd53203f957bad8a5fe895754754f2fadf80da07cda9fbb7cf64",
     "data/research/tail_formula_day_night_matched/protocol_runtime.json": "5b4bf465e48b73d9c75309999038f2a74d5bfd2abf07518f58f1ed59513376f0",
     "data/research/tail_formula_day_night_matched/fixed_fit_runtime.json": "351437086b2793c99e777cab5e2cb7530dedf4abf360f195531509d0bcfc9c56",
-    "data/research/tail_formula_day_night_matched/evaluation_scope_runtime.json": "6d34090f49d2ed685971c43e837d1ecb5bfd7e76c79d6f899ac5a684baa8585e"
+    "data/research/tail_formula_day_night_matched/evaluation_scope_runtime.json": "6d34090f49d2ed685971c43e837d1ecb5bfd7e76c79d6f899ac5a684baa8585e",
+    "data/research/tail_formula_day_night_matched/fixed_lists_runtime.json": "10ca8cfeb003bb9b5456961ce3535de0a4995d133f15f7d1f7212302d40b5959"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_day_night_matched_all_models_verified_before_lists",
+  "current_study": "tail_formula_day_night_matched_complete_lists_fixed_before_economics",
   "research_definition_changed": true,
   "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
   "new_2026_prices_read": false,
@@ -1414,7 +1425,9 @@
     "completed_candle_gate_literal_quality_criteria_passed": 0,
     "additional_literal_and_cash_ended_files_retired": 7,
     "day_night_matched_new_fits": 4,
-    "day_night_matched_exact_models_reused": 4
+    "day_night_matched_exact_models_reused": 4,
+    "day_night_complete_lists_fixed": true,
+    "day_night_2025_exact_original_list_reuse": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
