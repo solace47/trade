@@ -1211,7 +1211,17 @@
     "data/research/tail_formula_before1000/observation_parts/part_048.parquet": "7107cea324445bcaa3c7fb06f72be1c56ad5ea1f672883076f7737d6d4b6eb82",
     "data/research/tail_formula_before1000/observation_parts/part_049.parquet": "9cb4b8c49d77b887119b4c2761eefd7dc665d2b819169a3f9a196967b1c011c0",
     "data/research/tail_formula_before1000/observation_report.json": "1ed9b02497ac375a76d17bd69370fa6b285b6b66bdef17c603cada6e1503a200",
-    "data/research/tail_formula_before1000/observation_verification.json": "081e3189df50528447697aa7b47efb7ed93bb5d5183a5887beece24e847f8e5f"
+    "data/research/tail_formula_before1000/observation_verification.json": "081e3189df50528447697aa7b47efb7ed93bb5d5183a5887beece24e847f8e5f",
+    "data/research/tail_formula_direction_target/model_configs/2025h2_lookup.json": "2697a504c19fe55a042dce9dd9521e852b4971a7798e83b52467cba6dffb2cdd",
+    "data/research/tail_formula_direction_target/model_configs/2024h2.json": "36ccc6ccb20d2f70986dd943c196d75b4e41ac4975eeeb982fa394e86a6eadcf",
+    "data/research/tail_formula_direction_target/model_configs/2025h1.json": "ca05c9b465f414f02d923528967e689fdcdf1fa0d845cfb537b469779ba0dc24",
+    "data/research/tail_formula_direction_target/model_configs/2025h1_lookup.json": "2b43071027923931f8165c96856a1e969aaa184688313ee3cc617ad93ea68d87",
+    "data/research/tail_formula_direction_target/model_configs/2024h1_lookup.json": "6c50dd714b9769448393a8e6c5fe01f92f453a0a88310be9ea2c8c5ebf65846e",
+    "data/research/tail_formula_direction_target/model_configs/2025h2.json": "3c9237e81f19a5b8c50bca2de252cb4c85df2e3ddcf678b15eec3f22612dd2ad",
+    "data/research/tail_formula_direction_target/model_configs/2024h1.json": "accba939fff2263bdaeef95ca908cab364154a4a562265927c7a54c458901074",
+    "data/research/tail_formula_direction_target/model_configs/2024h2_lookup.json": "6c18a73e697e14be3761376b48f2bed723266506535ef73333750469f65704db",
+    "data/research/tail_formula_direction_target/model_lookup.json": "6ece6469bef362ce38b73873bc9ad4024630140e8e8f436569abb5e7ef297546",
+    "data/research/tail_formula_direction_target/preparation.json": "fd228785c09f8ef3810c7886647e5bfd9568abd2e87a561376c193f43c342a52"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1287,10 +1297,11 @@
     "data/research/tail_formula_order_risk/before_complete_and_review_runtime.json": "d2372efc19e9068301f98c603d898a065c7367c835efff0db63a6930a5e03b5d",
     "data/research/tail_formula_order_risk/reflection/before_review_complete_runtime.json": "e354ac338fa5d1d54503112b9e25a030bae1f3db54f71155029b8a144aacedd3",
     "data/research/tail_formula_direction_input_receipts/prior_runtime.json": "e12daea3526a98359b4dbccafa577c30e9315dd950270b1be058142950f922fe",
-    "data/research/tail_formula_direction_input_receipts/execution_prior_runtime.json": "190da7ea89aa9867749167ff89b518acd4860700104dc3e66690552ec7d41633"
+    "data/research/tail_formula_direction_input_receipts/execution_prior_runtime.json": "190da7ea89aa9867749167ff89b518acd4860700104dc3e66690552ec7d41633",
+    "data/research/tail_formula_direction_target/before_preparation_runtime.json": "574ec99ed5ddb11904aee7df71467266a773916de2bc4168e1bf8e7a4e146b02"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "symmetric_gross_direction_source_verified_execution_fixed_before_model_lookup",
+  "current_study": "symmetric_gross_direction_targets_checked_against_prior_models_before_four_fits",
   "research_definition_changed": true,
   "rationale": "风险目标的空间排序连训练期也偏反向；固定同幅度、同报价持续的方向目标来源门，不调风险罚分、窗口或门槛。",
   "new_2026_prices_read": false,
@@ -1972,7 +1983,16 @@
     "direction_target_rows": 1815129,
     "direction_target_known_rows": 1743202,
     "direction_target_maximum_new_fits": 4,
-    "direction_target_new_fits_at_execution_protocol": 0
+    "direction_target_new_fits_at_execution_protocol": 0,
+    "direction_target_preparation_sha256": "fd228785c09f8ef3810c7886647e5bfd9568abd2e87a561376c193f43c342a52",
+    "direction_target_prior_model_records": [
+      14,
+      14,
+      27,
+      27
+    ],
+    "direction_target_exact_or_affine_matches": 0,
+    "direction_target_new_fits_completed": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
