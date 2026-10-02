@@ -77,9 +77,8 @@
     "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "scripts/prepare_tail_formula_day_night_matched.py": "c3026b8f131e7147d7f705656067caa8e7998e7c30ed11b95860fb65c6abb91d",
-    "scripts/run_tail_formula_day_night_matched.py": "93eabb9460c0ba909de64571bc66bd20cf672e6427fd828c5bb92499f5db00f7",
-    "scripts/finish_tail_formula_day_night_matched.py": "cdc97f5e9c49ffec21c9b6095abb9bb4a2f71052c19e7c65a27d3c24e1676295"
+    "scripts/review_tail_formula_goal_alignment.py": "f5f0957180a4ec9b1de32190b4acbdaeed67f82d0b4ae290f212d3ea72e55928",
+    "config/tail_formula_goal_alignment_review.json": "d4853880757217825fa941b4386498dd2b2bae16daa98df9eb8f207f565b015e"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -767,12 +766,10 @@
     "data/research/tail_formula_candle_gate_literal/analysis_dispatch_verification.json": "8b5e6c18c6b40b1d1d0b47f56a721577fd31e97a6dd54a71101cf725e0085065",
     "data/research/tail_formula_candle_gate_literal/complete_results_manifest.json": "728900ce69a343dcbc5484088253ada32d1bce447aba121f0c995d975efda1c0",
     "data/research/tail_formula_candle_gate_literal/retired_source_receipt.json": "1de8e95ef1fb94e867ec81601de99be31a6df1475c9cb6533f3a6669e6d00c2b",
-    "config/tail_formula_day_night_matched_protocol.json": "3a76f26dfadd7c2f1ac39a9fe490c32075ac5535c6f7e9b6a6b2fd23e236fcb2",
     "data/research/tail_formula_day_night_matched/scope_review.json": "89134e9dfd1ce2b99856bd777653d7cf25789e0a93d04dddc7629b760b1fbe36",
     "data/research/tail_formula_day_night_matched/archived/tail_formula_overnight.py": "6813d00f0620359ec082f9de36f5923619abd1919c07b629ab430872b385c6dc",
     "data/research/tail_formula_day_night_matched/archived/tail_formula_overnight_protocol.json": "44b7181bbad4f4f827db242176dd3341e23434237e69aaadf042b6341c08454b",
     "data/research/tail_formula_day_night_matched/archived/tail_formula_overnight_2024_protocol.json": "7d3c30ab89b7d63f8f16dd9a2bb52d2fc7e48b09243afe8b36e102013f62e726",
-    "config/tail_formula_day_night_matched_execution.json": "0b6b40aa27f09713fc759b0749c5b133f3d3ad820c400377c73a6a2e14328b57",
     "data/research/tail_formula_day_night_matched/features.parquet": "d1240b09b890933c401db6050ce1b6582775d1cc9f5497b0a39dd046720a67d4",
     "data/research/tail_formula_day_night_matched/atoms.parquet": "d866c94d319499df9c9c05dcc37043426e1f98094b20e042d027d0f5635eb56c",
     "data/research/tail_formula_day_night_matched/input_verification.json": "459f70cc30835c54e59d2d04694dce986d4daee22bca1d690a55d918978e9a1e",
@@ -806,8 +803,6 @@
     "data/research/tail_formula_afternoon_prefix/control/2025h1/model_verification.json": "c879e7af8a15eb1fbdc27ddbb0693d2a6f3d3b8a681520483c5a8de76fa99ae9",
     "data/research/tail_formula_afternoon_prefix/control/2025h2/model_report.json": "c3af8980796a4ab91db03e8e0cd1a99fe7d4319a06a002c7341256c1b79c0fc2",
     "data/research/tail_formula_afternoon_prefix/control/2025h2/model_verification.json": "bc08b8ffabc758b08ac82796ffecb5e0c0135f996342ba7633a9e66de612d496",
-    "config/tail_formula_day_night_matched_evaluation.json": "01cdce5aeadb8528806f1060e6b6159f4b9ffcfd0d08f87a2b92e97202d2d604",
-    "scripts/prepare_tail_formula_day_night_matched.py": "c3026b8f131e7147d7f705656067caa8e7998e7c30ed11b95860fb65c6abb91d",
     "data/research/tail_formula_overnight/features.parquet": "4d32e8217a5a4407d3769a2ca7bea8a9805bc4bc32f934851e8c7c24e911164e",
     "data/research/tail_formula_overnight/feature_report.json": "10cb728a1ed747e77588c7dc93f0a187fee781177f77cbcf50767220e519c476",
     "data/research/tail_formula_overnight/feature_verification.json": "472f8084b20042deaf1350dfe68c58b88a9eb40714fca874e0b9b90ee22c11d1",
@@ -817,7 +812,6 @@
     "data/research/tail_formula_overnight_recent/selection_report.json": "f05d476773b7c5e2f287c0e67799e4d3650b4e46a7459a0b6d771355ee5cc66f",
     "data/research/tail_formula_overnight_recent/model_report.json": "a61aa57de5cf49d661b201f3ede125e292d8791abbe182df8bbf33a4680d3f76",
     "data/research/tail_formula_overnight_2025/selection_report.json": "92414c35d4f1433009b02ae00d7ecef91a62719a4e317349b09fd6366e49afdb",
-    "scripts/run_tail_formula_day_night_matched.py": "93eabb9460c0ba909de64571bc66bd20cf672e6427fd828c5bb92499f5db00f7",
     "data/research/tail_formula_day_night_matched/control50/2024h1/model_report.json": "07bca6aa041e2b8559268edd37be45d304c534f82c306b2d57cbee819e656438",
     "data/research/tail_formula_day_night_matched/control50/2024h1/model_verification.json": "4d06fbfd7ddf439922d1e4b00cda4799e0c078047412d863ce7736679f0d866d",
     "data/research/tail_formula_day_night_matched/components53/2024h1/model_report.json": "3f4196f77f7879338c6d7c03b8bb4d311156fbf7391e20349bf6eebd9e41caea",
@@ -859,7 +853,9 @@
     "data/research/tail_formula_day_night_matched/rule2025/full_label_verification.json": "aed049d427eb06002e1bfdbacb3a2bc1974dd2b648810b100e8fac342ed66724",
     "data/research/tail_formula_day_night_matched/same_dates_2024.json": "aa8284281513bfd2ef18de827f5219e16838f9a63d5e0d1f6d4329297b6c2699",
     "data/research/tail_formula_day_night_matched/selection_gate.json": "e628194338c3f09de97d6d684446431e461e398cdc8e56891e26bdadbca97641",
-    "data/research/tail_formula_day_night_matched/shared_unknowns_2024.json": "532c89d78b67dc383116b3b9b78f9d8c065041dd8b45ac66654a475fdc418ba8"
+    "data/research/tail_formula_day_night_matched/shared_unknowns_2024.json": "532c89d78b67dc383116b3b9b78f9d8c065041dd8b45ac66654a475fdc418ba8",
+    "data/research/tail_formula_day_night_matched/retired_source_receipt.json": "3c20217efa9e0d3e9615fccc664bf2102ec13c31fea5aca6c4945d914c306c05",
+    "data/research/tail_formula_goal_alignment_review/report_index.json": "54bb0f680c0b7be6f9b5d75fd89123a5d090a785e93716e72fca0c2ef4664bc1"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -911,10 +907,12 @@
     "data/research/tail_formula_day_night_matched/fixed_fit_runtime.json": "351437086b2793c99e777cab5e2cb7530dedf4abf360f195531509d0bcfc9c56",
     "data/research/tail_formula_day_night_matched/evaluation_scope_runtime.json": "6d34090f49d2ed685971c43e837d1ecb5bfd7e76c79d6f899ac5a684baa8585e",
     "data/research/tail_formula_day_night_matched/fixed_lists_runtime.json": "10ca8cfeb003bb9b5456961ce3535de0a4995d133f15f7d1f7212302d40b5959",
-    "data/research/tail_formula_day_night_matched/completed_runtime.json": "04701a24445165e4bcaea69d37c7c9fd437342a56112d868812c38e37d62c9d1"
+    "data/research/tail_formula_day_night_matched/completed_runtime.json": "04701a24445165e4bcaea69d37c7c9fd437342a56112d868812c38e37d62c9d1",
+    "data/research/tail_formula_day_night_matched/runtime_before_retirement.json": "2e17aa25df790efa2fd29523e95f562155e012bbb6816db8dfc4cd4b0b169166",
+    "data/research/tail_formula_goal_alignment_review/prior_runtime.json": "7a414aaa662d9233af101d729605427c7f53cb187f26932a1ca465ca8a0124ab"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_day_night_matched_complete_failed",
+  "current_study": "tail_formula_goal_alignment_review_fixed_before_overview",
   "research_definition_changed": true,
   "rationale": "旧20日隔夜/日内成分已研究，但旧范围仅2025且原30分钟训练。补足当前50同质量/严格29窗/四折；先来源门，八模型上限，精确同模型复用。",
   "new_2026_prices_read": false,
@@ -1386,6 +1384,24 @@
     },
     "config/tail_formula_candle_gate_literal_protocol.json": {
       "27f454ba05ec063070f48d679f0b6e00cf2992f240919db8ce635e8561549f87": "13d2c5c9be7ff63b719e03b937c346288b4b13e7"
+    },
+    "scripts/prepare_tail_formula_day_night_matched.py": {
+      "c3026b8f131e7147d7f705656067caa8e7998e7c30ed11b95860fb65c6abb91d": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "scripts/run_tail_formula_day_night_matched.py": {
+      "93eabb9460c0ba909de64571bc66bd20cf672e6427fd828c5bb92499f5db00f7": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "scripts/finish_tail_formula_day_night_matched.py": {
+      "cdc97f5e9c49ffec21c9b6095abb9bb4a2f71052c19e7c65a27d3c24e1676295": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "config/tail_formula_day_night_matched_protocol.json": {
+      "3a76f26dfadd7c2f1ac39a9fe490c32075ac5535c6f7e9b6a6b2fd23e236fcb2": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "config/tail_formula_day_night_matched_execution.json": {
+      "0b6b40aa27f09713fc759b0749c5b133f3d3ad820c400377c73a6a2e14328b57": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
+    },
+    "config/tail_formula_day_night_matched_evaluation.json": {
+      "01cdce5aeadb8528806f1060e6b6159f4b9ffcfd0d08f87a2b92e97202d2d604": "e51eda6b0f49cea3eb60b429f095cfbe714a08da"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -1449,7 +1465,8 @@
     "day_night_complete_fingerprints": 158,
     "day_night_comparisons": 2,
     "day_night_comparison_exact_reuse": 1,
-    "day_night_quality_criteria_passed": 0
+    "day_night_quality_criteria_passed": 0,
+    "day_night_ended_files_retired": 6
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
