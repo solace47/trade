@@ -712,7 +712,16 @@
     "data/research/tail_formula_entry_semantics_reflection/verification.json": "76efd3c835994db83a3859923d2787274aca09c03687bd6c0c0c11ffee58e752",
     "config/tail_formula_candle_gate_literal_protocol.json": "27f454ba05ec063070f48d679f0b6e00cf2992f240919db8ce635e8561549f87",
     "data/research/tail_formula_candle_gate_literal/prior_registry.json": "90e0b2fdec4d1b7a9550d4c7af2f464eb55185158af4e0c91f4b25b8a9631f8a",
-    "data/research/tail_formula_candle_gate_literal/source_review.json": "00f729216bbc9a142a31ccebb3cecca249cc8e93a6c3c1c49e46ccb9b029e878"
+    "data/research/tail_formula_candle_gate_literal/source_review.json": "00f729216bbc9a142a31ccebb3cecca249cc8e93a6c3c1c49e46ccb9b029e878",
+    "data/research/tail_formula_candle_gate_literal/input_verification.json": "c03a7af266ff193b39de10d7a2f016607e569b026e264e197cf5621dcf57853d",
+    "data/research/tail_formula_candle_gate_literal/selection_equivalence_lookup.json": "9a6f5071540a7f0141941febc6639656d2f4bdae0599ef69da3fe09af57cbc8e",
+    "data/research/tail_formula_candle_gate_literal/joint_selection_freeze.json": "f303fb83bd08720b5ba2eaf96a570fe1332c36f78cd3d6ca4a88d4cc8168cead",
+    "data/research/tail_formula_candle_gate_literal/rule2024/selection.parquet": "1c992cb9c18f6185c495e728005905d61db6c39455c35eca56f285ede202bee6",
+    "data/research/tail_formula_candle_gate_literal/rule2024/selection_report.json": "98b30829c7d3a0f8f27c2a7baf88c80b88b24955f6a22505605a19161c652ab8",
+    "data/research/tail_formula_candle_gate_literal/rule2024/selection_verification.json": "b96363ef769bdedc1dfc3fc0465489f0feccbe2fcc3b314429a9a2641101e3f5",
+    "data/research/tail_formula_candle_gate_literal/rule2025/selection.parquet": "35c0ca17b978f30a0c32c75ce29ff66f0f1d97da8b183fec2f1a3789d2fded49",
+    "data/research/tail_formula_candle_gate_literal/rule2025/selection_report.json": "68f2f9402196ddffdcf55c03d22783f3af91a3ffcf918540b58fa69f8c53cdcc",
+    "data/research/tail_formula_candle_gate_literal/rule2025/selection_verification.json": "9783c8b8b896bd0ab0f6dd9bb9c81e614e3209730c580dd7ad26f21c94afbecf"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -755,10 +764,11 @@
     "data/research/tail_formula_trend_reversion_literal/fixed_lists_runtime.json": "c2e66c2508b774fc85454212282b9b18055eae1815e6f7d2e643008f121f161b",
     "data/research/tail_formula_entry_semantics_reflection/prior_runtime.json": "a20f0298485ed6684c250a43df18ddbb23ac069bb7587a4bbd9a1ce6a5162a76",
     "data/research/tail_formula_entry_semantics_reflection/audit_runtime.json": "2eb93d314fd5fb8dee8b8fa6a4e0d3af831f1e3b01d26ec254aaf760330434e7",
-    "data/research/tail_formula_candle_gate_literal/prior_runtime.json": "dc38fd2f3c0bc6eeeb9307b0a795de2818284c39946371368c557f3426b503af"
+    "data/research/tail_formula_candle_gate_literal/prior_runtime.json": "dc38fd2f3c0bc6eeeb9307b0a795de2818284c39946371368c557f3426b503af",
+    "data/research/tail_formula_candle_gate_literal/protocol_runtime.json": "268106456476690c3da6058ee46107dded6083731cadc546dec19b1ae5af25bd"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_candle_gate_literal_fixed_before_inputs",
+  "current_study": "tail_formula_candle_gate_literal_lists_fixed_before_economics",
   "research_definition_changed": true,
   "rationale": "原件完美十字或阳线锤子固定阈值及源扫描门；只改为14:49可见输入，零拟合，不代表全部模型打分流程。",
   "new_2026_prices_read": false,
