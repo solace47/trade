@@ -82,7 +82,8 @@
     "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09",
     "scripts/prepare_tail_formula_cost_history.py": "1a92d67b2b51892c6601cfb6870116f61a71e2f6277b9d53894b3d7cdab35f20",
     "scripts/run_tail_formula_cost_history.py": "3dfd929e7c7a0c38792569dff3d0abcc9b385abcde15d9c220d57a4f384c4b4b",
-    "scripts/finish_tail_formula_cost_history.py": "bdf0d1379b8cf74e0ede998340204de905ae9c9cf5770449f5c351b485a048de"
+    "scripts/finish_tail_formula_cost_history.py": "bdf0d1379b8cf74e0ede998340204de905ae9c9cf5770449f5c351b485a048de",
+    "scripts/run_tail_formula_cost_history_literal.py": "32c7b2dc7d6de28d1f0b05d07484d2f99e2f11e5ec3e59a679827396170dafe0"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -588,7 +589,10 @@
     "data/research/research_method_sources_20261002/github_followup/carey314__daily_stock_analysis/LICENSE": "87915011a44adbd0b2b085dbf931a21bd082f65c4a0824d61c1dec50dc54f2a4",
     "data/research/research_method_sources_20261002/github_followup/carey314__daily_stock_analysis/src/scanner/tail_scanner.py": "42d2801f6c9587dc27c44c8b0656c41479dbdd965aeeb67a0a4a9c2c1fd56f8a",
     "data/research/research_method_sources_20261002/github_followup/carey314__daily_stock_analysis/src/scanner/limitup_scanner.py": "c76ce81e266e13887508c4b6fe8304b08f21b69963dda2fed7567205468e2006",
-    "data/research/research_method_sources_20261002/github_followup/carey314__daily_stock_analysis/source_identity.json": "bf1e8706fd2564034948606732408a7b968c0e5160fe83097707d1de908ce77b"
+    "data/research/research_method_sources_20261002/github_followup/carey314__daily_stock_analysis/source_identity.json": "bf1e8706fd2564034948606732408a7b968c0e5160fe83097707d1de908ce77b",
+    "config/tail_formula_cost_history_literal_protocol.json": "0863d6a66eacde77079e2e3e6d8e7968403e51e678fac7cf16da2f197fc99b9a",
+    "data/research/tail_formula_cost_history_literal/prior_registry.json": "4d0cc23d705bfeee39c76c2857ceff6330c3d931f381ea9df4330964b4c02215",
+    "data/research/tail_formula_cost_history_literal/novelty_review.json": "05fb9031f214f8fefecb82e6a760b24922ba0c5ba41dc980b1a9e5f40d5d1c3e"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -617,12 +621,13 @@
     "data/research/tail_formula_cost_history/pre_model_runtime.json": "f12f9236af1fbaec1dd359e9d26776ddc5d6008f671ca50df54355c09d52a309",
     "data/research/tail_formula_cost_history/fixed_fit_runtime.json": "719f998a7eded71e235adcf99c7075111b060e82185b3e876bb534c8b1415b94",
     "data/research/tail_formula_cost_history/post_fit_prior_runtime.json": "03d00efce1f9e7428e0aaf74c1ec9793f379a0ce321e125b914c4f290e1ffde0",
-    "data/research/tail_formula_cost_history/completed_prior_runtime.json": "378c84156219476d4030f9e733e30a10cff12c6c1f9bb7c45a277ad1ccac4b68"
+    "data/research/tail_formula_cost_history/completed_prior_runtime.json": "378c84156219476d4030f9e733e30a10cff12c6c1f9bb7c45a277ad1ccac4b68",
+    "data/research/tail_formula_cost_history_literal/fixed_protocol_prior_runtime.json": "6520234bf56eb013ce7e2019afa0966d9c0c0abb04b7cbc76c1dd64100dee451"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_cost_history_completed_failure",
+  "current_study": "tail_formula_cost_history_literal_fixed_protocol",
   "research_definition_changed": true,
-  "rationale": "五日历史报价匹配检验完成，八模型、四年度、四比较、七项条件全失败；不重训或修改原阈值。继续检验未覆盖机制，避免把模型失败扩成所有公式不存在。",
+  "rationale": "直接五日多数／均值正，零拟合、零参数搜索；三控制及完整两年名单先固定后评价。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {

@@ -1,0 +1,71 @@
+{
+  "study": "five_stock_day_cost_history_direct_recurrence",
+  "objective": "模型加入新输入的失败不能替代信号机制检验；固定一条自然零界及多数条件，检验五次含费报价表现能否延续。它是新暴露探索，不称事前盲测。",
+  "condition": "CM01>0 AND CM02>50",
+  "condition_interpretation": "五个完整股日0959含费报价平均正，且至少三次严格三连活跃报价覆盖成本。V01正，所以CM01符号与原报价均值相同；频率>50与整数多数一致，避免60浮点边界。",
+  "features": "data/research/tail_formula_cost_history/features.parquet",
+  "atoms": "data/research/tail_formula_cost_history/history_atoms.parquet",
+  "source_hashes": {
+    "scripts/run_tail_formula_cost_history_literal.py": "32c7b2dc7d6de28d1f0b05d07484d2f99e2f11e5ec3e59a679827396170dafe0",
+    "scripts/finish_tail_formula_rule_search.py": "cf8f08114c14e127abc8a6ef58fa66a19796fe35902705be675b9fae19b48fb3",
+    "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
+    "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8",
+    "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
+    "scripts/tail_formula_analysis_reuse.py": "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b",
+    "scripts/verify_tail_formula_before1000.py": "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234",
+    "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
+    "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
+    "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "data/research/tail_formula_cost_history/features.parquet": "b776eb9d003f785efea5415f387ce501917de026fecf1469ca67bdb4c2435cb1",
+    "data/research/tail_formula_cost_history/history_atoms.parquet": "d1c892e2c01b9c8b1ad87650f786a58cfd4ad109132d7c1c141ead9a25cdfaef",
+    "data/research/tail_formula_cost_history/feature_verification.json": "86a22660be189d8daa113e8a1fb683ab2f14362272c6122360c9c89e3e0e8aa6",
+    "data/research/tail_formula_cost_history/prefit_verified.json": "7f0c77dccb4a572af1b9672199358737e5fc1f33f65c8c50566f7e2b790f6b51",
+    "data/research/tail_formula_cost_history/complete_results_manifest.json": "08c6cf26d3ceb8c9f27c708ac72ad01a9891cd2ed6db18f8c463767fc02f5cf3",
+    "data/research/tail_formula_cost_history_literal/prior_registry.json": "4d0cc23d705bfeee39c76c2857ceff6330c3d931f381ea9df4330964b4c02215",
+    "data/research/tail_formula_cost_history_literal/novelty_review.json": "05fb9031f214f8fefecb82e6a760b24922ba0c5ba41dc980b1a9e5f40d5d1c3e"
+  },
+  "prior_registry": "data/research/tail_formula_cost_history_literal/prior_registry.json",
+  "additional_prior_analysis_roots": [
+    "data/research/tail_formula_cost_history/matched2024",
+    "data/research/tail_formula_cost_history/matched2025",
+    "data/research/tail_formula_cost_history/rule2024",
+    "data/research/tail_formula_cost_history/rule2025"
+  ],
+  "additional_prior_completion_manifests": {
+    "data/research/tail_formula_cost_history/complete_results_manifest.json": "08c6cf26d3ceb8c9f27c708ac72ad01a9891cd2ed6db18f8c463767fc02f5cf3"
+  },
+  "controls": {
+    "2024": "data/research/tail_formula_stock_2024/morning2024",
+    "2025": "data/research/tail_formula_morning_range/morning2025"
+  },
+  "additional_controls": {
+    "matched": {
+      "2024": "data/research/tail_formula_cost_history/matched2024",
+      "2025": "data/research/tail_formula_cost_history/matched2025"
+    },
+    "learned": {
+      "2024": "data/research/tail_formula_cost_history/rule2024",
+      "2025": "data/research/tail_formula_cost_history/rule2025"
+    }
+  },
+  "selector_fits": 0,
+  "new_tree_fits": 0,
+  "parameter_search": false,
+  "window_search": false,
+  "history_days": 5,
+  "unchanged_original_input_domain_and_basic_exclusions": true,
+  "full_lists_before_economics": true,
+  "no_duplicate_control_evaluation": true,
+  "no_duplicate_half_aggregation": true,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "native_client_parity_verified": false,
+  "acceptance": [
+    "两年及四半年0959参考正，四半年各至少20信号日",
+    "相对原50、同样本50、同样本52，均两年机会更高、3%不利不更高、共享未知下界周区间严格正；未通过不发布"
+  ],
+  "native_plan": "沿用原五日历史报价捕获方案；对未规范化均值零界及五次整数多数直接判断，保留原输入门。当前还没有完整客户端数值与实际名单一致性。",
+  "no_new_filter_from_external_technical_score": true
+}
