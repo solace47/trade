@@ -5072,7 +5072,14 @@
     "data/research/tail_formula_growth_history/collect.log": "01a92aeeac3dad664fd071935d14762e026fef3f27faed0918d14cc1068fff2a",
     "data/research/tail_formula_growth_history/features.log": "46c6a08eed64af4e13949a360b1298074c646d55ae79264883598641856727bd",
     "data/research/tail_formula_growth_history/verify.log": "a83506a73fdd88d8291f79a20a6cb71ac5c322859b82170a419a25a444727a39",
-    "data/research/tail_formula_growth_history/native.log": "249ebef115ad56e135940a64e33f49a03860882a6d6893fe3f50175b8ad34e5d"
+    "data/research/tail_formula_growth_history/native.log": "249ebef115ad56e135940a64e33f49a03860882a6d6893fe3f50175b8ad34e5d",
+    "data/research/tail_formula_growth_history/model_configs/2024h1.json": "4253ff5eb0cedd3dbd6584d1d562755c7d95ea5aa90df887a1f32e0194954bc7",
+    "data/research/tail_formula_growth_history/model_configs/2024h2.json": "60547aa2b0358a89d98cf18ccec09dabed8c4d8dd17690978f33a1e9d6af8ddb",
+    "data/research/tail_formula_growth_history/model_configs/2025h1.json": "8e8b6ffda2290075bf01ec88f52a8866209e563f35886c35a2f353f4df051ec7",
+    "data/research/tail_formula_growth_history/model_configs/2025h2.json": "17959edda4d2621398ed28060bb5be70a84d7e00b616e8634e4d2c4c5f73f531",
+    "data/research/tail_formula_growth_history/model_lookup.json": "4c659cf7fe4d259c805ea09548663e8ce6435a56fc53650634d6363e74cbb09d",
+    "data/research/tail_formula_growth_history/preparation.json": "e14f4aa62dbd2f6f9e859d5fd14368f2dc2aa8bc3ea174582b4c36ff7237987c",
+    "data/research/tail_formula_growth_history/prepare.log": "5307f7574e4a5fa3d13e8c32ef2903f9d846861a57552ae3b2e91614c7e3d449"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -5188,7 +5195,8 @@
     "data/research/tail_formula_board_context/runtime_before_source_completion.json": "1f52ab30829b3f7cff403bb3c84dc7cf74d0fc989d05b7c879354deeaf99f1d4",
     "data/research/tail_formula_growth_history/runtime_before_input_protocol.json": "c5d4dfa8db161ae7d674f959428419524d5203e5e8846d01ad01fdd9ddd3e9f7",
     "data/research/tail_formula_growth_history/runtime_before_initial_collection.json": "7b870f79c3674f1baf8efb1c9195c8d2113f6c603e00a9548a05acf16e56d249",
-    "data/research/tail_formula_growth_history/runtime_before_execution_protocol.json": "2812a18b9e7af5cf0c0d0b98011b5b29f6d4594d1788cf98fb9d7eb2aeefeb36"
+    "data/research/tail_formula_growth_history/runtime_before_execution_protocol.json": "2812a18b9e7af5cf0c0d0b98011b5b29f6d4594d1788cf98fb9d7eb2aeefeb36",
+    "data/research/tail_formula_growth_history/runtime_before_fit.json": "d157afac157441eb6bf020e3b9e5edfcb13022724510bbb9eb9915c9cc4abecf"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "completed_growth_style_history_input_gate",
@@ -6207,7 +6215,17 @@
     "growth_history_effective_input_intersection_unchanged": true,
     "growth_history_maximum_new_fits": 4,
     "growth_history_new_fits_at_execution": 0,
-    "growth_history_source_alignment_matches_original_I02": true
+    "growth_history_source_alignment_matches_original_I02": true,
+    "growth_history_preparation_sha256": "e14f4aa62dbd2f6f9e859d5fd14368f2dc2aa8bc3ea174582b4c36ff7237987c",
+    "growth_history_mature_training_rows": [
+      466942,
+      493307,
+      502747,
+      522653
+    ],
+    "growth_history_candidate_model_records": 674,
+    "growth_history_exact_model_candidates": 0,
+    "growth_history_old_controls_exact": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。 2026-10-02公开搜索还曾返回2026-09-03第三方复盘封板/炸板/跌停计数及个股名称；未采用或导入本地价格，不扩称全盲测。 2026-10-02板块来源公开搜索返回国证页面2026-09-08指数点位、涨跌和规模预览；未核验或采用，不扩称2026全盲测。"
