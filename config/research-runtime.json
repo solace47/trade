@@ -1715,7 +1715,11 @@
     "data/research/tail_formula_listing_scope/evaluation/labels/extra_labels.parquet": "8c901a5376e209b26ce9e96da67be808963dbd0b5bec60eaa5b017b8e613ea19",
     "data/research/tail_formula_listing_scope/evaluation/labels/labels.parquet": "63bf66fb2fa8f798daff7bbc3e37e2eb32a1056201b204bd47cdb95b64d80d5f",
     "data/research/tail_formula_listing_scope/evaluation/labels/raw.parquet": "e2e697c9be3843515d4e461b9c810c958c17ab011f4e95945465e06d58e1dfab",
-    "data/research/tail_formula_listing_scope/evaluation/labels/complete_receipt.json": "6ae4f6daaaf1f02d779cd02ee3319610d05feb4390a50a9b0454c8174722e9ba"
+    "data/research/tail_formula_listing_scope/evaluation/labels/complete_receipt.json": "6ae4f6daaaf1f02d779cd02ee3319610d05feb4390a50a9b0454c8174722e9ba",
+    "data/research/tail_formula_listing_scope/evaluation/economic_daily.parquet": "ed979b3c76301ad201e8c47eb93a1beb3d4d06889f4818f732c7398d85616eb0",
+    "data/research/tail_formula_listing_scope/evaluation/paired_daily.parquet": "ab7f9eb0a8460f8f003b4940445cd3351377cc332e06aa67db171329f2ca070d",
+    "data/research/tail_formula_listing_scope/evaluation/economic_report.json": "173f89121dd5c14380b9ce98733838de4de5621514b50aecc9d42e5b8b9d5fd1",
+    "data/research/tail_formula_listing_scope/evaluation/complete_receipt.json": "25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1815,10 +1819,11 @@
     "data/research/tail_formula_listing_scope/input_replay/before_selection_runtime.json": "52afeb66c11ad648c73b4985de56769499e55bcd1d9fede9227dafe3ab3cbf31",
     "data/research/tail_formula_listing_scope/evaluation/before_evaluation_protocol_runtime.json": "2fc7cd1d39ee4633696565f576ad7b11f5aa5ae27f2e41e67b819a05cee10b10",
     "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be",
-    "data/research/tail_formula_listing_scope/evaluation/labels/before_label_completion_runtime.json": "c66a91c42e64df41e37819f139450881e0bb257168217a0053ed50f96550e848"
+    "data/research/tail_formula_listing_scope/evaluation/labels/before_label_completion_runtime.json": "c66a91c42e64df41e37819f139450881e0bb257168217a0053ed50f96550e848",
+    "data/research/tail_formula_listing_scope/evaluation/before_completion_runtime.json": "6ef53b91739c39216bfd3d373c2be9f6ad341d6d16176041a921eebb9d062382"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "listing_scope_fixed_economic_evaluation",
+  "current_study": "listing_scope_completed_failed",
   "research_definition_changed": true,
   "rationale": "既有目标与中心化反思未支持重训；按固定输入审计发现研究附加60市场日门漏掉2491个合格输入键，保持50定义和21完整历史股日，先独立核准来源、标量及编码，尚不读取分数或收益。",
   "new_2026_prices_read": false,
@@ -2684,7 +2689,13 @@
     "listing_scope_new_outcomes_allowed_after_joint_freeze": true,
     "listing_scope_extra_labels_completed": true,
     "listing_scope_label_complete_sha256": "6ae4f6daaaf1f02d779cd02ee3319610d05feb4390a50a9b0454c8174722e9ba",
-    "listing_scope_original_labels_exact": true
+    "listing_scope_original_labels_exact": true,
+    "listing_scope_complete_sha256": "25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180",
+    "listing_scope_completed": true,
+    "listing_scope_summary_groups": 96,
+    "listing_scope_paired_comparisons": 6,
+    "listing_scope_summary_checks": 2304,
+    "listing_scope_quality_criteria_passed": 1
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
