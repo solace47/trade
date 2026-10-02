@@ -88,7 +88,10 @@
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
     "scripts/run_tail_formula_target.py": "bf7501e760617ebca858533fbc3c253284f176e3fe9be3bc9d17c2fde90f49cb",
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
-    "tests/test_tail_formula_listing_sources.py": "6e99bf1f8d2855e6f5fe1e072897ef866115fa06624c7bbfa1c1350616b4434b"
+    "tests/test_tail_formula_listing_sources.py": "6e99bf1f8d2855e6f5fe1e072897ef866115fa06624c7bbfa1c1350616b4434b",
+    "config/tail_formula_morning_concentration_inputs.json": "c3a5484327170500e6112aef058737e83aefe3d6f254febb6f206a0cdc84e887",
+    "src/trade_research/tail_formula_morning_concentration.py": "452eefd945e7d0f08e5a8914d7263dfab923bfcd1224f7ae81861b1f322e9a3e",
+    "tests/test_tail_formula_morning_concentration.py": "637ac0d9ec0ccd14ad6c5ab465ebc47d113d9bb1908655090308ebd956684a24"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1710,7 +1713,18 @@
     "data/research/tail_formula_listing_scope/evaluation/economic_daily.parquet": "ed979b3c76301ad201e8c47eb93a1beb3d4d06889f4818f732c7398d85616eb0",
     "data/research/tail_formula_listing_scope/evaluation/paired_daily.parquet": "ab7f9eb0a8460f8f003b4940445cd3351377cc332e06aa67db171329f2ca070d",
     "data/research/tail_formula_listing_scope/evaluation/economic_report.json": "173f89121dd5c14380b9ce98733838de4de5621514b50aecc9d42e5b8b9d5fd1",
-    "data/research/tail_formula_listing_scope/evaluation/complete_receipt.json": "25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180"
+    "data/research/tail_formula_listing_scope/evaluation/complete_receipt.json": "25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180",
+    "data/research/tail_formula_morning_range/inputs/raw_report.json": "dbcc4e1369a4d3b91bc8d7e23892f48677d4e4933208a386aea7a8d258ee9e10",
+    "data/research/tail_formula_morning_concentration/source_review/reading_receipt.json": "1885289a7ae39c7c1062d376b8964e2fbc07b83a682c7b4c426cd8c6c5cecc03",
+    "data/research/tail_formula_morning_concentration/source_review/archive_search.txt": "b34799a936b07b777879ad27e0394a308484c7b90b883e4cdb7aa0c5e229c50a",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_afternoon_volume_profile.py": "8f483e5893a8d23aeecafb5f420b5bdd5446bc585d213ecb7e58a9c8d6464015",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_dense_flow.py": "cc6984a7b63b63d73a44428607f2efe664475c1bef69245a1edc3d8809577676",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_morning_flow.py": "68b469581aadd5830642c69df4f928c56b860a037b651d78ee1afc3a1fac0447",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_morning_low_volume.py": "97c880d2272720d195ac8e80c9ddb9bae855edd5bbdbd869becbc27c7cb6c9ce",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_morning_range.py": "9cadae8b90ea49818ad2df73d009a96eb15f311017090cfe8a508805c08076f2",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_morning_volume.py": "be3009d29ae84cc54c981dbb9657dee7046fa2336a21609f58e871d1b4985d54",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_stock_library.py": "434d82c2296f68a9fde4d38d3228403943351d566d68c0ba2331891a9f7b70d5",
+    "data/research/tail_formula_morning_concentration/source_review/tail_formula_volume_concentration.py": "ab744e17b2d23fdb1e623a758a9453355e61fb0fa7d0edd9b8a66b9f26046348"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1812,12 +1826,13 @@
     "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be",
     "data/research/tail_formula_listing_scope/evaluation/labels/before_label_completion_runtime.json": "c66a91c42e64df41e37819f139450881e0bb257168217a0053ed50f96550e848",
     "data/research/tail_formula_listing_scope/evaluation/before_completion_runtime.json": "6ef53b91739c39216bfd3d373c2be9f6ad341d6d16176041a921eebb9d062382",
-    "data/research/tail_formula_listing_scope/evaluation/before_retirement_runtime.json": "ccc289ae4eb2c6a56acb9debae813ac6c465198d062cbab6fcd8261610decf4b"
+    "data/research/tail_formula_listing_scope/evaluation/before_retirement_runtime.json": "ccc289ae4eb2c6a56acb9debae813ac6c465198d062cbab6fcd8261610decf4b",
+    "data/research/tail_formula_morning_concentration/runtime_before_inputs.json": "e0aba7e44c596fa4f9674bb04f799dcfcf1b318cf9d3f4e29c1c31dec435d0fc"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "new_input_information_review_after_listing_failure",
+  "current_study": "completed_morning_volume_concentration_input_gate",
   "research_definition_changed": true,
-  "rationale": "既有目标与中心化反思未支持重训；按固定输入审计发现研究附加60市场日门漏掉2491个合格输入键，保持50定义和21完整历史股日，先独立核准来源、标量及编码，尚不读取分数或收益。",
+  "rationale": "上午有符号量已存在，不能改窗口重复。新核查120分钟时间集中度，原50输入及有效域保持，先完成零拟合独立来源门。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -2711,7 +2726,9 @@
     "listing_scope_summary_checks": 2304,
     "listing_scope_quality_criteria_passed": 1,
     "listing_scope_ended_files_retired": 9,
-    "minute_source_identity_checks_retained_in_shared_io": true
+    "minute_source_identity_checks_retained_in_shared_io": true,
+    "morning_concentration_input_protocol_fixed": true,
+    "morning_concentration_new_fits_at_input_gate": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
