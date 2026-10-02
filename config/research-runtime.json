@@ -656,7 +656,21 @@
     "data/research/tail_formula_trend_reversion_literal/source_review.json": "825838a00f27f988c6ad4513de4cce586a817524bd328d72d49d3b6383e50e6b",
     "data/research/tail_formula_trend_reversion_literal/input_report.json": "cfc60b3e47ecdcc44b9780a29e4cc8b83de3c8ef3c98c94f8d120cfab2afd145",
     "data/research/tail_formula_trend_reversion_literal/features.parquet": "d9575307ecd6a8e38320927397a66d7d8ac968ffa16a65176a6a5aecbe36959b",
-    "data/research/tail_formula_trend_reversion_literal/history_atoms.parquet": "b05189f51ad9cf241c1919a3af4b4079b035dd1aca49284bd31f0a1cd1dfd36e"
+    "data/research/tail_formula_trend_reversion_literal/history_atoms.parquet": "b05189f51ad9cf241c1919a3af4b4079b035dd1aca49284bd31f0a1cd1dfd36e",
+    "data/research/tail_formula_trend_reversion_literal/joint_selection_freeze.json": "3db0d73674981443f3343063664cb6b9fd5de48be524b06ed1eb2e65e88f3110",
+    "data/research/tail_formula_trend_reversion_literal/selection_equivalence_lookup.json": "5a1682b63dd0730ae9ec422b2c7e6673cf1d43722c6b631d6a1d06a1171394bb",
+    "data/research/tail_formula_trend_reversion_literal/rule2024/selection.parquet": "89770d11b63f01b0f63a035f91290b6835a5a93746060f9c9b8467ca54b71d28",
+    "data/research/tail_formula_trend_reversion_literal/rule2024/selection_report.json": "a7add49eee446c8866df9a00c6601d66775846049d224200435163e438f065e8",
+    "data/research/tail_formula_trend_reversion_literal/rule2024/selection_verification.json": "0ec61fe8a9d07555126ad511f128257a25bd472350979dd22beb6b6b64c2acdd",
+    "data/research/tail_formula_trend_reversion_literal/rule2025/selection.parquet": "d6116f7adf687556de4ea166076fe44f886dbae7a3dc3f6d9d1824304392d1fe",
+    "data/research/tail_formula_trend_reversion_literal/rule2025/selection_report.json": "38570808069ba5f18f6b0a9eb35f59b97334a2d8ed5a0e4ea953fb86094fa32e",
+    "data/research/tail_formula_trend_reversion_literal/rule2025/selection_verification.json": "9e4be8b95ca8d0bd84e0476aa5acdcb0bd17aca831cd18be9bf504cfe76e443c",
+    "data/research/tail_formula_trend_reversion_literal/matched2024/selection.parquet": "5f553ae7b25fb07f99a598060ecb682bc56510f328ee9bd872e152bf84c65ae0",
+    "data/research/tail_formula_trend_reversion_literal/matched2024/selection_report.json": "83a9ecb171e6d893235ec66a06688556677aa47dfe81a0f034fbce0624c57a89",
+    "data/research/tail_formula_trend_reversion_literal/matched2024/selection_verification.json": "f96da042ab9c8b1e020f0ed1179d2b33aaa1bb889cb2b2a79c90f4dbfae38653",
+    "data/research/tail_formula_trend_reversion_literal/matched2025/selection.parquet": "bf57a3ee9d48001f2ba38e81305dc4110e932aeb13abfde52321bad565fdc702",
+    "data/research/tail_formula_trend_reversion_literal/matched2025/selection_report.json": "077f4162dba17b17928fb77d2f9beaf45a2a7bce53d2091e305c2f9476f58c76",
+    "data/research/tail_formula_trend_reversion_literal/matched2025/selection_verification.json": "f8b5cc9a716afe9b8d24921fd61582a9a220920cfaea482444f4126bc313da64"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -694,12 +708,13 @@
     "data/research/tail_formula_shakeout_literal/fixed_list_runtime.json": "3ae3fd843adffb93098108caa7b8e1eda501ef38a0ba42349ec1be37d8c398d9",
     "data/research/tail_formula_shakeout_literal/results_runtime_before_cleanup.json": "136f5881fb8c2e6b22475ad24e4bd2c78c90d1964acfc48658afc88e178725e7",
     "data/research/tail_formula_trend_reversion_literal/prior_runtime.json": "12ccd65977e5d557e85883ad5031b3717f2a6be93049fc1819b2a6eba98566a5",
-    "data/research/tail_formula_trend_reversion_literal/protocol_runtime.json": "5cff992b625d1ccec04a83c0971a8f3e1880059570c42b6ccb8418b49dbf27ac"
+    "data/research/tail_formula_trend_reversion_literal/protocol_runtime.json": "5cff992b625d1ccec04a83c0971a8f3e1880059570c42b6ccb8418b49dbf27ac",
+    "data/research/tail_formula_trend_reversion_literal/input_runtime.json": "7ced4da4735d439e2c03eb26fb230d6b3e58334e2cbc5aedc078c81182048316"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_trend_reversion_literal_inputs_verified",
+  "current_study": "tail_formula_trend_reversion_literal_two_year_lists_frozen",
   "research_definition_changed": true,
-  "rationale": "完整原件固定20/60日趋势回调与止跌；当前截14:49，先核准有限历史与相交质量控制，再共同提交两年名单，零拟合。",
+  "rationale": "60日输入未缩池；规则两年完整名单共3,686股日共同固定，同质量控制完整名单等于原50，579份旧名单无规则精确重复。提交后才读新经济组。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
