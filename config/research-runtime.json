@@ -1909,7 +1909,13 @@
     "data/research/tail_formula_morning_concentration/morning_concentration2025/selection.parquet": "15e0fc51aca5d544488a34da63534d626d5eeca4946944fffbfd6447e2c00fde",
     "data/research/tail_formula_morning_concentration/morning_concentration2025/selection_verification.json": "8d01374e1f2cf7149c4f288c8c79bfbb4bc1f4db3843f8f6f5b695f66be98d76",
     "data/research/tail_formula_morning_concentration/joint_selection_freeze.json": "276613a65233fa6c7dfe3878088234cddd76af073be5d966d54dd37c04e47bea",
-    "data/research/tail_formula_morning_concentration/freeze.log": "a06f89e9459452ca869bbd8730fdd28fe874614670908610dd069a12973a3645"
+    "data/research/tail_formula_morning_concentration/freeze.log": "a06f89e9459452ca869bbd8730fdd28fe874614670908610dd069a12973a3645",
+    "data/research/tail_formula_morning_concentration/economic_daily.parquet": "8a3c963dbabc20b11a5aed5412139a7f537c8a02694614c945c5fcc69a21475d",
+    "data/research/tail_formula_morning_concentration/paired_daily.parquet": "999c6eefb3914760838563c9a115059f160465092fc44de6d47b2f92c2b28795",
+    "data/research/tail_formula_morning_concentration/economic_report.json": "ccf1c6ed877d2580a5755ee1ebc677ea712159058cd17a808f918098dc426944",
+    "data/research/tail_formula_morning_concentration/complete_receipt.json": "93facadccfcd2c090f63fa08507a4c5c3a131edf29300c27d419fde8f860672e",
+    "data/research/tail_formula_morning_concentration/analyze.log": "04449e6c6d0fd01159fbe2445c765c2311a564b005bf92687cac604166e84ccc",
+    "data/research/tail_formula_morning_concentration/finish.log": "112fb8473791c4ab289f37cdbca4a70652804d9fcea3dc695929651d3d8ad0fd"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -2018,12 +2024,13 @@
     "data/research/tail_formula_morning_concentration/runtime_before_fit.json": "737df6eb5bc416876df0259f986180d80fecb39a6caa6c6b68fff73c1950e3a5",
     "data/research/tail_formula_morning_concentration/runtime_before_selection.json": "fd185fc6755517a4909acc5aaa0ecce63a7b850be95f9ce343d554e822500dfc",
     "data/research/tail_formula_morning_concentration/runtime_before_binding_repair.json": "fa601d05288c31f5ac4c6b248a5b263430d77556dbb0bd5e696201269518fab9",
-    "data/research/tail_formula_morning_concentration/runtime_before_economics.json": "33cb3ee34b7c0dc0afa47dbc28c9b03d7bbb9bdf1155ae0ed1e0488abcb5dc61"
+    "data/research/tail_formula_morning_concentration/runtime_before_economics.json": "33cb3ee34b7c0dc0afa47dbc28c9b03d7bbb9bdf1155ae0ed1e0488abcb5dc61",
+    "data/research/tail_formula_morning_concentration/runtime_before_completion.json": "ff6402c7e79f03aab9059356294181c074ac06801fd3bed880a8b318ed431d0c"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "completed_morning_volume_concentration_four_fold",
   "research_definition_changed": true,
-  "rationale": "上午有符号量已存在，不能改窗口重复。新核查120分钟时间集中度，原50输入及有效域保持，先完成零拟合独立来源门。",
+  "rationale": "同主含费目标只新增上午120分钟时间集中度，原50、成熟键、权重及参数保持；四折完整失败，只通过覆盖，不调门槛或重拟合。下一候选先核查新信息与原生来源，旧情绪与其他板块聚合不改名重复。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -2970,7 +2977,7 @@
     "morning_concentration_selection_binding_repair": "新冻结进程显式绑定协议51列；首个名单写出前失败，四模型不重训，原日志保留，新增临时51列树的端到端SQL名单回归通过。",
     "morning_concentration_joint_selection_sha256": "276613a65233fa6c7dfe3878088234cddd76af073be5d966d54dd37c04e47bea",
     "morning_concentration_new_selection_lists_fixed": true,
-    "morning_concentration_new_economic_groups_read": false,
+    "morning_concentration_new_economic_groups_read": true,
     "morning_concentration_prior_complete_lists_checked": 597,
     "morning_concentration_exact_complete_list_aliases": 0,
     "morning_concentration_selected_by_half": [
@@ -2984,7 +2991,14 @@
       66,
       34,
       25
-    ]
+    ],
+    "morning_concentration_completed": true,
+    "morning_concentration_complete_sha256": "93facadccfcd2c090f63fa08507a4c5c3a131edf29300c27d419fde8f860672e",
+    "morning_concentration_summary_groups": 48,
+    "morning_concentration_paired_comparisons": 4,
+    "morning_concentration_summary_checks": 1872,
+    "morning_concentration_quality_criteria_passed": 1,
+    "morning_concentration_only_coverage_condition_passed": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。 2026-10-02公开搜索还曾返回2026-09-03第三方复盘封板/炸板/跌停计数及个股名称；未采用或导入本地价格，不扩称全盲测。"
