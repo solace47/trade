@@ -992,7 +992,12 @@
     "data/research/tail_formula_order_target/selection_equivalence_lookup.json": "db299ddfcd7aa2021d8cd840fd1772df43cc037746020598c3753f0f982b04c0",
     "data/research/tail_formula_order_target/joint_selection_freeze.json": "be33827980b5407e8145aefe080459c316abef3163fee981b82c41b60830a3a7",
     "data/research/tail_formula_order_target/selection_freeze.log": "7b437b7f68a2864270a421df2b459c67332f8d8b49f9525e912b7ec93a66d83d",
-    "data/research/tail_formula_order_target/user_resume_receipt.json": "65214173c49582ed3e169a4f01900012c07721ffa5652a94a4079330b61f2422"
+    "data/research/tail_formula_order_target/user_resume_receipt.json": "65214173c49582ed3e169a4f01900012c07721ffa5652a94a4079330b61f2422",
+    "data/research/tail_formula_order_target/economic_report.json": "9c78015615bad23444e1061f65a102597e9d88d5bf79bc0c49c8b4c707e4472e",
+    "data/research/tail_formula_order_target/economic_daily.parquet": "4917cad299beecbf609ced8f3bba167a60a52155142f22d7d77981a65294995d",
+    "data/research/tail_formula_order_target/paired_daily.parquet": "290ccbef2dabfef4b87d43c81a7d84e7f250bf475ccb7c5fdc0dd621b735fcb8",
+    "data/research/tail_formula_order_target/economics.log": "d6099c683422e910800c334bb5b4adc802c9e007f34cce63ad14ee0c70e4d390",
+    "data/research/tail_formula_order_target/complete_receipt.json": "5d23901e2355f3eed457347f530163e1b4da9d5a5db7e546d152ea735420fe37"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1057,12 +1062,13 @@
     "data/research/tail_formula_order_target/before_execution_runtime.json": "533d03a478bbb096e3d0cbdc300eb27ab3d50a8601c1338a53ee883ef8e78f99",
     "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10",
     "data/research/tail_formula_order_target/before_user_stop_runtime.json": "b9bd015d16fa726bf5f9616f2a28f6f3d4798cb2d2bf1a45ff5beb3e26729d4e",
-    "data/research/tail_formula_order_target/before_resume_runtime.json": "90faa09f4b01a00be4881933021fb3e32a85e67609b3a775ab98cc1c7070e157"
+    "data/research/tail_formula_order_target/before_resume_runtime.json": "90faa09f4b01a00be4881933021fb3e32a85e67609b3a775ab98cc1c7070e157",
+    "data/research/tail_formula_order_target/before_complete_runtime.json": "da8dbd50451d3931142a19cead1c208ce84cf2ff970c41af8cde201f74b1d8d8"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_target_resumed_four_complete_lists_fixed_before_economics",
+  "current_study": "tail_formula_order_target_completed_failed_all_five_criteria_reflection_next",
   "research_definition_changed": true,
-  "rationale": "用户明确恢复研究；复用上次八个核准模型，零新拟合，四个完整年度名单及全部查重已核准并共同固定，随后按原协议评价。",
+  "rationale": "用户恢复后零新拟合，完成八模型四名单的144组固定评价及四配对；空间先到模型两年更差，五预定条件全失败。继续检验失败机制，不改当前阈值或追改结论。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -1657,11 +1663,15 @@
     "order_target_model_manifest_sha256": "4fa44c99d36771c05652fc42dfc2d13d4350d5a76697f256754dff21cf280192",
     "order_target_user_stop_receipt_sha256": "7f28a14caadeaf484f75dc38d42ba52fd3a747dee9a49a954720c4b28c96ad44",
     "order_target_new_selection_lists_generated": true,
-    "order_target_new_selection_economics_read": false,
+    "order_target_new_selection_economics_read": true,
     "order_target_paused_by_user": false,
     "order_target_model_process_completed": true,
     "order_target_user_resumed": true,
-    "order_target_joint_selection_sha256": "be33827980b5407e8145aefe080459c316abef3163fee981b82c41b60830a3a7"
+    "order_target_joint_selection_sha256": "be33827980b5407e8145aefe080459c316abef3163fee981b82c41b60830a3a7",
+    "order_target_complete_receipt_sha256": "5d23901e2355f3eed457347f530163e1b4da9d5a5db7e546d152ea735420fe37",
+    "order_target_economic_summary_groups": 144,
+    "order_target_complete_comparisons": 4,
+    "order_target_five_acceptance_conditions_passed": false
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
