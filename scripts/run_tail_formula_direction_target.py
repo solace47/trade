@@ -29,27 +29,35 @@ def checked():
     return p
 
 
-def committed_receipt(name):
-    path=ROOT/name;r=json.loads(path.read_text())
+def committed_file(path):
+    r=json.loads(path.read_text())
     assert r['passed'] and sha(path) in subprocess.check_output(['git','show','HEAD:docs/selection-formula.md']).decode()
     check_sources(r['source_hashes'])
     return r
 
 
-def centered(path,start,end):
+def committed_receipt(name):
+    return committed_file(ROOT/name)
+
+
+def target_values(path,start,end,variant):
     c=numeric.conn()
-    out=c.execute('''SELECT date,code,opportunity15-avg(opportunity15) OVER(PARTITION BY date) AS target
+    assert variant in ['relative','absolute']
+    expression='opportunity15-avg(opportunity15) OVER(PARTITION BY date)' if variant=='relative' else 'opportunity15'
+    out=c.execute(f'''SELECT date,code,{expression} AS target
         FROM read_parquet(?) WHERE known15 AND date>=? AND next_date<? ORDER BY date,code''',[str(path),start,end]).df()
     c.close();return out
 
 
 def prepare(p):
-    source_gate=committed_receipt('source_gate.json')
+    source_gate=committed_file(Path(p['source_gate']))
+    ROOT.mkdir(parents=True,exist_ok=True)
+    variant=p.get('target','relative')
     assert not (ROOT/'preparation.json').exists()
     t=pd.read_parquet(p['targets']);f=pd.read_parquet(Path(p['features_root'])/'features.parquet')
     pd.testing.assert_frame_equal(t[KEYS],f[KEYS],check_exact=True)
     assert len(f)==1815129 and int(f.formula_input_valid.sum())==1602413 and f.date.lt('2026-01-01').all()
-    folder=ROOT/'training_labels'
+    folder=Path(p.get('training_label_root',ROOT/'training_labels'))
     out=pd.read_parquet(folder/'full_labels.parquet')
     pd.testing.assert_frame_equal(out[KEYS],f[KEYS],check_exact=True)
     assert out.known15.equals(t.known15) and out.known_no_trade.equals(t.known_no_trade)
@@ -64,23 +72,22 @@ def prepare(p):
     cfgdir=ROOT/'model_configs';cfgdir.mkdir(exist_ok=False)
     for spec in p['folds']:
         config=json.loads((Path(p['prior_models'])/'model_configs'/('ordered_'+spec['id']+'.json')).read_text())
-        config.update(master_input_protocol_sha256=sha(PROTOCOL),utility='symmetric_gross_first_completed_direction',
+        config.update(target=variant,master_input_protocol_sha256=sha(PROTOCOL),utility='symmetric_gross_first_completed_direction',
             training_event='same_one_percent_gross_close_three_active_bars_either_direction',training_allowed_utility_values=[-1,0,1],parameters=p['fit_parameters'])
         path=cfgdir/(spec['id']+'.json');save_json(path,config);configs.append(dict(fold=spec['id'],config=str(path)))
-        new=centered(folder/'full_labels.parquet',spec['training_start'],spec['training_end'])
+        new=target_values(folder/'full_labels.parquet',spec['training_start'],spec['training_end'],variant)
         new_training=f.loc[f.formula_input_valid,['date','code']].merge(new,on=['date','code'],validate='one_to_one').sort_values(['date','code']).reset_index(drop=True)
         query=dict(config,expected_training_rows=len(new_training))
         query_path=cfgdir/(spec['id']+'_lookup.json');save_json(query_path,query)
-        result=find(query_path,variant='relative');comparisons=[]
+        result=find(query_path,variant=None);comparisons=[]
         for item in result['matches']:
-            model_root=Path(item['root']);variant=confirmed_target(model_root,registry,receipts)
-            assert variant=='relative'
+            model_root=Path(item['root']);prior_variant=confirmed_target(model_root,registry,receipts)
             candidates=reports.get(item['label_report_sha256'],[])
             source=next((q for q in candidates if (q.parent/'full_labels.parquet').exists()),None)
             assert source is not None,'Resolve the prior training label before fitting: '+str(model_root)
             report=json.loads(source.read_text());oldpath=source.parent/'full_labels.parquet'
             assert sha(oldpath)==report['labels_sha256']
-            old=centered(oldpath,spec['training_start'],spec['training_end'])
+            old=target_values(oldpath,spec['training_start'],spec['training_end'],prior_variant)
             feature_source=next((q for q in feature_reports.get(item['feature_report_sha256'],[]) if (q.parent/'features.parquet').exists()),None)
             assert feature_source is not None,'Resolve the prior valid-input domain before fitting: '+str(model_root)
             feature_report=json.loads(feature_source.read_text());oldfeatures=feature_source.parent/'features.parquet'
@@ -110,12 +117,12 @@ def prepare(p):
 
 
 def setup(item,p):
-    numeric.FEATURES=Path(p['features_root']);numeric.SOURCE=ROOT/'training_labels';numeric.ROOT=ROOT/'models'/item['fold']
+    numeric.FEATURES=Path(p['features_root']);numeric.SOURCE=Path(p.get('training_label_root',ROOT/'training_labels'));numeric.ROOT=ROOT/'models'/item['fold']
     numeric.PROTOCOL=relative.PROTOCOL=Path(item['config']);numeric.EXPRESSIONS=original.EXPRESSIONS;numeric.QUANTILES=[.995]
 
 
 def fit(p):
-    prep=committed_receipt('preparation.json');assert not (ROOT/'all_models_verified.json').exists()
+    prep=committed_receipt('preparation.json');variant=p.get('target','relative');assert not (ROOT/'all_models_verified.json').exists()
     records=[];receipts=dict(prep['source_hashes']);fits=0
     for item in prep['models']:
         setup(item,p);folder=numeric.ROOT
@@ -125,8 +132,8 @@ def fit(p):
         else:
             assert not folder.exists(),'Inspect the interrupted fit folder before proceeding'
             print(json.dumps(dict(fitting=item['fold'],completed_new_fits=fits)),flush=True)
-            relative.model('relative');fits+=1
-        relative.verify_model('relative')
+            relative.model(variant);fits+=1
+        relative.verify_model(variant)
         m=json.loads((folder/'model_report.json').read_text())
         assert m['training_allowed_utility_values']==[-1,0,1] and m['last_observation']<m['training_end']
         for name in ['model_report.json','model_verification.json']:receipts[str(folder/name)]=sha(folder/name)
@@ -144,6 +151,7 @@ def freeze(p):
         m=json.loads((Path(item['root'])/'model_report.json').read_text());spec=specs[item['fold']]
         mask=f.date.ge(spec['evaluation_start'])&f.date.lt(spec['evaluation_end']);d=f.loc[mask].reset_index(drop=True);valid=d.formula_input_valid
         x=numeric.encode(d.loc[valid]);scores=np.full(len(d),np.nan);scores[valid]=numeric.predict(x,m);cut=m['thresholds'][0]
+        threshold=max(cut['threshold'],p['minimum_score_threshold']) if 'minimum_score_threshold' in p else cut['threshold']
         assert len(m['thresholds'])==1 and cut['training_quantile']==.995 and m['last_observation']<spec['evaluation_start']
         c=numeric.conn();c.register('visible',d[['date','code','formula_input_valid',*original.EXPRESSIONS]])
         enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}' for i,n in enumerate(original.EXPRESSIONS,1))
@@ -153,12 +161,12 @@ def freeze(p):
         ex=c.sql('SELECT v.date,v.code,r.score FROM visible v LEFT JOIN rebuilt r USING(date,code) ORDER BY v.date,v.code').df();c.close()
         pd.testing.assert_frame_equal(d[['date','code']],ex[['date','code']],check_exact=True)
         np.testing.assert_allclose(scores,ex.score,rtol=0,atol=2e-11,equal_nan=True)
-        chosen=scores>cut['threshold'];np.testing.assert_array_equal(chosen,ex.score.gt(cut['threshold']));flags[mask]=chosen
-        checks.append(dict(fold=item['fold'],all_scores_and_flags_SQL_verified=True,selected=int(chosen.sum())))
+        chosen=scores>threshold;np.testing.assert_array_equal(chosen,ex.score.gt(threshold));flags[mask]=chosen
+        checks.append(dict(fold=item['fold'],all_scores_and_flags_SQL_verified=True,selected=int(chosen.sum()),training_threshold=cut['threshold'],effective_threshold=threshold))
     registry=json.loads(Path(p['prior_registry']).read_text());check_sources(registry['source_hashes']);lookup=[];lists=[]
     previous=[v['root'] for v in registry['reports']]+p['prior_complete_extra']
     for year in ['2024','2025']:
-        folder=ROOT/('direction'+year);folder.mkdir(exist_ok=False)
+        folder=ROOT/(p.get('group_prefix','direction')+year);folder.mkdir(exist_ok=False)
         out=f[KEYS].copy();out['selected']=flags&f.date.str.startswith(year)
         out.to_parquet(folder/'selection.parquet',index=False,compression='zstd');chosen=out.loc[out.selected];sizes=chosen.groupby('date').size();aliases=[]
         for path in previous:
@@ -167,7 +175,7 @@ def freeze(p):
         save_json(folder/'selection_report.json',dict(protocol_sha256=sha(PROTOCOL),selection_sha256=sha(folder/'selection.parquet'),rows=len(out),selected=len(chosen),days=len(sizes),half_counts=chosen.groupby('half').agg(rows=('code','size'),days=('date','nunique')).reset_index().to_dict('records'),median_daily=float(sizes.median()) if len(sizes) else None,max_daily=int(sizes.max()) if len(sizes) else None,largest_day_fraction=float(sizes.max()/len(chosen)) if len(chosen) else None,no_outcome_or_fill_filter=True,new_2026_prices_read=False))
         save_json(folder/'selection_verification.json',dict(passed=True,selection_report_sha256=sha(folder/'selection_report.json'),all_scores_flags_scopes_and_metadata_SQL_verified=True,native_client_parity_verified=False))
         lookup.append(dict(year=year,equivalent_complete_lists=aliases,prior_complete_lists_examined=len(previous)))
-        lists.append(dict(group='direction'+year,year=year,root=str(folder)))
+        lists.append(dict(group=p.get('group_prefix','direction')+year,year=year,root=str(folder)))
         for path in folder.iterdir():receipts[str(path)]=sha(path)
     save_json(ROOT/'joint_selection_freeze.json',dict(passed=True,protocol_sha256=sha(PROTOCOL),source_hashes=receipts,selections=lists,score_checks=checks,equivalence_lookup=lookup,all_models_and_both_annual_lists_before_economics=True,new_economic_groups_read=False,new_2026_prices_read=False))
     print(json.dumps(dict(joint_sha256=sha(ROOT/'joint_selection_freeze.json'),equivalence=lookup)),flush=True)
@@ -205,13 +213,13 @@ def analyze(p):
     pd.concat(daily,ignore_index=True).to_parquet(ROOT/'economic_daily.parquet',index=False,compression='zstd')
     if pairdays:pd.concat(pairdays,ignore_index=True).to_parquet(ROOT/'paired_daily.parquet',index=False,compression='zstd')
     def get(group,period):
-        records=summaries if group.startswith('direction') else old['summaries']
+        records=summaries if group.startswith(p.get('group_prefix','direction')) else old['summaries']
         return next(s for s in records if s['group']==group and s['period']==period and s['arm']=='formula' and s['bps']==15 and not s['sensitive'])
     quality=[]
     for year in ['2024','2025']:
-        a=get('direction'+year,year);controls=[get(v+year,year) for v in p['controls']]
-        quality.append(dict(year=year,rates_above_all_controls=all(a[n] is not None and b[n] is not None and a[n]>b[n] for b in controls for n in ['positive_before_rate','space_before_rate']),risk_not_above_any_control=all(a['bad_first_rate'] is not None and b['bad_first_rate'] is not None and a['bad_first_rate']<=b['bad_first_rate'] for b in controls),coupled_lower_intervals_positive=all(s['lower_ci'] is not None and s['lower_ci'][0]>0 for c in comparisons if c['year']==year for s in c['summaries'] if s['period']==year and s['bps']==15 and not s['sensitive'] and s['target']=='positive_before')))
-    criteria=dict(four_half_coverage=all(get('direction'+y,y+h)['days']>=20 and get('direction'+y,y+h)['known']>=100 for y in ['2024','2025'] for h in ['H1','H2']),both_year_rates_improved=all(v['rates_above_all_controls'] for v in quality),both_year_coupled_intervals_positive=all(v['coupled_lower_intervals_positive'] for v in quality),both_year_prior_risk_not_worse=all(v['risk_not_above_any_control'] for v in quality),both_year_daily_median_at_most_five=all((lambda r:r['median_daily'] is not None and r['median_daily']<=5)(json.loads((ROOT/('direction'+y)/'selection_report.json').read_text())) for y in ['2024','2025']))
+        a=get(p.get('group_prefix','direction')+year,year);controls=[get(v+year,year) for v in p['controls']];risk_controls=[get(v+year,year) for v in p.get('risk_controls',list(p['controls']))]
+        quality.append(dict(year=year,rates_above_all_controls=all(a[n] is not None and b[n] is not None and a[n]>b[n] for b in controls for n in ['positive_before_rate','space_before_rate']),risk_not_above_any_control=all(a['bad_first_rate'] is not None and b['bad_first_rate'] is not None and a['bad_first_rate']<=b['bad_first_rate'] for b in risk_controls),coupled_lower_intervals_positive=all(s['lower_ci'] is not None and s['lower_ci'][0]>0 for c in comparisons if c['year']==year for s in c['summaries'] if s['period']==year and s['bps']==15 and not s['sensitive'] and s['target']=='positive_before')))
+    criteria=dict(four_half_coverage=all(get(p.get('group_prefix','direction')+y,y+h)['days']>=20 and get(p.get('group_prefix','direction')+y,y+h)['known']>=100 for y in ['2024','2025'] for h in ['H1','H2']),both_year_rates_improved=all(v['rates_above_all_controls'] for v in quality),both_year_coupled_intervals_positive=all(v['coupled_lower_intervals_positive'] for v in quality),both_year_prior_risk_not_worse=all(v['risk_not_above_any_control'] for v in quality),both_year_daily_median_at_most_five=all((lambda r:r['median_daily'] is not None and r['median_daily']<=5)(json.loads((ROOT/(p.get('group_prefix','direction')+y)/'selection_report.json').read_text())) for y in ['2024','2025']))
     sources=dict(joint['source_hashes'])
     for path in [ROOT/'economic_daily.parquet',ROOT/'paired_daily.parquet']:
         if path.exists():sources[str(path)]=sha(path)
@@ -220,5 +228,6 @@ def analyze(p):
 
 
 if __name__=='__main__':
-    a=argparse.ArgumentParser();a.add_argument('stage',choices=['prepare','fit','freeze','analyze']);args=a.parse_args()
+    a=argparse.ArgumentParser();a.add_argument('stage',choices=['prepare','fit','freeze','analyze']);a.add_argument('--protocol',type=Path,default=PROTOCOL);args=a.parse_args()
+    PROTOCOL=args.protocol;plan=json.loads(PROTOCOL.read_text());ROOT=Path(plan.get('output_root',ROOT))
     globals()[args.stage](checked())

@@ -71,15 +71,17 @@ def test_risk_utility_cannot_silently_enter_binary_training(fixed_training):
 
 
 @pytest.mark.parametrize('down',[-3.,-1.])
-def test_declared_signed_utility_preserves_maturity_and_source_mean(fixed_training,down):
+@pytest.mark.parametrize('variant',['relative','absolute'])
+def test_declared_signed_utility_preserves_maturity_and_source_mean(fixed_training,down,variant):
     risk_training_labels(down)
     protocol=json.loads(target.PROTOCOL.read_text())
     protocol['training_allowed_utility_values']=[int(down),0,1]
     save_json(target.PROTOCOL,protocol)
-    t=target.training('relative')
+    t=target.training(variant)
     assert t.code.tolist()==['a','d']
-    # Invalid-input 'b' has +1 and remains in the source mean.
-    np.testing.assert_array_equal(t.target,[(down-1)/2,0.])
+    # Relative includes invalid-input 'b' in the source mean; absolute keeps raw utility.
+    expected=[(down-1)/2,0.] if variant=='relative' else [down,1.]
+    np.testing.assert_array_equal(t.target,expected)
     assert t.next_date.max()<'2024-01-01'
 
 
