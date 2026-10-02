@@ -629,7 +629,16 @@
     "data/research/tail_formula_cost_history_literal/complete_results_manifest.json": "6f567c17b7980cc22c14dca3f45c14d638079f64dc680bdd1a290b5c06c06ee6",
     "config/tail_formula_shakeout_literal_protocol.json": "7a28b712a00fdc8af1fc372de5aed057d4d9758a9de11c1d1f9b7b8ee5586cd9",
     "data/research/tail_formula_shakeout_literal/prior_registry.json": "c2c42b2d0a4faa2a78784dd86b82aa45ee63930c135fd7c23fc209abb7f678f0",
-    "data/research/tail_formula_shakeout_literal/source_review.json": "78786cbfeb7a989d64525647217d32dab6e1964d8ffc0420ef413be7e58afa05"
+    "data/research/tail_formula_shakeout_literal/source_review.json": "78786cbfeb7a989d64525647217d32dab6e1964d8ffc0420ef413be7e58afa05",
+    "data/research/tail_formula_shakeout_literal/joint_selection_freeze.json": "1fe6eb20e1ad94070e0112121d94d18ef99e3bebe334f2237d758040c69b2a8d",
+    "data/research/tail_formula_shakeout_literal/input_verification.json": "10adfe643cfa7416c0443a4b6fac17d1d4263871f9981d08e6146ee304cbe7b6",
+    "data/research/tail_formula_shakeout_literal/selection_equivalence_lookup.json": "65eae0e2941f54b5d1fc0e9ffb44b0f50039408870d74fadcf7efb8aacca99c0",
+    "data/research/tail_formula_shakeout_literal/rule2024/selection.parquet": "91c2d5d4ca4310f3f899b3416e4d01659a5985f90d1ef5267f9a4fba3e6b0835",
+    "data/research/tail_formula_shakeout_literal/rule2024/selection_report.json": "4ae7fd5c60e0a37a052b3dde3e36b1ed1a76e5003d751509295ac11f470759b2",
+    "data/research/tail_formula_shakeout_literal/rule2024/selection_verification.json": "aea14c8bed9c898da6ff15cad74e3ee141f0406b9d6810f4818e467ca0668e71",
+    "data/research/tail_formula_shakeout_literal/rule2025/selection.parquet": "87164ce1ff742821c4aa4df4167bebdb1f680d758cd10107322ee16d8e1d12ef",
+    "data/research/tail_formula_shakeout_literal/rule2025/selection_report.json": "56618ffb5f7ac92358f751f33c3a2e648a66fd73eb1f95bd7f0f238959210800",
+    "data/research/tail_formula_shakeout_literal/rule2025/selection_verification.json": "1733664edf68208b72b357a1c72a7eda93036e238c2a85b0edf6f51b6bae367f"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -662,12 +671,13 @@
     "data/research/tail_formula_cost_history_literal/fixed_protocol_prior_runtime.json": "6520234bf56eb013ce7e2019afa0966d9c0c0abb04b7cbc76c1dd64100dee451",
     "data/research/tail_formula_cost_history_literal/pre_economic_prior_runtime.json": "8e2ede25a7403e5e0bba342837fcb84deab08128fd766aeb8d71d27aae392e11",
     "data/research/tail_formula_cost_history_literal/completed_prior_runtime.json": "dfa10be15d8d45354d26beb05b61e4e27aa31c9a485aa8e64ef4cb42e352876c",
-    "data/research/tail_formula_shakeout_literal/prior_runtime.json": "5d1a56ab20cd5d58465432a523e04ae022b1c7a98396f8e46df7826933361f4c"
+    "data/research/tail_formula_shakeout_literal/prior_runtime.json": "5d1a56ab20cd5d58465432a523e04ae022b1c7a98396f8e46df7826933361f4c",
+    "data/research/tail_formula_shakeout_literal/protocol_runtime.json": "8eaf84690c33f13e49333cbb65189b4404cabd5b28b8400e61d56291501a7f61"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_shakeout_literal_protocol_fixed",
+  "current_study": "tail_formula_shakeout_literal_two_year_lists_frozen",
   "research_definition_changed": true,
-  "rationale": "原件固定四条件，复用已验证原始前缀与前股日缓存；完整名单提交前不读新经济组，不扩大阈值。",
+  "rationale": "原有效域1,117,397完全保留，四条件和完整元数据SQL重建；2024/2025完整名单共同固定，577旧名单无精确匹配；此时未读新经济组。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
