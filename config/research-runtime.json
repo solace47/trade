@@ -1914,7 +1914,13 @@
     "data/research/tail_formula_morning_concentration/analyze.log": "04449e6c6d0fd01159fbe2445c765c2311a564b005bf92687cac604166e84ccc",
     "data/research/tail_formula_morning_concentration/finish.log": "112fb8473791c4ab289f37cdbca4a70652804d9fcea3dc695929651d3d8ad0fd",
     "data/research/tail_formula_board_context/source_review/public_source_note.json": "47e7d36f1f2bec3af13cd118188740c57c20168e6df126af171cbdbba19b32d8",
-    "data/research/tail_formula_board_context/source_review/board_archive_matches.txt": "ed29e43740565a5dfd3662ac23ddd8aa26e0dbe347e211d3e7f76e5f66fed45c"
+    "data/research/tail_formula_board_context/source_review/board_archive_matches.txt": "ed29e43740565a5dfd3662ac23ddd8aa26e0dbe347e211d3e7f76e5f66fed45c",
+    "data/research/tail_formula_board_context/source_gate.json": "4a15fb7d37a4779ee7b47f1c15e06803ecac650d6704bcdcba33573002543bca",
+    "data/research/tail_formula_board_context/source_audit.log": "d52c53f7bebb0bf8e86de3e1a1da118d9b423c1d7bda0b8546fe60eb4c60bbc4",
+    "data/research/tail_formula_board_context/active_identity_keys.parquet": "c20d78df993c68486c7ec320c2e7b608c23f136ab4c6f9ad7bb0d94573f50b5b",
+    "data/research/tail_formula_board_context/identity_counts.parquet": "97be8899684b376686c69ec1142009fe20e30ae526731eb6489e7d9fc986ba7c",
+    "data/research/tail_formula_board_context/missing_minute_codes.parquet": "7c146f764c31d4e14ea2794d5887d87ef836ea6dfe544a3008dc39368f433cea",
+    "data/research/tail_formula_board_context/full_inventory_reflection.json": "1aa23a36074abb84754f229a44d7289b87bd5bd19275f8202a11de6aa9e9cd88"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -2026,12 +2032,13 @@
     "data/research/tail_formula_morning_concentration/runtime_before_economics.json": "33cb3ee34b7c0dc0afa47dbc28c9b03d7bbb9bdf1155ae0ed1e0488abcb5dc61",
     "data/research/tail_formula_morning_concentration/runtime_before_completion.json": "ff6402c7e79f03aab9059356294181c074ac06801fd3bed880a8b318ed431d0c",
     "data/research/tail_formula_morning_concentration/runtime_before_retirement.json": "6754556cfc807d8730f21560299fe85df4bc8a90267a65a61a52e4d8b96e36dd",
-    "data/research/tail_formula_board_context/runtime_before_source_protocol.json": "ab57b1f65770272f2f1887005567a5de88b2d6e3ad0064ef1f497bbc12cfd20d"
+    "data/research/tail_formula_board_context/runtime_before_source_protocol.json": "ab57b1f65770272f2f1887005567a5de88b2d6e3ad0064ef1f497bbc12cfd20d",
+    "data/research/tail_formula_board_context/runtime_before_source_completion.json": "1f52ab30829b3f7cff403bb3c84dc7cf74d0fc989d05b7c879354deeaf99f1d4"
   },
   "previous_completed_study_revision": "e0be3be",
   "current_study": "cross_board_historical_identity_source_gate",
   "research_definition_changed": true,
-  "rationale": "完成上午量集中度后先核查跨板块新信息的历史身份与源覆盖；现库缺旧代码300114分钟，不凭当前创业板名单回填。此阶段只读历史交易状态与身份，0新拟合、0新价格特征、0新经济组。",
+  "rationale": "跨板块完整广度因旧代码300114的500个活跃股日分钟缺口未过来源门。旧1392清单还只是筛后样本，20个缺清单者本地实际有源；不把来源失败称为策略收益失败，不补零，不自动别名。下一步使用有独立历史序列的指数成长风格，并与上涨家数分开。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -3018,7 +3025,18 @@
     "board_context_source_protocol_fixed": true,
     "board_context_new_fits_allowed": 0,
     "board_context_new_price_features_allowed": false,
-    "board_context_new_economic_groups_allowed": false
+    "board_context_new_economic_groups_allowed": false,
+    "board_context_identity_keys": 969400,
+    "board_context_identity_days": 726,
+    "board_context_old_declared_minute_files": 1392,
+    "board_context_full_local_minute_files": 1437,
+    "board_context_old_subset_missing_codes": 21,
+    "board_context_true_local_missing_codes": 1,
+    "board_context_missing_active_keys": 500,
+    "board_context_source_population_gate_passed": false,
+    "board_context_new_fits": 0,
+    "board_context_source_gate_sha256": "4a15fb7d37a4779ee7b47f1c15e06803ecac650d6704bcdcba33573002543bca",
+    "board_context_inventory_reflection_sha256": "1aa23a36074abb84754f229a44d7289b87bd5bd19275f8202a11de6aa9e9cd88"
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。 2026-10-02公开搜索还曾返回2026-09-03第三方复盘封板/炸板/跌停计数及个股名称；未采用或导入本地价格，不扩称全盲测。 2026-10-02板块来源公开搜索返回国证页面2026-09-08指数点位、涨跌和规模预览；未核验或采用，不扩称2026全盲测。"
