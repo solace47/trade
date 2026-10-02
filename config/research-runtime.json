@@ -78,7 +78,8 @@
     "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
     "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
     "scripts/run_tail_formula_shakeout_literal.py": "0de8fb541eaa4cfd1f52b1b26b246fc63d9761cc778812be4dc1a356294ae931",
-    "scripts/run_tail_formula_trend_reversion_literal.py": "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13"
+    "scripts/run_tail_formula_trend_reversion_literal.py": "f1eb7f9c707a9f032fb96442e451ee7c48b140efc9815586e166bfcf886b6d13",
+    "scripts/audit_tail_formula_entry_semantics.py": "11f68839f4e8fdcc9fd45709c11c7bc5935433a095f70bed1d919990f2a196a9"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -705,7 +706,8 @@
     "data/research/tail_formula_trend_reversion_literal/matched_shared_unknowns_2024.json": "c83035c1d1f769da44a6a52a02b05bbfe13aa29160cb66f4334f614bc16a3b16",
     "data/research/tail_formula_trend_reversion_literal/matched_same_dates_2025.json": "c46e4c78d25f08db4eb9fee0c47b042e7c0479e31c2f75d35298dfd9598ba775",
     "data/research/tail_formula_trend_reversion_literal/matched_shared_unknowns_2025.json": "bd44af345fe164446277ca3a98e2d487e1de2f4d6d15c2986a2e7db6371579b9",
-    "data/research/tail_formula_trend_reversion_literal/complete_results_manifest.json": "2369ab614a216c54db27b861cee758fd6a623ef60f1f8b8b0e6c9c9e9abae7ff"
+    "data/research/tail_formula_trend_reversion_literal/complete_results_manifest.json": "2369ab614a216c54db27b861cee758fd6a623ef60f1f8b8b0e6c9c9e9abae7ff",
+    "data/research/tail_formula_entry_semantics_reflection/protocol.json": "8a65bae42839a92411b2d3cb3ea34e1c075dc491d3bea6087025e75891ca0ea2"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -745,12 +747,13 @@
     "data/research/tail_formula_trend_reversion_literal/prior_runtime.json": "12ccd65977e5d557e85883ad5031b3717f2a6be93049fc1819b2a6eba98566a5",
     "data/research/tail_formula_trend_reversion_literal/protocol_runtime.json": "5cff992b625d1ccec04a83c0971a8f3e1880059570c42b6ccb8418b49dbf27ac",
     "data/research/tail_formula_trend_reversion_literal/input_runtime.json": "7ced4da4735d439e2c03eb26fb230d6b3e58334e2cbc5aedc078c81182048316",
-    "data/research/tail_formula_trend_reversion_literal/fixed_lists_runtime.json": "c2e66c2508b774fc85454212282b9b18055eae1815e6f7d2e643008f121f161b"
+    "data/research/tail_formula_trend_reversion_literal/fixed_lists_runtime.json": "c2e66c2508b774fc85454212282b9b18055eae1815e6f7d2e643008f121f161b",
+    "data/research/tail_formula_entry_semantics_reflection/prior_runtime.json": "a20f0298485ed6684c250a43df18ddbb23ac069bb7587a4bbd9a1ce6a5162a76"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_trend_reversion_literal_completed_failure",
+  "current_study": "tail_formula_entry_semantics_cash_audit",
   "research_definition_changed": true,
-  "rationale": "原件有限均线回调完整失败：两年及四半年参考负，5基点也负；只有覆盖通过，六质量条件失败。同质量控制与原控制精确相同，两统计及两比较精确复用；不改阈值或只留好年份。",
+  "rationale": "先审查主评价VWAP与历史代理最高价数学差别，逐行核准存储现金；不改名单、费用、已知标记或经济组结果。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
