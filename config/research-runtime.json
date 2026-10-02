@@ -869,7 +869,10 @@
     "data/research/tail_formula_opportunity_order/input_index.json": "e6dfdb90104b9f4ae6457e37781a14b920e0538bc934d9b8dd07f3a4c963b9df",
     "data/research/tail_formula_opportunity_order/ordered_labels.parquet": "b646505f151581eba1f4fc98714ef9f18b9569b89cf02f85c062a854b27f3b2b",
     "data/research/tail_formula_opportunity_order/label_report.json": "d91e3b83d37a68e2fb0377738dc19d71028ec4f98c1086d6891f68e63f993757",
-    "data/research/tail_formula_opportunity_order/original_input_index.json": "88b7650459793435ee0119776409a6ab600ead35198cabb4ab0cbbf29f08c816"
+    "data/research/tail_formula_opportunity_order/original_input_index.json": "88b7650459793435ee0119776409a6ab600ead35198cabb4ab0cbbf29f08c816",
+    "data/research/tail_formula_opportunity_order/daily_summary.parquet": "f2b3d100e8f23060dcfbb0cefe550e491e87a6a375f1df439fb4efc834b759ba",
+    "data/research/tail_formula_opportunity_order/analysis_report.json": "07bb316ac99f0ff51448f261fdabe61d4df3b4cf004d8ec0519a62b2f83cedd4",
+    "data/research/tail_formula_opportunity_order/complete_receipt.json": "1ca2d520bda0cef6c53366863b8f9e6e92a2bf5cd7ca02f56d728f5381c39851"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -928,10 +931,11 @@
     "data/research/tail_formula_goal_alignment_annual_scope/completed_runtime.json": "e1a118df25564ca1274341ff8d4b27442ce25689e6d9cc83d29d69e34cca8c9e",
     "data/research/tail_formula_opportunity_order/prior_runtime.json": "c0c83e028fceee6bfbe53d29ee749ad6cd53197df4b6a4feabfef22e3cefc60a",
     "data/research/tail_formula_opportunity_order/before_nullable_check_repair_runtime.json": "b4cb43142d7cd7885cc7df373fc64612f6f9885f617c8195baf2425f7d32b506",
-    "data/research/tail_formula_opportunity_order/before_label_receipt_runtime.json": "7d3179af86b1797a0ae9f40ed801a03eacde2371cb4f957d8f370498f6621f50"
+    "data/research/tail_formula_opportunity_order/before_label_receipt_runtime.json": "7d3179af86b1797a0ae9f40ed801a03eacde2371cb4f957d8f370498f6621f50",
+    "data/research/tail_formula_opportunity_order/before_complete_runtime.json": "b46e20c279a481651bee3fc872c96149e874c1681fd517e3bfb811ebf0f2a044"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_opportunity_order_labels_verified_before_group_analysis",
+  "current_study": "tail_formula_opportunity_order_complete_no_new_formula",
   "research_definition_changed": true,
   "rationale": "复盘机会与全窗风险混用，固定还原首次三连机会和首次不利的先后；原名单、费用、状态不改，零选股拟合。",
   "new_2026_prices_read": false,
@@ -1506,7 +1510,10 @@
     "goal_review_ended_files_retired": 3,
     "opportunity_order_label_rows": 1258085,
     "opportunity_order_SQL_verified": true,
-    "opportunity_order_group_results_read": false
+    "opportunity_order_group_results_read": true,
+    "opportunity_order_complete_fingerprints": 72,
+    "opportunity_order_fixed_summary_groups": 72,
+    "current_tests_passed": 29
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。"
