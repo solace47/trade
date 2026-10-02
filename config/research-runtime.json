@@ -90,7 +90,10 @@
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
     "scripts/audit_tail_formula_listing_scope.py": "ef4cb246d46a11b35e2bfb7ec3af1c5310850d9ba6831337644a5d99a97815b5",
     "config/tail_formula_listing_scope.json": "1661346e4455b9698ccd050171e571590e1c05d80d8acc256a716f76596f0142",
-    "tests/test_tail_formula_listing_sources.py": "180c169397fcffd36ed68dfc6042f63b78c681cda04ad3871164bad75acf2286"
+    "tests/test_tail_formula_listing_sources.py": "180c169397fcffd36ed68dfc6042f63b78c681cda04ad3871164bad75acf2286",
+    "src/trade_research/tail_formula_visible.py": "e1228943bc16d8973bd20cb1a22cc03378b6dfc78608e974b6a4bb8372783f4f",
+    "scripts/replay_tail_formula_listing_inputs.py": "5e57b2db54c8075e2793a34229e2276fae7dfe820fdd36b1f39b9ea66382fd4b",
+    "config/tail_formula_listing_inputs.json": "ca0190cdbc52e30208931d3639eac6dac1fbf9275b476623e92aba8cd62269b5"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1526,7 +1529,12 @@
     "data/research/tail_formula_listing_scope/report.json": "2fa8d92059a7bc00b59e54595e1ebe0dc94860ee6ab8a4df1137e35aa6dfe7cc",
     "data/research/tail_formula_listing_scope/visible_pool.parquet": "337df5c97d555cdb462f22a7a7a2648f9ae7e72c1cfefbdf565f1ffdb675e685",
     "data/research/tail_formula_listing_scope/prefix_cache_coverage.parquet": "9887e4c4889dd48dd921634f5b9796f06d64069e247dcf961817981741147654",
-    "data/research/tail_formula_listing_scope/extra_inputs.parquet": "829f93e240fed45e7f7c529229d0c4f18839d43e6d3a56826fdd0317117d210f"
+    "data/research/tail_formula_listing_scope/extra_inputs.parquet": "829f93e240fed45e7f7c529229d0c4f18839d43e6d3a56826fdd0317117d210f",
+    "data/research/tail_formula_listing_scope/source_identity/visible_pool.parquet": "337df5c97d555cdb462f22a7a7a2648f9ae7e72c1cfefbdf565f1ffdb675e685",
+    "data/research/tail_formula_listing_scope/source_identity/prefix_cache_coverage.parquet": "9887e4c4889dd48dd921634f5b9796f06d64069e247dcf961817981741147654",
+    "data/research/tail_formula_listing_scope/source_identity/extra_inputs.parquet": "d89e01f6f232275931cffdb844e2f58912f668fbd50cffb3e575b823655186f6",
+    "data/research/tail_formula_listing_scope/source_identity/report.json": "0bc56593ef53d55a3e81e344547ae87a8a3e7c099da273f5bbadaeea9dd1f7b7",
+    "data/research/tail_formula_listing_scope/source_identity/complete_receipt.json": "af0d450bc68dbe7e12312ebf1eaf3fcb8bceefd08bbff94fc9b3241f82583ab2"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -1621,12 +1629,13 @@
     "data/research/tail_formula_primary_order/before_population_protocol_runtime.json": "968fa49d6ad584bf71235f87183637b80efcaaa032268f2d8ceac9e3892ea833",
     "data/research/tail_formula_primary_order/population/before_completion_runtime.json": "519ba1422a0e01845ea5b78eeef940e09db323444f524d91bc9c9361b4821e4b",
     "data/research/research_method_sources_20261002/listing_scope/before_listing_protocol_runtime.json": "e99a2527b83539e941811b78001a79f006377db1116ad50c3fc00604d0e43c81",
-    "data/research/tail_formula_listing_scope/before_source_identity_fix_runtime.json": "e991c0a823e28d906e71f3855adb7f02f8962b74817f0cff9a77556a01805e23"
+    "data/research/tail_formula_listing_scope/before_source_identity_fix_runtime.json": "e991c0a823e28d906e71f3855adb7f02f8962b74817f0cff9a77556a01805e23",
+    "data/research/tail_formula_listing_scope/source_identity/before_input_replay_runtime.json": "eb59f4ed50ff49c69f1588fa307d99f6a96777381077fbbab7c4a212ed950394"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "listing_scope_frozen_source_identity_correction",
+  "current_study": "listing_scope_original_fifty_input_replay",
   "research_definition_changed": true,
-  "rationale": "费前对称方向没有改善含费空间，直接目标又集中少数市场日期；只检验直接主含费事件对齐的有限作用，保持原参数并先检查实际旧目标，不包装为新信息。",
+  "rationale": "既有目标与中心化反思未支持重训；按固定输入审计发现研究附加60市场日门漏掉2491个合格输入键，保持50定义和21完整历史股日，先独立核准来源、标量及编码，尚不读取分数或收益。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -2465,7 +2474,11 @@
     "listing_scope_new_fits": 0,
     "listing_scope_new_outcomes_allowed": false,
     "listing_scope_raw_root_mapping_error_found": true,
-    "listing_scope_source_correction_fixed": true
+    "listing_scope_source_correction_fixed": true,
+    "listing_scope_source_identity_completed": true,
+    "listing_scope_source_identity_complete_sha256": "af0d450bc68dbe7e12312ebf1eaf3fcb8bceefd08bbff94fc9b3241f82583ab2",
+    "listing_scope_input_replay_protocol_fixed": true,
+    "listing_scope_input_replay_completed": false
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"
