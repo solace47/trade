@@ -1,6 +1,6 @@
 # 当前环境与复算
 
-Python 3.12虚拟环境与依赖见requirements.txt；当前45项检查已通过：
+Python 3.12虚拟环境与依赖见requirements.txt；当前41项共用检查已通过：
 
 ```sh
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
@@ -15,3 +15,5 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -
 2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。README保持8行，文档5份。
 
 上市范围完整检验的9个执行／协议文件从`6a5af27`恢复；完整收据`25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180`保存在忽略的`data/research/tail_formula_listing_scope/evaluation/`。源码身份解析迁入共享工具，2项错误根目录／重名身份测试保留；不删除原行情、冻结模型或完整结果。
+
+上午集中度结束的5个执行／协议／专用测试文件从`64a0dbb`恢复；完整收据`93facadccfcd2c090f63fa08507a4c5c3a131edf29300c27d419fde8f860672e`及全部模型／名单／结果留于忽略的`data/research/tail_formula_morning_concentration/`。结束前45项检查通过，声明列绑定的共用回归保留。
