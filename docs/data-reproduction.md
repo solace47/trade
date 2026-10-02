@@ -13,3 +13,5 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -
 近期结束文件恢复版本：空间／风险执行17ac302，方向来源及旧风险检查80314a4，方向执行与反思79d4916，主事件稳定性及训练基准诊断1a09ca5。结束专用测试的通过记录保留，当前共用检查继续维护。原二元训练默认不变，新效用须显式声明。
 
 2025为已暴露探索，较早历史可初始化或训练；不新增2026经济评价、卖出、多日持有或月度回购PDF研究。README保持8行，文档5份。
+
+上市范围完整检验的9个执行／协议文件从`6a5af27`恢复；完整收据`25ba329a997b8ec1f8385271d296537cd4f5d09271bef7e061bc6dad73375180`保存在忽略的`data/research/tail_formula_listing_scope/evaluation/`。源码身份解析迁入共享工具，2项错误根目录／重名身份测试保留；不删除原行情、冻结模型或完整结果。

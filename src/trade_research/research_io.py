@@ -7,6 +7,19 @@ import subprocess
 
 RUNTIME = Path('config/research-runtime.json')
 
+def minute_sources(manifest):
+    """Resolve exchange and stock identity from pinned paths without guessing roots."""
+    mapping = {}
+    for file in manifest:
+        path = Path(file)
+        assert path.suffix == '.parquet' and path.parent.name in ['SH', 'SZ']
+        assert len(path.stem) == 6 and path.stem.isdigit()
+        code = path.parent.name.lower() + '.' + path.stem
+        assert code not in mapping, 'Ambiguous minute source for ' + code
+        mapping[code] = file
+    return mapping
+
+
 def sha(path: Path) -> str:
     with path.open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()

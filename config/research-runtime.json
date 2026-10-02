@@ -51,7 +51,7 @@
     "scripts/verify_tail_formula_additive.py": "f3e0487f5e859ad2669ebd3d788f1f959b2cd0e39fc6c5f39b2623fc9aafdef8",
     "scripts/verify_tail_formula_before1000.py": "6ab43cb6379289d91e62ea251716811e7bb61210abbc111241a1079d100f5234",
     "src/trade_research/__init__.py": "50098d66213bc86bed2ddb993c7da1cf9bd2f7a1f04bb55ff4bbc49fe7fdec54",
-    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "src/trade_research/research_io.py": "929a460bcd858c6e48360f4287a44ee06732fd4fdfc8599d65eef3fad76e22f3",
     "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
     "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
     "src/trade_research/tail_formula_boundary_evaluation.py": "b038f0efa375238db2f3f5e9ada3b45289c6892013566ad5d1a7b3cabf0896e8",
@@ -88,16 +88,7 @@
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
     "scripts/run_tail_formula_target.py": "bf7501e760617ebca858533fbc3c253284f176e3fe9be3bc9d17c2fde90f49cb",
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
-    "scripts/audit_tail_formula_listing_scope.py": "ef4cb246d46a11b35e2bfb7ec3af1c5310850d9ba6831337644a5d99a97815b5",
-    "config/tail_formula_listing_scope.json": "1661346e4455b9698ccd050171e571590e1c05d80d8acc256a716f76596f0142",
-    "tests/test_tail_formula_listing_sources.py": "180c169397fcffd36ed68dfc6042f63b78c681cda04ad3871164bad75acf2286",
-    "src/trade_research/tail_formula_visible.py": "e1228943bc16d8973bd20cb1a22cc03378b6dfc78608e974b6a4bb8372783f4f",
-    "scripts/replay_tail_formula_listing_inputs.py": "5e57b2db54c8075e2793a34229e2276fae7dfe820fdd36b1f39b9ea66382fd4b",
-    "config/tail_formula_listing_inputs.json": "ca0190cdbc52e30208931d3639eac6dac1fbf9275b476623e92aba8cd62269b5",
-    "scripts/freeze_tail_formula_listing_selection.py": "17f8ddfd7b7eb1a118086cd23cf930b2def43ae68ca2d9f966ab06f0fbf1c585",
-    "config/tail_formula_listing_selection.json": "953d045ea831cab888cc98830ba38f70f9bdf47bad951e7e81342964ea62cea3",
-    "scripts/evaluate_tail_formula_listing_scope.py": "1ff1200531560e4a82e81db781416633f30fe5805429ff667b325c40e085ed79",
-    "config/tail_formula_listing_evaluation.json": "8e9389ed4245c79630bede5c9513d9f3d71452171f2a231e60d76c5e22fb07db"
+    "tests/test_tail_formula_listing_sources.py": "6e99bf1f8d2855e6f5fe1e072897ef866115fa06624c7bbfa1c1350616b4434b"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1820,10 +1811,11 @@
     "data/research/tail_formula_listing_scope/evaluation/before_evaluation_protocol_runtime.json": "2fc7cd1d39ee4633696565f576ad7b11f5aa5ae27f2e41e67b819a05cee10b10",
     "data/research/tail_formula_listing_scope/evaluation/before_sql_parse_fix_runtime.json": "a015f5a955668310a35f677f130b54c0556e275c8b9fb7a52a2d64ed5f6487be",
     "data/research/tail_formula_listing_scope/evaluation/labels/before_label_completion_runtime.json": "c66a91c42e64df41e37819f139450881e0bb257168217a0053ed50f96550e848",
-    "data/research/tail_formula_listing_scope/evaluation/before_completion_runtime.json": "6ef53b91739c39216bfd3d373c2be9f6ad341d6d16176041a921eebb9d062382"
+    "data/research/tail_formula_listing_scope/evaluation/before_completion_runtime.json": "6ef53b91739c39216bfd3d373c2be9f6ad341d6d16176041a921eebb9d062382",
+    "data/research/tail_formula_listing_scope/evaluation/before_retirement_runtime.json": "ccc289ae4eb2c6a56acb9debae813ac6c465198d062cbab6fcd8261610decf4b"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "listing_scope_completed_failed",
+  "current_study": "new_input_information_review_after_listing_failure",
   "research_definition_changed": true,
   "rationale": "既有目标与中心化反思未支持重训；按固定输入审计发现研究附加60市场日门漏掉2491个合格输入键，保持50定义和21完整历史股日，先独立核准来源、标量及编码，尚不读取分数或收益。",
   "new_2026_prices_read": false,
@@ -1903,7 +1895,7 @@
     "src/trade_research/research_io.py": {
       "5696138ef93018d15ffb40eaff0b110daf722deea964c75c7139a52e01985968": "884391c",
       "d0abf85be017895ff4009dd491e61f52690404e8421f6b668500ca7c75067674": "5b40024",
-      "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79": "3213999"
+      "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79": "6a5af277ced316941491e05d4c835e59961c7f1c"
     },
     "src/trade_research/tail_formula_additive.py": {
       "45062c64b1186891a4c947b36613a05d66d346d8387ab9531b701171a982af57": "884391c",
@@ -2422,16 +2414,38 @@
       "23e9f74ccea3bbfe22237cd72287e1013192b8e0bf088ba3599d671185bc52d4": "1a09ca5"
     },
     "scripts/audit_tail_formula_listing_scope.py": {
-      "35c1227c1abec78755f0315e9b9c2213dcdc57ee2d1b8ecb6a86a6288b39c39d": "320a32a"
+      "35c1227c1abec78755f0315e9b9c2213dcdc57ee2d1b8ecb6a86a6288b39c39d": "320a32a",
+      "ef4cb246d46a11b35e2bfb7ec3af1c5310850d9ba6831337644a5d99a97815b5": "6a5af277ced316941491e05d4c835e59961c7f1c"
     },
     "config/tail_formula_listing_scope.json": {
-      "1c0f358456a309cf7881a732f085a7b1a5a5651ad0ef59d75ca720d8f404eea9": "320a32a"
+      "1c0f358456a309cf7881a732f085a7b1a5a5651ad0ef59d75ca720d8f404eea9": "320a32a",
+      "1661346e4455b9698ccd050171e571590e1c05d80d8acc256a716f76596f0142": "6a5af277ced316941491e05d4c835e59961c7f1c"
     },
     "scripts/evaluate_tail_formula_listing_scope.py": {
-      "a167e2e3f2274761c727894a864c980689e3f3d9b6941a71de833b31ff64b2e2": "912044e"
+      "a167e2e3f2274761c727894a864c980689e3f3d9b6941a71de833b31ff64b2e2": "912044e",
+      "1ff1200531560e4a82e81db781416633f30fe5805429ff667b325c40e085ed79": "6a5af277ced316941491e05d4c835e59961c7f1c"
     },
     "config/tail_formula_listing_evaluation.json": {
-      "bab9d5fa1f131dcef01f0802694118a8f61989da36b3bb40470410594839f5ed": "912044e"
+      "bab9d5fa1f131dcef01f0802694118a8f61989da36b3bb40470410594839f5ed": "912044e",
+      "8e9389ed4245c79630bede5c9513d9f3d71452171f2a231e60d76c5e22fb07db": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "scripts/replay_tail_formula_listing_inputs.py": {
+      "5e57b2db54c8075e2793a34229e2276fae7dfe820fdd36b1f39b9ea66382fd4b": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "scripts/freeze_tail_formula_listing_selection.py": {
+      "17f8ddfd7b7eb1a118086cd23cf930b2def43ae68ca2d9f966ab06f0fbf1c585": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "src/trade_research/tail_formula_visible.py": {
+      "e1228943bc16d8973bd20cb1a22cc03378b6dfc78608e974b6a4bb8372783f4f": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "config/tail_formula_listing_inputs.json": {
+      "ca0190cdbc52e30208931d3639eac6dac1fbf9275b476623e92aba8cd62269b5": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "config/tail_formula_listing_selection.json": {
+      "953d045ea831cab888cc98830ba38f70f9bdf47bad951e7e81342964ea62cea3": "6a5af277ced316941491e05d4c835e59961c7f1c"
+    },
+    "tests/test_tail_formula_listing_sources.py": {
+      "180c169397fcffd36ed68dfc6042f63b78c681cda04ad3871164bad75acf2286": "6a5af277ced316941491e05d4c835e59961c7f1c"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -2695,7 +2709,9 @@
     "listing_scope_summary_groups": 96,
     "listing_scope_paired_comparisons": 6,
     "listing_scope_summary_checks": 2304,
-    "listing_scope_quality_criteria_passed": 1
+    "listing_scope_quality_criteria_passed": 1,
+    "listing_scope_ended_files_retired": 9,
+    "minute_source_identity_checks_retained_in_shared_io": true
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。"

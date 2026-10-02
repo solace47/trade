@@ -1,6 +1,6 @@
 import pytest
 
-from audit_tail_formula_listing_scope import minute_sources
+from trade_research.research_io import minute_sources
 
 
 def test_minute_identity_uses_manifest_root_and_exchange():
