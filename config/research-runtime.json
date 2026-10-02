@@ -80,7 +80,10 @@
     "scripts/prepare_tail_formula_order_target.py": "800dc9d501a41afca956f3751687ab2596a037defffb2f29ee6ba59461f206f8",
     "config/tail_formula_order_target_input.json": "b1f032fcae006b4ab201133bc58c2fc495ea386f8fd180bb60e1eb3e2437b434",
     "scripts/run_tail_formula_order_target.py": "622003af19c3d03a111397b0826cc85446dd3d204d9bfd726914813302c2bdfc",
-    "config/tail_formula_order_target_execution.json": "f12ac93d16c8f8edd32f5cb0bfc6a5b5ad9e389609575d7c885ab51bccda3cc6"
+    "config/tail_formula_order_target_execution.json": "f12ac93d16c8f8edd32f5cb0bfc6a5b5ad9e389609575d7c885ab51bccda3cc6",
+    "scripts/freeze_tail_formula_order_target.py": "784cf513dd758546a03dbb8981614f6593ea186e664cfe9fc59568070424f3f9",
+    "scripts/analyze_tail_formula_order_target.py": "dab28490fd605e68ff4ffd8788c909670c500dbfe309d3aa8b874e2b2d3b55d0",
+    "config/tail_formula_order_target_evaluation.json": "08cc682eac81603eb6f7930f003a587daf3fe43717216a6ed546bd61b205b91c"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -1015,10 +1018,11 @@
     "data/research/tail_formula_opportunity_order/before_label_receipt_runtime.json": "7d3179af86b1797a0ae9f40ed801a03eacde2371cb4f957d8f370498f6621f50",
     "data/research/tail_formula_opportunity_order/before_complete_runtime.json": "b46e20c279a481651bee3fc872c96149e874c1681fd517e3bfb811ebf0f2a044",
     "data/research/tail_formula_order_target/prior_runtime.json": "7db0355b70102307ec5cd29784d87fe34788b35d705f79beff88c8ad1993c585",
-    "data/research/tail_formula_order_target/before_execution_runtime.json": "533d03a478bbb096e3d0cbdc300eb27ab3d50a8601c1338a53ee883ef8e78f99"
+    "data/research/tail_formula_order_target/before_execution_runtime.json": "533d03a478bbb096e3d0cbdc300eb27ab3d50a8601c1338a53ee883ef8e78f99",
+    "data/research/tail_formula_order_target/before_evaluation_runtime.json": "1454b3ff9c683e4f9e4a4985efbb2040d63af7ab1fc21a8d99ef47bca4520a10"
   },
   "previous_completed_study_revision": "e0be3be",
-  "current_study": "tail_formula_order_target_source_verified_eight_fits_fixed_before_models",
+  "current_study": "tail_formula_order_target_models_running_full_evaluation_fixed_before_lists_and_economics",
   "research_definition_changed": true,
   "rationale": "从机会与全窗风险的先后复盘出发，同50输入对照严格29根内先空间后风险及全窗质量；先历史来源核准，拟合上限8，当前0。",
   "new_2026_prices_read": false,
