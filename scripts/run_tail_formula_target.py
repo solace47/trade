@@ -145,7 +145,7 @@ def prepare(p):
 
 def setup(item,p):
     numeric.FEATURES=Path(p['features_root']);numeric.SOURCE=Path(p.get('training_label_root',ROOT/'training_labels'));numeric.ROOT=ROOT/'models'/item['fold']
-    numeric.PROTOCOL=relative.PROTOCOL=Path(item['config']);numeric.EXPRESSIONS=original.EXPRESSIONS;numeric.QUANTILES=[.995]
+    numeric.PROTOCOL=relative.PROTOCOL=Path(item['config']);numeric.EXPRESSIONS=p.get('expressions',original.EXPRESSIONS);numeric.QUANTILES=[.995]
 
 
 def fit(p):
@@ -172,6 +172,7 @@ def fit(p):
 
 def freeze(p):
     models=committed_receipt('all_models_verified.json');assert not (ROOT/'joint_selection_freeze.json').exists()
+    expressions=p.get('expressions',original.EXPRESSIONS)
     f=pd.read_parquet(Path(p['features_root'])/'features.parquet').loc[lambda z:z.date.ge('2024-01-01')].reset_index(drop=True)
     flags=np.zeros(len(f),dtype=bool);specs={s['id']:s for s in p['folds']};checks=[];receipts=dict(models['source_hashes'])
     for item in models['models']:
@@ -180,8 +181,9 @@ def freeze(p):
         x=numeric.encode(d.loc[valid]);scores=np.full(len(d),np.nan);scores[valid]=numeric.predict(x,m);cut=m['thresholds'][0]
         threshold=max(cut['threshold'],p['minimum_score_threshold']) if 'minimum_score_threshold' in p else cut['threshold']
         assert len(m['thresholds'])==1 and cut['training_quantile']==.995 and m['last_observation']<spec['evaluation_start']
-        c=numeric.conn();c.register('visible',d[['date','code','formula_input_valid',*original.EXPRESSIONS]])
-        enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}' for i,n in enumerate(original.EXPRESSIONS,1))
+        assert m['feature_names']==list(expressions)
+        c=numeric.conn();c.register('visible',d[['date','code','formula_input_valid',*expressions]])
+        enc=','.join(f'floor(least(greatest(100*{n}+10000+.000001,0),999999))::INT AS X{i:02d}' for i,n in enumerate(expressions,1))
         c.sql('SELECT date,code,'+enc+' FROM visible WHERE formula_input_valid').create_view('encoded')
         equation=format(m['bias'],'.17e')+'+'+'+'.join(tree_sql(t) for t in m['trees'])
         c.sql('SELECT date,code,'+equation+' AS score FROM encoded').create_view('rebuilt')
