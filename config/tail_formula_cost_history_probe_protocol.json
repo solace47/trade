@@ -1,0 +1,410 @@
+{
+  "study": "cost_adjusted_history_input_pilot",
+  "objective": "先验证包含尾盘入场区间和假定成本的历史报价代理能否作为事前输入；只做固定32股输入试点，零拟合，无选股效果结论。",
+  "source_hashes": {
+    "scripts/probe_tail_formula_cost_history.py": "887209d413d1d0165cf92db3c59bd10e65929652ff4b8a86e1798b321eb785c9",
+    "tests/test_tail_formula_cost_history.py": "425342ff4f46b377d132bd51a79d9c732fb6cdd0770a49de212d5c45b6eb5f09",
+    "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
+    "data/research/tail_formula_stock_2024/inputs/features.parquet": "9b3edf988981f82aef9f5415c7b72f740b62e2e98fd5e93b6bfa0f2cd245c7f7",
+    "data/research/tail_formula_emotion_transition/inputs/features.parquet": "58c989bb2de16df3a87df178a881c871bc673a65a8aa5bfdcc0172f6837762c9",
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+    "data/research/tail_formula_volume_memory/inputs/daily_source_manifest.json": "93300476994348482fa17712f96dfae4964c37fb2de26f86597dc1107168c865",
+    "src/trade_research/tail_formula_baseline.py": "2231e3e564cda9ff361813d53c4a31dd2801c1cf9ab881dcee0503f923e3cc27",
+    "src/trade_research/tail_formula_additive.py": "dc16c0d3b44449c7dc97fbc8ff3b207711fc50f4cb260d0207f75dbe60e023fb",
+    "src/trade_research/research_io.py": "d6c37b95379a847250ae249a4345f4524cd2660b85f05a20ee3841017021aa79",
+    "data/hf/pilot/data/stock_1m/SH/600265.parquet": "b74381343ad941bd85d6bf37337018002c62303e714cc3a1794fb078726cd3d4",
+    "data/baostock/market_2020_2026/daily/sh_600265.parquet": "685c2eab187331284b958b0c04ff5f28c41820f1e93f7c23a3b61b00774820b1",
+    "data/hf/pilot/data/stock_1m/SH/600444.parquet": "dc78f0e966d2b6fc547b19c6e8ee62e00e9df18724c9a7fc789dfce38957860c",
+    "data/baostock/market_2020_2026/daily/sh_600444.parquet": "4be3883ce02102edb3c40e9925fa2fa572cdfa3015d365c05432f390beded5db",
+    "data/hf/pilot/data/stock_1m/SH/600466.parquet": "05f599b85b1f0cbdc9ef26a0c14d85d1e31c00da06b82aafd3b10c08fa13cf32",
+    "data/baostock/market_2020_2026/daily/sh_600466.parquet": "93dbf324e1ea04ec8935f6410bb8b5362712ca906abce480fcdce8fd89eea7b3",
+    "data/hf/pilot/data/stock_1m/SH/600501.parquet": "0bd98e03477cda780287bd541867e6daec665109e30232711fef51eb72cfd8a7",
+    "data/baostock/market_2020_2026/daily/sh_600501.parquet": "d9095a30dfacba5d18e865b62e9ab8be21134fa242ee6b66dd698e94f5430d86",
+    "data/hf/pilot/data/stock_1m/SH/600647.parquet": "dff1eef0449dcb50d16271ae54aff7ab1e7e0dd9e7aecaecafbc3af426429b06",
+    "data/baostock/market_2020_2026/daily/sh_600647.parquet": "ccc13cf402a1a27afc3a2f47b27b6baa0a942698998bd7df70e924369d9ce40d",
+    "data/hf/pilot/data/stock_1m/SH/600828.parquet": "3289220a443a5a12feb22af02a7845a124fe42aea7358af9c10e30a69a5f6f46",
+    "data/baostock/market_2020_2026/daily/sh_600828.parquet": "5689063ad830cdbb6fea76e973d87f2eb4918a927f2203f2ccf230b0c11683d2",
+    "data/hf/pilot/data/stock_1m/SH/600857.parquet": "780e1b8bf55a727b59aa168910b7feb34e419af466e589ce675dce253c8c56b9",
+    "data/baostock/market_2020_2026/daily/sh_600857.parquet": "abc4e56b26962142cc846c5a5038b93fb933cee703e8b87f52caaf814ef93e3b",
+    "data/hf/pilot/data/stock_1m/SH/600872.parquet": "53c849e86c2b42583c6989b1ce32e41a0034acbaa78440238e790a171520e604",
+    "data/baostock/market_2020_2026/daily/sh_600872.parquet": "f0415b9f101c2ddaf1cd25687f7ff16665d46e6d80f5a06a38584f2387f739c8",
+    "data/hf/pilot/data/stock_1m/SH/601222.parquet": "294ba670bcad279660cccfb947d1da598a5f3eae51dd28f9c8ef1393872d91a8",
+    "data/baostock/market_2020_2026/daily/sh_601222.parquet": "5e95cde7ab6b4f3eaa5b574e870afc5c1d4896887dc317f37134abaebe4e67ff",
+    "data/hf/pilot/data/stock_1m/SH/601390.parquet": "18f4cba4b7f89f0f635d3ffdbfc20aeed1a13c7214c689d23b3f339c807066c2",
+    "data/baostock/market_2020_2026/daily/sh_601390.parquet": "9f24e77bd5a474bc84067fbeb96e68af44d31ae6903a6ced74d7e297d18759e9",
+    "data/hf/pilot/data/stock_1m/SH/601616.parquet": "2d57c51ab52dab472b46eb91b0ed641f11ec35f4dfce687026f78e5f1015feec",
+    "data/baostock/market_2020_2026/daily/sh_601616.parquet": "17b202142f58ccd0676098afbb9c01c85e9a0208d95edc8f168f6a6c3bba621f",
+    "data/hf/pilot/data/stock_1m/SH/601921.parquet": "6eda7067910c18afc1dc030ccd4ee45e5ef685ae057716b1d991d89ba77b14de",
+    "data/baostock/market_2020_2026/daily/sh_601921.parquet": "726bf5c781e2db56c1e09b66491e2850a52a1eb2a8d3c51d297c99600e71ddac",
+    "data/hf/pilot/data/stock_1m/SH/603278.parquet": "5e7b37d2115d5bb8c7d0f17f50c8617eb3bac5cc23638392b60230a2095e528d",
+    "data/baostock/market_2020_2026/daily/sh_603278.parquet": "1c88a20895719c8ca4684598d7da77ca7170d5681d535ff71d5c545ff9a354ac",
+    "data/hf/pilot/data/stock_1m/SH/603555.parquet": "a0f0b65b1ba725d526ede7584acf1f7a7d54062e1cfbb69ac033218386b0af8e",
+    "data/baostock/market_2020_2026/daily/sh_603555.parquet": "6be5f52d5ce262300b6b7deb8055fed61605e612f35666ab0f186e1ba1a585ee",
+    "data/hf/pilot/data/stock_1m/SH/603687.parquet": "2a5df0f1b0eab665dd7d34eabf4c41edd2128c209240b9f999e9ed6d6d82b821",
+    "data/baostock/market_2020_2026/daily/sh_603687.parquet": "a471b762ace555dbb5dd2ae9bf6693666a8d0ddaf62e538564945bc4b95276f6",
+    "data/hf/pilot/data/stock_1m/SH/603976.parquet": "f739e3c4a7069e402f940ea0e12beeb632c93b2800289e0afda1f04807a6023e",
+    "data/baostock/market_2020_2026/daily/sh_603976.parquet": "6600c02b5ed8426adc8624a4311428842d5c76cc6942fa97b13e480f4147179f",
+    "data/hf/pilot/data/stock_1m/SZ/000031.parquet": "d97710e7d6a52e06fc255439a62f978e8cda26380e0b94398b117a6b769620d4",
+    "data/baostock/market_2020_2026/daily/sz_000031.parquet": "cdc642be8ee5a1bee379c6de124e301dc2145b6197775db08a5b1ef69844ea10",
+    "data/hf/pilot/data/stock_1m/SZ/000666.parquet": "1affdebf683dec89535d85f058fdf31d62d03077792a62e4c200367ec6a45238",
+    "data/baostock/market_2020_2026/daily/sz_000666.parquet": "44db79c753dc503ff125fdc469202b96aa7e0b6b95ed842e8de5f595fc84a509",
+    "data/hf/pilot/data/stock_1m/SZ/000836.parquet": "0accb20c3524e9e0dbcee619d2d91bff8850634e311d107b82b0c63fc73b41b8",
+    "data/baostock/market_2020_2026/daily/sz_000836.parquet": "e935306a4806f1cbc557b5d249cb59c6cd73b9147ebc9864828cb54a213843ba",
+    "data/hf/pilot/data/stock_1m/SZ/000923.parquet": "9fba837a586df298320a03d86a386527cf8c471948aeb4d5b7420b113bf2d1aa",
+    "data/baostock/market_2020_2026/daily/sz_000923.parquet": "e72785c9cd9c472a004988aeb338c88659841f65e36216803f03a982bcee9830",
+    "data/hf/pilot/data/stock_1m/SZ/001306.parquet": "8c86f37b3a74ed0589c43e793f08abce2031acc81cf52521e0f7344d805a3f7d",
+    "data/baostock/market_2020_2026/daily/sz_001306.parquet": "8db7de221e311e16db7a8fd30b19b7c10c6d37419ad2174229f7181f0d0a9dd2",
+    "data/hf/pilot/data/stock_1m/SZ/001332.parquet": "f85b50ee497ae838e7bda69ded484759a8db525a3c6eb29ab3bb131f45cc4264",
+    "data/baostock/market_2020_2026/daily/sz_001332.parquet": "48de0236c71ecd12ef4becb701baf214aab7d90ac9b24019401571f4bbe2461a",
+    "data/hf/pilot/data/stock_1m/SZ/002007.parquet": "46f2612f6b3e182a2f65ba05a0f047c4fab159dd526f3dee4a6b8bad78cd54cb",
+    "data/baostock/market_2020_2026/daily/sz_002007.parquet": "e822831b27448b2604fc0c6259f617a0b09b17b84b273cba1d43c338b047977f",
+    "data/hf/pilot/data/stock_1m/SZ/002013.parquet": "73962e25b462e2d66531d04a320e0bb630070758c7f48aaa084f00c62d080764",
+    "data/baostock/market_2020_2026/daily/sz_002013.parquet": "6d9de8409d6f83927e99332fbe7d1dc62dcdc10b00c796b5ab0352a108eff8e5",
+    "data/hf/pilot/data/stock_1m/SZ/002212.parquet": "93a23d37431ce177f7209ed9d3117e5f8ebabdd0888614f2c9bc62df36a42def",
+    "data/baostock/market_2020_2026/daily/sz_002212.parquet": "4977454e556caff8fd1ec1ecae0285ca8ec61e4f439912199f81a0f34ebec555",
+    "data/hf/pilot/data/stock_1m/SZ/002393.parquet": "07ea7d2ae5c082ca32fdec31358467a11510382f5f0d3b2b2e4f48d92d2490e0",
+    "data/baostock/market_2020_2026/daily/sz_002393.parquet": "92627b8bfbf55ec701dcea10e04bf074bd38ce689d0a744033e31c611525bb70",
+    "data/hf/pilot/data/stock_1m/SZ/002404.parquet": "66bd0b65aa52f0de30297d50978f628d00a0bb229736c5bd9b580b470ca7fcc9",
+    "data/baostock/market_2020_2026/daily/sz_002404.parquet": "d077ec5b6b4741ee78d1064bf814f3d99fe53c81e56c52aa708d58601fcf0090",
+    "data/hf/pilot/data/stock_1m/SZ/002431.parquet": "bbe7279eea09e02da019e0480f08ee8bba571af8586a70cc31a5cb8f0c1333d1",
+    "data/baostock/market_2020_2026/daily/sz_002431.parquet": "da74450924f8000769498c052034dd434f04ad8be649f7e6ddd208ef5161a0e5",
+    "data/hf/pilot/data/stock_1m/SZ/002507.parquet": "860e1e3c11a3b30635881cc9db582ff1ccd5a30dad458408e6873787ca6e8a03",
+    "data/baostock/market_2020_2026/daily/sz_002507.parquet": "d66d3dd8f1ab49d37b42ea274afe43be9c0f66aa33be0bbd18e76fcb18c370ff",
+    "data/hf/pilot/data/stock_1m/SZ/002722.parquet": "96cd8cde80938661ac42a04353a8aa112035fde6cf4e61e3b42ec14f945d2ccd",
+    "data/baostock/market_2020_2026/daily/sz_002722.parquet": "cc0920cde0ccc21acc9dbbe36eff458ebcef02bab796d868e63165c336f06dd8",
+    "data/hf/pilot/data/stock_1m/SZ/002839.parquet": "bf10751b4c2227525a0ee4d1bd6253f9963d24ecf915b2fac4f688e2e32671b3",
+    "data/baostock/market_2020_2026/daily/sz_002839.parquet": "5ec7e358df2383556229d2fc91956a6df8ed844da121124701d791f7687badee",
+    "data/hf/pilot/data/stock_1m/SZ/002917.parquet": "abe00ad75270d9aa202a34c42cf0fc8872d1f9d517736848ff7ed76b67740be5",
+    "data/baostock/market_2020_2026/daily/sz_002917.parquet": "a5bf321dd88b9149b08c3c4017cef7ba131e31f0ecc89d8cce01db23d4e8b571",
+    "data/research/tail_formula_cost_history_probe/source_review.json": "b5db3a22398a9de75445b7d6226946ced4f6a0d4dd7a25cccf1ff7495fbdbc74"
+  },
+  "pilot_codes": [
+    "sh.600265",
+    "sh.600444",
+    "sh.600466",
+    "sh.600501",
+    "sh.600647",
+    "sh.600828",
+    "sh.600857",
+    "sh.600872",
+    "sh.601222",
+    "sh.601390",
+    "sh.601616",
+    "sh.601921",
+    "sh.603278",
+    "sh.603555",
+    "sh.603687",
+    "sh.603976",
+    "sz.000031",
+    "sz.000666",
+    "sz.000836",
+    "sz.000923",
+    "sz.001306",
+    "sz.001332",
+    "sz.002007",
+    "sz.002013",
+    "sz.002212",
+    "sz.002393",
+    "sz.002404",
+    "sz.002431",
+    "sz.002507",
+    "sz.002722",
+    "sz.002839",
+    "sz.002917"
+  ],
+  "pilot_selection": "3223原股票元数据中，沪深各16；先各取两只原分钟清单未登记但已有缓存者，再按固定哈希取余。价格及未来标签未参与挑样。",
+  "daily_sources": {
+    "sh.600265": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600265.parquet",
+      "sha256": "685c2eab187331284b958b0c04ff5f28c41820f1e93f7c23a3b61b00774820b1"
+    },
+    "sh.600444": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600444.parquet",
+      "sha256": "4be3883ce02102edb3c40e9925fa2fa572cdfa3015d365c05432f390beded5db"
+    },
+    "sh.600466": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600466.parquet",
+      "sha256": "93dbf324e1ea04ec8935f6410bb8b5362712ca906abce480fcdce8fd89eea7b3"
+    },
+    "sh.600501": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600501.parquet",
+      "sha256": "d9095a30dfacba5d18e865b62e9ab8be21134fa242ee6b66dd698e94f5430d86"
+    },
+    "sh.600647": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600647.parquet",
+      "sha256": "ccc13cf402a1a27afc3a2f47b27b6baa0a942698998bd7df70e924369d9ce40d"
+    },
+    "sh.600828": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600828.parquet",
+      "sha256": "5689063ad830cdbb6fea76e973d87f2eb4918a927f2203f2ccf230b0c11683d2"
+    },
+    "sh.600857": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600857.parquet",
+      "sha256": "abc4e56b26962142cc846c5a5038b93fb933cee703e8b87f52caaf814ef93e3b"
+    },
+    "sh.600872": {
+      "path": "data/baostock/market_2020_2026/daily/sh_600872.parquet",
+      "sha256": "f0415b9f101c2ddaf1cd25687f7ff16665d46e6d80f5a06a38584f2387f739c8"
+    },
+    "sh.601222": {
+      "path": "data/baostock/market_2020_2026/daily/sh_601222.parquet",
+      "sha256": "5e95cde7ab6b4f3eaa5b574e870afc5c1d4896887dc317f37134abaebe4e67ff"
+    },
+    "sh.601390": {
+      "path": "data/baostock/market_2020_2026/daily/sh_601390.parquet",
+      "sha256": "9f24e77bd5a474bc84067fbeb96e68af44d31ae6903a6ced74d7e297d18759e9"
+    },
+    "sh.601616": {
+      "path": "data/baostock/market_2020_2026/daily/sh_601616.parquet",
+      "sha256": "17b202142f58ccd0676098afbb9c01c85e9a0208d95edc8f168f6a6c3bba621f"
+    },
+    "sh.601921": {
+      "path": "data/baostock/market_2020_2026/daily/sh_601921.parquet",
+      "sha256": "726bf5c781e2db56c1e09b66491e2850a52a1eb2a8d3c51d297c99600e71ddac"
+    },
+    "sh.603278": {
+      "path": "data/baostock/market_2020_2026/daily/sh_603278.parquet",
+      "sha256": "1c88a20895719c8ca4684598d7da77ca7170d5681d535ff71d5c545ff9a354ac"
+    },
+    "sh.603555": {
+      "path": "data/baostock/market_2020_2026/daily/sh_603555.parquet",
+      "sha256": "6be5f52d5ce262300b6b7deb8055fed61605e612f35666ab0f186e1ba1a585ee"
+    },
+    "sh.603687": {
+      "path": "data/baostock/market_2020_2026/daily/sh_603687.parquet",
+      "sha256": "a471b762ace555dbb5dd2ae9bf6693666a8d0ddaf62e538564945bc4b95276f6"
+    },
+    "sh.603976": {
+      "path": "data/baostock/market_2020_2026/daily/sh_603976.parquet",
+      "sha256": "6600c02b5ed8426adc8624a4311428842d5c76cc6942fa97b13e480f4147179f"
+    },
+    "sz.000031": {
+      "path": "data/baostock/market_2020_2026/daily/sz_000031.parquet",
+      "sha256": "cdc642be8ee5a1bee379c6de124e301dc2145b6197775db08a5b1ef69844ea10"
+    },
+    "sz.000666": {
+      "path": "data/baostock/market_2020_2026/daily/sz_000666.parquet",
+      "sha256": "44db79c753dc503ff125fdc469202b96aa7e0b6b95ed842e8de5f595fc84a509"
+    },
+    "sz.000836": {
+      "path": "data/baostock/market_2020_2026/daily/sz_000836.parquet",
+      "sha256": "e935306a4806f1cbc557b5d249cb59c6cd73b9147ebc9864828cb54a213843ba"
+    },
+    "sz.000923": {
+      "path": "data/baostock/market_2020_2026/daily/sz_000923.parquet",
+      "sha256": "e72785c9cd9c472a004988aeb338c88659841f65e36216803f03a982bcee9830"
+    },
+    "sz.001306": {
+      "path": "data/baostock/market_2020_2026/daily/sz_001306.parquet",
+      "sha256": "8db7de221e311e16db7a8fd30b19b7c10c6d37419ad2174229f7181f0d0a9dd2"
+    },
+    "sz.001332": {
+      "path": "data/baostock/market_2020_2026/daily/sz_001332.parquet",
+      "sha256": "48de0236c71ecd12ef4becb701baf214aab7d90ac9b24019401571f4bbe2461a"
+    },
+    "sz.002007": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002007.parquet",
+      "sha256": "e822831b27448b2604fc0c6259f617a0b09b17b84b273cba1d43c338b047977f"
+    },
+    "sz.002013": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002013.parquet",
+      "sha256": "6d9de8409d6f83927e99332fbe7d1dc62dcdc10b00c796b5ab0352a108eff8e5"
+    },
+    "sz.002212": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002212.parquet",
+      "sha256": "4977454e556caff8fd1ec1ecae0285ca8ec61e4f439912199f81a0f34ebec555"
+    },
+    "sz.002393": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002393.parquet",
+      "sha256": "92627b8bfbf55ec701dcea10e04bf074bd38ce689d0a744033e31c611525bb70"
+    },
+    "sz.002404": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002404.parquet",
+      "sha256": "d077ec5b6b4741ee78d1064bf814f3d99fe53c81e56c52aa708d58601fcf0090"
+    },
+    "sz.002431": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002431.parquet",
+      "sha256": "da74450924f8000769498c052034dd434f04ad8be649f7e6ddd208ef5161a0e5"
+    },
+    "sz.002507": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002507.parquet",
+      "sha256": "d66d3dd8f1ab49d37b42ea274afe43be9c0f66aa33be0bbd18e76fcb18c370ff"
+    },
+    "sz.002722": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002722.parquet",
+      "sha256": "cc0920cde0ccc21acc9dbbe36eff458ebcef02bab796d868e63165c336f06dd8"
+    },
+    "sz.002839": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002839.parquet",
+      "sha256": "5ec7e358df2383556229d2fc91956a6df8ed844da121124701d791f7687badee"
+    },
+    "sz.002917": {
+      "path": "data/baostock/market_2020_2026/daily/sz_002917.parquet",
+      "sha256": "a5bf321dd88b9149b08c3c4017cef7ba131e31f0ecc89d8cce01db23d4e8b571"
+    }
+  },
+  "minute_sources": {
+    "sh.600265": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600265.parquet",
+      "sha256": "b74381343ad941bd85d6bf37337018002c62303e714cc3a1794fb078726cd3d4"
+    },
+    "sh.600444": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600444.parquet",
+      "sha256": "dc78f0e966d2b6fc547b19c6e8ee62e00e9df18724c9a7fc789dfce38957860c"
+    },
+    "sh.600466": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600466.parquet",
+      "sha256": "05f599b85b1f0cbdc9ef26a0c14d85d1e31c00da06b82aafd3b10c08fa13cf32"
+    },
+    "sh.600501": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600501.parquet",
+      "sha256": "0bd98e03477cda780287bd541867e6daec665109e30232711fef51eb72cfd8a7"
+    },
+    "sh.600647": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600647.parquet",
+      "sha256": "dff1eef0449dcb50d16271ae54aff7ab1e7e0dd9e7aecaecafbc3af426429b06"
+    },
+    "sh.600828": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600828.parquet",
+      "sha256": "3289220a443a5a12feb22af02a7845a124fe42aea7358af9c10e30a69a5f6f46"
+    },
+    "sh.600857": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600857.parquet",
+      "sha256": "780e1b8bf55a727b59aa168910b7feb34e419af466e589ce675dce253c8c56b9"
+    },
+    "sh.600872": {
+      "path": "data/hf/pilot/data/stock_1m/SH/600872.parquet",
+      "sha256": "53c849e86c2b42583c6989b1ce32e41a0034acbaa78440238e790a171520e604"
+    },
+    "sh.601222": {
+      "path": "data/hf/pilot/data/stock_1m/SH/601222.parquet",
+      "sha256": "294ba670bcad279660cccfb947d1da598a5f3eae51dd28f9c8ef1393872d91a8"
+    },
+    "sh.601390": {
+      "path": "data/hf/pilot/data/stock_1m/SH/601390.parquet",
+      "sha256": "18f4cba4b7f89f0f635d3ffdbfc20aeed1a13c7214c689d23b3f339c807066c2"
+    },
+    "sh.601616": {
+      "path": "data/hf/pilot/data/stock_1m/SH/601616.parquet",
+      "sha256": "2d57c51ab52dab472b46eb91b0ed641f11ec35f4dfce687026f78e5f1015feec"
+    },
+    "sh.601921": {
+      "path": "data/hf/pilot/data/stock_1m/SH/601921.parquet",
+      "sha256": "6eda7067910c18afc1dc030ccd4ee45e5ef685ae057716b1d991d89ba77b14de"
+    },
+    "sh.603278": {
+      "path": "data/hf/pilot/data/stock_1m/SH/603278.parquet",
+      "sha256": "5e7b37d2115d5bb8c7d0f17f50c8617eb3bac5cc23638392b60230a2095e528d"
+    },
+    "sh.603555": {
+      "path": "data/hf/pilot/data/stock_1m/SH/603555.parquet",
+      "sha256": "a0f0b65b1ba725d526ede7584acf1f7a7d54062e1cfbb69ac033218386b0af8e"
+    },
+    "sh.603687": {
+      "path": "data/hf/pilot/data/stock_1m/SH/603687.parquet",
+      "sha256": "2a5df0f1b0eab665dd7d34eabf4c41edd2128c209240b9f999e9ed6d6d82b821"
+    },
+    "sh.603976": {
+      "path": "data/hf/pilot/data/stock_1m/SH/603976.parquet",
+      "sha256": "f739e3c4a7069e402f940ea0e12beeb632c93b2800289e0afda1f04807a6023e"
+    },
+    "sz.000031": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/000031.parquet",
+      "sha256": "d97710e7d6a52e06fc255439a62f978e8cda26380e0b94398b117a6b769620d4"
+    },
+    "sz.000666": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/000666.parquet",
+      "sha256": "1affdebf683dec89535d85f058fdf31d62d03077792a62e4c200367ec6a45238"
+    },
+    "sz.000836": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/000836.parquet",
+      "sha256": "0accb20c3524e9e0dbcee619d2d91bff8850634e311d107b82b0c63fc73b41b8"
+    },
+    "sz.000923": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/000923.parquet",
+      "sha256": "9fba837a586df298320a03d86a386527cf8c471948aeb4d5b7420b113bf2d1aa"
+    },
+    "sz.001306": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/001306.parquet",
+      "sha256": "8c86f37b3a74ed0589c43e793f08abce2031acc81cf52521e0f7344d805a3f7d"
+    },
+    "sz.001332": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/001332.parquet",
+      "sha256": "f85b50ee497ae838e7bda69ded484759a8db525a3c6eb29ab3bb131f45cc4264"
+    },
+    "sz.002007": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002007.parquet",
+      "sha256": "46f2612f6b3e182a2f65ba05a0f047c4fab159dd526f3dee4a6b8bad78cd54cb"
+    },
+    "sz.002013": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002013.parquet",
+      "sha256": "73962e25b462e2d66531d04a320e0bb630070758c7f48aaa084f00c62d080764"
+    },
+    "sz.002212": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002212.parquet",
+      "sha256": "93a23d37431ce177f7209ed9d3117e5f8ebabdd0888614f2c9bc62df36a42def"
+    },
+    "sz.002393": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002393.parquet",
+      "sha256": "07ea7d2ae5c082ca32fdec31358467a11510382f5f0d3b2b2e4f48d92d2490e0"
+    },
+    "sz.002404": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002404.parquet",
+      "sha256": "66bd0b65aa52f0de30297d50978f628d00a0bb229736c5bd9b580b470ca7fcc9"
+    },
+    "sz.002431": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002431.parquet",
+      "sha256": "bbe7279eea09e02da019e0480f08ee8bba571af8586a70cc31a5cb8f0c1333d1"
+    },
+    "sz.002507": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002507.parquet",
+      "sha256": "860e1e3c11a3b30635881cc9db582ff1ccd5a30dad458408e6873787ca6e8a03"
+    },
+    "sz.002722": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002722.parquet",
+      "sha256": "96cd8cde80938661ac42a04353a8aa112035fde6cf4e61e3b42ec14f945d2ccd"
+    },
+    "sz.002839": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002839.parquet",
+      "sha256": "bf10751b4c2227525a0ee4d1bd6253f9963d24ecf915b2fac4f688e2e32671b3"
+    },
+    "sz.002917": {
+      "path": "data/hf/pilot/data/stock_1m/SZ/002917.parquet",
+      "sha256": "abe00ad75270d9aa202a34c42cf0fc8872d1f9d517736848ff7ed76b67740be5"
+    }
+  },
+  "newly_hashed_cached_sources": [
+    "data/hf/pilot/data/stock_1m/SH/600466.parquet",
+    "data/hf/pilot/data/stock_1m/SH/603555.parquet",
+    "data/hf/pilot/data/stock_1m/SZ/000666.parquet",
+    "data/hf/pilot/data/stock_1m/SZ/002013.parquet"
+  ],
+  "history_start": "2022-10-01",
+  "signal_last": "2025-12-30",
+  "mutation_date": "2024-12-05",
+  "stock_days": "既有未复权日线tradestatus=1的股票日历，不删除坏窗口、不向前补好日；当前已结束早盘含在20次历史中。",
+  "entry_reference": "前股日14:49价格决定floor(20000/(100*Q))*100股；1452–1455四个唯一完整、活跃且量额包络正常分钟的最大high作报价上界。任一根量至少10倍股数只作容量代理，不能证明涨停排队成交。",
+  "morning_reference": "当日0931–0959完整29根；0959活跃close作参考，连续3活跃分钟中最高的三根最小close判断成本覆盖。不使用当日1449或1452之后作为当前历史原子的入场。",
+  "fees": {
+    "buy_and_sell_stress_bps": 15,
+    "min_price_uncertainty": 0.005,
+    "assumed_commission_rate": 0.0003,
+    "assumed_min_commission": 5,
+    "assumed_transfer_rate": 1e-05,
+    "sell_stamp_rate_before_20230828": 0.001,
+    "sell_stamp_rate_since_20230828": 0.0005,
+    "brokerage_terms_are_research_assumptions": true
+  },
+  "inputs": {
+    "CM01": "最近20个完整股票日的上述含费报价变化百分比均值／当前原V01",
+    "CM02": "同20日连续3活跃分钟覆盖同一报价成本的频率×100"
+  },
+  "unknowns": "任一历史原子缺失或不合格则20日统计未知，不补零；全窗口合格却无3连活跃报价的频率为已知0。缺0959活跃close时均值未知。",
+  "verification": "原始窗口SQL与独立Pandas全量核对；人工现金例及无3连机会的已知零检验；改变当前入场锚及全部未来报价不能改变当日或过去统计。客户端数值一致性未核准，试点不代表全池。",
+  "new_model_fits_allowed": 0,
+  "strategy_economic_results_read": false,
+  "year_2025_is_exploratory": true,
+  "new_2026_prices_allowed": false,
+  "no_exit_rules": true,
+  "native_client_parity_verified": false
+}
