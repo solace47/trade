@@ -1,0 +1,29 @@
+{
+  "objective": "核查创业板跨股票尾盘广度能否提供主板选股新环境：先量化声明源中历史活跃证券缺分钟文件，零拟合、零股价特征、零经济分组。",
+  "source_hashes": {
+    "data/research/economic_winner/input_manifest.json": "26ec21da15c414c1d725c8ff26208ef129eaa5f5873c61de56c915ae25ff6a70",
+    "data/research/next_day_winner/source_manifest.json": "cd6ddc0f9d1681355ace2fe6058ace6844317a1f1fa0d0510de7bf62c00e2eb9",
+    "data/research/tail_formula_board_context/source_review/reading_receipt.json": "3c587375ad6c3b36aba77d9dc73609bb7aaf5e55358e3026caed24a01f4aa87f",
+    "data/research/tail_formula_board_context/source_review/public_source_note.json": "47e7d36f1f2bec3af13cd118188740c57c20168e6df126af171cbdbba19b32d8",
+    "data/research/tail_formula_board_context/source_review/board_archive_matches.txt": "ed29e43740565a5dfd3662ac23ddd8aa26e0dbe347e211d3e7f76e5f66fed45c",
+    "scripts/audit_tail_formula_board_context_sources.py": "0cd276c86d5f20671dd8dd5e47f846bcf630c549387226cabcc42467c5e0cabd"
+  },
+  "source_universe": "minute manifest固定5196路径中的全部SZ30；daily manifest全部SZ30历史交易状态。两者均仅为声明本库范围，不冒称交易所完整证券主表。",
+  "first_date": "2023-01-01",
+  "last_date": "2025-12-30",
+  "allowed_daily_columns": [
+    "date",
+    "code",
+    "tradestatus"
+  ],
+  "identity_policy": "文件代码精确对应；300114与302132虽同发行人，实施日不同，未核准旧分钟价格不得自动别名拼接、补零或回填。",
+  "verification": "逐文件pandas重建历史活跃键，与独立SQL全量结果逐键相同；有活跃日期却无声明分钟路径的证券逐个保留，全部日期计数核准。",
+  "source_gate": "声明日线历史活跃成员必须全部有同代码分钟文件；否则完整板块INSUM与现库人口不能声称对应，不抽取新价格或拟合。完整分钟文件存在也仅是必要条件，时间点、值、历史成员与客户端仍待核准。",
+  "known_identity_notice": "https://static.cninfo.com.cn/finalpage/2025-02-15/1222544408.PDF",
+  "new_fits_allowed": 0,
+  "new_price_features_allowed": false,
+  "new_economic_groups_allowed": false,
+  "new_2026_price_rows_allowed": false,
+  "no_exit_rules": true,
+  "no_monthly_buyback_work": true
+}
