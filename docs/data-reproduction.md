@@ -7,7 +7,7 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python scripts/run_tail_formula_cost_history.py --help
 ```
 
-当前顺序为calendar、windows、inputs，仅来源及输入：协议先提交；保留原股票日历；32股原窗口精确复用，其余窗口独立SQL／Pandas核对；五日标量另由SQL核准。此协议禁止模型拟合；有效域改变须先固定同质量控制和新模型协议，再共同固定完整名单后评价。原48控制与原50只读复用；年度报告已含半年，不重复聚合。完整名单、元数据、适用标签与统计精确一致才复用。
+本轮prefit、八次fit、freeze、analyze、finish已经完整完成，禁止重复拟合或覆盖结果。输入／模型／评价协议均先提交，全部名单共同固定后才读经济分组；全量窗口及现金、模型节点与分数、四年度和四比较已独立核准。年度报告已含半年，不重复聚合。旧控制只读复用，完整名单、元数据、适用标签与统计全部相同才复用。
 
 当前来源与输入在data/research/tail_formula_cost_history/；32股试点在tail_formula_cost_history_probe/。旧完整补齐在tail_formula_history_boundary_recheck/；旧两个模型在tail_formula_morning_history_2024/及tail_formula_morning_history_recent/，完整原名单在tail_formula_morning_history_2025/。旧评价09:31—10:00不能混作09:59；2024缺对应旧模型，空表不代表低风险或好质量。
 
