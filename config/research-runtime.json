@@ -34,18 +34,13 @@
   "source_hashes": {
     "config/formula_exclusions.json": "4b70d14d81adbc689edc4bb4b0cb20b7b6c65a876eac5df382a819b1568d2535",
     "config/tail_formula_baseline.json": "450bc4d391c5e3d30a8e3a6ed8f0e69c09cab0bf1bd2febb65c6077963371033",
-    "config/tail_formula_emotion_absolute_input_protocol.json": "081f5ac20dbf4a2b44226c73945ca4f3f3c7384e58f6fc7fd9d0738f4b6756aa",
     "config/tail_formula_emotion_absolute_model_protocol.json": "26a492ef997e6485e964224545246631de0c61ef48c269482094ac8398c8ad0b",
-    "config/tail_formula_failure_review_protocol.json": "d062513fcba96a514ce4020263c45d69175d90ecc1fbc32ab328dc57dc52089e",
     "config/tail_formula_price_reference_audit.json": "f0fb6d6456b1df35ff3454a0294ca472c97f430de31cab64403f738845a77cbe",
     "scripts/audit_tail_formula_price_reference.py": "6ee4defe8c5bdcb44afcd144ad9390fce64f1cf03be1ff159ba48d6406b43693",
     "scripts/audit_tail_formula_reference_coverage.py": "97cdf3ae2224832e54d8648ccb831de0a2f121be9697f995afb7c3af189456fa",
     "scripts/compare_tail_formula_same_dates.py": "b6d89ede1e714b0c6cd51e4bcd077dd5cea73e0c710d099c1c9bdbc9e27c2963",
     "scripts/compare_tail_formula_shared_unknowns.py": "e04bc86b35c90b334d673b5d07dd4ee3e6afc9c0978b73e0113befca1c073139",
     "scripts/find_existing_tail_formula_models.py": "011c505b226f5ea1a7c5d393868690682c2eb659ff6aa15385cbf55ab93e993e",
-    "scripts/review_tail_formula_failures.py": "5d3ec496cba6641a0d429b359102587d1011e161dd4f540534c45f7148a27bfb",
-    "scripts/review_tail_formula_score_gate.py": "0154438307a52e47c4b168158fdb81d603dcb6e8628ec3d2741cf7e3dcbe4604",
-    "scripts/tail_formula_analysis_reuse.py": "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b",
     "scripts/tail_formula_reports.py": "1805a81136676820e7ba91c55d7494798fd6a58054f4fbfc527cd92e59f53994",
     "scripts/tail_formula_statistics.py": "708ad090588026f2088b7c02aa61a07a8402fcf0dd6c57ccc53ece3e1875d42f",
     "scripts/verify_tail_formula_additive.py": "f3e0487f5e859ad2669ebd3d788f1f959b2cd0e39fc6c5f39b2623fc9aafdef8",
@@ -62,39 +57,13 @@
     "tests/test_tail_formula_price_reference.py": "1ffa047a46071549ab2dbd4ac7f33250cf7c2ecc80e7c00a8214d7b2eece0397",
     "tests/test_tail_formula_shared_unknowns.py": "f9fa13452d58566025302388fcbdcfa9b6f53b293bdf230efe982b781b74f8de",
     "tests/test_tail_formula_sql_names.py": "018a69d1352b6a50f10e55d1de1c5b9e1fce2c05dcc77f5d664dda1458809035",
-    "config/tail_formula_external_pattern_protocol.json": "faaed8e71d1643887a9c14c4f5416f1268e0e0f2db661d0fc7017e7a657d19f1",
-    "config/tail_formula_external_pattern_execution.json": "f645d120dc2ac0ea9f5a2baacfe6812664f6e62528b0f353fd6e744e2ac51fc4",
-    "scripts/run_tail_formula_external_pattern.py": "f78bc5d4adb9d1f9aa13579f2b1634c4be7e4b53987ffdc4340f3b5f72ae16bf",
-    "scripts/finish_tail_formula_external_pattern.py": "5edb619b47736f86754241e8025fb634d44e449a5ae10baab59baf2a011649b3",
-    "scripts/review_tail_formula_external_branches.py": "86b3c3f3727d863da8aab6e496d6b91676579a95b498ebf57cc63e155b7b6a8b",
-    "src/trade_research/tail_formula_external_pattern.py": "e9d2b9ea5f97361d4f921d1d23d7f1e66023c7b622109385db1bc1a8b849eb90",
-    "tests/test_tail_formula_external_pattern.py": "c6fa0cb32a4f90e2260e3cb7bfd73d94e757adfe50384ba5380e0161175008ce",
-    "src/trade_research/tail_formula_rule_search.py": "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65",
-    "scripts/run_tail_formula_rule_search.py": "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a",
-    "scripts/finish_tail_formula_rule_search.py": "cf8f08114c14e127abc8a6ef58fa66a19796fe35902705be675b9fae19b48fb3",
-    "tests/test_tail_formula_rule_search.py": "de6e8aa42d63bb61585002115cb0e796b9c91b8ab109407c7c198fb5b39453ea",
-    "src/trade_research/tail_formula_profit_rule_search.py": "e47953f5388fdf85e912601820151c5b1dd04a6250ff7e4ea0348bea8aab0fc8",
-    "scripts/run_tail_formula_profit_rule_search.py": "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0",
-    "scripts/finish_tail_formula_profit_rule_search.py": "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf",
-    "tests/test_tail_formula_profit_rule_search.py": "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4",
-    "config/tail_formula_rule_search_protocol.json": "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f",
-    "config/tail_formula_rule_search_execution.json": "dbb8f60ef3de771a07d2c6529810144fea52ee580907b177e6929e045e1ea4ec",
-    "config/tail_formula_rule_search_evaluation.json": "c6cbd53805fee4fd849e30ba738b56cd0b2e85a4b0ba6ed5064ef1c96c942906",
-    "config/tail_formula_profit_rule_search_protocol.json": "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9",
-    "config/tail_formula_profit_rule_search_execution.json": "b4449e8cadb12448b2a5940828f9284222efa5611428c93cead6e60b43decb6e",
-    "config/tail_formula_profit_rule_search_evaluation.json": "78de363a5cc9f90f82ea658303188d8198a7a047827d63d604b012cfb70994c3",
     "scripts/tail_formula_order_statistics.py": "aa6c76fb920345f59707716bde1f6313acda71bd6ea8adb6c1be12cdf54c491d",
     "scripts/tail_formula_rank_statistics.py": "0a359206b51fda80dad35bc4ab3e23bf39761f8d428e400d589f870c730377cd",
     "tests/test_tail_formula_rank_statistics.py": "03f2a31b65794ad3b427595827bac2003f227de59f0232417181b5958c4a30ae",
     "scripts/run_tail_formula_target.py": "fec49726422e4c43f9738c9cbf491761fa57370de7c69f361663c46454376798",
     "config/tail_formula_primary_order_execution.json": "9edd1e68f613c55abe667ed6f7102a65107d8a8372275ebca17f69fa82759f53",
     "tests/test_tail_formula_listing_sources.py": "6e99bf1f8d2855e6f5fe1e072897ef866115fa06624c7bbfa1c1350616b4434b",
-    "tests/test_tail_formula_feature_binding.py": "5e28b833aa7439c3eb288fcfb5063effa3219506389a4b16688807266bb4e9a0",
-    "config/tail_formula_growth_history_inputs.json": "0db35ee825b81279d0665f86354eafcf61c2473cff60c3fa06f296714a8089e6",
-    "src/trade_research/tail_formula_growth_history.py": "fc35465a202b72ca41afbae7d707821a4eb9f281d1c2bec06f05a37b6ecd9fec",
-    "tests/test_tail_formula_growth_history.py": "8c89fdb923aee497f5e50b16e7f7ed201d334e40a8de2d0a711e64f1797c8bdb",
-    "config/tail_formula_growth_history_execution.json": "3a328cf18a3423268ae7aed702ec777b570a77bae66b2fbac3f3da19f968b066",
-    "scripts/run_tail_formula_growth_history.py": "bfa346f3397eebccdfa96666c0740b6c066b33ec10dfc97e9b29e95b0c7da944"
+    "tests/test_tail_formula_feature_binding.py": "5e28b833aa7439c3eb288fcfb5063effa3219506389a4b16688807266bb4e9a0"
   },
   "input_receipts": {
     "data/research/cleanup_equivalence_verification.json": "d2c898f36bb16777e2571ae85e71a2593ef577821a1aacb1e6226896b98661d9",
@@ -5099,7 +5068,16 @@
     "data/research/tail_formula_growth_history/growth_history2025/selection.parquet": "8607c45448d0f89384096d3456b570d748f5514ae6295413d21eaa1c8dfc3ab5",
     "data/research/tail_formula_growth_history/growth_history2025/selection_verification.json": "2c04f24037712e5d3a2202e879bc1e89ff6de7cfd28fe34497433fb41c1b9086",
     "data/research/tail_formula_growth_history/joint_selection_freeze.json": "8419cb7f126dbcfb71381c1643aed8d7d23371823fdb977e75571e880401f9ba",
-    "data/research/tail_formula_growth_history/freeze.log": "8f2896fa4c9b8760dced214384e3603350f355eaf5165691ee7ae0572d5e5bbe"
+    "data/research/tail_formula_growth_history/freeze.log": "8f2896fa4c9b8760dced214384e3603350f355eaf5165691ee7ae0572d5e5bbe",
+    "data/research/tail_formula_failure_review/review.json": "abfeec4dbf348f07ad465a94c9aeaedd23c605353ec944183fa7a3288e626a3d",
+    "data/research/tail_formula_growth_history/complete_receipt.json": "e0aaa8e422e9dc34b3d96c4c7d29ddeff06a28ab1f62af4356bda0df719cfaf7",
+    "data/research/cleanup_20261002/manifest.json": "83e01f3f00cb5a7f879a383c9d4e41a67c1f1a06cf8f99024232f0fa761a5d61",
+    "data/research/tail_formula_growth_history/economic_report.json": "9b74e89c5f964e1e6a3c9b5c45006d28b5ef0c4d6beb8c4e91b39b0338500438",
+    "data/research/tail_formula_growth_history/economic_daily.parquet": "65d41cec2b5065dff544242d03f4fc677799c5cc48a5c7f9573002b4e2e06d7e",
+    "data/research/tail_formula_growth_history/paired_daily.parquet": "3e23074bff881cde11ce0b110ffaaab3affec335e4b11e5c4ddd4c09d55caa86",
+    "data/research/cleanup_20261002/tests.log": "f46069feb78614c429366c3281aca8585a0ceb6ab4d8355f77493856692243c1",
+    "data/research/cleanup_20261002/integrity.log": "8d676498bd8b81a88db1a6284ab0a88922f0ad6035cd94bd1b9d3fa5cdcca40e",
+    "data/research/cleanup_20261002/historical_source_resolution.json": "b1ab2b67b8318697de9fb53d952bf62fccbfdf87c04d4b80518ee0270d9a38df"
   },
   "prior_runtime_receipts": {
     "data/research/cleanup_runtime_v1.json": "6b807286ecd67207edfee098478dc1f2dc36178c0abade2b607feca200351edc",
@@ -5218,12 +5196,13 @@
     "data/research/tail_formula_growth_history/runtime_before_execution_protocol.json": "2812a18b9e7af5cf0c0d0b98011b5b29f6d4594d1788cf98fb9d7eb2aeefeb36",
     "data/research/tail_formula_growth_history/runtime_before_fit.json": "d157afac157441eb6bf020e3b9e5edfcb13022724510bbb9eb9915c9cc4abecf",
     "data/research/tail_formula_growth_history/runtime_before_selection.json": "fd8ceebab852d520e4dfc75e119888669ee7b5696efb11c38c011969ba016a33",
-    "data/research/tail_formula_growth_history/runtime_before_economics.json": "b2c230483f0247866f5ea5cc02a0faf987965798735db04c82823c5bb93bd001"
+    "data/research/tail_formula_growth_history/runtime_before_economics.json": "b2c230483f0247866f5ea5cc02a0faf987965798735db04c82823c5bb93bd001",
+    "data/research/cleanup_20261002/runtime_before_cleanup.json": "56e7660e39c7c6f819d96e543cf7b77c71d59c524cbb5330dda48a6358b7c5b7"
   },
-  "previous_completed_study_revision": "e0be3be",
-  "current_study": "completed_growth_style_history_input_gate",
+  "previous_completed_study_revision": "8c6c816da5f17b25d8bb4bd628ba406a81826764",
+  "current_study": "cleaned_shared_runtime_after_growth_history",
   "research_definition_changed": true,
-  "rationale": "完整跨板块上涨家数源缺口不补零；改为已完成股日的创业板指相对深成历史强弱，只新增一项，与已有五日指数项同窗口。先核准源、全部原I02及原有效域，不将指数当广度或资金身份。",
+  "rationale": "按用户要求删除已结束实验的专用代码与协议、精简文档；保留共用核验及查重工具和全部原始行情、模型、名单、经济结果。成长历史四折已完成，五验收仅日选数量通过；本次清理不新增拟合或行情读取。",
   "new_2026_prices_read": false,
   "no_exit_rules": true,
   "additional_archived_sources": {
@@ -5270,7 +5249,8 @@
       "207f01e3f155ace5e88e0462e20af6aa0e47810d5ae048b951dbb404ecd6861c": "884391c",
       "3a265fd0f48ad0df70a9404b6526e2537719a0d68167cc010640368f27bc6f09": "46004ad",
       "0f66976db722e64fea677d44d0cf55233043f616441e437aae8e1018bcc849c1": "ceca953",
-      "47ee6e77fefa7a904ae52db05e9ebf2c579c873512314292eccd9006ae816447": "bfbe762"
+      "47ee6e77fefa7a904ae52db05e9ebf2c579c873512314292eccd9006ae816447": "bfbe762",
+      "c0bb980c800db06124f37a2d81fcefa48a5581a3bbca36cb7b8abcae7a3d219b": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "scripts/tail_formula_pipeline.py": {
       "5fa64b3b3743645df15edcf8754a1ddbef3df1f454d4d3a7bddfb1f0708f218c": "884391c",
@@ -5511,11 +5491,13 @@
     },
     "src/trade_research/tail_formula_profit_rule_search.py": {
       "57b6c5a1e26a933aaf1ceccb4f4b97abfa7d4dcf45126ed003598eb54bb9dcc2": "24a883f",
-      "2a286f10f11796a14256a0fb8dc6e66ccdcd21de0746e1f9f75702ca7f0e0097": "a215fe2"
+      "2a286f10f11796a14256a0fb8dc6e66ccdcd21de0746e1f9f75702ca7f0e0097": "a215fe2",
+      "e47953f5388fdf85e912601820151c5b1dd04a6250ff7e4ea0348bea8aab0fc8": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "scripts/run_tail_formula_profit_rule_search.py": {
       "70f6283fc3550086b4634f6ec408f6ba00351f00401b76439099873d8eaa6707": "24a883f",
-      "5f54b9648b8de8572129ac16629418d4ddd7eceabcd465a22b9f0e93e87b080c": "a215fe2"
+      "5f54b9648b8de8572129ac16629418d4ddd7eceabcd465a22b9f0e93e87b080c": "a215fe2",
+      "ecf34c750c4fe332f28bfaaee928159929a0f2f323e530878ef26aefebf217c0": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "scripts/run_tail_formula_rule_reference_gate.py": {
       "571316c05c01aae54897b7bcc003bf46a3f7f288df8da7d3a9a044e7dad2e251": "f6abbcb"
@@ -5542,11 +5524,13 @@
       "2c5f4479bb3b00726255bbfac4ccce1d5b72b8dc1a62cb4e712384c39ab82b0b": "f6abbcb"
     },
     "scripts/finish_tail_formula_rule_search.py": {
-      "71ef7204ca4c862b3b034738b995310793bee5ed553a5e53bd758beebc202028": "bc0c97d"
+      "71ef7204ca4c862b3b034738b995310793bee5ed553a5e53bd758beebc202028": "bc0c97d",
+      "cf8f08114c14e127abc8a6ef58fa66a19796fe35902705be675b9fae19b48fb3": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "scripts/finish_tail_formula_profit_rule_search.py": {
       "c88b9c483ca2f763365f1118e853c6f8ea15a63b3e4ef2cb122c5d3e498cdf59": "bc0c97d",
-      "27ebbc2377f4211bc513c5154852d37db180ee0f80e502a6acc20b94da88989d": "a215fe2"
+      "27ebbc2377f4211bc513c5154852d37db180ee0f80e502a6acc20b94da88989d": "a215fe2",
+      "f6bd55ebccef71e55c1cd0c784e9f10f5e06792e483d30b1a6bb018e788bc0bf": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "scripts/run_tail_formula_robust_profit_rule_search.py": {
       "902b7a75dcfe94c09974e99177d2ed18ed8f771fe03606622b8bf6b26f2e68a0": "e13a9b5"
@@ -5564,7 +5548,8 @@
       "b14518a254216ce4902ba367e78742b837f1095ae97dc0a0125080a763db7a69": "e13a9b5"
     },
     "tests/test_tail_formula_profit_rule_search.py": {
-      "1653f58dd8dc15abaafbe7468f710b14a2865f00620a07c55cca145d15314a21": "a215fe2"
+      "1653f58dd8dc15abaafbe7468f710b14a2865f00620a07c55cca145d15314a21": "a215fe2",
+      "9a9a10e7d97e4c742df97c947aa55fd15dbb394911f47033d7079a5fbb204ae4": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     },
     "config/tail_formula_1000_protocol.json": {
       "f4d694756a25fc367875cc9e4bc5079b2c110aef67b1b7ea378ede885691cb95": "4b3bdda5db6470df4d8d61298501852f60b985a2"
@@ -5878,6 +5863,82 @@
     },
     "scripts/audit_tail_formula_board_context_sources.py": {
       "0cd276c86d5f20671dd8dd5e47f846bcf630c549387226cabcc42467c5e0cabd": "f23b0ef"
+    },
+    "config/tail_formula_external_pattern_execution.json": {
+      "f645d120dc2ac0ea9f5a2baacfe6812664f6e62528b0f353fd6e744e2ac51fc4": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_external_pattern_protocol.json": {
+      "faaed8e71d1643887a9c14c4f5416f1268e0e0f2db661d0fc7017e7a657d19f1": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_failure_review_protocol.json": {
+      "d062513fcba96a514ce4020263c45d69175d90ecc1fbc32ab328dc57dc52089e": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_growth_history_execution.json": {
+      "3a328cf18a3423268ae7aed702ec777b570a77bae66b2fbac3f3da19f968b066": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_growth_history_inputs.json": {
+      "0db35ee825b81279d0665f86354eafcf61c2473cff60c3fa06f296714a8089e6": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_profit_rule_search_evaluation.json": {
+      "78de363a5cc9f90f82ea658303188d8198a7a047827d63d604b012cfb70994c3": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_profit_rule_search_execution.json": {
+      "b4449e8cadb12448b2a5940828f9284222efa5611428c93cead6e60b43decb6e": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_profit_rule_search_protocol.json": {
+      "fc8d862de992999bbc09e83f644f617e444ef756ad1ee81a51165b2265c91df9": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_rule_search_evaluation.json": {
+      "c6cbd53805fee4fd849e30ba738b56cd0b2e85a4b0ba6ed5064ef1c96c942906": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_rule_search_execution.json": {
+      "dbb8f60ef3de771a07d2c6529810144fea52ee580907b177e6929e045e1ea4ec": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_rule_search_protocol.json": {
+      "159e94d471fbe0b3e11b1c2426cb826937fc30438cba1fd52da5f0789ac1d39f": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/finish_tail_formula_external_pattern.py": {
+      "5edb619b47736f86754241e8025fb634d44e449a5ae10baab59baf2a011649b3": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/review_tail_formula_external_branches.py": {
+      "86b3c3f3727d863da8aab6e496d6b91676579a95b498ebf57cc63e155b7b6a8b": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/review_tail_formula_failures.py": {
+      "5d3ec496cba6641a0d429b359102587d1011e161dd4f540534c45f7148a27bfb": "8c6c816da5f17b25d8bb4bd628ba406a81826764",
+      "a60ecdc30b20ba7192af4f50f1599be4091c2eb72c00ccb15dc3768fe62f5e48": "fea913adb818f6b30bc1a6190ef867208c7d0a87"
+    },
+    "scripts/review_tail_formula_score_gate.py": {
+      "0154438307a52e47c4b168158fdb81d603dcb6e8628ec3d2741cf7e3dcbe4604": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/run_tail_formula_external_pattern.py": {
+      "f78bc5d4adb9d1f9aa13579f2b1634c4be7e4b53987ffdc4340f3b5f72ae16bf": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/run_tail_formula_growth_history.py": {
+      "bfa346f3397eebccdfa96666c0740b6c066b33ec10dfc97e9b29e95b0c7da944": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "scripts/run_tail_formula_rule_search.py": {
+      "60ead07f4bb46b70009083355e9550990eb0ccf2a253e5a4f83c56f67f51ff0a": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "src/trade_research/tail_formula_external_pattern.py": {
+      "e9d2b9ea5f97361d4f921d1d23d7f1e66023c7b622109385db1bc1a8b849eb90": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "src/trade_research/tail_formula_growth_history.py": {
+      "fc35465a202b72ca41afbae7d707821a4eb9f281d1c2bec06f05a37b6ecd9fec": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "src/trade_research/tail_formula_rule_search.py": {
+      "5531b8ce46703b03e1420e22682287382bce8b054fecfda74c5c3b36fe0b6b65": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "tests/test_tail_formula_external_pattern.py": {
+      "c6fa0cb32a4f90e2260e3cb7bfd73d94e757adfe50384ba5380e0161175008ce": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "tests/test_tail_formula_growth_history.py": {
+      "8c89fdb923aee497f5e50b16e7f7ed201d334e40a8de2d0a711e64f1797c8bdb": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "tests/test_tail_formula_rule_search.py": {
+      "de6e8aa42d63bb61585002115cb0e796b9c91b8ab109407c7c198fb5b39453ea": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
+    },
+    "config/tail_formula_emotion_absolute_input_protocol.json": {
+      "081f5ac20dbf4a2b44226c73945ca4f3f3c7384e58f6fc7fd9d0738f4b6756aa": "8c6c816da5f17b25d8bb4bd628ba406a81826764"
     }
   },
   "new_fits_performed_at_protocol": 0,
@@ -5956,7 +6017,7 @@
     "opportunity_order_group_results_read": true,
     "opportunity_order_complete_fingerprints": 72,
     "opportunity_order_fixed_summary_groups": 72,
-    "current_tests_passed": 44,
+    "current_tests_passed": 32,
     "opportunity_order_ended_files_retired": 2,
     "order_target_new_fits_at_input_protocol": 0,
     "order_target_maximum_planned_fits": 8,
@@ -6275,7 +6336,7 @@
     ],
     "growth_history_joint_selection_sha256": "8419cb7f126dbcfb71381c1643aed8d7d23371823fdb977e75571e880401f9ba",
     "growth_history_new_selection_lists_fixed": true,
-    "growth_history_new_economic_groups_read": false,
+    "growth_history_new_economic_groups_read": true,
     "growth_history_prior_complete_lists_checked": 599,
     "growth_history_exact_complete_list_aliases": 0,
     "growth_history_selected_by_half": [
@@ -6289,7 +6350,19 @@
       59,
       27,
       18
-    ]
+    ],
+    "growth_history_completed": true,
+    "growth_history_complete_sha256": "e0aaa8e422e9dc34b3d96c4c7d29ddeff06a28ab1f62af4356bda0df719cfaf7",
+    "growth_history_summary_groups": 48,
+    "growth_history_paired_comparisons": 4,
+    "growth_history_summary_checks": 1872,
+    "growth_history_quality_criteria_passed": 1,
+    "growth_history_only_daily_count_condition_passed": true,
+    "cleanup_retired_files": 31,
+    "cleanup_manifest_sha256": "83e01f3f00cb5a7f879a383c9d4e41a67c1f1a06cf8f99024232f0fa761a5d61",
+    "cleanup_recovery_revision": "8c6c816da5f17b25d8bb4bd628ba406a81826764",
+    "cleanup_legacy_source_fingerprint_repaired": true,
+    "cleanup_new_models_or_economic_groups": 0
   },
   "external_2026_repository_aggregate_claims_seen": true,
   "external_2026_exposure_note": "TraderHarness README曾显示2026年6—7月指数及模型聚合声明，未经核验或导入；本地2026行情及经济组未新增读取。；本轮GitHub搜索预览还展示a-share-signal-lab的2026年6—9月聚合声明，未核验或导入。 2026-10-02公开搜索还曾返回2026-09-03第三方复盘封板/炸板/跌停计数及个股名称；未采用或导入本地价格，不扩称全盲测。 2026-10-02板块来源公开搜索返回国证页面2026-09-08指数点位、涨跌和规模预览；未核验或采用，不扩称2026全盲测。"
