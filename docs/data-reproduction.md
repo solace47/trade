@@ -6,6 +6,8 @@ Python 3.12虚拟环境与依赖见requirements.txt。当前29项检查：
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:scripts .venv/bin/python -m pytest -q -p no:cacheprovider
 ```
 
+次晨机会先后审查的2个结束执行／协议文件从Git 3d7f2f2恢复，标签与72组结果保留。
+
 已结束阶段不重复拟合、聚合或覆盖。完整年度名单及协议先提交，输入、标记、元数据、适用标签、全部经济统计与比较均独立核准；精确相同才复用。报价参考不等于实际兑现收益。
 
 既有目标审查的3个结束执行／协议文件从Git 2acfdb3恢复，主／年度补充结果保留。
